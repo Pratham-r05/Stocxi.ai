@@ -1,0 +1,27 @@
+# ── Web framework ──────────────────────────────────────────────────────────────
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+
+# ── Data sources ───────────────────────────────────────────────────────────────
+yfinance==0.2.51           # OHLCV priority 1 (chart endpoint, sometimes works)
+nsepython==2.97            # NSE India direct API — quotes, no Yahoo rate limits
+jugaad-data                # OHLCV priority 2 — NSE historical data, no Yahoo needed
+beautifulsoup4==4.12.3     # Screener.in HTML scraping
+lxml==5.3.0                # Faster BS4 parser
+requests==2.32.3           # Sync HTTP for screener scraping
+httpx==0.28.1              # Async HTTP (used internally by FastAPI deps)
+
+# ── Technicals ─────────────────────────────────────────────────────────────────
+pandas==2.2.3
+ta==0.11.0                 # RSI, MACD, ADX, ATR, BB, EMA — pandas 2.x compatible, on PyPI
+
+# ── Cache ──────────────────────────────────────────────────────────────────────
+redis==5.2.1               # redis-py; connects to Upstash via rediss:// URL
+
+# ── AI ─────────────────────────────────────────────────────────────────────────
+openai==1.57.4             # OpenAI-compatible client — works with OpenRouter base_url
+
+# ── Config / utils ─────────────────────────────────────────────────────────────
+python-dotenv==1.0.1       # Load .env for REDIS_URL, OPENROUTER_API_KEY
+pydantic==2.10.4           # Response models (ships with FastAPI but pinned for stability)
+pydantic-settings==2.7.0   # BaseSettings for typed env config
