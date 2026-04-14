@@ -1,99 +1,107 @@
-# Stocxi 📈
+# Stocxi
 
-AI-powered Indian stock analysis platform. Built for beginners who want to invest smart without needing to understand financial jargon.
+AI-powered Indian stock analysis with a clean, beginner-friendly interface and a backend that actually explains what it’s seeing.
 
-## What It Does
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-00A67D?style=for-the-badge&logo=fastapi&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
+![OpenRouter](https://img.shields.io/badge/OpenRouter-AI%20Analysis-111827?style=for-the-badge)
 
-- Search any NSE/BSE stock
-- See full fundamentals, technicals, financials in one place
-- Click **"Analyse with AI"** → get a plain English verdict (Buy / Hold / Avoid)
-- AI breaks down: Fundamentals + Technicals + News separately
-- Personalized by risk appetite (Low / Medium / High)
+## Showcase
 
----
+| Sticker | What it means |
+|---|---|
+| 📌 Fast search | Find NSE/BSE symbols quickly |
+| 📈 Full context | Price, fundamentals, technicals, financials, news |
+| 🤖 AI verdict | Buy / Hold / Avoid with plain-English reasoning |
+| 🧠 Risk-aware | Low / medium / high risk profiles supported |
+| ⚡ Cached | Redis-backed hot paths for repeat requests |
+
+## Why It Exists
+
+Most stock tools are either too noisy for beginners or too shallow for real decisions. Stocxi sits in the middle: search a stock, inspect the data that matters, and get a concise AI readout without needing to decode the market jargon yourself.
+
+## System Map
+
+```mermaid
+flowchart LR
+	U[User] --> F[Frontend / Next.js]
+	F --> A[FastAPI Backend]
+	A --> R[(Redis Cache)]
+	A --> P[nsepython / Yahoo chart]
+	A --> S[Screener.in]
+	A --> T[Technicals: ta]
+	A --> N[Google News RSS]
+	A --> C[OpenRouter AI]
+	S --> M[Quarterly, annual, BS, CF, shareholding, MF holdings]
+	P --> O[Overview data]
+	T --> O
+	N --> V[News summary]
+	C --> Q[Buy / Hold / Avoid verdict]
+```
+
+## What’s Built
+
+- Search any NSE/BSE stock symbol.
+- View stock overview with price, 52-week range, change, and technical indicators.
+- Read quarterly and annual financials, balance sheet, cash flow, and shareholding.
+- See mutual fund holdings when Screener exposes them.
+- Read recent news and corporate announcements.
+- Ask the AI for a risk-aware Buy / Hold / Avoid verdict.
+- Keep hot data fast with Redis caching.
+
+## Current Status
+
+The backend is complete and verified in this workspace. The repo currently contains the FastAPI backend, services, routers, cache layer, and testing docs. The frontend is planned in the docs but is not present in this workspace yet.
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js 15 (App Router) |
-| Backend | FastAPI (Python 3.11) |
-| Data — Price & Fundamentals | yfinance |
-| Data — Quarterly, Balance Sheet, Cashflow, Shareholding | Screener.in (scrape) |
-| Technicals | pandas-ta |
-| AI Analysis | OpenRouter → Claude Sonnet |
+| Backend | FastAPI, Python 3.11 |
+| Price / fundamentals | nsepython, Yahoo chart fallback |
+| Financial statements | Screener.in scraping |
+| Technical indicators | `ta` on OHLCV data |
+| News | Google News RSS, yfinance fallback |
+| AI analysis | OpenRouter + Claude-compatible models |
 | Cache | Upstash Redis |
-| Frontend Deploy | Vercel |
-| Backend Deploy | Local server (Cloudflare Tunnel) |
+| Deployment target | Vercel frontend, Cloudflare Tunnel backend |
 
----
+## API Snapshot
 
-## Project Structure
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/api/v1/stock/{symbol}` | Overview: price, fundamentals, technicals |
+| GET | `/api/v1/stock/{symbol}/financials` | Quarterly, annual, balance sheet, cash flow, shareholding, MF holdings |
+| GET | `/api/v1/stock/{symbol}/news` | Recent news headlines |
+| GET | `/api/v1/stock/{symbol}/announcements` | Corporate announcements |
+| GET | `/api/v1/analysis/{symbol}` | AI verdict with risk profile |
+| GET | `/api/v1/search?q={query}` | Stock autocomplete |
 
-```
-stocxi/
-├── backend/
-│   ├── main.py                  # FastAPI app entry
-│   ├── routers/
-│   │   ├── stock.py             # Stock data endpoints
-│   │   └── analysis.py          # AI analysis endpoint
-│   ├── services/
-│   │   ├── yfinance_service.py  # Price + basic fundamentals
-│   │   ├── screener_service.py  # Quarterly, BS, CF, shareholding
-│   │   ├── technicals_service.py # pandas-ta calculations
-│   │   ├── news_service.py      # News fetching
-│   │   └── ai_service.py        # OpenRouter + Claude
-│   ├── cache/
-│   │   └── redis_client.py      # Upstash Redis client
-│   ├── models/
-│   │   └── stock_models.py      # Pydantic models
-│   └── requirements.txt
-├── frontend/
-│   ├── app/
-│   │   ├── page.tsx             # Home + search
-│   │   ├── stock/[symbol]/
-│   │   │   └── page.tsx         # Stock detail page
-│   │   └── layout.tsx
-│   ├── components/
-│   │   ├── SearchBar.tsx
-│   │   ├── StockHeader.tsx
-│   │   ├── FundamentalsTab.tsx
-│   │   ├── TechnicalsTab.tsx
-│   │   ├── FinancialsTab.tsx
-│   │   ├── NewsTab.tsx
-│   │   └── AIAnalysis.tsx       # The "Analyse with AI" panel
-│   ├── lib/
-│   │   └── api.ts               # API call functions
-│   └── package.json
-├── ARCHITECTURE.md
-├── REQUIREMENTS.md
-├── PROGRESS.md
-├── AI_CONTEXT.md
-└── DATAFLOW.md
-```
+## Cache TTLs
 
----
+| Data | TTL |
+|---|---|
+| Stock overview | 5 minutes |
+| Financials | 7 days |
+| News | 2 hours |
+| Announcements | 2 hours |
+| AI analysis | 6 hours |
+| Search | 1 hour |
 
-## Environment Variables
+## Data Flow
 
-### Backend (`backend/.env`)
-```env
-OPENROUTER_API_KEY=your_key_here
-UPSTASH_REDIS_URL=your_upstash_url
-UPSTASH_REDIS_TOKEN=your_upstash_token
-ALLOWED_ORIGINS=http://localhost:3000,https://stocxi.vercel.app
-```
+1. User searches a stock symbol.
+2. Backend checks Redis first.
+3. On cache miss, services fetch live data.
+4. Results are merged and normalized.
+5. The response is cached and returned.
+6. AI analysis is generated on demand and cached separately.
 
-### Frontend (`frontend/.env.local`)
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
----
-
-## Setup & Run
+## Setup
 
 ### Backend
+
 ```bash
 cd backend
 python -m venv venv
@@ -102,40 +110,36 @@ pip install -r requirements.txt
 uvicorn main:app --reload --port 8000
 ```
 
-### Frontend
-```bash
-cd frontend
-npm install
-npm run dev
+### Environment Variables
+
+Create `backend/.env`:
+
+```env
+OPENROUTER_API_KEY=your_key_here
+UPSTASH_REDIS_URL=your_upstash_url
+UPSTASH_REDIS_TOKEN=your_upstash_token
+ALLOWED_ORIGINS=http://localhost:3000,https://stocxi.vercel.app
 ```
 
----
+## Project Layout
 
-## API Endpoints
+```text
+stocxi/
+├── backend/
+│   ├── main.py
+│   ├── routers/
+│   ├── services/
+│   ├── cache/
+│   └── test_services.py
+├── ARCHITECTURE.md
+├── REQUIREMENTS.md
+├── PROGRESS.md
+├── AI_CONTEXT.md
+└── DATAFLOW.md
+```
 
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/stock/{symbol}` | Price + fundamentals + technicals |
-| GET | `/stock/{symbol}/financials` | Quarterly, BS, CF, shareholding |
-| GET | `/stock/{symbol}/news` | Recent news |
-| POST | `/stock/{symbol}/analyse` | AI analysis (Buy/Hold/Avoid) |
-| GET | `/search?q={query}` | Stock search autocomplete |
+## Notes
 
----
-
-## Caching Strategy
-
-| Data Type | TTL |
-|---|---|
-| Price | 5 minutes |
-| Fundamentals | 24 hours |
-| Technicals | 15 minutes |
-| Financials (quarterly etc.) | 7 days |
-| News | 2 hours |
-| AI Analysis | 6 hours |
-
----
-
-## Disclaimer
-
-Stocxi is for educational purposes only. Not SEBI registered. Not financial advice. Always do your own research before investing.
+- `PROGRESS.md` tracks implementation status.
+- `backend/TESTING.md` records the current verified behavior and edge-case checks.
+- This project is for educational purposes only and is not SEBI registered. It is not financial advice.
