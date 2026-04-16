@@ -45,5 +45,6 @@ class Settings(BaseSettings):
     openrouter_model: str = "nvidia/nemotron-3-super-120b-a12b:free"
 
 
+
 # Singleton — imported everywhere as `from config import settings`
 settings = Settings()

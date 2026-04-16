@@ -28,6 +28,7 @@ from services.screener_service import get_financials
 from services.technicals_service import calculate_technicals
 from services.news_service import get_news
 from services.announcements_service import get_announcements
+from services import sentiment_service
 
 logger = logging.getLogger(__name__)
 
@@ -134,6 +135,15 @@ async def get_stock_overview(symbol: str):
         },
     }
 
+    # ── Fetch sentiment (optional — never blocks overview) ────────────────────
+    sentiment = None
+    try:
+        sentiment = await sentiment_service.get_sentiment(symbol)
+    except Exception as e:
+        logger.warning(f"Sentiment fetch failed for {symbol}: {e}")
+
+    response["sentiment"] = sentiment
+
     await cache_set(cache_key, response, TTL_OVERVIEW)
     return JSONResponse(content=response)
 
@@ -229,6 +239,18 @@ async def get_stock_news(
         await cache_set(cache_key, response, TTL_NEWS)
 
     return JSONResponse(content=response)
+
+
+# ── GET /api/v1/stock/{symbol}/sentiment ─────────────────────────────────────
+@router.get("/{symbol}/sentiment")
+async def get_stock_sentiment(symbol: str):
+    """
+    Reddit + X/Twitter social sentiment for a stock symbol.
+    Returns combined dict with Reddit posts, Twitter posts, signals, and 7-day chart data.
+    Cached 1 hour.
+    """
+    # returns Reddit + Twitter sentiment for symbol
+    return await sentiment_service.get_sentiment(symbol.upper().strip())
 
 
 # ── GET /api/v1/stock/{symbol}/announcements ──────────────────────────────────

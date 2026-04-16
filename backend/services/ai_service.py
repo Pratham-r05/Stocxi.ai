@@ -52,6 +52,7 @@ def _build_user_prompt(
     fundamentals: dict,
     technicals: dict,
     news_headlines: list[dict],
+    social_sentiment: dict | None = None,
 ) -> str:
     """
     Build the structured analysis prompt from AI_CONTEXT.md spec.
@@ -86,6 +87,22 @@ def _build_user_prompt(
     headlines = [n.get("title", "") for n in news_headlines[:5] if n.get("title")]
     news_str = "\n".join(f"- {h}" for h in headlines) if headlines else "No recent news available."
 
+    # ── Social sentiment block (optional) ────────────────────────────────────
+    social_str = ""
+    if social_sentiment:
+        reddit  = social_sentiment.get("reddit", {})
+        twitter = social_sentiment.get("twitter", {})
+        social_str = f"""
+
+SOCIAL SENTIMENT (last 7 days):
+Reddit: {reddit.get('sentiment', 'Neutral')} ({reddit.get('signal', 'HOLD')}) — {reddit.get('summary', 'No data.')}
+Twitter/X: {twitter.get('sentiment', 'Neutral')} ({twitter.get('signal', 'HOLD')}) — {twitter.get('summary', 'No data.')}"""
+
+    social_json = (
+        '\n  "social": { "verdict": "Positive|Negative|Neutral", "summary": "1-2 sentences" },'
+        if social_sentiment else ""
+    )
+
     return f"""Analyse {symbol} for a {risk_level} risk investor.
 
 Risk policy (must apply):
@@ -100,10 +117,10 @@ TECHNICALS:
 {tech_str}
 
 RECENT NEWS:
-{news_str}
+{news_str}{social_str}
 
 Respond with ONLY this JSON (no markdown, no extra text):
-{{
+{{{social_json}
   "fundamentals": {{ "verdict": "Strong|Weak|Neutral", "summary": "2-3 sentences" }},
   "technicals": {{ "verdict": "Bullish|Bearish|Mixed", "summary": "2-3 sentences" }},
   "news": {{ "verdict": "Positive|Negative|Neutral", "summary": "1-2 sentences" }},
@@ -295,12 +312,17 @@ def _validate_and_enrich(raw: dict, symbol: str, risk_level: str) -> dict:
     if not isinstance(risk_match, bool):
         risk_match = adjusted_final != "AVOID"
 
+    social = raw.get("social", {"verdict": "Neutral", "summary": "No social data available."})
+    if not isinstance(social, dict):
+        social = {"verdict": "Neutral", "summary": "No social data available."}
+
     return {
         "symbol":          symbol.upper(),
         "risk_level":      risk_level,
         "fundamentals":    fundamentals,
         "technicals":      technicals,
         "news":            news,
+        "social":          social,
         "final_verdict":   adjusted_final,
         "plain_english":   plain_english,
         "risk_match":      risk_match,
@@ -321,16 +343,18 @@ async def analyse(
     technicals: dict,
     news: list[dict],
     risk_level: str = "medium",
+    social_sentiment: dict | None = None,
 ) -> dict:
     """
     Async entry point — runs blocking OpenRouter call in thread pool.
 
     Args:
-        symbol:       NSE stock symbol (e.g. "RELIANCE")
-        fundamentals: merged dict from yfinance + screener ratios
-        technicals:   dict from technicals_service.calculate_technicals()
-        news:         list from news_service.get_news()
-        risk_level:   "low" | "medium" | "high"
+        symbol:           NSE stock symbol (e.g. "RELIANCE")
+        fundamentals:     merged dict from yfinance + screener ratios
+        technicals:       dict from technicals_service.calculate_technicals()
+        news:             list from news_service.get_news()
+        risk_level:       "low" | "medium" | "high"
+        social_sentiment: optional dict from sentiment_service.get_sentiment()
 
     Returns:
         Structured analysis dict. Never raises — returns error dict on failure.
@@ -342,7 +366,7 @@ async def analyse(
         risk_level = "medium"
 
     try:
-        user_prompt = _build_user_prompt(symbol, risk_level, fundamentals, technicals, news)
+        user_prompt = _build_user_prompt(symbol, risk_level, fundamentals, technicals, news, social_sentiment)
         loop = asyncio.get_event_loop()
         raw  = await loop.run_in_executor(None, _call_openrouter, symbol, user_prompt)
         return _validate_and_enrich(raw, symbol, risk_level)

@@ -8,6 +8,8 @@
         "/^source /Users/prathamraj/miniforge3/etc/profile\\.d/conda\\.sh && conda activate stocxi && python - <<'PY'\nfrom nsepython import nsefetch\n\nurls=\\[\n    'https://www\\.nseindia\\.com/api/corporate-announcements\\?index=equities&symbol=RELIANCE',\n    'https://www\\.nseindia\\.com/api/corporate-announcements\\?index=equities&symbol=TCS',\n    'https://www\\.nseindia\\.com/api/corporate-announcements\\?symbol=RELIANCE',\n\\]\nfor u in urls:\n    print\\('\\\\n==',u\\)\n    try:\n        d=nsefetch\\(u\\)\n        print\\('type',type\\(d\\)\\.__name__\\)\n        if isinstance\\(d,list\\):\n            print\\('len',len\\(d\\)\\)\n            if d:\n                print\\('keys',list\\(d\\[0\\]\\)\\[:12\\]\\)\n                print\\('first', \\{k:d\\[0\\]\\.get\\(k\\) for k in list\\(d\\[0\\]\\)\\[:6\\]\\}\\)\n        elif isinstance\\(d,dict\\):\n            print\\('keys',list\\(d\\)\\[:12\\]\\)\n            data=d\\.get\\('data'\\)\n            if isinstance\\(data,list\\):\n                print\\('data_len',len\\(data\\)\\)\n                if data:\n                    print\\('data0_keys',list\\(data\\[0\\]\\)\\[:12\\]\\)\n    except Exception as e:\n        print\\('ERR',type\\(e\\)\\.__name__,e\\)\nPY$/": {
             "approve": true,
             "matchCommandLine": true
-        }
+        },
+        "lsof": true,
+        "true": true
     }
 }

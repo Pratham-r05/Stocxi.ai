@@ -25,3 +25,9 @@ openai==1.57.4             # OpenAI-compatible client — works with OpenRouter 
 python-dotenv==1.0.1       # Load .env for REDIS_URL, OPENROUTER_API_KEY
 pydantic==2.10.4           # Response models (ships with FastAPI but pinned for stability)
 pydantic-settings==2.7.0   # BaseSettings for typed env config
+
+# ── Sentiment ──────────────────────────────────────────────────────────────────
+vaderSentiment==3.3.2      # Offline sentiment scoring — no API key needed
+# Reddit + Twitter data via CLI tools (no credentials in app):
+#   pipx install rdt-cli      (rdt command)
+#   pipx install twitter-cli  (twitter command)
