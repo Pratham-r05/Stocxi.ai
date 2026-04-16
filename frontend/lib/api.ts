@@ -51,7 +51,7 @@ export async function fetchSentiment(symbol: string): Promise<SentimentData | nu
 
 export async function fetchHistory(
   symbol: string,
-  period: "1mo" | "3mo" | "6mo" | "1y" = "1y"
+  period: "1d" | "1w" | "1mo" | "3mo" | "6mo" | "1y" | "2y" | "5y" = "1y"
 ): Promise<HistoryData | null> {
   return apiFetch<HistoryData>(`/api/v1/stock/${symbol}/history?period=${period}`);
 }

@@ -4,7 +4,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { DollarSign, BarChart2, Newspaper, MessageCircle, TrendingUp, AlertTriangle, Minus } from "lucide-react";
+import { DollarSign, BarChart2, Newspaper, TrendingUp, AlertTriangle, Minus } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import SectionHeader from "@/components/ui/SectionHeader";
@@ -22,7 +22,6 @@ const FACTOR_ICONS = {
   fundamentals: DollarSign,
   technicals: BarChart2,
   news: Newspaper,
-  social: MessageCircle,
 };
 
 function VerdictIcon({ verdict }: { verdict: string }) {
@@ -135,9 +134,9 @@ export default function AIAnalysisPanel({ symbol }: { symbol: string }) {
             <p>{analysis.plain_english}</p>
           </div>
 
-          {/* Breakdown grid */}
-          <div className="grid grid-cols-2 gap-3">
-            {(["fundamentals", "technicals", "news", "social"] as const).map((key) => {
+          {/* Breakdown grid — 3 cards: Fundamentals, Technicals, News */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {(["fundamentals", "technicals", "news"] as const).map((key) => {
               const item = analysis[key];
               const Icon = FACTOR_ICONS[key];
               return (

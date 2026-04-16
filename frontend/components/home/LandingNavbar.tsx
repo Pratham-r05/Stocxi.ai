@@ -2,7 +2,7 @@
 
 // Landing navbar — glass, sticky, auth state aware
 
-import { useSession, signIn } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -25,26 +25,26 @@ export default function LandingNavbar() {
         {/* Right side */}
         <div className="flex items-center gap-3">
           {session ? (
-            <Link
-              href="/stock/TCS"
-              className="text-sm font-medium text-zinc-300 hover:text-white transition-colors"
+            <button
+              onClick={() => signOut({ callbackUrl: "/" })}
+              className="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
             >
-              Dashboard →
-            </Link>
+              Sign out
+            </button>
           ) : (
             <>
-              <button
-                onClick={() => signIn("google", { callbackUrl: "/" })}
+              <Link
+                href="/login"
                 className="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
               >
                 Sign in
-              </button>
-              <button
-                onClick={() => signIn("google", { callbackUrl: "/" })}
+              </Link>
+              <Link
+                href="/login"
                 className="text-sm font-semibold bg-white text-zinc-950 rounded-lg px-4 py-1.5 hover:bg-zinc-100 transition-colors"
               >
                 Get Started
-              </button>
+              </Link>
             </>
           )}
         </div>

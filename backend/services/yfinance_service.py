@@ -28,6 +28,16 @@ logger = logging.getLogger(__name__)
 
 
 # ── NSE primary: nsepython ─────────────────────────────────────────────────────
+def _safe_int(v) -> int | None:
+    """Parse volume/count from NSE — may arrive as int, float, or comma-formatted string."""
+    if v is None:
+        return None
+    try:
+        return int(str(v).replace(",", "").split(".")[0])
+    except Exception:
+        return None
+
+
 def _fetch_from_nse(symbol: str) -> dict:
     """
     Sync — run in thread pool.
@@ -82,7 +92,10 @@ def _fetch_from_nse(symbol: str) -> dict:
         "day_low":         intraday.get("min"),
         "week_52_high":    week_hl.get("max"),
         "week_52_low":     week_hl.get("min"),
-        "volume":          trade_info.get("totalTradedVolume"),
+        "volume":          _safe_int(
+                               trade_info.get("totalTradedVolume") or
+                               trade_info.get("totalTradedQty")
+                           ),
         "market_cap":      market_cap,
         # fundamentals NSE doesn't expose via this endpoint:
         "pe_ratio":        None,
@@ -160,28 +173,126 @@ async def _fetch_from_yahoo_chart(symbol: str) -> dict:
     raise ValueError(f"Symbol '{symbol}' not found on NSE or BSE")
 
 
+def _fetch_nse_intraday_1d(symbol: str) -> list[dict]:
+    """
+    Fetch today's intraday chart data from NSE's own chart API via nsepython session.
+    Returns [{date: 'YYYY-MM-DD HH:MM', close, volume?}] in IST.
+    NSE returns [[timestamp_ms, price], ...] in grapthData key.
+    """
+    from nsepython import nsefetch  # type: ignore
+    from datetime import timezone, timedelta
+
+    IST = timezone(timedelta(hours=5, minutes=30))
+    url = f"https://www.nseindia.com/api/chart-databyindex?index={symbol}&indices=false"
+    try:
+        data = nsefetch(url)
+        graph_data = data.get("grapthData") or []
+        if not graph_data:
+            return []
+        result = []
+        for point in graph_data:
+            if len(point) < 2:
+                continue
+            ts_ms, price = point[0], point[1]
+            if price is None:
+                continue
+            dt = datetime.fromtimestamp(float(ts_ms) / 1000, tz=IST)
+            result.append({
+                "date":  dt.strftime("%Y-%m-%d %H:%M"),
+                "close": round(float(price), 2),
+            })
+        logger.info(f"NSE intraday 1D: {len(result)} points for {symbol}")
+        return result
+    except Exception as e:
+        logger.warning(f"NSE intraday 1D failed for {symbol}: {e}")
+        return []
+
+
+def _fetch_nse_historical_week(symbol: str) -> list[dict]:
+    """
+    Fetch last 7 calendar days of daily OHLCV from NSE historical API.
+    Returns [{date: 'YYYY-MM-DD', close, volume}].
+    NSE historical endpoint: /api/historical/cm/equity?symbol=X&series[]=EQ&from=DD-MM-YYYY&to=DD-MM-YYYY
+    """
+    from nsepython import nsefetch  # type: ignore
+    from datetime import date, timedelta
+
+    end   = date.today()
+    start = end - timedelta(days=14)  # buffer for weekends/holidays
+    url = (
+        f"https://www.nseindia.com/api/historical/cm/equity"
+        f"?symbol={symbol}&series[]=EQ"
+        f"&from={start.strftime('%d-%m-%Y')}&to={end.strftime('%d-%m-%Y')}"
+    )
+    try:
+        data = nsefetch(url)
+        rows = data.get("data") or []
+        if not rows:
+            return []
+        result = []
+        for row in rows:
+            date_str = (row.get("CH_TIMESTAMP") or row.get("mTIMESTAMP") or "")[:10]
+            close    = row.get("CH_CLOSING_PRICE") or row.get("CH_LAST_TRADED_PRICE")
+            volume   = row.get("CH_TOT_TRADED_QTY")
+            if not date_str or close is None:
+                continue
+            entry: dict = {"date": date_str, "close": round(float(close), 2)}
+            if volume:
+                try:
+                    entry["volume"] = int(float(volume))
+                except Exception:
+                    pass
+            result.append(entry)
+        result.sort(key=lambda x: x["date"])
+        # Last 7 trading days
+        result = result[-7:]
+        logger.info(f"NSE historical 1W: {len(result)} points for {symbol}")
+        return result
+    except Exception as e:
+        logger.warning(f"NSE historical 1W failed for {symbol}: {e}")
+        return []
+
+
 async def get_history(symbol: str, period: str = "1y") -> dict:
     """
-    Async entry point — returns daily closing prices for charting.
-    Uses yf.download() which hits Yahoo chart API (no crumb needed for OHLCV).
-    Falls back to empty closes list on any error, never raises.
+    Async entry point — returns OHLCV history for charting.
+    Supports intraday (1d/1w) and daily periods.
+    Returns {date, close, volume} per point. Never raises.
     """
     import yfinance as yf
     import pandas as pd
     from datetime import date, timedelta
 
     symbol = symbol.upper().strip()
-    valid_periods = {"1mo", "3mo", "6mo", "1y", "2y", "5y"}
+    valid_periods = {"1d", "1w", "1mo", "3mo", "6mo", "1y", "2y", "5y"}
     if period not in valid_periods:
         period = "1y"
 
-    def _extract_closes(df: pd.DataFrame) -> list[dict]:
-        """Normalize dataframe shape and extract [{date, close}] safely."""
+    # Map period → (yfinance period param, interval)
+    _yf_map = {
+        "1d":  ("1d",  "5m"),
+        "1w":  ("5d",  "15m"),
+        "1mo": ("1mo", "1d"),
+        "3mo": ("3mo", "1d"),
+        "6mo": ("6mo", "1d"),
+        "1y":  ("1y",  "1d"),
+        "2y":  ("2y",  "1d"),
+        "5y":  ("5y",  "1d"),
+    }
+    # Daily fallback when intraday fails (Yahoo blocks intraday for Indian stocks)
+    _daily_fallback_map = {
+        "1d": ("5d",  "1d"),   # last 5 trading days at daily resolution
+        "1w": ("1mo", "1d"),   # last month of daily → slice to 7 pts
+    }
+    yf_period, yf_interval = _yf_map[period]
+    is_intraday = period in {"1d", "1w"}
+
+    def _extract_ohlcv(df: pd.DataFrame) -> list[dict]:
+        """Normalize dataframe and extract [{date, close, volume?}] safely."""
         try:
             if df is None or df.empty:
                 return []
 
-            # yfinance can return MultiIndex columns for single ticker downloads.
             if isinstance(df.columns, pd.MultiIndex):
                 df = df.copy()
                 df.columns = df.columns.get_level_values(0)
@@ -199,6 +310,12 @@ async def get_history(symbol: str, period: str = "1y") -> dict:
             if close_col is None:
                 return []
 
+            vol_col = None
+            for candidate in ["Volume", "volume", "VOLUME"]:
+                if candidate in df.columns:
+                    vol_col = candidate
+                    break
+
             close_series = df[close_col].squeeze()
             if isinstance(close_series, pd.DataFrame):
                 close_series = close_series.iloc[:, 0]
@@ -206,11 +323,29 @@ async def get_history(symbol: str, period: str = "1y") -> dict:
             result = []
             for dt, val in close_series.items():
                 if pd.notna(val):
-                    dt_str = dt.strftime("%Y-%m-%d") if hasattr(dt, "strftime") else str(dt)
-                    result.append({"date": dt_str, "close": round(float(val), 2)})
+                    if is_intraday and hasattr(dt, "strftime"):
+                        dt_str = dt.strftime("%Y-%m-%d %H:%M")
+                    elif hasattr(dt, "strftime"):
+                        dt_str = dt.strftime("%Y-%m-%d")
+                    else:
+                        dt_str = str(dt)[:16]
+
+                    entry: dict = {"date": dt_str, "close": round(float(val), 2)}
+
+                    if vol_col is not None:
+                        try:
+                            vol_val = df[vol_col].loc[dt]
+                            if isinstance(vol_val, pd.Series):
+                                vol_val = vol_val.iloc[0]
+                            if pd.notna(vol_val) and float(vol_val) > 0:
+                                entry["volume"] = int(float(vol_val))
+                        except Exception:
+                            pass
+
+                    result.append(entry)
             return result
         except Exception as e:
-            logger.warning(f"Close extraction failed for {symbol}: {e}")
+            logger.warning(f"OHLCV extraction failed for {symbol}: {e}")
             return []
 
     def _download_from_yfinance() -> list[dict]:
@@ -219,22 +354,44 @@ async def get_history(symbol: str, period: str = "1y") -> dict:
             try:
                 df = yf.download(
                     f"{symbol}{suffix}",
-                    period=period,
-                    interval="1d",
+                    period=yf_period,
+                    interval=yf_interval,
                     progress=False,
                     auto_adjust=True,
                     threads=False,
                     group_by="column",
                 )
-                closes = _extract_closes(df)
-                if closes:
-                    return closes
+                points = _extract_ohlcv(df)
+                if points:
+                    return points
             except Exception as e:
                 logger.warning(f"History yfinance failed for {symbol}{suffix}: {e}")
+
+        # Intraday fallback: Yahoo blocks 5m/15m for Indian stocks — use daily candles
+        if is_intraday and period in _daily_fallback_map:
+            fb_period, fb_interval = _daily_fallback_map[period]
+            max_pts = 5 if period == "1d" else 7
+            for suffix in [".NS", ".BO"]:
+                try:
+                    df = yf.download(
+                        f"{symbol}{suffix}",
+                        period=fb_period,
+                        interval=fb_interval,
+                        progress=False,
+                        auto_adjust=True,
+                        threads=False,
+                        group_by="column",
+                    )
+                    points = _extract_ohlcv(df)
+                    if points:
+                        logger.info(f"Intraday fallback to daily for {symbol} period={period}")
+                        return points[-max_pts:]
+                except Exception as e:
+                    logger.warning(f"History daily fallback failed for {symbol}{suffix}: {e}")
         return []
 
     def _download_from_jugaad() -> list[dict]:
-        """Fallback to NSE historical candles when Yahoo is unavailable."""
+        """Fallback to NSE historical candles; works for all periods (daily resolution for intraday)."""
         try:
             from jugaad_data.nse import stock_df  # type: ignore
         except Exception as e:
@@ -243,13 +400,12 @@ async def get_history(symbol: str, period: str = "1y") -> dict:
 
         try:
             lookback_days = {
-                "1mo": 45,
-                "3mo": 120,
-                "6mo": 220,
-                "1y": 420,
-                "2y": 820,
-                "5y": 2050,
+                "1d": 15, "1w": 25,
+                "1mo": 45, "3mo": 120, "6mo": 220,
+                "1y": 420, "2y": 820, "5y": 2050,
             }.get(period, 420)
+            # For intraday periods, cap output to recent trading days
+            max_pts = {"1d": 5, "1w": 7}.get(period, None)
 
             end = date.today()
             start = end - timedelta(days=lookback_days)
@@ -257,47 +413,54 @@ async def get_history(symbol: str, period: str = "1y") -> dict:
             if df is None or df.empty:
                 return []
 
-            date_col = None
-            for candidate in ["DATE", "Date", "date"]:
-                if candidate in df.columns:
-                    date_col = candidate
-                    break
-
-            close_col = None
-            for candidate in ["CLOSE", "Close", "close"]:
-                if candidate in df.columns:
-                    close_col = candidate
-                    break
+            date_col = next((c for c in ["DATE", "Date", "date"] if c in df.columns), None)
+            close_col = next((c for c in ["CLOSE", "Close", "close"] if c in df.columns), None)
+            vol_col = next((c for c in ["VOLUME", "Volume", "volume", "TOTTRDQTY"] if c in df.columns), None)
 
             if date_col is None or close_col is None:
                 return []
 
-            out = []
-            tmp = df[[date_col, close_col]].copy()
+            cols = [date_col, close_col] + ([vol_col] if vol_col else [])
+            tmp = df[cols].copy()
             tmp[date_col] = pd.to_datetime(tmp[date_col], errors="coerce")
             tmp = tmp.dropna(subset=[date_col, close_col]).sort_values(by=date_col)
 
+            out = []
             for _, row in tmp.iterrows():
-                out.append({
+                entry: dict = {
                     "date": row[date_col].strftime("%Y-%m-%d"),
                     "close": round(float(row[close_col]), 2),
-                })
-            return out
+                }
+                if vol_col and pd.notna(row.get(vol_col)):
+                    try:
+                        entry["volume"] = int(float(row[vol_col]))
+                    except Exception:
+                        pass
+                out.append(entry)
+            return out[-max_pts:] if max_pts else out
         except Exception as e:
             logger.warning(f"History jugaad fallback failed for {symbol}: {e}")
             return []
 
     def _download() -> list[dict]:
         try:
-            closes = _download_from_yfinance()
-            if closes:
-                return closes
+            # For 1D/1W: try NSE native APIs first (Yahoo blocks intraday for Indian stocks)
+            if period == "1d":
+                points = _fetch_nse_intraday_1d(symbol)
+                if points:
+                    return points
+            elif period == "1w":
+                points = _fetch_nse_historical_week(symbol)
+                if points:
+                    return points
 
-            # NSE fallback makes chart available even when Yahoo is blocked.
-            closes = _download_from_jugaad()
-            if closes:
-                return closes
-
+            # Remaining periods (or intraday NSE failed): try yfinance then jugaad
+            points = _download_from_yfinance()
+            if points:
+                return points
+            points = _download_from_jugaad()
+            if points:
+                return points
             return []
         except Exception as e:
             logger.warning(f"History download failed for {symbol}: {e}")

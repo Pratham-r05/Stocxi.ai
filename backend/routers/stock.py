@@ -35,6 +35,18 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/stock", tags=["Stock Data"])
 
 
+def _compute_pb(direct_pb, price, book_value_per_share):
+    """Return PB ratio: use direct value if available, else compute price / book_value."""
+    if direct_pb is not None:
+        return direct_pb
+    try:
+        if price and book_value_per_share and float(book_value_per_share) > 0:
+            return round(float(price) / float(book_value_per_share), 2)
+    except Exception:
+        pass
+    return None
+
+
 # ── GET /api/v1/stock/{symbol} ────────────────────────────────────────────────
 @router.get("/{symbol}")
 async def get_stock_overview(symbol: str):
@@ -106,7 +118,11 @@ async def get_stock_overview(symbol: str):
         # ── Fundamentals (price_data first, screener fallback) ─────────────────
         "market_cap":      fill(price_data.get("market_cap"),     "market_cap"),
         "pe_ratio":        fill(price_data.get("pe_ratio"),       "pe_ratio"),
-        "pb_ratio":        fill(price_data.get("pb_ratio"),       None),
+        "pb_ratio":        _compute_pb(
+                               price_data.get("pb_ratio"),
+                               price_data.get("price"),
+                               screener_ratios.get("book_value"),
+                           ),
         "book_value":      screener_ratios.get("book_value"),
         "eps":             price_data.get("eps"),
         "dividend_yield":  fill(price_data.get("dividend_yield"), "dividend_yield"),
@@ -217,7 +233,7 @@ async def get_stock_news(
     Cached 2 hours.
     """
     symbol = symbol.upper().strip()
-    cache_key = f"stock:news:{symbol}"
+    cache_key = f"stock:news:v2:{symbol}"  # v2: 7-day recency filter
 
     cached = await cache_get(cache_key)
     if cached:
@@ -257,7 +273,7 @@ async def get_stock_sentiment(symbol: str):
 @router.get("/{symbol}/history")
 async def get_stock_history(
     symbol: str,
-    period: str = Query(default="1y", description="Period: 1mo, 3mo, 6mo, 1y, 2y, 5y"),
+    period: str = Query(default="1y", description="Period: 1d, 1w, 1mo, 3mo, 6mo, 1y, 2y, 5y"),
 ):
     """
     Daily closing prices for charting.
@@ -265,7 +281,9 @@ async def get_stock_history(
     Cached 1 hour (same as sentiment TTL).
     """
     symbol = symbol.upper().strip()
-    cache_key = f"stock:history:{symbol}:{period}"
+    # v2: NSE-native intraday for 1d/1w; shorter TTL for intraday periods
+    cache_key = f"stock:history:v2:{symbol}:{period}"
+    ttl = 300 if period in {"1d", "1w"} else TTL_NEWS  # 5min for intraday, 1hr for rest
 
     cached = await cache_get(cache_key)
     if cached:
@@ -273,7 +291,7 @@ async def get_stock_history(
 
     response = await get_history(symbol, period)
     if response.get("closes"):
-        await cache_set(cache_key, response, TTL_NEWS)  # 1 hr reuse
+        await cache_set(cache_key, response, ttl)
 
     return JSONResponse(content=response)
 
@@ -291,7 +309,7 @@ async def get_stock_announcements(
     Cached 2 hours.
     """
     symbol = symbol.upper().strip()
-    cache_key = f"stock:announcements:{symbol}"
+    cache_key = f"stock:announcements:v2:{symbol}"  # v2: 60-day recency filter
 
     cached = await cache_get(cache_key)
     if cached:

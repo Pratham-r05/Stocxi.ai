@@ -17,7 +17,7 @@ Error strategy:
 
 import asyncio
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import httpx
@@ -25,6 +25,23 @@ import httpx
 logger = logging.getLogger(__name__)
 
 _TIMEOUT = 10  # seconds
+_ANNOUNCE_MAX_AGE_DAYS = 60  # only show announcements within 2 months
+
+
+def _is_recent_announcement(date_str: str) -> bool:
+    """Return True if announcement date is within _ANNOUNCE_MAX_AGE_DAYS."""
+    if not date_str:
+        return True  # keep if date unknown
+    try:
+        # Handles ISO format "2026-04-16T19:30:36" and "2026-04-16T19:30:36Z"
+        dt_str = date_str.rstrip("Z")
+        dt = datetime.fromisoformat(dt_str)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=_ANNOUNCE_MAX_AGE_DAYS)
+        return dt >= cutoff
+    except Exception:
+        return True  # keep on parse failure
 
 # BSE blocks plain Python UA — mimic a browser
 _HEADERS = {
@@ -207,7 +224,8 @@ async def get_announcements(symbol: str, limit: int = 10) -> list[dict]:
         loop = asyncio.get_event_loop()
         nse_items = await loop.run_in_executor(None, _fetch_from_nse, symbol, limit)
         if nse_items:
-            logger.info(f"Announcements: {len(nse_items)} items for {symbol} (NSE)")
+            nse_items = [a for a in nse_items if _is_recent_announcement(a.get("date", ""))]
+            logger.info(f"Announcements: {len(nse_items)} recent items for {symbol} (NSE)")
             return nse_items
     except Exception as e:
         logger.warning(f"Announcements: NSE fetch failed for {symbol}: {e}")
@@ -222,12 +240,15 @@ async def get_announcements(symbol: str, limit: int = 10) -> list[dict]:
 
     normalized = []
     for item in announcements[:limit]:
+        date_val = item.get("date", "")
+        if not _is_recent_announcement(date_val):
+            continue  # skip announcements older than 60 days
         subject = (item.get("subject") or "No subject").strip()
         normalized.append(
             {
                 "title": subject,
                 "subject": subject,
-                "date": item.get("date"),
+                "date": date_val,
                 "category": item.get("category"),
                 "pdf_url": item.get("pdf_url"),
                 "source": "BSE",
@@ -237,5 +258,5 @@ async def get_announcements(symbol: str, limit: int = 10) -> list[dict]:
             }
         )
 
-    logger.info(f"Announcements: {len(normalized)} items for {symbol} (BSE {bse_code})")
+    logger.info(f"Announcements: {len(normalized)} recent items for {symbol} (BSE {bse_code})")
     return normalized

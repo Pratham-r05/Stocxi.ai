@@ -150,6 +150,7 @@ export interface NewsResponse {
 export interface HistoryPoint {
   date: string;
   close: number;
+  volume?: number;
 }
 export interface HistoryData {
   symbol: string;

@@ -19,7 +19,7 @@ Cache TTL: 7200s (2 hrs) — set in redis_client.py TTL_NEWS
 
 import asyncio
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from urllib.parse import quote
 from xml.etree import ElementTree as ET
 
@@ -36,6 +36,21 @@ _HEADERS = {
 }
 _TIMEOUT = 10
 _MAX_NEWS = 10
+_NEWS_MAX_AGE_DAYS = 7  # only show news from last 7 days
+
+
+def _is_recent_news(published_iso: str) -> bool:
+    """Return True if article was published within _NEWS_MAX_AGE_DAYS."""
+    if not published_iso:
+        return True  # keep if date unknown
+    try:
+        # Handle ISO with or without trailing Z
+        dt_str = published_iso.rstrip("Z")
+        dt = datetime.fromisoformat(dt_str).replace(tzinfo=timezone.utc)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=_NEWS_MAX_AGE_DAYS)
+        return dt >= cutoff
+    except Exception:
+        return True  # keep on parse failure
 
 
 # ── Source 1: Google News RSS ─────────────────────────────────────────────────
@@ -45,9 +60,10 @@ def _fetch_google_news(symbol: str, company_name: str | None = None) -> list[dic
     Query: "<symbol> NSE stock" OR "<company_name> stock" if available.
     """
     # Build query — include company name if available for better relevance
-    query_parts = [f"{symbol} NSE stock"]
+    after_date = (datetime.now(timezone.utc) - timedelta(days=_NEWS_MAX_AGE_DAYS)).strftime("%Y-%m-%d")
+    query_parts = [f"{symbol} NSE stock after:{after_date}"]
     if company_name and company_name != symbol:
-        query_parts.append(f"{company_name} stock India")
+        query_parts.append(f"{company_name} stock India after:{after_date}")
     query = " OR ".join(query_parts)
 
     url = (
@@ -87,7 +103,9 @@ def _fetch_google_news(symbol: str, company_name: str | None = None) -> list[dic
                 "source":    source,
             })
 
-        logger.info(f"Google News RSS: {len(items)} articles for {symbol}")
+        # Post-filter: drop anything older than cutoff (Google `after:` is fuzzy)
+        items = [a for a in items if _is_recent_news(a["published"])]
+        logger.info(f"Google News RSS: {len(items)} recent articles for {symbol}")
         return items
 
     except Exception as e:
@@ -114,14 +132,24 @@ def _fetch_yfinance_news(symbol: str) -> list[dict]:
             news   = ticker.news or []
             if not news:
                 continue
+            cutoff_ts = (datetime.now(timezone.utc) - timedelta(days=_NEWS_MAX_AGE_DAYS)).timestamp()
             for n in news[:_MAX_NEWS]:
+                pub_ts = n.get("providerPublishTime", 0)
+                if pub_ts and float(pub_ts) < cutoff_ts:
+                    continue  # skip old articles
+                pub_iso = ""
+                if pub_ts:
+                    try:
+                        pub_iso = datetime.fromtimestamp(float(pub_ts), tz=timezone.utc).isoformat() + "Z"
+                    except Exception:
+                        pub_iso = str(pub_ts)
                 items.append({
                     "title":     n.get("title", "").strip(),
                     "link":      n.get("link", ""),
-                    "published": n.get("providerPublishTime", ""),
+                    "published": pub_iso,
                     "source":    n.get("publisher", "Yahoo Finance"),
                 })
-            logger.info(f"yfinance news: {len(items)} articles for {symbol}{suffix}")
+            logger.info(f"yfinance news: {len(items)} recent articles for {symbol}{suffix}")
             return items
         except Exception as e:
             logger.debug(f"yfinance news failed for {symbol}{suffix}: {e}")
