@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 html {
-  background: #09090b;
+  background: #000000;
   color-scheme: dark;
 }
 
 body {
-  background: #09090b;
-  color: #fafafa;
+  background: #000000;
+  color: #ffffff;
   font-family: var(--font-geist-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
@@ -21,4 +21,78 @@ body {
   background: linear-gradient(90deg, #18181b 25%, #27272a 50%, #18181b 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
+}
+
+/* ── Monochrome glow utilities ────────────────────────────────────────────── */
+.glow-white {
+  box-shadow: 0 0 32px rgba(255, 255, 255, 0.06);
+}
+.glow-signal-buy {
+  box-shadow: 0 0 14px rgba(52, 211, 153, 0.28);
+}
+.glow-signal-avoid {
+  box-shadow: 0 0 12px rgba(248, 113, 113, 0.22);
+}
+
+/* Glass morphism */
+.glass {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(0, 0, 0, 0.88);
+}
+
+/* Hero radial glow — white, ultra-subtle */
+@keyframes subtle-pulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.8; }
+}
+.hero-glow {
+  background: radial-gradient(ellipse 70% 50% at 50% -10%, rgba(255, 255, 255, 0.045) 0%, transparent 70%);
+  animation: subtle-pulse 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Gradient text — white to zinc-400 (monochrome) */
+.gradient-text {
+  background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Deep black tuning: keep existing utility usage, darken visual surfaces globally. */
+.bg-zinc-950 {
+  background-color: #020202 !important;
+}
+.bg-zinc-900 {
+  background-color: #060606 !important;
+}
+.bg-zinc-900\/60 {
+  background-color: rgb(6 6 6 / 0.74) !important;
+}
+.bg-zinc-900\/50 {
+  background-color: rgb(6 6 6 / 0.66) !important;
+}
+.bg-zinc-900\/40 {
+  background-color: rgb(6 6 6 / 0.58) !important;
+}
+.bg-zinc-800 {
+  background-color: #101010 !important;
+}
+.bg-zinc-800\/60 {
+  background-color: rgb(16 16 16 / 0.74) !important;
+}
+.bg-zinc-800\/50 {
+  background-color: rgb(16 16 16 / 0.66) !important;
+}
+.bg-zinc-800\/40 {
+  background-color: rgb(16 16 16 / 0.58) !important;
+}
+.bg-zinc-800\/30 {
+  background-color: rgb(16 16 16 / 0.5) !important;
+}
+.from-zinc-950 {
+  --tw-gradient-from: #000000 var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgb(0 0 0 / 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
 }

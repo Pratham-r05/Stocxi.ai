@@ -160,6 +160,159 @@ async def _fetch_from_yahoo_chart(symbol: str) -> dict:
     raise ValueError(f"Symbol '{symbol}' not found on NSE or BSE")
 
 
+async def get_history(symbol: str, period: str = "1y") -> dict:
+    """
+    Async entry point — returns daily closing prices for charting.
+    Uses yf.download() which hits Yahoo chart API (no crumb needed for OHLCV).
+    Falls back to empty closes list on any error, never raises.
+    """
+    import yfinance as yf
+    import pandas as pd
+    from datetime import date, timedelta
+
+    symbol = symbol.upper().strip()
+    valid_periods = {"1mo", "3mo", "6mo", "1y", "2y", "5y"}
+    if period not in valid_periods:
+        period = "1y"
+
+    def _extract_closes(df: pd.DataFrame) -> list[dict]:
+        """Normalize dataframe shape and extract [{date, close}] safely."""
+        try:
+            if df is None or df.empty:
+                return []
+
+            # yfinance can return MultiIndex columns for single ticker downloads.
+            if isinstance(df.columns, pd.MultiIndex):
+                df = df.copy()
+                df.columns = df.columns.get_level_values(0)
+
+            close_col = None
+            for candidate in ["Close", "Adj Close", "close", "CLOSE"]:
+                if candidate in df.columns:
+                    close_col = candidate
+                    break
+            if close_col is None:
+                for c in df.columns:
+                    if str(c).strip().lower() in {"close", "adj close"}:
+                        close_col = c
+                        break
+            if close_col is None:
+                return []
+
+            close_series = df[close_col].squeeze()
+            if isinstance(close_series, pd.DataFrame):
+                close_series = close_series.iloc[:, 0]
+
+            result = []
+            for dt, val in close_series.items():
+                if pd.notna(val):
+                    dt_str = dt.strftime("%Y-%m-%d") if hasattr(dt, "strftime") else str(dt)
+                    result.append({"date": dt_str, "close": round(float(val), 2)})
+            return result
+        except Exception as e:
+            logger.warning(f"Close extraction failed for {symbol}: {e}")
+            return []
+
+    def _download_from_yfinance() -> list[dict]:
+        """Download history from Yahoo chart endpoint for NSE/BSE variants."""
+        for suffix in [".NS", ".BO"]:
+            try:
+                df = yf.download(
+                    f"{symbol}{suffix}",
+                    period=period,
+                    interval="1d",
+                    progress=False,
+                    auto_adjust=True,
+                    threads=False,
+                    group_by="column",
+                )
+                closes = _extract_closes(df)
+                if closes:
+                    return closes
+            except Exception as e:
+                logger.warning(f"History yfinance failed for {symbol}{suffix}: {e}")
+        return []
+
+    def _download_from_jugaad() -> list[dict]:
+        """Fallback to NSE historical candles when Yahoo is unavailable."""
+        try:
+            from jugaad_data.nse import stock_df  # type: ignore
+        except Exception as e:
+            logger.warning(f"jugaad-data import failed for history {symbol}: {e}")
+            return []
+
+        try:
+            lookback_days = {
+                "1mo": 45,
+                "3mo": 120,
+                "6mo": 220,
+                "1y": 420,
+                "2y": 820,
+                "5y": 2050,
+            }.get(period, 420)
+
+            end = date.today()
+            start = end - timedelta(days=lookback_days)
+            df = stock_df(symbol=symbol, from_date=start, to_date=end, series="EQ")
+            if df is None or df.empty:
+                return []
+
+            date_col = None
+            for candidate in ["DATE", "Date", "date"]:
+                if candidate in df.columns:
+                    date_col = candidate
+                    break
+
+            close_col = None
+            for candidate in ["CLOSE", "Close", "close"]:
+                if candidate in df.columns:
+                    close_col = candidate
+                    break
+
+            if date_col is None or close_col is None:
+                return []
+
+            out = []
+            tmp = df[[date_col, close_col]].copy()
+            tmp[date_col] = pd.to_datetime(tmp[date_col], errors="coerce")
+            tmp = tmp.dropna(subset=[date_col, close_col]).sort_values(by=date_col)
+
+            for _, row in tmp.iterrows():
+                out.append({
+                    "date": row[date_col].strftime("%Y-%m-%d"),
+                    "close": round(float(row[close_col]), 2),
+                })
+            return out
+        except Exception as e:
+            logger.warning(f"History jugaad fallback failed for {symbol}: {e}")
+            return []
+
+    def _download() -> list[dict]:
+        try:
+            closes = _download_from_yfinance()
+            if closes:
+                return closes
+
+            # NSE fallback makes chart available even when Yahoo is blocked.
+            closes = _download_from_jugaad()
+            if closes:
+                return closes
+
+            return []
+        except Exception as e:
+            logger.warning(f"History download failed for {symbol}: {e}")
+            return []
+
+    try:
+        loop = asyncio.get_event_loop()
+        closes = await loop.run_in_executor(None, _download)
+    except Exception as e:
+        logger.warning(f"get_history executor failed for {symbol}: {e}")
+        closes = []
+
+    return {"symbol": symbol, "period": period, "closes": closes}
+
+
 async def get_price_and_fundamentals(symbol: str) -> dict:
     """
     Async entry point for all services.

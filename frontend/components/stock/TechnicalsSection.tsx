@@ -1,5 +1,11 @@
+"use client";
+
+// TechnicalsSection — with (i) tooltips and Framer Motion stagger
+
+import { motion, type Variants } from "framer-motion";
 import Badge from "@/components/ui/Badge";
 import SectionHeader from "@/components/ui/SectionHeader";
+import { InfoTooltip } from "@/components/ui/InfoTooltip";
 
 interface TechnicalsSectionProps {
   technicals: {
@@ -22,116 +28,98 @@ interface TechnicalsSectionProps {
   };
 }
 
-function IndicatorCard({
-  label,
-  value,
-  signal,
-  size = "sm",
-  className = "",
-  children,
-}: {
-  label: string;
-  value?: string | null;
-  signal: string;
-  size?: "sm" | "md" | "lg";
-  className?: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <div className={`rounded-xl border border-zinc-800 bg-zinc-900 p-4 ${className}`}>
-      <p className="text-xs text-zinc-500 mb-1">{label}</p>
-      {value != null && (
-        <p className="font-mono text-sm text-zinc-200 mb-2">{value}</p>
-      )}
-      <Badge signal={signal} size={size} />
-      {children}
-    </div>
-  );
-}
+const INDICATOR_HELP: Record<string, string> = {
+  rsi: "Measures if a stock is overbought or oversold. Above 70 = possibly overbought (may fall). Below 30 = possibly oversold (may rise).",
+  macd: "Tracks momentum. When MACD crosses above the signal line, that's typically bullish. Below = bearish.",
+  adx: "Measures how strong the current trend is — not its direction. Above 25 = strong trend. Below 20 = weak or sideways.",
+  ema: "Exponential Moving Average. If price is above the EMA, the stock is in an uptrend. Below = downtrend.",
+  overall: "A combined signal using all indicators above to give one overall technical verdict.",
+};
+
+const container: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
+};
+const cardAnim: Variants = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+};
 
 function RSIBar({ rsi }: { rsi: number }) {
-  // Clamp rsi to 0-100 range for safety
   const clamped = Math.min(100, Math.max(0, rsi));
-  const pct = clamped; // 0-100 directly maps to 0%-100%
-
   return (
     <div className="mt-3 relative h-1.5 rounded-full overflow-hidden flex">
-      {/* Zone 0-30: red */}
-      <div className="h-full bg-red-500/60" style={{ width: "30%" }} />
-      {/* Zone 30-70: zinc */}
-      <div className="h-full bg-zinc-500/60" style={{ width: "40%" }} />
-      {/* Zone 70-100: emerald */}
-      <div className="h-full bg-emerald-500/60" style={{ width: "30%" }} />
-      {/* Marker */}
+      <div className="h-full bg-red-500/50" style={{ width: "30%" }} />
+      <div className="h-full bg-zinc-500/40" style={{ width: "40%" }} />
+      <div className="h-full bg-emerald-500/50" style={{ width: "30%" }} />
       <span
-        className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-3 w-3 rounded-full bg-white shadow"
-        style={{ left: `${pct}%` }}
+        className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-3 w-3 rounded-full bg-white shadow-md"
+        style={{ left: `${clamped}%` }}
       />
     </div>
   );
 }
 
 export default function TechnicalsSection({ technicals }: TechnicalsSectionProps) {
-  const {
-    rsi, rsi_signal,
-    macd, macd_signal,
-    adx, adx_signal,
-    ema_signal,
-    bb_signal,
-    overall_signal,
-  } = technicals;
-
-  const fmt = (n: number | null, decimals = 2) =>
-    n != null ? n.toFixed(decimals) : null;
+  const { rsi, rsi_signal, macd, macd_signal, adx, adx_signal, ema_signal, overall_signal, ema_20, ema_50, ema_200 } = technicals;
+  const fmt = (n: number | null, d = 2) => (n != null ? n.toFixed(d) : "N/A");
 
   return (
     <section>
       <SectionHeader title="Technical Indicators" />
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-
-        {/* RSI(14) */}
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
-          <p className="text-xs text-zinc-500 mb-1">RSI (14)</p>
-          {rsi != null && (
-            <p className="font-mono text-sm text-zinc-200 mb-2">{fmt(rsi)}</p>
-          )}
+      <motion.div
+        variants={container}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-2 gap-3"
+      >
+        {/* RSI */}
+        <motion.div variants={cardAnim} className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+          <p className="text-xs text-zinc-500 mb-1 flex items-center">
+            RSI (14) <InfoTooltip content={INDICATOR_HELP.rsi} />
+          </p>
+          <p className="font-mono text-sm text-zinc-200 mb-2">{fmt(rsi)}</p>
           <Badge signal={rsi_signal} size="sm" />
           {rsi != null && <RSIBar rsi={rsi} />}
-        </div>
+        </motion.div>
 
         {/* MACD */}
-        <IndicatorCard
-          label="MACD"
-          value={fmt(macd)}
-          signal={macd_signal}
-        />
+        <motion.div variants={cardAnim} className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+          <p className="text-xs text-zinc-500 mb-1 flex items-center">
+            MACD <InfoTooltip content={INDICATOR_HELP.macd} />
+          </p>
+          <p className="font-mono text-sm text-zinc-200 mb-2">{fmt(macd)}</p>
+          <Badge signal={macd_signal} size="sm" />
+        </motion.div>
 
-        {/* ADX(14) */}
-        <IndicatorCard
-          label="ADX (14)"
-          value={fmt(adx)}
-          signal={adx_signal}
-        />
+        {/* ADX */}
+        <motion.div variants={cardAnim} className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+          <p className="text-xs text-zinc-500 mb-1 flex items-center">
+            ADX (14) <InfoTooltip content={INDICATOR_HELP.adx} />
+          </p>
+          <p className="font-mono text-sm text-zinc-200 mb-2">{fmt(adx)}</p>
+          <Badge signal={adx_signal} size="sm" />
+        </motion.div>
 
-        {/* EMA Signal */}
-        <IndicatorCard
-          label="EMA Signal"
-          signal={ema_signal}
-        />
+        {/* EMA Trend */}
+        <motion.div variants={cardAnim} className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+          <p className="text-xs text-zinc-500 mb-1 flex items-center">
+            EMA Trend <InfoTooltip content={INDICATOR_HELP.ema} />
+          </p>
+          <p className="font-mono text-xs text-zinc-300 mb-2">
+            20: {fmt(ema_20)} | 50: {fmt(ema_50)} | 200: {fmt(ema_200)}
+          </p>
+          <Badge signal={ema_signal} size="sm" />
+        </motion.div>
 
-        {/* BB Signal */}
-        <IndicatorCard
-          label="BB Signal"
-          signal={bb_signal}
-        />
-
-        {/* Overall — spans 2 cols on mobile, 1 on sm+ */}
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4 col-span-2 sm:col-span-1">
-          <p className="text-xs text-zinc-500 mb-2">Overall Signal</p>
+        {/* Overall */}
+        <motion.div variants={cardAnim} className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+          <p className="text-xs text-zinc-500 mb-2 flex items-center">
+            Overall Signal <InfoTooltip content={INDICATOR_HELP.overall} />
+          </p>
           <Badge signal={overall_signal} size="md" />
-        </div>
-
-      </div>
+        </motion.div>
+      </motion.div>
     </section>
   );
 }

@@ -36,6 +36,14 @@ export interface SentimentPost {
 export interface SentimentSource {
   posts: SentimentPost[];
   summary: string;
+  structured_summary?: {
+    overall_view: string;
+    investor_takeaway: string;
+    key_themes: string[];
+    bullish_points: string[];
+    risk_points: string[];
+    key_discussions: string[];
+  };
   sentiment: string;
   sentiment_score: number;
   signal: "BUY" | "HOLD" | "AVOID";
@@ -111,7 +119,8 @@ export interface AIAnalysis {
 
 // Financials
 export interface FinancialTable {
-  columns: string[];
+  columns?: string[];
+  headers?: string[];
   rows: { label: string; values: (number | string | null)[] }[];
 }
 export interface Financials {
@@ -121,6 +130,7 @@ export interface Financials {
   balance_sheet: FinancialTable | null;
   cash_flow: FinancialTable | null;
   shareholding: FinancialTable | null;
+  mf_holdings: FinancialTable | null;
 }
 
 // News
@@ -134,6 +144,17 @@ export interface NewsResponse {
   symbol: string;
   count: number;
   articles: NewsArticle[];
+}
+
+// Price History
+export interface HistoryPoint {
+  date: string;
+  close: number;
+}
+export interface HistoryData {
+  symbol: string;
+  period: string;
+  closes: HistoryPoint[];
 }
 
 // Announcements

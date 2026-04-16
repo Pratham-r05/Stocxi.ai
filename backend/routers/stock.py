@@ -22,8 +22,8 @@ import logging
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import JSONResponse
 
-from cache.redis_client import cache_get, cache_set, TTL_OVERVIEW, TTL_FINANCIALS, TTL_NEWS
-from services.yfinance_service import get_price_and_fundamentals
+from cache.redis_client import cache_get, cache_set, TTL_OVERVIEW, TTL_FINANCIALS, TTL_NEWS, TTL_ANALYSIS
+from services.yfinance_service import get_price_and_fundamentals, get_history
 from services.screener_service import get_financials
 from services.technicals_service import calculate_technicals
 from services.news_service import get_news
@@ -117,21 +117,21 @@ async def get_stock_overview(symbol: str):
         # ── Technicals ─────────────────────────────────────────────────────────
         "technicals": {
             "rsi":              technicals.get("rsi"),
-            "rsi_signal":       technicals.get("rsi_signal", "Unknown"),
+            "rsi_signal":       technicals.get("rsi_signal", "Neutral"),
             "macd":             technicals.get("macd"),
-            "macd_signal":      technicals.get("macd_signal", "Unknown"),
+            "macd_signal":      technicals.get("macd_signal", "Neutral"),
             "adx":              technicals.get("adx"),
-            "adx_signal":       technicals.get("adx_signal", "Unknown"),
+            "adx_signal":       technicals.get("adx_signal", "Weak Trend"),
             "atr":              technicals.get("atr"),
             "bb_upper":         technicals.get("bb_upper"),
             "bb_lower":         technicals.get("bb_lower"),
-            "bb_signal":        technicals.get("bb_signal", "Unknown"),
+            "bb_signal":        technicals.get("bb_signal", "Inside Bands"),
             "ema_20":           technicals.get("ema_20"),
             "ema_50":           technicals.get("ema_50"),
             "ema_200":          technicals.get("ema_200"),
-            "ema_signal":       technicals.get("ema_signal", "Unknown"),
+            "ema_signal":       technicals.get("ema_signal", "Mixed"),
             "volume_sma_20":    technicals.get("volume_sma_20"),
-            "overall_signal":   technicals.get("overall_signal", "Unknown"),
+            "overall_signal":   technicals.get("overall_signal", "Neutral"),
         },
     }
 
@@ -251,6 +251,31 @@ async def get_stock_sentiment(symbol: str):
     """
     # returns Reddit + Twitter sentiment for symbol
     return await sentiment_service.get_sentiment(symbol.upper().strip())
+
+
+# ── GET /api/v1/stock/{symbol}/history ───────────────────────────────────────
+@router.get("/{symbol}/history")
+async def get_stock_history(
+    symbol: str,
+    period: str = Query(default="1y", description="Period: 1mo, 3mo, 6mo, 1y, 2y, 5y"),
+):
+    """
+    Daily closing prices for charting.
+    Returns { symbol, period, closes: [{date, close}, ...] }
+    Cached 1 hour (same as sentiment TTL).
+    """
+    symbol = symbol.upper().strip()
+    cache_key = f"stock:history:{symbol}:{period}"
+
+    cached = await cache_get(cache_key)
+    if cached:
+        return JSONResponse(content=cached)
+
+    response = await get_history(symbol, period)
+    if response.get("closes"):
+        await cache_set(cache_key, response, TTL_NEWS)  # 1 hr reuse
+
+    return JSONResponse(content=response)
 
 
 # ── GET /api/v1/stock/{symbol}/announcements ──────────────────────────────────

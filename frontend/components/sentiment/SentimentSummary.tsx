@@ -1,17 +1,11 @@
 // SentimentSummary — per-source card (Reddit or Twitter)
 
 import Badge from "@/components/ui/Badge";
+import type { SentimentSource } from "@/lib/types";
 
 interface SentimentSummaryProps {
   source: "reddit" | "twitter";
-  data: {
-    summary: string;
-    sentiment: string;
-    sentiment_score: number;
-    signal: "BUY" | "HOLD" | "AVOID";
-    posts: unknown[];
-    fetched_at: string;
-  };
+  data: SentimentSource;
 }
 
 function ScoreBar({ score, signal }: { score: number; signal: string }) {
@@ -39,6 +33,7 @@ export default function SentimentSummary({ source, data }: SentimentSummaryProps
 
   const scoreSign = data.sentiment_score >= 0 ? "+" : "";
   const scoreStr = `${scoreSign}${data.sentiment_score.toFixed(2)}`;
+  const structured = data.structured_summary;
 
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
@@ -58,8 +53,71 @@ export default function SentimentSummary({ source, data }: SentimentSummaryProps
       </div>
       <ScoreBar score={data.sentiment_score} signal={data.signal} />
 
-      {/* Summary */}
-      <p className="mt-3 text-sm text-zinc-300 leading-relaxed">{data.summary}</p>
+      {/* Structured insights */}
+      {structured ? (
+        <div className="mt-3 space-y-3">
+          <div>
+            <p className="text-[11px] uppercase tracking-wide text-zinc-500 mb-1">Overall View</p>
+            <p className="text-sm text-zinc-300 leading-relaxed">{structured.overall_view}</p>
+          </div>
+
+          <div>
+            <p className="text-[11px] uppercase tracking-wide text-zinc-500 mb-1">Investor Takeaway</p>
+            <p className="text-sm text-zinc-200 leading-relaxed">{structured.investor_takeaway}</p>
+          </div>
+
+          {structured.key_themes.length > 0 && (
+            <div>
+              <p className="text-[11px] uppercase tracking-wide text-zinc-500 mb-1">Key Themes</p>
+              <div className="flex flex-wrap gap-1.5">
+                {structured.key_themes.map((theme) => (
+                  <span
+                    key={theme}
+                    className="text-[11px] px-2 py-0.5 rounded-full border border-zinc-700 bg-zinc-800/50 text-zinc-300"
+                  >
+                    {theme}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {structured.bullish_points.length > 0 && (
+            <div>
+              <p className="text-[11px] uppercase tracking-wide text-zinc-500 mb-1">Bullish Cues</p>
+              <ul className="space-y-1 text-sm text-emerald-300/90">
+                {structured.bullish_points.slice(0, 2).map((point, idx) => (
+                  <li key={`${point}-${idx}`} className="leading-relaxed">• {point}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {structured.risk_points.length > 0 && (
+            <div>
+              <p className="text-[11px] uppercase tracking-wide text-zinc-500 mb-1">Risks / Cautions</p>
+              <ul className="space-y-1 text-sm text-red-300/90">
+                {structured.risk_points.slice(0, 2).map((point, idx) => (
+                  <li key={`${point}-${idx}`} className="leading-relaxed">• {point}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {structured.key_discussions.length > 0 && (
+            <div>
+              <p className="text-[11px] uppercase tracking-wide text-zinc-500 mb-1">What People Are Discussing</p>
+              <ul className="space-y-1 text-sm text-zinc-300">
+                {structured.key_discussions.slice(0, 3).map((point, idx) => (
+                  <li key={`${point}-${idx}`} className="leading-relaxed">• {point}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      ) : (
+        <p className="mt-3 text-sm text-zinc-300 leading-relaxed">{data.summary}</p>
+      )}
 
       {/* Post count */}
       <p className="mt-2 text-xs text-zinc-500">

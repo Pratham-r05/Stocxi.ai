@@ -18,9 +18,11 @@ Cache keys:
 """
 
 import asyncio
+from collections import Counter
 import json
 import logging
 import os
+import re
 import shutil
 import subprocess
 from datetime import datetime, timezone, timedelta
@@ -162,71 +164,178 @@ def _score_text(text: str) -> float:
         return 0.0
 
 
-def _build_summary(posts: list[dict], signal: str, source: str) -> str:
-    """Builds a 3-4 sentence summary covering tone, key themes, and notable mentions."""
-    if not posts:
-        return (
-            f"No {source} posts found for this stock in the last 7 days. "
-            f"This could mean the stock has low social media coverage or low retail interest. "
-            f"Sentiment signal defaults to HOLD due to insufficient data."
-        )
+def _is_relevant_market_post(text: str, symbol: str, company_name: str) -> bool:
+    """Checks if a post is likely a real market opinion for the target stock."""
+    cleaned = _clean_summary_text(text)
+    if len(cleaned) < 20:
+        return False
 
-    label_map = {"BUY": "mostly positive", "AVOID": "mostly negative", "HOLD": "mixed or neutral"}
-    tone = label_map.get(signal, "mixed")
-    count = len(posts)
-    source_label = "Reddit" if source == "reddit" else "Twitter/X"
+    low = cleaned.lower()
 
-    # Sentence 1 — overall tone + count
-    line1 = (
-        f"{source_label} sentiment for this stock is {tone} based on {count} post(s) "
-        f"from the last 7 days."
-    )
+    # Filter obvious prompt-engineering / coding noise that is not investor sentiment.
+    noise_markers = [
+        "claude code",
+        "chatgpt",
+        "prompt",
+        "using ai",
+        "build me",
+        "code to analyse",
+        "display depends on the prompt",
+    ]
+    if any(marker in low for marker in noise_markers):
+        return False
 
-    # Sentence 2 — key themes extracted from post texts (top 4 snippets)
-    snippets = []
-    for p in posts[:4]:
-        text = str(p.get("text", "")).strip()
-        # Strip URLs and excess whitespace
-        import re
-        text = re.sub(r"http\S+", "", text).strip()
-        text = re.sub(r"\s+", " ", text)
-        if len(text) > 20:
-            snippets.append(text[:120] + ("..." if len(text) > 120 else ""))
+    finance_markers = [
+        "stock", "share", "buy", "sell", "hold", "target", "results", "earnings",
+        "revenue", "profit", "valuation", "pe", "p/e", "nse", "bse", "bullish", "bearish",
+    ]
+    has_finance_context = any(marker in low for marker in finance_markers)
 
-    if snippets:
-        line2 = "Key discussions include: " + " | ".join(f'"{s}"' for s in snippets[:3]) + "."
-    else:
-        line2 = "Posts were found but contained minimal text content."
+    symbol_l = symbol.lower().strip()
+    has_symbol = bool(symbol_l and re.search(rf"\b{re.escape(symbol_l)}\b", low))
 
-    # Sentence 3 — score interpretation
-    scores = [p.get("score", 0.0) for p in posts if isinstance(p.get("score"), (int, float))]
-    if scores:
-        pos = sum(1 for s in scores if s > 0.05)
-        neg = sum(1 for s in scores if s < -0.05)
-        neu = len(scores) - pos - neg
-        line3 = (
-            f"Breakdown: {pos} positive, {neg} negative, {neu} neutral post(s) "
-            f"out of {len(scores)} scored."
-        )
-    else:
-        line3 = "Individual post scores were not available for breakdown."
+    company_l = company_name.lower().strip()
+    company_tokens = [
+        tok for tok in re.split(r"[^a-z0-9]+", company_l)
+        if tok and len(tok) >= 3 and tok not in {"limited", "ltd", "india", "the", "and"}
+    ]
+    token_hits = sum(1 for tok in company_tokens if re.search(rf"\b{re.escape(tok)}\b", low))
+    has_company_context = (token_hits >= 2) or (company_l and company_l in low)
 
-    # Sentence 4 — signal conclusion
-    signal_desc = {
-        "BUY":  "The overall social signal leans bullish — public opinion appears favourable.",
-        "AVOID": "The overall social signal leans bearish — public opinion appears cautious or negative.",
-        "HOLD": "The overall social signal is neutral — no strong directional bias from public opinion.",
+    # Require context + stock mention (symbol or enough company-token matches).
+    return has_finance_context and (has_symbol or has_company_context)
+
+
+def _clean_summary_text(text: str) -> str:
+    """Cleans social text to readable snippet for summaries."""
+    if not text:
+        return ""
+    cleaned = re.sub(r"http\S+", "", str(text))
+    cleaned = re.sub(r"[#@]\w+", "", cleaned)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
+    return cleaned
+
+
+def _short_snippet(text: str, limit: int = 120) -> str:
+    """Returns a clipped snippet preserving whole-word readability."""
+    txt = _clean_summary_text(text)
+    if len(txt) <= limit:
+        return txt
+    clipped = txt[:limit].rsplit(" ", 1)[0].strip()
+    return f"{clipped}..." if clipped else f"{txt[:limit]}..."
+
+
+def _extract_themes(posts: list[dict]) -> list[str]:
+    """Extracts top discussion themes from post texts using keyword buckets."""
+    theme_keywords = {
+        "Earnings": ["result", "earnings", "profit", "revenue", "margin", "q1", "q2", "q3", "q4"],
+        "Valuation": ["valuation", "undervalued", "overvalued", "pe", "p/e", "expensive", "cheap"],
+        "Momentum": ["trend", "momentum", "breakout", "support", "resistance", "rsi", "macd"],
+        "Business Growth": ["order", "deal", "guidance", "capex", "demand", "expansion", "market share"],
+        "Risk": ["risk", "debt", "pledge", "penalty", "lawsuit", "regulation", "selloff"],
+        "Income": ["dividend", "yield", "buyback"],
     }
-    line4 = signal_desc.get(signal, "No clear directional bias from public opinion.")
 
-    return f"{line1} {line2} {line3} {line4}"
+    counts: Counter[str] = Counter()
+    for post in posts:
+        text = _clean_summary_text(post.get("text", "")).lower()
+        if not text:
+            continue
+        for theme, keywords in theme_keywords.items():
+            if any(k in text for k in keywords):
+                counts[theme] += 1
+
+    return [theme for theme, _ in counts.most_common(3)]
+
+
+def _build_structured_summary(posts: list[dict], signal: str, source: str) -> dict:
+    """Builds structured sentiment insights for beginner-friendly UI rendering."""
+    source_label = "Reddit" if source == "reddit" else "Twitter/X"
+    total_posts = len(posts)
+
+    if total_posts == 0:
+        return {
+            "overall_view": f"No meaningful {source_label} discussions were found in the last 7 days.",
+            "investor_takeaway": "Treat social sentiment as unavailable and rely more on fundamentals + technicals.",
+            "key_themes": [],
+            "bullish_points": [],
+            "risk_points": [],
+            "key_discussions": [],
+        }
+
+    scored: list[tuple[str, float]] = []
+    seen_texts: set[str] = set()
+    for post in posts:
+        raw = post.get("text", "")
+        cleaned = _clean_summary_text(raw)
+        if len(cleaned) < 16:
+            continue
+        key = cleaned.lower()
+        if key in seen_texts:
+            continue
+        seen_texts.add(key)
+        val = post.get("score", 0.0)
+        score = float(val) if isinstance(val, (int, float)) else _score_text(cleaned)
+        scored.append((cleaned, score))
+
+    bullish = [_short_snippet(t) for t, s in sorted(scored, key=lambda x: x[1], reverse=True) if s > 0.10][:3]
+    risks = [_short_snippet(t) for t, s in sorted(scored, key=lambda x: x[1]) if s < -0.10][:3]
+    discussions = [_short_snippet(t) for t, _ in scored[:4]]
+    themes = _extract_themes(posts)
+
+    pos = sum(1 for _, s in scored if s > 0.05)
+    neg = sum(1 for _, s in scored if s < -0.05)
+    neu = max(0, len(scored) - pos - neg)
+
+    if signal == "BUY":
+        overall = f"{source_label} crowd mood is mildly bullish with more optimistic than negative commentary."
+        takeaway = "Retail discussion is supportive, but confirm with earnings quality and valuation before buying."
+    elif signal == "AVOID":
+        overall = f"{source_label} crowd mood is cautious to bearish with concerns dominating discussions."
+        takeaway = "Sentiment is weak; wait for clearer reversal signals or stronger business updates."
+    else:
+        overall = f"{source_label} crowd mood is neutral/mixed with no strong directional consensus."
+        takeaway = "Use social chatter as context only; decision should depend on fundamentals, trend, and risk appetite."
+
+    if scored:
+        overall = f"{overall} Post mix: {pos} positive, {neg} negative, {neu} neutral from {len(scored)} readable posts."
+
+    return {
+        "overall_view": overall,
+        "investor_takeaway": takeaway,
+        "key_themes": themes,
+        "bullish_points": bullish,
+        "risk_points": risks,
+        "key_discussions": discussions,
+    }
+
+
+def _build_summary(posts: list[dict], signal: str, source: str) -> str:
+    """Builds a concise plain-English summary string for backward compatibility."""
+    if not posts:
+        source_label = "Reddit" if source == "reddit" else "Twitter/X"
+        return f"No meaningful {source_label} sentiment was found in the last 7 days."
+
+    structured = _build_structured_summary(posts, signal, source)
+    themes = structured.get("key_themes", [])
+    themes_txt = f" Top themes: {', '.join(themes)}." if themes else ""
+    return f"{structured.get('overall_view', '')} {structured.get('investor_takeaway', '')}{themes_txt}".strip()
 
 
 def _fallback_source(source: str) -> dict:
     """Returns a valid empty fallback dict for 'reddit' or 'twitter'."""
+    source_label = "Reddit" if source == "reddit" else "Twitter/X"
     return {
         "posts": [],
-        "summary": f"No {source} data available — CLI unavailable or no results.",
+        "summary": f"No meaningful {source_label} data available right now.",
+        "structured_summary": {
+            "overall_view": f"No meaningful {source_label} discussions were found in the last 7 days.",
+            "investor_takeaway": "Use fundamentals and technical indicators until social data is available.",
+            "key_themes": [],
+            "bullish_points": [],
+            "risk_points": [],
+            "key_discussions": [],
+        },
         "sentiment": "Neutral",
         "sentiment_score": 0.0,
         "signal": "HOLD",
@@ -287,6 +396,8 @@ def _fetch_reddit_sync(symbol: str) -> list[dict]:
                 body  = str(post.get("selftext", "")).strip()
                 text  = f"{title} {body}".strip() if body else title
                 if not text:
+                    continue
+                if not _is_relevant_market_post(text, symbol, company_name):
                     continue
 
                 permalink = post.get("permalink", "")
@@ -356,6 +467,8 @@ def _fetch_twitter_sync(symbol: str) -> list[dict]:
             text = str(item.get("text", "")).strip()
             if not text:
                 continue
+            if not _is_relevant_market_post(text, symbol, company_name):
+                continue
 
             # Parse date
             date_iso = item.get("createdAtISO", "")
@@ -387,24 +500,28 @@ def _fetch_twitter_sync(symbol: str) -> list[dict]:
 
 def _process_source(raw_posts: list[dict], source: str) -> dict:
     """Scores + summarizes a list of posts into the unified schema dict."""
-    score  = _score_posts(raw_posts)
-    signal = _score_to_signal(score)
-    label  = _score_to_label(score)
-    summary = _build_summary(raw_posts, signal, source)
-
     enriched: list[dict] = []
     for p in raw_posts:
+        text = p.get("text", "")
+        item_score = _score_text(text)
         enriched.append({
-            "text":   p.get("text", ""),
-            "score":  _score_text(p.get("text", "")),
+            "text":   text,
+            "score":  item_score,
             "date":   p.get("date", ""),
             "url":    p.get("url", ""),
             "source": source,
         })
 
+    score  = _score_posts(raw_posts)
+    signal = _score_to_signal(score)
+    label  = _score_to_label(score)
+    structured_summary = _build_structured_summary(enriched, signal, source)
+    summary = _build_summary(enriched, signal, source)
+
     return {
         "posts":           enriched,
         "summary":         summary,
+        "structured_summary": structured_summary,
         "sentiment":       label,
         "sentiment_score": score,
         "signal":          signal,
@@ -463,9 +580,9 @@ async def get_sentiment(symbol: str) -> dict:
     symbol = symbol.upper().strip()
 
     # ── Cache check ───────────────────────────────────────────────────────────
-    reddit_key  = f"stock:sentiment:reddit:{symbol}"
-    twitter_key = f"stock:sentiment:twitter:{symbol}"
-    chart_key   = f"stock:sentiment:chart:{symbol}"
+    reddit_key  = f"stock:sentiment:reddit:v3:{symbol}"
+    twitter_key = f"stock:sentiment:twitter:v3:{symbol}"
+    chart_key   = f"stock:sentiment:chart:v3:{symbol}"
 
     cached_reddit  = await cache_get(reddit_key)
     cached_twitter = await cache_get(twitter_key)

@@ -1,6 +1,6 @@
 import type {
   SearchResult, StockOverview, AIAnalysis, Financials,
-  NewsResponse, AnnouncementsResponse, SentimentData,
+  NewsResponse, AnnouncementsResponse, SentimentData, HistoryData,
 } from "./types";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -47,4 +47,11 @@ export async function fetchAnnouncements(symbol: string): Promise<AnnouncementsR
 
 export async function fetchSentiment(symbol: string): Promise<SentimentData | null> {
   return apiFetch<SentimentData>(`/api/v1/stock/${symbol}/sentiment`);
+}
+
+export async function fetchHistory(
+  symbol: string,
+  period: "1mo" | "3mo" | "6mo" | "1y" = "1y"
+): Promise<HistoryData | null> {
+  return apiFetch<HistoryData>(`/api/v1/stock/${symbol}/history?period=${period}`);
 }
