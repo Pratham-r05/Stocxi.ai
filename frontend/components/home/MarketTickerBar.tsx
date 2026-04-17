@@ -102,7 +102,7 @@ export default function MarketTickerBar() {
   const animationDuration = Math.max(28, items.length * 6);
 
   return (
-    <div className="relative z-40 px-3 pt-[calc(3.5rem+env(safe-area-inset-top)+0.25rem)] sm:px-6 sm:pt-16">
+    <div className="relative z-40 px-3 pt-[calc(3.5rem+env(safe-area-inset-top)+0.75rem)] sm:px-6 sm:pt-16">
       <div
         className={`relative mx-auto w-full max-w-6xl overflow-hidden ${tickerFont.className}`}
         onPointerDown={() => setIsPaused(true)}
