@@ -18,7 +18,7 @@ const item = {
 
 export default function HeroSection() {
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-24 pb-20 overflow-hidden">
+    <section className="relative min-h-[calc(100vh-6.5rem)] flex flex-col items-center justify-center px-6 pt-6 sm:pt-8 pb-16 overflow-hidden">
       {/* Radial top glow */}
       <div className="hero-glow absolute inset-x-0 top-0 h-[500px]" />
 

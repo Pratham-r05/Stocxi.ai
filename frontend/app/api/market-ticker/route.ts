@@ -3,10 +3,10 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-type QuoteTarget = {
+type IndexTarget = {
   id: string;
   label: string;
-  symbol: string;
+  index: string;
 };
 
 type MarketTickerItem = {
@@ -19,15 +19,32 @@ type MarketTickerItem = {
   currency: string;
 };
 
-const TARGETS: QuoteTarget[] = [
-  { id: "nifty50", label: "NIFTY 50", symbol: "^NSEI" },
-  { id: "sensex", label: "SENSEX", symbol: "^BSESN" },
-  { id: "banknifty", label: "BANK NIFTY", symbol: "^NSEBANK" },
-  { id: "gold", label: "GOLD", symbol: "GC=F" },
-  { id: "silver", label: "SILVER", symbol: "SI=F" },
-  { id: "usd_inr", label: "USD/INR", symbol: "INR=X" },
-  { id: "crude", label: "CRUDE", symbol: "CL=F" },
+type NseIndexRow = {
+  index?: string;
+  last?: number | string;
+  variation?: number | string;
+  percentChange?: number | string;
+};
+
+const TARGETS: IndexTarget[] = [
+  { id: "nifty50", label: "NIFTY 50", index: "NIFTY 50" },
+  { id: "banknifty", label: "NIFTY BANK", index: "NIFTY BANK" },
+  {
+    id: "financial_services",
+    label: "FIN SERVICE",
+    index: "NIFTY FINANCIAL SERVICES",
+  },
+  { id: "niftyit", label: "NIFTY IT", index: "NIFTY IT" },
+  { id: "niftyauto", label: "NIFTY AUTO", index: "NIFTY AUTO" },
+  { id: "midcap100", label: "MIDCAP 100", index: "NIFTY MIDCAP 100" },
+  {
+    id: "smallcap100",
+    label: "SMALLCAP 100",
+    index: "NIFTY SMALLCAP 100",
+  },
 ];
+
+const NSE_ALL_INDICES_URL = "https://www.nseindia.com/api/allIndices";
 
 function isIndianMarketOpen(now = new Date()): boolean {
   const ist = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
@@ -40,42 +57,48 @@ function isIndianMarketOpen(now = new Date()): boolean {
   return minutes >= openMinutes && minutes <= closeMinutes;
 }
 
-function toTickerItem(target: QuoteTarget, quote: Record<string, unknown>): MarketTickerItem | null {
-  const price = quote.regularMarketPrice;
-  const change = quote.regularMarketChange;
-  const changePercent = quote.regularMarketChangePercent;
+function toNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string") {
+    const parsed = Number(value.replace(/,/g, "").trim());
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
+function toTickerItem(target: IndexTarget, row: NseIndexRow): MarketTickerItem | null {
+  const price = toNumber(row.last);
+  const change = toNumber(row.variation);
+  const changePercent = toNumber(row.percentChange);
 
   if (
-    typeof price !== "number" ||
-    typeof change !== "number" ||
-    typeof changePercent !== "number"
+    price === null ||
+    change === null ||
+    changePercent === null
   ) {
     return null;
   }
 
-  const currency = typeof quote.currency === "string" ? quote.currency : "INR";
-
   return {
     id: target.id,
     label: target.label,
-    symbol: target.symbol,
+    symbol: target.label,
     price,
     change,
     changePercent,
-    currency,
+    currency: "INR",
   };
 }
 
 export async function GET() {
-  const symbols = TARGETS.map((t) => t.symbol).join(",");
-  const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(symbols)}`;
-
   try {
-    const res = await fetch(url, {
+    const res = await fetch(NSE_ALL_INDICES_URL, {
       cache: "no-store",
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "User-Agent": "Mozilla/5.0",
+        Referer: "https://www.nseindia.com/",
         Accept: "application/json, text/plain, */*",
       },
     });
@@ -96,18 +119,16 @@ export async function GET() {
     }
 
     const payload = (await res.json()) as {
-      quoteResponse?: {
-        result?: Array<Record<string, unknown>>;
-      };
+      data?: NseIndexRow[];
     };
 
-    const results = payload.quoteResponse?.result ?? [];
+    const results = Array.isArray(payload.data) ? payload.data : [];
     const items: MarketTickerItem[] = [];
 
     for (const target of TARGETS) {
-      const quote = results.find((row) => row.symbol === target.symbol);
-      if (!quote) continue;
-      const item = toTickerItem(target, quote);
+      const row = results.find((entry) => entry.index === target.index);
+      if (!row) continue;
+      const item = toTickerItem(target, row);
       if (item) items.push(item);
     }
 

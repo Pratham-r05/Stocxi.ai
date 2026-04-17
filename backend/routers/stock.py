@@ -2,9 +2,9 @@
 routers/stock.py — Stock data endpoints.
 
 Endpoints:
-  GET /api/v1/stock/{symbol}            → Overview: price + fundamentals + technicals
-  GET /api/v1/stock/{symbol}/financials → Screener: quarterly P&L, BS, CF, shareholding
-  GET /api/v1/stock/{symbol}/news       → Recent headlines (Google News RSS)
+    GET /api/v1/stock/{symbol}            → Overview: price + fundamentals + technicals
+    GET /api/v1/stock/{symbol}/financials → Screener: quarterly P&L, BS, CF, shareholding
+    GET /api/v1/stock/{symbol}/news       → Recent headlines (ScanX primary)
 
 Caching strategy (from AI_CONTEXT.md):
   Overview   → TTL_PRICE (300s)
@@ -528,19 +528,32 @@ async def get_stock_news(
     limit: int = Query(default=10, ge=1, le=20, description="Number of articles (1-20)"),
 ):
     """
-    Recent news headlines from Google News RSS.
+    Recent news headlines from ScanX (primary) with Google/yfinance fallback.
     Returns [{title, link, published, source}, ...]
     Cached 2 hours.
     """
     symbol = symbol.upper().strip()
-    cache_key = f"stock:news:v2:{symbol}"  # v2: 7-day recency filter
+    cache_key = f"stock:news:v6:{symbol}"  # v6: enforce newest-first datetime sorting across all sources
 
     cached = await cache_get(cache_key)
     if cached:
         return JSONResponse(content=cached)
 
+    company_name = None
+    overview_cache_key = f"stock:overview:v5:{symbol}"
+    cached_overview = await cache_get(overview_cache_key)
+    if isinstance(cached_overview, dict):
+        company_name = cached_overview.get("company_name")
+
+    if not company_name:
+        try:
+            price_data = await get_price_and_fundamentals(symbol)
+            company_name = price_data.get("company_name")
+        except Exception:
+            company_name = None
+
     try:
-        articles = await get_news(symbol)
+        articles = await get_news(symbol, company_name=company_name)
     except Exception as e:
         logger.error(f"News fetch failed for {symbol}: {e}")
         articles = []

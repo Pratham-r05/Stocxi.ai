@@ -27,7 +27,7 @@ import re
 import shutil
 import subprocess
 from datetime import datetime, timezone, timedelta
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 from xml.etree import ElementTree as ET
 
 import requests
@@ -217,6 +217,28 @@ def _is_relevant_market_post(text: str, symbol: str, company_name: str) -> bool:
     if any(marker in low for marker in noise_markers):
         return False
 
+    # Reject non-investing chatter that often appears in symbol/company searches.
+    non_market_markers = [
+        "interview",
+        "placement",
+        "off campus",
+        "on campus",
+        "hackwith",
+        "hackathon",
+        "internship",
+        "job opening",
+        "hiring",
+        "resume",
+        "cv",
+        "referral",
+        "salary",
+        "ctc",
+        "leetcode",
+        "dsa",
+    ]
+    if any(marker in low for marker in non_market_markers):
+        return False
+
     has_finance_context = _has_finance_context(low)
 
     symbol_l = symbol.lower().strip()
@@ -324,6 +346,27 @@ def _rss_pub_to_iso(pub_date: str) -> str:
         return raw
 
 
+def _is_valid_source_url(url: str, source: str) -> bool:
+    """Strict URL validator per social source to avoid broken/irrelevant links."""
+    raw = str(url or "").strip()
+    if not raw:
+        return False
+    try:
+        parsed = urlparse(raw)
+        host = (parsed.netloc or "").lower()
+        if host.startswith("www."):
+            host = host[4:]
+        path = (parsed.path or "").lower()
+    except Exception:
+        return False
+
+    if source == "twitter":
+        return host in {"x.com", "twitter.com", "mobile.twitter.com"} and "/status/" in path
+    if source == "reddit":
+        return "reddit.com" in host
+    return bool(host)
+
+
 def _fetch_social_from_google_news(symbol: str, source: str) -> list[dict]:
     """Fetch Reddit/X links via Google News RSS, deploy-safe fallback for serverless."""
     company_name = _get_company_name(symbol)
@@ -374,6 +417,9 @@ def _fetch_social_from_google_news(symbol: str, source: str) -> list[dict]:
         else:
             if "x.com" not in source_hint and "twitter.com" not in source_hint:
                 continue
+
+        if not _is_valid_source_url(link, source):
+            continue
 
         text = _clean_summary_text(f"{title} {description}")
         if not _looks_like_target_stock_post(text, symbol, company_name):
@@ -789,8 +835,8 @@ def _fetch_twitter_sync(symbol: str) -> list[dict]:
     """
     cli = _find_cli("twitter")
     if not cli:
-        logger.warning("twitter CLI not found — using Google News fallback for Twitter/X")
-        return _fetch_social_from_google_news(symbol, "twitter")
+        logger.warning("twitter CLI not found — returning no Twitter/X posts")
+        return []
 
     company_name = _get_company_name(symbol)
     query = f"{symbol} NSE stock"
@@ -837,10 +883,14 @@ def _fetch_twitter_sync(symbol: str) -> list[dict]:
                 continue
 
             tweet_id = item.get("id", "")
+            url = f"https://x.com/i/web/status/{tweet_id}" if tweet_id else ""
+            if url and not _is_valid_source_url(url, "twitter"):
+                url = ""
+
             posts.append({
                 "text":   text[:500],
                 "date":   post_dt.isoformat(),
-                "url":    f"https://x.com/i/web/status/{tweet_id}" if tweet_id else "",
+                "url":    url,
                 "source": "twitter",
             })
 
@@ -852,8 +902,8 @@ def _fetch_twitter_sync(symbol: str) -> list[dict]:
     if posts:
         return posts
 
-    logger.info(f"Twitter CLI returned 0 posts for {symbol}, trying fallback")
-    return _fetch_social_from_google_news(symbol, "twitter")
+    logger.info(f"Twitter CLI returned 0 valid posts for {symbol}")
+    return []
 
 
 # ── Processing ────────────────────────────────────────────────────────────────
@@ -951,9 +1001,9 @@ async def get_sentiment(symbol: str, force_refresh: bool = False) -> dict:
     symbol = symbol.upper().strip()
 
     # ── Cache check ───────────────────────────────────────────────────────────
-    reddit_key  = f"stock:sentiment:reddit:v4:{symbol}"
-    twitter_key = f"stock:sentiment:twitter:v4:{symbol}"
-    chart_key   = f"stock:sentiment:chart:v4:{symbol}"
+    reddit_key  = f"stock:sentiment:reddit:v5:{symbol}"
+    twitter_key = f"stock:sentiment:twitter:v5:{symbol}"
+    chart_key   = f"stock:sentiment:chart:v5:{symbol}"
 
     cached_reddit  = await cache_get(reddit_key)
     cached_twitter = await cache_get(twitter_key)

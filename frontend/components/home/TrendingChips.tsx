@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-const TRENDING = [
+const STOCK_POOL = [
   "RELIANCE",
   "TCS",
   "INFY",
@@ -13,11 +13,57 @@ const TRENDING = [
   "ITC",
   "ADANIPOWER",
   "PAYTM",
+  "SBIN",
+  "ICICIBANK",
+  "LT",
+  "MARUTI",
+  "BHARTIARTL",
+  "HINDUNILVR",
+  "BAJFINANCE",
+  "TATAMOTORS",
+  "SUNPHARMA",
+  "AXISBANK",
+  "M&M",
+  "NTPC",
+  "POWERGRID",
+  "ULTRACEMCO",
+  "TITAN",
+  "ASIANPAINT",
+  "COALINDIA",
+  "ONGC",
+  "HCLTECH",
+  "TECHM",
 ];
+
+const VISIBLE_CHIPS = 8;
+const ROTATE_INTERVAL_MS = 60_000;
+const INITIAL_SYMBOLS = STOCK_POOL.slice(0, VISIBLE_CHIPS);
+
+function getRandomSymbols(pool: string[], count: number): string[] {
+  const shuffled = [...pool];
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled.slice(0, Math.min(count, shuffled.length));
+}
 
 export default function TrendingChips() {
   const router = useRouter();
   const [loadingSymbol, setLoadingSymbol] = useState<string | null>(null);
+  const [symbols, setSymbols] = useState<string[]>(INITIAL_SYMBOLS);
+
+  useEffect(() => {
+    setSymbols(getRandomSymbols(STOCK_POOL, VISIBLE_CHIPS));
+
+    const timer = window.setInterval(() => {
+      setSymbols(getRandomSymbols(STOCK_POOL, VISIBLE_CHIPS));
+    }, ROTATE_INTERVAL_MS);
+
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, []);
 
   const go = (symbol: string) => {
     setLoadingSymbol(symbol);
@@ -27,7 +73,7 @@ export default function TrendingChips() {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <span className="shrink-0 text-xs font-medium text-zinc-500">Trending:</span>
-      {TRENDING.map((symbol) => {
+      {symbols.map((symbol) => {
         const isLoading = loadingSymbol === symbol;
         return (
           <button

@@ -11,15 +11,15 @@ import MarketTickerBar from "@/components/home/MarketTickerBar";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-black text-white pb-24">
+    <div className="min-h-screen bg-black text-white">
       <LandingNavbar />
+      <MarketTickerBar />
       <HeroSection />
       <ProblemSection />
       <SolutionSection />
       <HowItWorksSection />
       <PricingSection />
       <LandingFooter />
-      <MarketTickerBar />
     </div>
   );
 }

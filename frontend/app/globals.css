@@ -120,11 +120,37 @@ body {
   animation-play-state: paused;
 }
 
-.market-ticker-shell {
-  border: 1px solid rgba(63, 63, 70, 0.7);
-  border-radius: 18px;
-  background: rgba(9, 9, 11, 0.52);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+.market-ticker-fade-left,
+.market-ticker-fade-right {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 86px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.market-ticker-fade-left {
+  left: 8px;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.94), rgba(0, 0, 0, 0));
+}
+
+.market-ticker-fade-right {
+  right: 8px;
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.94), rgba(0, 0, 0, 0));
+}
+
+@media (max-width: 640px) {
+  .market-ticker-fade-left,
+  .market-ticker-fade-right {
+    width: 56px;
+  }
+
+  .market-ticker-fade-left {
+    left: 4px;
+  }
+
+  .market-ticker-fade-right {
+    right: 4px;
+  }
 }

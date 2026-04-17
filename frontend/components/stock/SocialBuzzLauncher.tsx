@@ -8,6 +8,33 @@ import Image from "next/image";
 
 type SourceTab = "twitter" | "reddit";
 
+function isRecentEnough(iso: string | undefined, days: number): boolean {
+  if (!iso) return true;
+  const ts = Date.parse(iso);
+  if (Number.isNaN(ts)) return true;
+  const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+  return ts >= cutoff;
+}
+
+function isSourceUrlValid(url: string, source: SourceTab): boolean {
+  const raw = String(url || "").trim();
+  if (!raw) return false;
+  try {
+    const parsed = new URL(raw);
+    const host = parsed.hostname.toLowerCase().replace(/^www\./, "");
+    const path = parsed.pathname.toLowerCase();
+
+    if (source === "twitter") {
+      return (host === "x.com" || host === "twitter.com" || host === "mobile.twitter.com")
+        && path.includes("/status/");
+    }
+
+    return host.includes("reddit.com");
+  } catch {
+    return false;
+  }
+}
+
 function isMeaningfulMarketText(raw: string): boolean {
   const text = String(raw || "").toLowerCase().trim();
   if (text.length < 28) return false;
@@ -78,11 +105,14 @@ function SourcePill({
   );
 }
 
-function PostCard({ post }: { post: SentimentPost }) {
+function PostCard({ post, sourceTab }: { post: SentimentPost; sourceTab: SourceTab }) {
   const text = post.text?.trim() || post.title?.trim() || "Untitled mention";
   const score = typeof post.score === "number" ? post.score : null;
   const scoreClass = score == null ? "text-zinc-500" : score > 0.1 ? "text-emerald-400" : score < -0.1 ? "text-red-400" : "text-zinc-400";
   const when = post.created_at ?? post.date;
+  const url = isSourceUrlValid(post.url ?? "", sourceTab) && isRecentEnough(when, 30)
+    ? (post.url ?? "")
+    : "";
 
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-3 space-y-2">
@@ -93,9 +123,9 @@ function PostCard({ post }: { post: SentimentPost }) {
           {score != null && (
             <span className={scoreClass}>Score {score.toFixed(2)}</span>
           )}
-          {post.url ? (
+          {url ? (
             <a
-              href={post.url}
+              href={url}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-zinc-300 hover:text-white"
@@ -144,6 +174,9 @@ export default function SocialBuzzLauncher({ symbol }: { symbol: string }) {
     const links: { url: string; label: string }[] = [];
     for (const post of currentPosts) {
       const url = (post.url || "").trim();
+      if (!isSourceUrlValid(url, activeTab)) continue;
+      const when = post.created_at ?? post.date;
+      if (!isRecentEnough(when, 30)) continue;
       if (!url || seen.has(url)) continue;
       seen.add(url);
       const labelRaw = (post.title || post.text || "Open post").trim();
@@ -294,7 +327,7 @@ export default function SocialBuzzLauncher({ symbol }: { symbol: string }) {
                   ) : (
                     <div className="space-y-3">
                       {currentPosts.slice(0, 10).map((post, idx) => (
-                        <PostCard key={`${post.url ?? "post"}-${idx}`} post={post} />
+                        <PostCard key={`${post.url ?? "post"}-${idx}`} post={post} sourceTab={activeTab} />
                       ))}
                     </div>
                   )}
