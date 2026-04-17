@@ -24,11 +24,11 @@ function fmtNum(v: number | null, decimals = 2): string {
 
 function StatItem({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-0.5 px-4 py-2 first:pl-4 last:pr-4 min-w-0">
+    <div className="flex flex-col gap-0.5 px-3 sm:px-4 py-2 min-w-[110px] sm:min-w-0">
       <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-medium whitespace-nowrap">
         {label}
       </span>
-      <span className="text-sm font-semibold font-mono text-zinc-100 whitespace-nowrap truncate">
+      <span className="text-sm font-semibold font-mono text-zinc-100 whitespace-nowrap">
         {value}
       </span>
     </div>
@@ -62,10 +62,12 @@ export default function TopStatsBar({
   ];
 
   return (
-    <div className="inline-flex items-stretch max-w-full overflow-x-auto rounded-xl border border-zinc-800 bg-zinc-900 divide-x divide-zinc-800">
-      {stats.map((s) => (
-        <StatItem key={s.label} label={s.label} value={s.value} />
-      ))}
+    <div className="w-full overflow-x-auto rounded-xl border border-zinc-800 bg-zinc-900 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex items-stretch divide-x divide-zinc-800 min-w-max">
+        {stats.map((s) => (
+          <StatItem key={s.label} label={s.label} value={s.value} />
+        ))}
+      </div>
     </div>
   );
 }

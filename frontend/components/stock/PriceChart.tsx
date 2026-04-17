@@ -266,7 +266,7 @@ export default function PriceChart({
   const hasVolume = chartData.some((p) => p.volume > 0);
 
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 h-full flex flex-col">
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-3 sm:p-5 h-full flex flex-col overflow-hidden">
       {/* Period tabs */}
       <div className="flex items-center gap-2 mb-5 flex-wrap">
         {PERIODS.map((p) => {
@@ -326,7 +326,7 @@ export default function PriceChart({
         </div>
       ) : (
         <ResponsiveContainer width="100%" height="100%" minHeight={270}>
-          <ComposedChart data={chartData} margin={{ top: 8, right: 2, left: 0, bottom: 6 }}>
+          <ComposedChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 6 }}>
             <defs>
               <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%"   stopColor={strokeColor} stopOpacity={0.12} />

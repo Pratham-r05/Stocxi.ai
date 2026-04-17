@@ -38,10 +38,10 @@ export default async function StockPage({ params }: { params: Promise<{ symbol: 
   ];
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black overflow-x-hidden">
       <StockNavbar symbol={upper} companyName={data.company_name} />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-5">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 py-8 space-y-5 overflow-x-hidden">
         <StockSectionTabs sections={pageSections} />
 
         {/* Header: company name, price, change */}
