@@ -84,7 +84,8 @@ export default function DownloadReportButton({ symbol }: DownloadReportButtonPro
         className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-900/80 px-3 py-1.5 text-xs font-semibold text-zinc-200 hover:border-zinc-600 hover:bg-zinc-800 transition-colors"
       >
         {loadingTier ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
-        <span>Download Report</span>
+        <span className="hidden sm:inline">Download Report</span>
+        <span className="sm:hidden">Report</span>
         <ChevronDown className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : "rotate-0"}`} />
       </button>
 

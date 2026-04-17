@@ -11,6 +11,7 @@ export default function SearchBar() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [hasSearched, setHasSearched] = useState(false);
@@ -56,7 +57,7 @@ export default function SearchBar() {
 
   function selectResult(result: SearchResult) {
     setIsOpen(false);
-    setQuery("");
+    setIsNavigating(true);
     router.push(`/stock/${result.symbol}`);
   }
 
@@ -107,8 +108,8 @@ export default function SearchBar() {
         />
         {/* Right side: loading or ⌘K hint */}
         <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center gap-1">
-          {isLoading ? (
-            <Loader2 className="w-4 h-4 animate-spin text-zinc-500" />
+          {isLoading || isNavigating ? (
+            <Loader2 className="w-4 h-4 animate-spin text-zinc-300" />
           ) : (
             <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border border-zinc-700 bg-zinc-800 px-1.5 py-0.5 text-xs text-zinc-500 font-mono">
               ⌘K
@@ -116,6 +117,13 @@ export default function SearchBar() {
           )}
         </span>
       </div>
+
+      {isNavigating && (
+        <div className="absolute left-0 right-0 top-full mt-2 flex items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-900/80 px-3 py-2 text-xs text-zinc-400 backdrop-blur">
+          <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-200" />
+          <span>Opening stock analysis…</span>
+        </div>
+      )}
 
       {showDropdown && (
         <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 shadow-2xl shadow-black/50">

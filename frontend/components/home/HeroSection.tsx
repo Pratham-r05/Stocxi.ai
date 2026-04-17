@@ -38,20 +38,21 @@ export default function HeroSection() {
 
         {/* Headline */}
         <motion.h1 variants={item} className="text-5xl sm:text-7xl font-black tracking-tighter leading-[0.9] mb-2">
-          <span className="text-white">We built an AI</span>
+          <span className="text-white">Markets, decoded.</span>
           <br />
-          <span className="text-white">that reads stocks</span>
+          <span className="text-white">Decisions, clarified.</span>
         </motion.h1>
         <motion.h1 variants={item} className="text-5xl sm:text-7xl font-black tracking-tighter leading-[0.9] text-zinc-500 mb-8">
-          so you don&apos;t have to.
+          Stocxi reads. You decide.
         </motion.h1>
 
         {/* Sub */}
         <motion.p variants={item} className="text-zinc-400 text-lg leading-relaxed max-w-lg mb-10">
-          Get a clear <span className="text-white font-semibold">BUY</span>,{" "}
+          One AI. One verdict —{" "}
+          <span className="text-white font-semibold">BUY</span>,{" "}
           <span className="text-zinc-300 font-semibold">HOLD</span>, or{" "}
-          <span className="text-white font-semibold">AVOID</span> on any NSE/BSE stock — backed by
-          fundamentals, technicals, and social sentiment.
+          <span className="text-white font-semibold">AVOID</span>. Crunched from fundamentals, technicals,
+          and the pulse of the internet.
         </motion.p>
 
         {/* Search */}

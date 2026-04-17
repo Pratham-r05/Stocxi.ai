@@ -36,9 +36,9 @@ export default function StockHeader({
   return (
     <div className="space-y-4">
       {/* Row 1: Company name + Price */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl border border-zinc-700/80 bg-zinc-900 overflow-hidden shrink-0 flex items-center justify-center p-1.5">
+      <div className="flex items-start justify-between gap-3 sm:gap-4">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl border border-zinc-700/80 bg-zinc-900 overflow-hidden shrink-0 flex items-center justify-center p-1.5">
             {logoUrl ? (
               <div className="w-full h-full rounded-xl bg-white p-1">
                 <img
@@ -53,16 +53,16 @@ export default function StockHeader({
               <span className="text-sm sm:text-base font-bold text-zinc-300">{symbol.slice(0, 2)}</span>
             )}
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight truncate">
+          <h1 className="text-lg sm:text-3xl font-black tracking-tight text-white leading-tight truncate min-w-0">
             {companyName}
           </h1>
         </div>
         <div className="text-right shrink-0">
-          <div className="text-4xl font-black font-mono text-white tracking-tight">
+          <div className="text-2xl sm:text-4xl font-black font-mono text-white tracking-tight whitespace-nowrap">
             {price !== null ? `₹${price.toLocaleString("en-IN")}` : "—"}
           </div>
           {changeArrow && change !== null && changePercent !== null && (
-            <div className={`inline-flex items-center gap-1 mt-1.5 text-sm font-semibold px-2.5 py-0.5 rounded-full ${changeColor} ${changeBg}`}>
+            <div className={`inline-flex items-center gap-1 mt-1.5 text-xs sm:text-sm font-semibold px-2 sm:px-2.5 py-0.5 rounded-full whitespace-nowrap ${changeColor} ${changeBg}`}>
               <span>{changeArrow}</span>
               <span>₹{Math.abs(change).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               <span>({Math.abs(changePercent).toFixed(2)}%)</span>
