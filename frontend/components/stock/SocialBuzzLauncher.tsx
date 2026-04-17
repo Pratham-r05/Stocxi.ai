@@ -61,12 +61,13 @@ function PostCard({ post }: { post: SentimentPost }) {
   const text = post.text?.trim() || post.title?.trim() || "Untitled mention";
   const score = typeof post.score === "number" ? post.score : null;
   const scoreClass = score == null ? "text-zinc-500" : score > 0.1 ? "text-emerald-400" : score < -0.1 ? "text-red-400" : "text-zinc-400";
+  const when = post.created_at ?? post.date;
 
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-3 space-y-2">
       <p className="text-sm text-zinc-200 leading-relaxed">{text}</p>
       <div className="flex items-center justify-between gap-3 text-xs">
-        <span className="text-zinc-500">{formatWhen(post.created_at)}</span>
+        <span className="text-zinc-500">{formatWhen(when)}</span>
         <div className="flex items-center gap-2">
           {score != null && (
             <span className={scoreClass}>Score {score.toFixed(2)}</span>
@@ -100,6 +101,39 @@ export default function SocialBuzzLauncher({ symbol }: { symbol: string }) {
     if (!data) return [] as SentimentPost[];
     return activeTab === "twitter" ? data.twitter.posts : data.reddit.posts;
   }, [data, activeTab]);
+
+  const currentSource = useMemo(() => {
+    if (!data) return null;
+    return activeTab === "twitter" ? data.twitter : data.reddit;
+  }, [data, activeTab]);
+
+  const summaryLines = useMemo(() => {
+    const lines = currentSource?.summary_lines ?? [];
+    const normalized = lines
+      .map((line) => String(line || "").trim())
+      .filter(Boolean)
+      .slice(0, 10);
+
+    while (normalized.length < 10) {
+      normalized.push("No additional high-confidence insight from available posts.");
+    }
+    return normalized;
+  }, [currentSource]);
+
+  const relevantLinks = useMemo(() => {
+    const seen = new Set<string>();
+    const links: { url: string; label: string }[] = [];
+    for (const post of currentPosts) {
+      const url = (post.url || "").trim();
+      if (!url || seen.has(url)) continue;
+      seen.add(url);
+      const labelRaw = (post.title || post.text || "Open post").trim();
+      const label = labelRaw.length > 96 ? `${labelRaw.slice(0, 96).trim()}...` : labelRaw;
+      links.push({ url, label: label || "Open post" });
+      if (links.length >= 10) break;
+    }
+    return links;
+  }, [currentPosts]);
 
   const load = async (force = false) => {
     if (!force && data && lastSymbol === symbol) return;
@@ -191,16 +225,60 @@ export default function SocialBuzzLauncher({ symbol }: { symbol: string }) {
                     Retry
                   </button>
                 </div>
-              ) : currentPosts.length === 0 ? (
-                <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-5 text-center text-sm text-zinc-400 space-y-1">
-                  <p>No one is talking about this stock right now.</p>
-                  <p className="text-xs text-zinc-500">If this looks wrong, try Refresh to run a fresh search.</p>
-                </div>
               ) : (
                 <div className="max-h-[60vh] overflow-y-auto space-y-3 pr-1">
-                  {currentPosts.slice(0, 12).map((post, idx) => (
-                    <PostCard key={`${post.url ?? "post"}-${idx}`} post={post} />
-                  ))}
+                  <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
+                    <p className="text-xs uppercase tracking-[0.12em] text-zinc-500 mb-2">
+                      10-Line Summary
+                    </p>
+                    <ol className="space-y-1.5 text-sm text-zinc-300">
+                      {summaryLines.map((line, idx) => (
+                        <li key={`${line}-${idx}`} className="leading-relaxed">
+                          <span className="text-zinc-500 mr-2">{idx + 1}.</span>
+                          {line}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+
+                  <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
+                    <p className="text-xs uppercase tracking-[0.12em] text-zinc-500 mb-2">
+                      Relevant Links
+                    </p>
+                    {relevantLinks.length === 0 ? (
+                      <div className="text-sm text-zinc-500">
+                        No relevant links found in the last 7 days for this source.
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {relevantLinks.map((item, idx) => (
+                          <a
+                            key={`${item.url}-${idx}`}
+                            href={item.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-start justify-between gap-3 rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-300 hover:text-white hover:border-zinc-700"
+                          >
+                            <span className="line-clamp-2">{item.label}</span>
+                            <ExternalLink className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {currentPosts.length === 0 ? (
+                    <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-5 text-center text-sm text-zinc-400 space-y-1">
+                      <p>No one is talking about this stock right now.</p>
+                      <p className="text-xs text-zinc-500">If this looks wrong, try Refresh to run a fresh search.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {currentPosts.slice(0, 10).map((post, idx) => (
+                        <PostCard key={`${post.url ?? "post"}-${idx}`} post={post} />
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

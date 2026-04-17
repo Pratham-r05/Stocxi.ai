@@ -32,10 +32,12 @@ export interface SentimentPost {
   score?: number;
   url?: string;
   created_at?: string;
+  date?: string;
 }
 export interface SentimentSource {
   posts: SentimentPost[];
   summary: string;
+  summary_lines?: string[];
   structured_summary?: {
     overall_view: string;
     investor_takeaway: string;

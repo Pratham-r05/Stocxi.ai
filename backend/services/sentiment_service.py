@@ -42,6 +42,23 @@ except ImportError:
     logger.warning("vaderSentiment not installed — all scores will default to 0.0")
 
 from cache.redis_client import cache_get, cache_set
+from config import settings
+
+try:
+    from openai import OpenAI
+except ImportError:
+    OpenAI = None
+
+
+_ai_client = None
+if OpenAI is not None and getattr(settings, "openrouter_api_key", None):
+    try:
+        _ai_client = OpenAI(
+            api_key=settings.openrouter_api_key,
+            base_url=settings.openrouter_base_url,
+        )
+    except Exception as e:
+        logger.warning(f"Sentiment AI client init failed: {e}")
 
 
 # ── CLI discovery ─────────────────────────────────────────────────────────────
@@ -322,12 +339,158 @@ def _build_summary(posts: list[dict], signal: str, source: str) -> str:
     return f"{structured.get('overall_view', '')} {structured.get('investor_takeaway', '')}{themes_txt}".strip()
 
 
+def _build_summary_lines(
+    *,
+    source: str,
+    signal: str,
+    sentiment: str,
+    score: float,
+    posts: list[dict],
+    structured_summary: dict,
+) -> list[str]:
+    """Build exactly 10 short summary lines for UI tabs."""
+    source_label = "Reddit" if source == "reddit" else "Twitter/X"
+    themes = structured_summary.get("key_themes", []) if isinstance(structured_summary, dict) else []
+    bullish = structured_summary.get("bullish_points", []) if isinstance(structured_summary, dict) else []
+    risks = structured_summary.get("risk_points", []) if isinstance(structured_summary, dict) else []
+    discussions = structured_summary.get("key_discussions", []) if isinstance(structured_summary, dict) else []
+    overall = (structured_summary.get("overall_view", "") if isinstance(structured_summary, dict) else "").strip()
+    takeaway = (structured_summary.get("investor_takeaway", "") if isinstance(structured_summary, dict) else "").strip()
+
+    lines: list[str] = [
+        f"Source: {source_label} conversations from the last 7 days.",
+        f"Signal: {signal} | Mood: {sentiment} | Score: {score:+.2f}.",
+        f"Total relevant posts analyzed: {len(posts)}.",
+        overall or "Overall view is neutral due to limited high-confidence discussion.",
+        takeaway or "Use this as context, and prioritize fundamentals plus technical trend.",
+        f"Key themes: {', '.join(themes)}." if themes else "Key themes: No dominant theme emerged.",
+        f"Bullish cue: {bullish[0]}" if bullish else "Bullish cue: No strong bullish consensus found.",
+        f"Risk cue: {risks[0]}" if risks else "Risk cue: No strong bearish warning dominated discussion.",
+        f"Discussion highlight: {discussions[0]}" if discussions else "Discussion highlight: Conversations are scattered without one clear narrative.",
+        "Decision use: treat social sentiment as supporting evidence, not as a standalone buy/sell trigger.",
+    ]
+
+    # Guarantee exactly 10 lines for predictable rendering.
+    if len(lines) < 10:
+        lines.extend(["No additional high-confidence insight from available posts."] * (10 - len(lines)))
+    return lines[:10]
+
+
+def _parse_ai_lines(raw_text: str) -> list[str]:
+    """Parse AI output into clean line list (JSON array preferred, text fallback)."""
+    text = (raw_text or "").strip()
+    if not text:
+        return []
+
+    # Try direct JSON array first.
+    try:
+        parsed = json.loads(text)
+        if isinstance(parsed, list):
+            return [str(x).strip() for x in parsed if str(x).strip()]
+    except Exception:
+        pass
+
+    # Try extracting a JSON array from mixed content.
+    arr_match = re.search(r"\[[\s\S]*\]", text)
+    if arr_match:
+        try:
+            parsed = json.loads(arr_match.group(0))
+            if isinstance(parsed, list):
+                return [str(x).strip() for x in parsed if str(x).strip()]
+        except Exception:
+            pass
+
+    # Fallback: split plain text lines and strip list prefixes.
+    out: list[str] = []
+    for line in text.splitlines():
+        clean = re.sub(r"^\s*(?:[-*]|\d+[\.)])\s*", "", line).strip()
+        if clean:
+            out.append(clean)
+    return out
+
+
+def _build_ai_summary_lines(
+    *,
+    source: str,
+    symbol: str,
+    signal: str,
+    sentiment: str,
+    score: float,
+    posts: list[dict],
+) -> list[str] | None:
+    """Generate exactly 10 concise source summary lines using OpenRouter; return None on any failure."""
+    if _ai_client is None or not posts:
+        return None
+
+    source_label = "Reddit" if source == "reddit" else "Twitter/X"
+    compact_posts = []
+    for p in posts[:10]:
+        txt = _short_snippet(p.get("text", ""), 180)
+        if not txt:
+            continue
+        compact_posts.append(
+            {
+                "text": txt,
+                "date": str(p.get("date", ""))[:10],
+                "url": p.get("url", ""),
+            }
+        )
+
+    if not compact_posts:
+        return None
+
+    prompt = (
+        f"Summarize last-7-days {source_label} investor discussion for stock {symbol}.\n"
+        f"Signal={signal}, Sentiment={sentiment}, Score={score:+.2f}.\n"
+        "Return EXACTLY a JSON array with 10 short strings (one insight per string).\n"
+        "No markdown, no extra keys, no numbering.\n"
+        f"Posts JSON: {json.dumps(compact_posts, ensure_ascii=False)}"
+    )
+
+    try:
+        resp = _ai_client.chat.completions.create(
+            model=settings.openrouter_model,
+            messages=[
+                {"role": "system", "content": "You are a precise market summary assistant. Output strict JSON array only."},
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.2,
+            max_tokens=380,
+            timeout=8,
+        )
+        content = ""
+        if resp and resp.choices and resp.choices[0].message:
+            content = resp.choices[0].message.content or ""
+        lines = _parse_ai_lines(content)
+        if not lines:
+            return None
+        lines = lines[:10]
+        while len(lines) < 10:
+            lines.append("No additional high-confidence insight from available posts.")
+        return lines
+    except Exception as e:
+        logger.warning(f"AI summary generation failed for {symbol} {source}: {e}")
+        return None
+
+
 def _fallback_source(source: str) -> dict:
     """Returns a valid empty fallback dict for 'reddit' or 'twitter'."""
     source_label = "Reddit" if source == "reddit" else "Twitter/X"
     return {
         "posts": [],
         "summary": f"No meaningful {source_label} data available right now.",
+        "summary_lines": [
+            f"Source: {source_label} conversations from the last 7 days.",
+            "Signal: HOLD | Mood: Neutral | Score: +0.00.",
+            "Total relevant posts analyzed: 0.",
+            f"No meaningful {source_label} discussions were found in the last 7 days.",
+            "Use fundamentals and technical indicators until social data is available.",
+            "Key themes: No dominant theme emerged.",
+            "Bullish cue: No strong bullish consensus found.",
+            "Risk cue: No strong bearish warning dominated discussion.",
+            "Discussion highlight: Conversations are scattered without one clear narrative.",
+            "Decision use: treat social sentiment as supporting evidence, not as a standalone buy/sell trigger.",
+        ],
         "structured_summary": {
             "overall_view": f"No meaningful {source_label} discussions were found in the last 7 days.",
             "investor_takeaway": "Use fundamentals and technical indicators until social data is available.",
@@ -358,58 +521,86 @@ def _fetch_reddit_sync(symbol: str) -> list[dict]:
         return []
 
     company_name = _get_company_name(symbol)
-    # Try two queries: symbol-specific, then company name if different
-    queries = [f"{symbol} NSE stock"]
+    queries_raw = [
+        f"{symbol} NSE stock",
+        f"{symbol} stock india",
+        f"{symbol} nse",
+        symbol,
+    ]
     if company_name != symbol:
-        queries.append(f"{company_name} India stock")
+        queries_raw.extend([
+            f"{company_name} India stock",
+            f"{company_name} stock",
+            company_name,
+        ])
+
+    queries: list[str] = []
+    seen_q: set[str] = set()
+    for q in queries_raw:
+        q_norm = " ".join(q.split()).strip().lower()
+        if q_norm and q_norm not in seen_q:
+            seen_q.add(q_norm)
+            queries.append(q.strip())
 
     all_posts: list[dict] = []
     cutoff = datetime.now(timezone.utc) - timedelta(days=7)
 
-    for query in queries:
-        raw = _run_cli([cli, "search", query, "--limit", "25", "--json"])
-        if not raw:
-            continue
-        try:
-            parsed = json.loads(raw)
-            if not parsed.get("ok"):
-                logger.warning(f"rdt returned ok=false for query '{query}'")
-                continue
-            children = (
-                parsed.get("data", {})
-                      .get("data", {})
-                      .get("children", [])
-            )
-            for child in children:
-                post = child.get("data", {})
-                # Filter by date
-                created_utc = post.get("created_utc", 0)
-                try:
-                    post_dt = datetime.fromtimestamp(float(created_utc), tz=timezone.utc)
-                except Exception:
-                    post_dt = datetime.now(timezone.utc)
+    for query in queries[:6]:
+        after: str | None = None
+        for _page in range(2):
+            cmd = [cli, "search", query, "--limit", "25", "--json"]
+            if after:
+                cmd.extend(["--after", after])
 
-                if post_dt < cutoff:
-                    continue
+            raw = _run_cli(cmd)
+            if not raw:
+                break
+            try:
+                parsed = json.loads(raw)
+                if not parsed.get("ok"):
+                    logger.warning(f"rdt returned ok=false for query '{query}'")
+                    break
 
-                title = str(post.get("title", "")).strip()
-                body  = str(post.get("selftext", "")).strip()
-                text  = f"{title} {body}".strip() if body else title
-                if not text:
-                    continue
-                if not _is_relevant_market_post(text, symbol, company_name):
-                    continue
+                listing_data = parsed.get("data", {}).get("data", {})
+                children = listing_data.get("children", [])
+                after = listing_data.get("after")
 
-                permalink = post.get("permalink", "")
-                all_posts.append({
-                    "text":   text[:500],
-                    "date":   post_dt.isoformat(),
-                    "url":    f"https://reddit.com{permalink}" if permalink else "",
-                    "source": "reddit",
-                })
-        except (json.JSONDecodeError, KeyError, TypeError) as e:
-            logger.warning(f"rdt parse error for query '{query}': {e}")
-            continue
+                if not isinstance(children, list) or not children:
+                    break
+
+                for child in children:
+                    post = child.get("data", {})
+                    # Filter by date
+                    created_utc = post.get("created_utc", 0)
+                    try:
+                        post_dt = datetime.fromtimestamp(float(created_utc), tz=timezone.utc)
+                    except Exception:
+                        post_dt = datetime.now(timezone.utc)
+
+                    if post_dt < cutoff:
+                        continue
+
+                    title = str(post.get("title", "")).strip()
+                    body  = str(post.get("selftext", "")).strip()
+                    text  = f"{title} {body}".strip() if body else title
+                    if not text:
+                        continue
+                    if not _is_relevant_market_post(text, symbol, company_name):
+                        continue
+
+                    permalink = post.get("permalink", "")
+                    all_posts.append({
+                        "text":   text[:500],
+                        "date":   post_dt.isoformat(),
+                        "url":    f"https://reddit.com{permalink}" if permalink else "",
+                        "source": "reddit",
+                    })
+
+                if not after:
+                    break
+            except (json.JSONDecodeError, KeyError, TypeError) as e:
+                logger.warning(f"rdt parse error for query '{query}': {e}")
+                break
 
     # Deduplicate by url
     seen: set[str] = set()
@@ -508,6 +699,7 @@ def _process_source(raw_posts: list[dict], source: str) -> dict:
             "text":   text,
             "score":  item_score,
             "date":   p.get("date", ""),
+            "created_at": p.get("date", ""),
             "url":    p.get("url", ""),
             "source": source,
         })
@@ -517,10 +709,20 @@ def _process_source(raw_posts: list[dict], source: str) -> dict:
     label  = _score_to_label(score)
     structured_summary = _build_structured_summary(enriched, signal, source)
     summary = _build_summary(enriched, signal, source)
+    fallback_lines = _build_summary_lines(
+        source=source,
+        signal=signal,
+        sentiment=label,
+        score=score,
+        posts=enriched,
+        structured_summary=structured_summary,
+    )
+    summary_lines = fallback_lines
 
     return {
         "posts":           enriched,
         "summary":         summary,
+        "summary_lines":   summary_lines,
         "structured_summary": structured_summary,
         "sentiment":       label,
         "sentiment_score": score,
@@ -580,9 +782,9 @@ async def get_sentiment(symbol: str, force_refresh: bool = False) -> dict:
     symbol = symbol.upper().strip()
 
     # ── Cache check ───────────────────────────────────────────────────────────
-    reddit_key  = f"stock:sentiment:reddit:v3:{symbol}"
-    twitter_key = f"stock:sentiment:twitter:v3:{symbol}"
-    chart_key   = f"stock:sentiment:chart:v3:{symbol}"
+    reddit_key  = f"stock:sentiment:reddit:v4:{symbol}"
+    twitter_key = f"stock:sentiment:twitter:v4:{symbol}"
+    chart_key   = f"stock:sentiment:chart:v4:{symbol}"
 
     cached_reddit  = await cache_get(reddit_key)
     cached_twitter = await cache_get(twitter_key)
@@ -621,6 +823,31 @@ async def get_sentiment(symbol: str, force_refresh: bool = False) -> dict:
 
         reddit_data  = _process_source(reddit_raw,  "reddit")
         twitter_data = _process_source(twitter_raw, "twitter")
+
+        # Fill symbol into AI-summary generation path when available.
+        if reddit_data.get("posts"):
+            ai_lines = _build_ai_summary_lines(
+                source="reddit",
+                symbol=symbol,
+                signal=reddit_data.get("signal", "HOLD"),
+                sentiment=reddit_data.get("sentiment", "Neutral"),
+                score=float(reddit_data.get("sentiment_score", 0.0)),
+                posts=reddit_data.get("posts", []),
+            )
+            if ai_lines:
+                reddit_data["summary_lines"] = ai_lines
+
+        if twitter_data.get("posts"):
+            ai_lines = _build_ai_summary_lines(
+                source="twitter",
+                symbol=symbol,
+                signal=twitter_data.get("signal", "HOLD"),
+                sentiment=twitter_data.get("sentiment", "Neutral"),
+                score=float(twitter_data.get("sentiment_score", 0.0)),
+                posts=twitter_data.get("posts", []),
+            )
+            if ai_lines:
+                twitter_data["summary_lines"] = ai_lines
         chart_data   = _build_chart_data(reddit_data, twitter_data)
 
         # ── Cache results ─────────────────────────────────────────────────────
