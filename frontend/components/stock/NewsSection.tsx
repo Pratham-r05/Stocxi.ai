@@ -28,13 +28,27 @@ function timeAgo(published: string): string {
 export default function NewsSection({ symbol }: NewsSectionProps) {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
-    fetchNews(symbol).then((data) => {
-      setArticles(data?.articles ?? []);
+    let active = true;
+    const load = async () => {
+      setLoading(true);
+      setFailed(false);
+      const data = await fetchNews(symbol);
+      if (!active) return;
+      if (data === null) {
+        setArticles([]);
+        setFailed(true);
+      } else {
+        setArticles(data.articles ?? []);
+      }
       setLoading(false);
-    });
-  }, [symbol]);
+    };
+    void load();
+    return () => { active = false; };
+  }, [symbol, reloadToken]);
 
   return (
     <section>
@@ -51,13 +65,25 @@ export default function NewsSection({ symbol }: NewsSectionProps) {
         </div>
       )}
 
-      {!loading && articles.length === 0 && (
+      {!loading && failed && (
+        <div className="rounded-xl border border-red-900/60 bg-red-950/20 p-6 text-center text-red-300 text-sm space-y-3">
+          <p>Unable to load news right now. Check backend connection and try again.</p>
+          <button
+            onClick={() => setReloadToken((t) => t + 1)}
+            className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      {!loading && !failed && articles.length === 0 && (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 text-center text-zinc-500 text-sm">
           No recent news found for {symbol}
         </div>
       )}
 
-      {!loading && articles.length > 0 && (
+      {!loading && !failed && articles.length > 0 && (
         <div className="space-y-2">
           {articles.slice(0, 10).map((article, i) => (
             <div

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Social buzz icon">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#27272a"/>
+      <stop offset="100%" stop-color="#3f3f46"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#g)" stroke="#52525b"/>
+  <circle cx="24" cy="26" r="10" fill="#18181b" stroke="#f97316" stroke-width="2"/>
+  <path d="M20 26h8m-8 4h6m-6-8h8" stroke="#f97316" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="42" cy="38" r="10" fill="#18181b" stroke="#38bdf8" stroke-width="2"/>
+  <path d="M38 38h8m-8-4h6m-6 8h6" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+</svg>

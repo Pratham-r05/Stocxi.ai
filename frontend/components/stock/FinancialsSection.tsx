@@ -250,14 +250,24 @@ function FinancialTable({ table, activeTab }: { table: FinancialTable | null | u
 export default function FinancialsSection({ symbol }: FinancialsSectionProps) {
   const [data, setData] = useState<Financials | null>(null);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
   const [activeTab, setActiveTab] = useState("quarterly");
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
-    fetchFinancials(symbol).then((result) => {
+    let active = true;
+    const load = async () => {
+      setLoading(true);
+      setFailed(false);
+      const result = await fetchFinancials(symbol);
+      if (!active) return;
       setData(result);
+      setFailed(result === null);
       setLoading(false);
-    });
-  }, [symbol]);
+    };
+    void load();
+    return () => { active = false; };
+  }, [symbol, reloadToken]);
 
   const tableMap: Record<string, FinancialTable | null | undefined> = {
     quarterly: data?.quarterly_results,
@@ -278,6 +288,16 @@ export default function FinancialsSection({ symbol }: FinancialsSectionProps) {
         <div className="rounded-xl border border-zinc-800 bg-zinc-900 overflow-hidden">
           {loading ? (
             <Skeleton className="h-48 w-full rounded-none" />
+          ) : failed ? (
+            <div className="p-8 text-center text-red-300 text-sm border border-red-900/60 bg-red-950/20 space-y-3">
+              <p>Unable to load financials right now. Check backend connection and try again.</p>
+              <button
+                onClick={() => setReloadToken((t) => t + 1)}
+                className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700"
+              >
+                Retry
+              </button>
+            </div>
           ) : activeTab === "mf_holdings" ? (
             <MFHoldingsTable table={tableMap.mf_holdings} />
           ) : (

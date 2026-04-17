@@ -9,6 +9,7 @@ import Badge from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import SectionHeader from "@/components/ui/SectionHeader";
 import Tabs from "@/components/ui/Tabs";
+import SocialBuzzLauncher from "@/components/stock/SocialBuzzLauncher";
 import { fetchAIAnalysis } from "@/lib/api";
 import type { AIAnalysis } from "@/lib/types";
 
@@ -89,7 +90,12 @@ export default function AIAnalysisPanel({ symbol }: { symbol: string }) {
     setLoading(false);
   }, [symbol, riskLevel]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      void load();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [load]);
 
   const formatDate = (iso: string) => {
     try { return new Date(iso).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }); }
@@ -99,6 +105,9 @@ export default function AIAnalysisPanel({ symbol }: { symbol: string }) {
   return (
     <section>
       <SectionHeader title="AI Analysis" />
+      <div className="mb-3 flex justify-end">
+        <SocialBuzzLauncher symbol={symbol} />
+      </div>
       <Tabs
         tabs={RISK_TABS as unknown as { id: string; label: string }[]}
         active={riskLevel}

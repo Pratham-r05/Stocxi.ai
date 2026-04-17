@@ -45,8 +45,9 @@ export async function fetchAnnouncements(symbol: string): Promise<AnnouncementsR
   return apiFetch<AnnouncementsResponse>(`/api/v1/stock/${symbol}/announcements?limit=10`);
 }
 
-export async function fetchSentiment(symbol: string): Promise<SentimentData | null> {
-  return apiFetch<SentimentData>(`/api/v1/stock/${symbol}/sentiment`);
+export async function fetchSentiment(symbol: string, forceRefresh = false): Promise<SentimentData | null> {
+  const qp = forceRefresh ? "?refresh=true" : "";
+  return apiFetch<SentimentData>(`/api/v1/stock/${symbol}/sentiment${qp}`);
 }
 
 export async function fetchHistory(

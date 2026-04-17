@@ -571,7 +571,7 @@ def _build_chart_data(reddit_data: dict, twitter_data: dict) -> list[dict]:
 
 # ── Public async API ──────────────────────────────────────────────────────────
 
-async def get_sentiment(symbol: str) -> dict:
+async def get_sentiment(symbol: str, force_refresh: bool = False) -> dict:
     """
     Async public entry — fetches Reddit + Twitter in parallel via CLI subprocess.
     Caches results per source. Returns combined sentiment dict.
@@ -588,7 +588,7 @@ async def get_sentiment(symbol: str) -> dict:
     cached_twitter = await cache_get(twitter_key)
     cached_chart   = await cache_get(chart_key)
 
-    if cached_reddit and cached_twitter and cached_chart:
+    if (not force_refresh) and cached_reddit and cached_twitter and cached_chart:
         logger.info(f"Cache hit: sentiment for {symbol}")
         reddit_data  = cached_reddit
         twitter_data = cached_twitter

@@ -173,25 +173,37 @@ export default function PriceChart({
   symbol: string;
   defaultChangePercent?: number | null;
 }) {
-  const [period, setPeriod]     = useState<Period>("1y");
+  const [period, setPeriod]     = useState<Period>("1d");
   const [dataMap, setDataMap]   = useState<Partial<Record<Period, HistoryPoint[]>>>({});
   const [loading, setLoading]   = useState(true);
+  const [failed, setFailed]     = useState(false);
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
     let active = true;
 
     const load = async () => {
-      // Fetch 1Y first to show chart ASAP
+      setLoading(true);
+      setFailed(false);
+      setDataMap({});
+
+      let gotAnyResponse = false;
+
+      // Fetch selected default period first so the first render has matching data.
+      const primaryPeriod: Period = "1d";
       try {
-        const d1y = await fetchHistory(symbol, "1y");
-        if (active && d1y?.closes?.length) {
-          setDataMap((prev) => ({ ...prev, "1y": d1y.closes }));
+        const primaryData = await fetchHistory(symbol, primaryPeriod);
+        if (primaryData !== null) {
+          gotAnyResponse = true;
+        }
+        if (active && primaryData?.closes?.length) {
+          setDataMap((prev) => ({ ...prev, [primaryPeriod]: primaryData.closes }));
           setLoading(false);
         }
       } catch { /**/ }
 
       // Fetch remaining periods in parallel
-      const rest: Period[] = ["1d", "1w", "1mo", "6mo"];
+      const rest: Period[] = ["1w", "1mo", "6mo", "1y"];
       const results = await Promise.allSettled(
         rest.map((p) => fetchHistory(symbol, p))
       );
@@ -200,17 +212,25 @@ export default function PriceChart({
       const updates: Partial<Record<Period, HistoryPoint[]>> = {};
       rest.forEach((p, i) => {
         const r = results[i];
-        if (r.status === "fulfilled" && r.value?.closes?.length) {
-          updates[p] = r.value.closes;
+        if (r.status === "fulfilled") {
+          if (r.value !== null) {
+            gotAnyResponse = true;
+          }
+          if (r.value?.closes?.length) {
+            updates[p] = r.value.closes;
+          }
         }
       });
       setDataMap((prev) => ({ ...prev, ...updates }));
-      if (active) setLoading(false);
+      if (active) {
+        setFailed(!gotAnyResponse);
+        setLoading(false);
+      }
     };
 
     void load();
     return () => { active = false; };
-  }, [symbol]);
+  }, [symbol, reloadToken]);
 
   const currentData = useMemo<HistoryPoint[]>(() => dataMap[period] ?? [], [dataMap, period]);
 
@@ -290,6 +310,16 @@ export default function PriceChart({
       <div className="h-[clamp(270px,52vw,420px)] sm:h-[360px] lg:h-[420px]">
       {loading ? (
         <Skeleton className="h-full w-full rounded-xl" />
+      ) : failed ? (
+        <div className="h-full flex flex-col items-center justify-center gap-3 text-sm">
+          <p className="text-red-300">Unable to load chart data. Check backend connection.</p>
+          <button
+            onClick={() => setReloadToken((t) => t + 1)}
+            className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700"
+          >
+            Retry
+          </button>
+        </div>
       ) : chartData.length === 0 ? (
         <div className="h-full flex items-center justify-center text-zinc-600 text-sm">
           No price history available

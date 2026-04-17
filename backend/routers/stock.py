@@ -559,14 +559,17 @@ async def get_stock_news(
 
 # ── GET /api/v1/stock/{symbol}/sentiment ─────────────────────────────────────
 @router.get("/{symbol}/sentiment")
-async def get_stock_sentiment(symbol: str):
+async def get_stock_sentiment(
+    symbol: str,
+    refresh: bool = Query(default=False, description="If true, bypass cache and fetch fresh social data"),
+):
     """
     Reddit + X/Twitter social sentiment for a stock symbol.
     Returns combined dict with Reddit posts, Twitter posts, signals, and 7-day chart data.
     Cached 1 hour.
     """
     # returns Reddit + Twitter sentiment for symbol
-    return await sentiment_service.get_sentiment(symbol.upper().strip())
+    return await sentiment_service.get_sentiment(symbol.upper().strip(), force_refresh=refresh)
 
 
 # ── GET /api/v1/stock/{symbol}/history ───────────────────────────────────────

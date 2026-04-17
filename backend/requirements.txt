@@ -9,6 +9,7 @@ jugaad-data                # OHLCV priority 2 — NSE historical data, no Yahoo 
 beautifulsoup4==4.12.3     # Screener.in HTML scraping
 lxml==5.3.0                # Faster BS4 parser
 requests==2.32.3           # Sync HTTP for screener scraping
+chardet==5.2.0             # Keep within requests-supported range (<6)
 httpx==0.28.1              # Async HTTP (used internally by FastAPI deps)
 
 # ── Technicals ─────────────────────────────────────────────────────────────────

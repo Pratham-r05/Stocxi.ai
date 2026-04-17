@@ -15,13 +15,27 @@ interface AnnouncementsSectionProps {
 export default function AnnouncementsSection({ symbol }: AnnouncementsSectionProps) {
   const [items, setItems] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
-    fetchAnnouncements(symbol).then((data) => {
-      setItems(data?.announcements ?? []);
+    let active = true;
+    const load = async () => {
+      setLoading(true);
+      setFailed(false);
+      const data = await fetchAnnouncements(symbol);
+      if (!active) return;
+      if (data === null) {
+        setItems([]);
+        setFailed(true);
+      } else {
+        setItems(data.announcements ?? []);
+      }
       setLoading(false);
-    });
-  }, [symbol]);
+    };
+    void load();
+    return () => { active = false; };
+  }, [symbol, reloadToken]);
 
   return (
     <section>
@@ -38,13 +52,25 @@ export default function AnnouncementsSection({ symbol }: AnnouncementsSectionPro
         </div>
       )}
 
-      {!loading && items.length === 0 && (
+      {!loading && failed && (
+        <div className="rounded-xl border border-red-900/60 bg-red-950/20 p-6 text-center text-red-300 text-sm space-y-3">
+          <p>Unable to load announcements right now. Check backend connection and try again.</p>
+          <button
+            onClick={() => setReloadToken((t) => t + 1)}
+            className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      {!loading && !failed && items.length === 0 && (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 text-center text-zinc-500 text-sm">
           No recent announcements found for {symbol}
         </div>
       )}
 
-      {!loading && items.length > 0 && (
+      {!loading && !failed && items.length > 0 && (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900 overflow-hidden">
           {items.slice(0, 10).map((item, i) => (
             <div
