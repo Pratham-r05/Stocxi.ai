@@ -98,3 +98,33 @@ body {
   --tw-gradient-to: rgb(0 0 0 / 0) var(--tw-gradient-to-position) !important;
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
 }
+
+@keyframes market-marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.market-marquee-track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  animation: market-marquee 32s linear infinite;
+  will-change: transform;
+}
+
+.market-marquee-track.paused {
+  animation-play-state: paused;
+}
+
+.market-ticker-shell {
+  border: 1px solid rgba(63, 63, 70, 0.7);
+  border-radius: 18px;
+  background: rgba(9, 9, 11, 0.52);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
