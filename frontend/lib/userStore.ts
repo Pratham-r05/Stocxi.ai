@@ -8,6 +8,13 @@ import { createClient } from "redis";
 const DB_PATH = path.join(process.cwd(), "data", "users.json");
 const USERS_KEY = "stocxi:auth:users";
 const REDIS_URL = process.env.REDIS_URL;
+const MAX_TRACKED_STOCKS = 100;
+
+export interface UserStockSearch {
+  symbol: string;
+  count: number;
+  lastSearchedAt: string;
+}
 
 export interface User {
   id: string;
@@ -16,6 +23,7 @@ export interface User {
   passwordHash: string | null; // null for Google-only accounts
   provider: "credentials" | "google";
   createdAt: string;
+  searchedStocks?: UserStockSearch[];
 }
 
 type AppRedisClient = ReturnType<typeof createClient>;
@@ -114,4 +122,54 @@ export async function upsertGoogleUser(name: string, email: string): Promise<Use
   const existing = await findUserByEmail(email);
   if (existing) return existing;
   return addUser({ name, email, passwordHash: null, provider: "google" });
+}
+
+export async function recordUserStockSearch(email: string, symbol: string): Promise<boolean> {
+  const normalizedEmail = email.trim().toLowerCase();
+  const normalizedSymbol = symbol.trim().toUpperCase();
+  if (!normalizedEmail || !normalizedSymbol) return false;
+
+  const users = await readUsers();
+  const userIndex = users.findIndex(
+    (u) => u.email.toLowerCase() === normalizedEmail
+  );
+  if (userIndex === -1) return false;
+
+  const user = users[userIndex];
+  const searches = [...(user.searchedStocks ?? [])];
+  const now = new Date().toISOString();
+  const existing = searches.find((entry) => entry.symbol === normalizedSymbol);
+
+  if (existing) {
+    existing.count += 1;
+    existing.lastSearchedAt = now;
+  } else {
+    searches.push({
+      symbol: normalizedSymbol,
+      count: 1,
+      lastSearchedAt: now,
+    });
+  }
+
+  searches.sort(
+    (a, b) =>
+      new Date(b.lastSearchedAt).getTime() - new Date(a.lastSearchedAt).getTime()
+  );
+
+  users[userIndex] = {
+    ...user,
+    searchedStocks: searches.slice(0, MAX_TRACKED_STOCKS),
+  };
+
+  return writeUsers(users);
+}
+
+export async function getUserStockSearches(email: string): Promise<UserStockSearch[]> {
+  const user = await findUserByEmail(email);
+  const searches = [...(user?.searchedStocks ?? [])];
+  searches.sort(
+    (a, b) =>
+      new Date(b.lastSearchedAt).getTime() - new Date(a.lastSearchedAt).getTime()
+  );
+  return searches;
 }

@@ -2,7 +2,7 @@
 
 // PriceChart — ComposedChart with price line + volume bars, 5 period tabs with % changes
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { fetchHistory } from "@/lib/api";
 import type { HistoryPoint } from "@/lib/types";
 import {
@@ -13,7 +13,6 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer,
 } from "recharts";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -178,6 +177,27 @@ export default function PriceChart({
   const [loading, setLoading]   = useState(true);
   const [failed, setFailed]     = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
+  const chartBodyRef = useRef<HTMLDivElement | null>(null);
+  const [canRenderChart, setCanRenderChart] = useState(false);
+  const [chartSize, setChartSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const el = chartBodyRef.current;
+    if (!el) return;
+
+    const updateSizeState = () => {
+      const { width, height } = el.getBoundingClientRect();
+      const nextWidth = Math.max(0, Math.floor(width));
+      const nextHeight = Math.max(0, Math.floor(height));
+      setChartSize({ width: nextWidth, height: nextHeight });
+      setCanRenderChart(nextWidth > 0 && nextHeight > 0);
+    };
+
+    updateSizeState();
+    const observer = new ResizeObserver(updateSizeState);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -307,7 +327,7 @@ export default function PriceChart({
       </div>
 
       {/* Chart body */}
-      <div className="h-[clamp(270px,52vw,420px)] sm:h-[360px] lg:h-[420px]">
+      <div ref={chartBodyRef} className="h-[clamp(270px,52vw,420px)] sm:h-[360px] lg:h-[420px] min-h-[270px]">
       {loading ? (
         <Skeleton className="h-full w-full rounded-xl" />
       ) : failed ? (
@@ -324,9 +344,10 @@ export default function PriceChart({
         <div className="h-full flex items-center justify-center text-zinc-600 text-sm">
           No price history available
         </div>
+      ) : !canRenderChart ? (
+        <Skeleton className="h-full w-full rounded-xl" />
       ) : (
-        <ResponsiveContainer width="100%" height="100%" minHeight={270}>
-          <ComposedChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 6 }}>
+        <ComposedChart width={chartSize.width} height={chartSize.height} data={chartData} margin={{ top: 8, right: 2, left: 0, bottom: 6 }}>
             <defs>
               <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%"   stopColor={strokeColor} stopOpacity={0.12} />
@@ -360,7 +381,7 @@ export default function PriceChart({
               tick={{ fill: "#52525b", fontSize: 10, dx: -2 }}
               axisLine={{ stroke: "#27272a", strokeOpacity: 0.7 }}
               tickLine={false}
-              width={50}
+              width={42}
               tickMargin={2}
               tickFormatter={formatPriceTick}
               tickCount={6}
@@ -395,7 +416,6 @@ export default function PriceChart({
               isAnimationActive={false}
             />
           </ComposedChart>
-        </ResponsiveContainer>
       )}
       </div>
     </div>

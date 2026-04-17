@@ -2,10 +2,10 @@
 
 // SentimentSection — Reddit + Twitter sentiment with recharts donut chart
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { fetchSentiment } from "@/lib/api";
 import type { SentimentData } from "@/lib/types";
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell } from "recharts";
 import Badge from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import SectionHeader from "@/components/ui/SectionHeader";
@@ -34,6 +34,28 @@ function CombinedScoreBar({ score, signal }: { score: number; signal: string }) 
 }
 
 function SentimentDonut({ redditScore, twitterScore }: { redditScore: number; twitterScore: number }) {
+  const donutRef = useRef<HTMLDivElement | null>(null);
+  const [canRenderDonut, setCanRenderDonut] = useState(false);
+  const [donutSize, setDonutSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const el = donutRef.current;
+    if (!el) return;
+
+    const updateSizeState = () => {
+      const { width, height } = el.getBoundingClientRect();
+      const nextWidth = Math.max(0, Math.floor(width));
+      const nextHeight = Math.max(0, Math.floor(height));
+      setDonutSize({ width: nextWidth, height: nextHeight });
+      setCanRenderDonut(nextWidth > 0 && nextHeight > 0);
+    };
+
+    updateSizeState();
+    const observer = new ResizeObserver(updateSizeState);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   // Use absolute values for donut sizing; labels show actual scores
   const rAbs = Math.max(0.01, Math.abs(redditScore));
   const tAbs = Math.max(0.01, Math.abs(twitterScore));
@@ -48,9 +70,9 @@ function SentimentDonut({ redditScore, twitterScore }: { redditScore: number; tw
 
   return (
     <div className="flex flex-col items-center">
-      <div className="relative w-28 h-28">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
+      <div ref={donutRef} className="relative w-28 h-28 min-w-[112px] min-h-[112px]">
+        {canRenderDonut ? (
+          <PieChart width={donutSize.width} height={donutSize.height}>
             <Pie
               data={pieData}
               cx="50%"
@@ -66,7 +88,9 @@ function SentimentDonut({ redditScore, twitterScore }: { redditScore: number; tw
               <Cell fill="#52525b" />
             </Pie>
           </PieChart>
-        </ResponsiveContainer>
+        ) : (
+          <Skeleton className="h-full w-full rounded-full" />
+        )}
         {/* Center label */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
           <span className="font-mono font-bold text-white text-sm leading-none">

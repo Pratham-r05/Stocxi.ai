@@ -9,6 +9,7 @@ import KeyFundamentals from "@/components/stock/KeyFundamentals";
 import TechnicalsSection from "@/components/stock/TechnicalsSection";
 import AIAnalysisPanel from "@/components/stock/AIAnalysisPanel";
 import StockSectionTabs from "@/components/stock/StockSectionTabs";
+import TrackStockSearch from "@/components/stock/TrackStockSearch";
 import NewsSection from "@/components/stock/NewsSection";
 import AnnouncementsSection from "@/components/stock/AnnouncementsSection";
 import FinancialsSection from "@/components/stock/FinancialsSection";
@@ -42,7 +43,7 @@ export default async function StockPage({ params }: { params: Promise<{ symbol: 
       <StockNavbar symbol={upper} companyName={data.company_name} />
 
       <main className="max-w-7xl mx-auto px-3 sm:px-6 py-8 space-y-5 overflow-x-hidden">
-        <StockSectionTabs sections={pageSections} />
+        <TrackStockSearch symbol={upper} />
 
         {/* Header: company name, price, change */}
         <section id="overview" className="scroll-mt-32">
@@ -74,8 +75,11 @@ export default async function StockPage({ params }: { params: Promise<{ symbol: 
           />
         </section>
 
+        {/* Section tabs (sticky while scrolling content) */}
+        <StockSectionTabs sections={pageSections} />
+
         {/* Chart + Key Fundamentals side by side */}
-        <div className="flex flex-col lg:flex-row gap-5">
+        <div className="flex flex-col lg:flex-row gap-3">
           <div id="price-chart" className="flex-1 min-w-0 scroll-mt-32">
             <PriceChart symbol={upper} defaultChangePercent={data.change_percent} />
           </div>
