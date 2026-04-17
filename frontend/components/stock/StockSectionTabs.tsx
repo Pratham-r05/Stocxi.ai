@@ -89,7 +89,7 @@ export default function StockSectionTabs({ sections }: StockSectionTabsProps) {
   if (!sections.length) return null;
 
   return (
-    <div className="sticky top-14 z-40 -mx-4 sm:-mx-6 px-4 sm:px-6">
+    <div className="sticky top-14 z-40 -mx-3 sm:-mx-6 px-3 sm:px-6">
       <div className="border-y border-zinc-800/80 bg-zinc-950/95 backdrop-blur-xl">
         <div className="overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           <div className="flex min-w-max items-center gap-1">
