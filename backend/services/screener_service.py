@@ -49,6 +49,28 @@ _HEADERS = {
 _TIMEOUT = 10  # seconds — from AI_CONTEXT.md; return empty on breach
 
 
+def _parse_company_website(soup) -> str | None:
+    """Extract official company website from Screener company links."""
+    try:
+        links_wrap = soup.find("div", class_="company-links")
+        if not links_wrap:
+            return None
+
+        for anchor in links_wrap.find_all("a", href=True):
+            href = str(anchor.get("href") or "").strip()
+            if not href:
+                continue
+            low = href.lower()
+            # Exclude market/reference links; keep primary corporate website.
+            if "bseindia.com" in low or "nseindia.com" in low or "screener.in" in low:
+                continue
+            if low.startswith("http://") or low.startswith("https://"):
+                return href
+    except Exception:
+        pass
+    return None
+
+
 def _parse_table(table) -> dict:
     """
     Convert a Screener.in HTML table into a dict:
@@ -104,13 +126,13 @@ def _parse_top_ratios(soup) -> dict:
     """
     Extract key ratios from Screener's #top-ratios section.
     Returns dict with: pe_ratio, market_cap, book_value, dividend_yield,
-                       roce, roe, face_value, sector, industry
+                       roce, roe, face_value, eps, sector, industry
     All values are None if not found — never raises.
     """
     result = {
         "pe_ratio": None, "market_cap": None, "book_value": None,
         "dividend_yield": None, "roce": None, "roe": None,
-        "face_value": None, "sector": None, "industry": None,
+        "face_value": None, "eps": None, "sector": None, "industry": None,
     }
     try:
         ratios_ul = soup.find("ul", {"id": "top-ratios"})
@@ -139,9 +161,13 @@ def _parse_top_ratios(soup) -> dict:
                 if "stock p/e" in name or ("p/e" in name and "stock" in name):
                     result["pe_ratio"] = to_float(raw)
                 elif "market cap" in name or "mkt cap" in name:
-                    result["market_cap"] = to_float(raw)  # in Cr
+                    # Screener market cap is in crores; normalize to rupees for API consistency.
+                    val = to_float(raw)
+                    result["market_cap"] = int(val * 1e7) if val is not None else None
                 elif "book value" in name:
                     result["book_value"] = to_float(raw)
+                elif "eps" in name:
+                    result["eps"] = to_float(raw)
                 elif "dividend yield" in name:
                     result["dividend_yield"] = to_float(raw)
                 elif "roce" in name:
@@ -153,16 +179,18 @@ def _parse_top_ratios(soup) -> dict:
             except Exception:
                 continue
 
-        # Sector: screener shows it as a breadcrumb link in .company-info or similar
+        # Sector / industry links in newer Screener layout expose semantic title attributes.
         try:
-            # Try company-info section (varies by screener version)
-            info_section = soup.find("div", class_="company-info")
-            if info_section:
-                links = info_section.find_all("a", href=True)
-                sector_links = [a.get_text(strip=True) for a in links
-                                if "/screens/" in (a.get("href") or "")]
-                if sector_links:
-                    result["sector"] = sector_links[0]
+            sector_link = soup.select_one('a[title="Sector"]') or soup.select_one('a[title="Broad Sector"]')
+            if sector_link:
+                result["sector"] = sector_link.get_text(strip=True) or None
+        except Exception:
+            pass
+
+        try:
+            industry_link = soup.select_one('a[title="Industry"]') or soup.select_one('a[title="Broad Industry"]')
+            if industry_link:
+                result["industry"] = industry_link.get_text(strip=True) or result["industry"]
         except Exception:
             pass
 
@@ -318,6 +346,7 @@ def _fetch_screener(symbol: str) -> dict:
         "cash_flow":         extract("cash-flow"),
         "shareholding":      extract_shareholding(),
         "mf_holdings":       _extract_mf_holdings(symbol, soup, used_url),
+        "website":           _parse_company_website(soup),
         "source_url":        used_url,
     }
 

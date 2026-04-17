@@ -54,6 +54,7 @@ def _fetch_from_nse(symbol: str) -> dict:
     metadata    = raw.get("metadata", {})
     info        = raw.get("info", {})          # NSE also puts companyName here
     trade_info  = raw.get("tradeInfo", {})
+    pre_open    = raw.get("preOpenMarket", {})
     sec_info    = raw.get("securityInfo", {})
     intraday    = price_info.get("intraDayHighLow", {})
     week_hl     = price_info.get("weekHighLow", {})
@@ -94,7 +95,8 @@ def _fetch_from_nse(symbol: str) -> dict:
         "week_52_low":     week_hl.get("min"),
         "volume":          _safe_int(
                                trade_info.get("totalTradedVolume") or
-                               trade_info.get("totalTradedQty")
+                               trade_info.get("totalTradedQty") or
+                               pre_open.get("totalTradedVolume")
                            ),
         "market_cap":      market_cap,
         # fundamentals NSE doesn't expose via this endpoint:
@@ -177,7 +179,7 @@ def _fetch_nse_intraday_1d(symbol: str) -> list[dict]:
     """
     Fetch today's intraday chart data from NSE's own chart API via nsepython session.
     Returns [{date: 'YYYY-MM-DD HH:MM', close, volume?}] in IST.
-    NSE returns [[timestamp_ms, price], ...] in grapthData key.
+    NSE returns [[timestamp_ms, price, volume?], ...] in grapthData key.
     """
     from nsepython import nsefetch  # type: ignore
     from datetime import timezone, timedelta
@@ -197,10 +199,18 @@ def _fetch_nse_intraday_1d(symbol: str) -> list[dict]:
             if price is None:
                 continue
             dt = datetime.fromtimestamp(float(ts_ms) / 1000, tz=IST)
-            result.append({
+            entry = {
                 "date":  dt.strftime("%Y-%m-%d %H:%M"),
                 "close": round(float(price), 2),
-            })
+            }
+            if len(point) >= 3 and point[2] is not None:
+                try:
+                    vol = int(float(point[2]))
+                    if vol > 0:
+                        entry["volume"] = vol
+                except Exception:
+                    pass
+            result.append(entry)
         logger.info(f"NSE intraday 1D: {len(result)} points for {symbol}")
         return result
     except Exception as e:
@@ -261,31 +271,87 @@ async def get_history(symbol: str, period: str = "1y") -> dict:
     """
     import yfinance as yf
     import pandas as pd
-    from datetime import date, timedelta
+    from datetime import date, datetime, timedelta, timezone
 
     symbol = symbol.upper().strip()
     valid_periods = {"1d", "1w", "1mo", "3mo", "6mo", "1y", "2y", "5y"}
     if period not in valid_periods:
         period = "1y"
 
-    # Map period → (yfinance period param, interval)
+    # Map period → (source range, source interval)
     _yf_map = {
-        "1d":  ("1d",  "5m"),
-        "1w":  ("5d",  "15m"),
-        "1mo": ("1mo", "1d"),
+        "1d":  ("1d",  "1m"),
+        "1w":  ("5d",  "60m"),
+        "1mo": ("1mo", "60m"),
         "3mo": ("3mo", "1d"),
         "6mo": ("6mo", "1d"),
         "1y":  ("1y",  "1d"),
         "2y":  ("2y",  "1d"),
         "5y":  ("5y",  "1d"),
     }
-    # Daily fallback when intraday fails (Yahoo blocks intraday for Indian stocks)
-    _daily_fallback_map = {
-        "1d": ("5d",  "1d"),   # last 5 trading days at daily resolution
-        "1w": ("1mo", "1d"),   # last month of daily → slice to 7 pts
-    }
     yf_period, yf_interval = _yf_map[period]
-    is_intraday = period in {"1d", "1w"}
+    is_intraday = period in {"1d", "1w", "1mo"}
+
+    def _bucket_minutes_for_period() -> int:
+        """Return output bucket size in minutes for each chart period."""
+        if period == "1d":
+            return 1
+        if period == "1w":
+            return 60
+        if period == "1mo":
+            return 720
+        return 0
+
+    def _aggregate_intraday_points(points: list[dict]) -> list[dict]:
+        """Aggregate intraday points by configured bucket size and sum traded volume."""
+        bucket_minutes = _bucket_minutes_for_period()
+        if bucket_minutes <= 1 or not points:
+            return points
+
+        intraday_points = [p for p in points if len(str(p.get("date", ""))) > 10]
+        if not intraday_points:
+            return points
+
+        buckets: dict[str, dict] = {}
+
+        for p in intraday_points:
+            date_str = str(p.get("date", ""))
+            try:
+                dt = datetime.strptime(date_str, "%Y-%m-%d %H:%M")
+            except Exception:
+                continue
+
+            total_minutes = dt.hour * 60 + dt.minute
+            bucket_start_minutes = (total_minutes // bucket_minutes) * bucket_minutes
+            bucket_hour = bucket_start_minutes // 60
+            bucket_minute = bucket_start_minutes % 60
+            bucket_dt = dt.replace(hour=bucket_hour, minute=bucket_minute, second=0, microsecond=0)
+            bucket_key = bucket_dt.strftime("%Y-%m-%d %H:%M")
+
+            close_val = p.get("close")
+            if close_val is None:
+                continue
+
+            entry = buckets.get(bucket_key)
+            if entry is None:
+                entry = {"date": bucket_key, "close": round(float(close_val), 2)}
+                buckets[bucket_key] = entry
+            else:
+                entry["close"] = round(float(close_val), 2)
+
+            volume_val = p.get("volume")
+            if volume_val is not None:
+                try:
+                    vol_int = int(float(volume_val))
+                    if vol_int > 0:
+                        entry["volume"] = int(entry.get("volume", 0)) + vol_int
+                except Exception:
+                    pass
+
+        if not buckets:
+            return points
+
+        return sorted(buckets.values(), key=lambda x: x["date"])
 
     def _extract_ohlcv(df: pd.DataFrame) -> list[dict]:
         """Normalize dataframe and extract [{date, close, volume?}] safely."""
@@ -348,6 +414,91 @@ async def get_history(symbol: str, period: str = "1y") -> dict:
             logger.warning(f"OHLCV extraction failed for {symbol}: {e}")
             return []
 
+    def _download_from_yahoo_intraday_chart() -> list[dict]:
+        """Fetch true intraday candles from Yahoo chart API without crumb auth."""
+        if not is_intraday:
+            return []
+
+        if period == "1d":
+            range_param, interval_param = ("1d", "1m")
+        elif period == "1w":
+            range_param, interval_param = ("5d", "60m")
+        else:
+            range_param, interval_param = ("1mo", "60m")
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+            "Referer": "https://finance.yahoo.com",
+            "Accept": "application/json",
+        }
+        IST = timezone(timedelta(hours=5, minutes=30))
+
+        for suffix in [".NS", ".BO"]:
+            url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}{suffix}"
+            try:
+                with httpx.Client(timeout=12.0, follow_redirects=True) as client:
+                    resp = client.get(
+                        url,
+                        headers=headers,
+                        params={
+                            "range": range_param,
+                            "interval": interval_param,
+                            "includePrePost": "false",
+                            "events": "div,splits",
+                        },
+                    )
+                    resp.raise_for_status()
+                    payload = resp.json()
+
+                results = (payload.get("chart") or {}).get("result") or []
+                if not results:
+                    continue
+
+                result0 = results[0] or {}
+                timestamps = result0.get("timestamp") or []
+                quote_list = ((result0.get("indicators") or {}).get("quote") or [{}])
+                quote0 = quote_list[0] if quote_list else {}
+                closes = quote0.get("close") or []
+                volumes = quote0.get("volume") or []
+
+                if not timestamps or not closes:
+                    continue
+
+                out: list[dict] = []
+                for i, ts in enumerate(timestamps):
+                    if i >= len(closes):
+                        break
+                    close_val = closes[i]
+                    if close_val is None:
+                        continue
+
+                    try:
+                        dt = datetime.fromtimestamp(int(ts), tz=timezone.utc).astimezone(IST)
+                    except Exception:
+                        continue
+
+                    entry: dict = {
+                        "date": dt.strftime("%Y-%m-%d %H:%M"),
+                        "close": round(float(close_val), 2),
+                    }
+
+                    if i < len(volumes) and volumes[i] is not None:
+                        try:
+                            vol_int = int(float(volumes[i]))
+                            if vol_int > 0:
+                                entry["volume"] = vol_int
+                        except Exception:
+                            pass
+
+                    out.append(entry)
+
+                if out:
+                    logger.info(f"Yahoo intraday chart: {len(out)} points for {symbol}{suffix} period={period}")
+                    return out
+            except Exception as e:
+                logger.warning(f"Yahoo intraday chart failed for {symbol}{suffix} period={period}: {e}")
+
+        return []
+
     def _download_from_yfinance() -> list[dict]:
         """Download history from Yahoo chart endpoint for NSE/BSE variants."""
         for suffix in [".NS", ".BO"]:
@@ -366,28 +517,6 @@ async def get_history(symbol: str, period: str = "1y") -> dict:
                     return points
             except Exception as e:
                 logger.warning(f"History yfinance failed for {symbol}{suffix}: {e}")
-
-        # Intraday fallback: Yahoo blocks 5m/15m for Indian stocks — use daily candles
-        if is_intraday and period in _daily_fallback_map:
-            fb_period, fb_interval = _daily_fallback_map[period]
-            max_pts = 5 if period == "1d" else 7
-            for suffix in [".NS", ".BO"]:
-                try:
-                    df = yf.download(
-                        f"{symbol}{suffix}",
-                        period=fb_period,
-                        interval=fb_interval,
-                        progress=False,
-                        auto_adjust=True,
-                        threads=False,
-                        group_by="column",
-                    )
-                    points = _extract_ohlcv(df)
-                    if points:
-                        logger.info(f"Intraday fallback to daily for {symbol} period={period}")
-                        return points[-max_pts:]
-                except Exception as e:
-                    logger.warning(f"History daily fallback failed for {symbol}{suffix}: {e}")
         return []
 
     def _download_from_jugaad() -> list[dict]:
@@ -444,17 +573,26 @@ async def get_history(symbol: str, period: str = "1y") -> dict:
 
     def _download() -> list[dict]:
         try:
-            # For 1D/1W: try NSE native APIs first (Yahoo blocks intraday for Indian stocks)
+            # For 1D: NSE native minute series first.
             if period == "1d":
                 points = _fetch_nse_intraday_1d(symbol)
                 if points:
                     return points
-            elif period == "1w":
-                points = _fetch_nse_historical_week(symbol)
-                if points:
-                    return points
 
-            # Remaining periods (or intraday NSE failed): try yfinance then jugaad
+            # For 1D/1W/1M: enforce intraday source + bucketed output, no daily downgrade.
+            if period in {"1d", "1w", "1mo"}:
+                points = _download_from_yahoo_intraday_chart()
+                if points:
+                    return _aggregate_intraday_points(points)
+
+                points = _download_from_yfinance()
+                if points:
+                    return _aggregate_intraday_points(points)
+
+                logger.warning(f"Intraday history unavailable for {symbol} period={period}; returning empty set")
+                return []
+
+            # Remaining daily periods: yfinance first, then NSE historical fallback.
             points = _download_from_yfinance()
             if points:
                 return points

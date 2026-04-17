@@ -5,6 +5,7 @@ import { Building2, Tag } from "lucide-react";
 interface StockHeaderProps {
   symbol: string;
   companyName: string;
+  logoUrl?: string | null;
   exchange: string | null;
   sector: string | null;
   price: number | null;
@@ -19,6 +20,7 @@ interface StockHeaderProps {
 export default function StockHeader({
   symbol,
   companyName,
+  logoUrl,
   exchange,
   sector,
   price,
@@ -35,9 +37,26 @@ export default function StockHeader({
     <div className="space-y-4">
       {/* Row 1: Company name + Price */}
       <div className="flex items-start justify-between gap-4">
-        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
-          {companyName}
-        </h1>
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl border border-zinc-700/80 bg-zinc-900 overflow-hidden shrink-0 flex items-center justify-center p-1.5">
+            {logoUrl ? (
+              <div className="w-full h-full rounded-xl bg-white p-1">
+                <img
+                  src={logoUrl}
+                  alt={`${companyName} logo`}
+                  className="w-full h-full object-contain"
+                  loading="eager"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+            ) : (
+              <span className="text-sm sm:text-base font-bold text-zinc-300">{symbol.slice(0, 2)}</span>
+            )}
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight truncate">
+            {companyName}
+          </h1>
+        </div>
         <div className="text-right shrink-0">
           <div className="text-4xl font-black font-mono text-white tracking-tight">
             {price !== null ? `₹${price.toLocaleString("en-IN")}` : "—"}

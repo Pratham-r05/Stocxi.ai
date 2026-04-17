@@ -67,6 +67,8 @@ export interface SentimentData {
 export interface StockOverview {
   symbol: string;
   company_name: string;
+  company_website: string | null;
+  logo_url: string | null;
   exchange: string | null;
   sector: string | null;
   industry: string | null;

@@ -80,6 +80,39 @@ function RSIBar({ rsi }: { rsi: number }) {
   );
 }
 
+function signalSummary(
+  signal: string | null | undefined,
+  bullish: string,
+  neutral: string,
+  bearish: string,
+) {
+  const s = (signal ?? "").toLowerCase();
+  if (["bullish", "buy", "strong", "positive"].includes(s)) return bullish;
+  if (["bearish", "avoid", "weak", "negative"].includes(s)) return bearish;
+  return neutral;
+}
+
+function explainRsi(rsi: number | null) {
+  if (rsi === null) return "RSI data is not available right now, so momentum cannot be judged from this indicator.";
+  if (rsi >= 70) return "Momentum is very hot. The stock can still rise, but fresh entries carry higher pullback risk.";
+  if (rsi <= 30) return "Momentum is deeply sold off. This zone often attracts bounce trades, but trend confirmation is important.";
+  if (rsi >= 60) return "Momentum is healthy and in favor of buyers, without being in extreme overbought territory.";
+  if (rsi <= 40) return "Momentum is on the weaker side. Buyers are not fully in control yet.";
+  return "Momentum is balanced. The market is neither overheated nor oversold.";
+}
+
+function explainAdx(adx: number | null) {
+  if (adx === null) return "ADX data is unavailable, so trend strength cannot be confirmed from this card.";
+  if (adx >= 25) return "Trend strength is strong. Direction should be taken from other indicators like EMA or MACD.";
+  if (adx >= 20) return "Trend strength is building, but not yet decisive.";
+  return "Trend is weak or sideways. Breakouts are less reliable in this zone.";
+}
+
+function explainAtr(atr: number | null) {
+  if (atr === null) return "ATR data is unavailable, so daily risk range cannot be estimated from this card.";
+  return `Typical daily movement is around Rs ${atr.toFixed(2)}. Use this as a practical stop-loss distance guide.`;
+}
+
 export default function TechnicalsSection({
   technicals,
   currentVolume,
@@ -107,6 +140,7 @@ export default function TechnicalsSection({
     : parseFloat(volRatio) >= 1.5 ? "Bullish"
     : parseFloat(volRatio) < 0.7  ? "Bearish"
     : "Neutral";
+  const volRatioNum = volRatio !== null ? parseFloat(volRatio) : null;
 
   const indicators = [
     {
@@ -121,6 +155,12 @@ export default function TechnicalsSection({
         </span>
       ) : null,
       description: "Is the stock above its 20-day, 50-day, and 200-day EMA? The 200 DMA is the single most-watched line on NSE/BSE screens.",
+      beginnerSummary: signalSummary(
+        ema_signal,
+        "Trend structure is healthy: buyers are likely in control across short and long timeframes.",
+        "Trend is mixed: some moving averages may support price, but the setup is not fully aligned.",
+        "Trend structure is weak: price is likely losing support from key moving averages."
+      ),
       rule: "Price above 200 DMA = long-term uptrend. Stay away if price is below all three EMAs.",
     },
     {
@@ -136,6 +176,7 @@ export default function TechnicalsSection({
         </>
       ) : null,
       description: "14-period RSI measures momentum. Above 70 = overbought (may reverse). Below 30 = oversold (may bounce).",
+      beginnerSummary: explainRsi(rsi),
       rule: "Sweet spot: RSI 40–65 for fresh entries. RSI above 80 = likely near-term reversal risk.",
     },
     {
@@ -157,6 +198,14 @@ export default function TechnicalsSection({
         </div>
       ),
       description: "Price moves with high volume are genuine; low-volume breakouts on NSE often fail. Compare today's volume to the 20-day average.",
+      beginnerSummary:
+        volRatioNum === null
+          ? "Volume context is incomplete right now, so treat breakouts with caution."
+          : volRatioNum >= 1.5
+            ? "Participation is strong: this move has crowd support and is more likely to sustain."
+            : volRatioNum < 0.7
+              ? "Participation is weak: the move can fade quickly without stronger volume confirmation."
+              : "Participation is normal: wait for price and volume to expand together for higher conviction.",
       rule: "Breakout volume should be ≥ 1.5× the 20-day average. Avoid low-volume pumps.",
     },
     {
@@ -171,6 +220,12 @@ export default function TechnicalsSection({
         </span>
       ) : null,
       description: "Bollinger Bands show dynamic support/resistance. Key price levels where the stock has historically reversed or consolidated.",
+      beginnerSummary: signalSummary(
+        bb_signal,
+        "Price behavior is favoring a support-side bounce or steady upward structure inside the band range.",
+        "Price is inside expected band range, which usually means consolidation rather than a strong directional move.",
+        "Price action is likely under pressure near resistance or showing weak structure."
+      ),
       rule: "Never buy right into strong overhead resistance. Buy near support with a tight stop below.",
     },
     {
@@ -183,6 +238,12 @@ export default function TechnicalsSection({
         <span className="font-mono text-sm text-zinc-200">{fmt(macd, 3)}</span>
       ) : null,
       description: "MACD line crossing above the signal line = bullish momentum. Histogram shows momentum strength — shrinking bars = weakening trend.",
+      beginnerSummary: signalSummary(
+        macd_signal,
+        "Momentum is improving and buyers are gaining follow-through.",
+        "Momentum is indecisive: trend continuation needs confirmation from price or volume.",
+        "Momentum is fading and downside pressure is building."
+      ),
       rule: "Look for MACD bullish crossover above the zero line for high-conviction entries.",
     },
     {
@@ -195,6 +256,7 @@ export default function TechnicalsSection({
         <span className="font-mono text-sm text-zinc-200">₹{fmt(atr)}</span>
       ) : null,
       description: "ATR measures how much a stock moves per day on average. Critical for sizing your position and placing stop-losses — especially for F&O stocks.",
+      beginnerSummary: explainAtr(atr),
       rule: "Set stop-loss at 1–1.5× ATR from entry. Don't risk more than 1–2% of capital per trade.",
     },
     {
@@ -207,6 +269,7 @@ export default function TechnicalsSection({
         <span className="font-mono text-sm text-zinc-200">{fmt(adx, 1)}</span>
       ) : null,
       description: "ADX measures the strength of a trend regardless of direction. A rising ADX above 25 confirms the trend is gathering momentum.",
+      beginnerSummary: explainAdx(adx),
       rule: "ADX > 25 = trending — trade with the trend. ADX < 20 = range-bound — consider range strategies.",
     },
     {
@@ -217,6 +280,12 @@ export default function TechnicalsSection({
       signal: overall_signal,
       value: null,
       description: "Combines RSI momentum, MACD crossover, and EMA trend alignment to give a consolidated view of the stock's technical health.",
+      beginnerSummary: signalSummary(
+        overall_signal,
+        "Most major technical components are aligned in favor of upside continuation.",
+        "Signals are mixed. Wait for clearer alignment before taking aggressive positions.",
+        "Several technical components are warning of weakness; protect capital first."
+      ),
       rule: "Use as a starting filter — a Bullish signal with high-volume confirmation and trend support is the strongest setup.",
     },
   ];
@@ -224,6 +293,13 @@ export default function TechnicalsSection({
   return (
     <section>
       <SectionHeader title="Technical Indicators" />
+      <div className="mb-4 rounded-xl border border-cyan-500/20 bg-cyan-500/5 px-3 py-2.5">
+        <p className="text-[10px] uppercase tracking-wide text-cyan-300/80 font-semibold">Beginner Quick Read</p>
+        <p className="mt-1 text-xs text-zinc-300 leading-relaxed">
+          Start with the signal badge, then read the <span className="text-zinc-100 font-medium">What this means now</span> note.
+          Use the <span className="text-zinc-100 font-medium">Learn</span> button to understand each indicator in plain language.
+        </p>
+      </div>
       <motion.div
         variants={container}
         initial="hidden"
@@ -245,7 +321,11 @@ export default function TechnicalsSection({
             {/* Title with (i) */}
             <div className="flex items-center gap-1 mb-2">
               <h4 className="text-sm font-semibold text-zinc-100">{ind.title}</h4>
-              <InfoTooltip content={ind.tooltip} />
+              <InfoTooltip
+                title="Beginner explanation"
+                label="Learn"
+                content={ind.tooltip}
+              />
             </div>
 
             {/* Live value */}
@@ -258,6 +338,11 @@ export default function TechnicalsSection({
             <p className="mt-2.5 text-[11px] text-zinc-500 leading-relaxed">
               {ind.description}
             </p>
+
+            <div className="mt-2.5 rounded-lg border border-zinc-700/50 bg-zinc-800/45 px-3 py-2">
+              <p className="text-[10px] uppercase tracking-wide text-zinc-400">What this means now</p>
+              <p className="mt-1 text-xs text-zinc-200 leading-relaxed">{ind.beginnerSummary}</p>
+            </div>
 
             {/* Rule box */}
             <RuleBox>

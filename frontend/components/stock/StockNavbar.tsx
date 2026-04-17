@@ -5,6 +5,7 @@
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+import DownloadReportButton from "@/components/stock/DownloadReportButton";
 
 interface StockNavbarProps {
   symbol: string;
@@ -41,16 +42,19 @@ export default function StockNavbar({ symbol, companyName }: StockNavbarProps) {
           <span className="text-zinc-500 hidden sm:block truncate max-w-[200px]">{shortName}</span>
         </div>
 
-        {/* Right: avatar or sign in */}
-        {initials ? (
-          <div className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-300">
-            {initials}
-          </div>
-        ) : (
-          <Link href="/login" className="text-sm text-zinc-500 hover:text-white transition-colors">
-            Sign in
-          </Link>
-        )}
+        {/* Right: report action + avatar/sign in */}
+        <div className="flex items-center gap-2.5">
+          <DownloadReportButton symbol={symbol} />
+          {initials ? (
+            <div className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-300">
+              {initials}
+            </div>
+          ) : (
+            <Link href="/login" className="text-sm text-zinc-500 hover:text-white transition-colors">
+              Sign in
+            </Link>
+          )}
+        </div>
       </div>
     </nav>
   );

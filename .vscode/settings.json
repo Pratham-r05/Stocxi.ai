@@ -10,6 +10,7 @@
             "matchCommandLine": true
         },
         "lsof": true,
-        "true": true
+        "true": true,
+        "/Users/prathamraj/miniforge3/envs/stocxi/bin/python": true
     }
 }

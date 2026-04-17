@@ -88,9 +88,12 @@ export default function KeyFundamentals({
 
   return (
     <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 h-full">
-      <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">
-        Key Fundamentals
-      </h3>
+      <div className="mb-3 flex items-center gap-2.5">
+        <h3 className="text-sm font-bold text-zinc-100 uppercase tracking-[0.12em] leading-none">
+          Key Fundamentals
+        </h3>
+        <div className="h-px flex-1 bg-gradient-to-r from-zinc-600/70 to-transparent" />
+      </div>
       <div>
         {rows.map((r) => (
           <Row key={r.label} label={r.label} value={r.value} highlight={r.highlight} />

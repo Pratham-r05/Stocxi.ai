@@ -6,7 +6,9 @@ import { useEffect, useState, useMemo } from "react";
 import { fetchHistory } from "@/lib/api";
 import type { HistoryPoint } from "@/lib/types";
 import {
-  LineChart,
+  ComposedChart,
+  CartesianGrid,
+  Bar,
   Line,
   XAxis,
   YAxis,
@@ -20,6 +22,7 @@ type Period = "1d" | "1w" | "1mo" | "6mo" | "1y";
 interface ChartPoint {
   date: string;    // formatted label for X-axis
   close: number;
+  volume: number;
   rawDate: string; // original date string from backend
 }
 
@@ -44,9 +47,15 @@ function isIntradayDate(dateStr: string): boolean {
   return dateStr.length > 10;
 }
 
+function parseChartDate(dateStr: string): Date {
+  // Safari can fail on "YYYY-MM-DD HH:MM"; normalize to ISO-like format first.
+  const normalized = dateStr.includes(" ") ? dateStr.replace(" ", "T") : dateStr;
+  return new Date(normalized);
+}
+
 function formatDate(dateStr: string, period: Period): string {
   try {
-    const d = new Date(dateStr);
+    const d = parseChartDate(dateStr);
     if (period === "1d") {
       // True intraday data → show time; daily fallback → show short date
       if (isIntradayDate(dateStr)) {
@@ -54,8 +63,20 @@ function formatDate(dateStr: string, period: Period): string {
       }
       return d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
     }
-    if (period === "1w")  return d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric" });
-    if (period === "1mo") return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+    if (period === "1w") {
+      if (isIntradayDate(dateStr)) {
+        return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+      }
+      return d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric" });
+    }
+    if (period === "1mo") {
+      if (isIntradayDate(dateStr)) {
+        const day = d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+        const half = d.getHours() < 12 ? "AM" : "PM";
+        return `${day} ${half}`;
+      }
+      return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+    }
     return d.toLocaleDateString("en-IN", { month: "short", year: "2-digit" });
   } catch {
     return dateStr.slice(0, 10);
@@ -64,9 +85,23 @@ function formatDate(dateStr: string, period: Period): string {
 
 function formatTooltipDate(rawDate: string, period: Period): string {
   try {
-    const d = new Date(rawDate);
+    const d = parseChartDate(rawDate);
     if (period === "1d" && isIntradayDate(rawDate)) {
       return d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
+    }
+    if (period === "1w" && isIntradayDate(rawDate)) {
+      return d.toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }) + " " + d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
+    }
+    if (period === "1mo" && isIntradayDate(rawDate)) {
+      return d.toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }) + " " + d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
     }
     if (period === "1d" || period === "1w") {
       return d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
@@ -78,9 +113,17 @@ function formatTooltipDate(rawDate: string, period: Period): string {
 }
 
 function formatPriceTick(v: number): string {
-  if (Math.abs(v) >= 1_00_000) return `₹${(v / 1_00_000).toFixed(1)}L`;
-  if (Math.abs(v) >= 1_000)    return `₹${(v / 1_000).toFixed(1)}K`;
-  return `₹${v.toFixed(0)}`;
+  const abs = Math.abs(v);
+  if (abs >= 1_00_00_000) return `₹${(v / 1_00_00_000).toFixed(1)}Cr`;
+  if (abs >= 1_00_000) return `₹${(v / 1_00_000).toFixed(1)}L`;
+  return `₹${Math.round(v).toLocaleString("en-IN")}`;
+}
+
+function formatVolumeTick(v: number): string {
+  if (v >= 1_00_00_000) return `${(v / 1_00_00_000).toFixed(1)}Cr`;
+  if (v >= 1_00_000) return `${(v / 1_00_000).toFixed(1)}L`;
+  if (v >= 1_000) return `${(v / 1_000).toFixed(1)}K`;
+  return `${Math.round(v)}`;
 }
 
 function CustomTooltip({
@@ -95,7 +138,12 @@ function CustomTooltip({
 }) {
   if (!active || !payload?.length) return null;
   const priceEntry = payload.find((p) => p.dataKey === "close");
+  const volumeEntry = payload.find((p) => p.dataKey === "volume");
   const rawDate = payload[0]?.payload?.rawDate;
+  const volumeValue =
+    typeof volumeEntry?.payload?.volume === "number"
+      ? volumeEntry.payload.volume
+      : volumeEntry?.value;
 
   return (
     <div className="bg-zinc-900 border border-zinc-700/80 rounded-xl px-4 py-3 shadow-2xl text-xs min-w-[150px]">
@@ -107,6 +155,11 @@ function CustomTooltip({
       {priceEntry && (
         <div className="font-mono font-bold text-white text-sm">
           ₹{priceEntry.value.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </div>
+      )}
+      {typeof volumeValue === "number" && volumeValue > 0 && (
+        <div className="mt-1 text-[11px] text-zinc-400 font-medium">
+          Vol {Math.round(volumeValue).toLocaleString("en-IN")} ({formatVolumeTick(volumeValue)})
         </div>
       )}
     </div>
@@ -126,7 +179,6 @@ export default function PriceChart({
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
 
     const load = async () => {
       // Fetch 1Y first to show chart ASAP
@@ -160,7 +212,7 @@ export default function PriceChart({
     return () => { active = false; };
   }, [symbol]);
 
-  const currentData = dataMap[period] ?? [];
+  const currentData = useMemo<HistoryPoint[]>(() => dataMap[period] ?? [], [dataMap, period]);
 
   const change = useMemo(() => {
     if (period === "1d" && !dataMap["1d"] && defaultChangePercent !== undefined) {
@@ -173,19 +225,28 @@ export default function PriceChart({
   const gradientId  = `priceGrad_${symbol}`;
 
   const thinned = useMemo(() => {
-    if (currentData.length <= 150) return currentData;
-    const step = Math.ceil(currentData.length / 150);
+    const maxPoints =
+      period === "1d" ? 800 :
+      period === "1w" ? 400 :
+      period === "1mo" ? 280 :
+      period === "1y" ? 500 :
+      260;
+    if (currentData.length <= maxPoints) return currentData;
+    const step = Math.ceil(currentData.length / maxPoints);
     return currentData.filter((_, i) => i % step === 0 || i === currentData.length - 1);
-  }, [currentData]);
+  }, [currentData, period]);
 
   const chartData: ChartPoint[] = thinned.map((p) => ({
-    date:    formatDate(p.date, period),
-    close:   p.close,
-    rawDate: p.date,
-  }));
+    date: p.date,
+    close: Number(p.close),
+    volume: Number(p.volume ?? 0),
+    rawDate: String(p.date),
+  })).filter((p) => Number.isFinite(p.close));
+
+  const hasVolume = chartData.some((p) => p.volume > 0);
 
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 h-full flex flex-col">
       {/* Period tabs */}
       <div className="flex items-center gap-2 mb-5 flex-wrap">
         {PERIODS.map((p) => {
@@ -226,15 +287,16 @@ export default function PriceChart({
       </div>
 
       {/* Chart body */}
+      <div className="h-[clamp(270px,52vw,420px)] sm:h-[360px] lg:h-[420px]">
       {loading ? (
-        <Skeleton className="h-[280px] w-full rounded-xl" />
-      ) : currentData.length === 0 ? (
-        <div className="h-[280px] flex items-center justify-center text-zinc-600 text-sm">
+        <Skeleton className="h-full w-full rounded-xl" />
+      ) : chartData.length === 0 ? (
+        <div className="h-full flex items-center justify-center text-zinc-600 text-sm">
           No price history available
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height={280}>
-          <LineChart data={chartData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+        <ResponsiveContainer width="100%" height="100%" minHeight={270}>
+          <ComposedChart data={chartData} margin={{ top: 8, right: 2, left: 0, bottom: 6 }}>
             <defs>
               <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%"   stopColor={strokeColor} stopOpacity={0.12} />
@@ -242,21 +304,36 @@ export default function PriceChart({
               </linearGradient>
             </defs>
 
+            <CartesianGrid stroke="#27272a" strokeOpacity={0.4} vertical={false} />
+
             <XAxis
-              dataKey="date"
+              dataKey="rawDate"
+              tickFormatter={(v: string) => formatDate(v, period)}
               tick={{ fill: "#52525b", fontSize: 10 }}
-              axisLine={false}
+              axisLine={{ stroke: "#27272a", strokeOpacity: 0.7 }}
               tickLine={false}
-              minTickGap={36}
-              tickMargin={8}
+              minTickGap={period === "1d" ? 24 : period === "1w" ? 48 : period === "1mo" ? 42 : 36}
+              tickMargin={6}
+              interval="preserveStartEnd"
+              mirror
             />
+            {hasVolume && (
+              <YAxis
+                yAxisId="volume"
+                hide
+                domain={[0, "dataMax"]}
+              />
+            )}
             <YAxis
-              tick={{ fill: "#52525b", fontSize: 10 }}
-              axisLine={false}
+              yAxisId="price"
+              orientation="right"
+              tick={{ fill: "#52525b", fontSize: 10, dx: -2 }}
+              axisLine={{ stroke: "#27272a", strokeOpacity: 0.7 }}
               tickLine={false}
-              width={60}
+              width={50}
+              tickMargin={2}
               tickFormatter={formatPriceTick}
-              tickCount={5}
+              tickCount={6}
               domain={["auto", "auto"]}
             />
 
@@ -265,17 +342,32 @@ export default function PriceChart({
               cursor={{ stroke: "#3f3f46", strokeWidth: 1, strokeDasharray: "4 3" }}
             />
 
+            {hasVolume && (
+              <Bar
+                yAxisId="volume"
+                dataKey="volume"
+                fill="#52525b"
+                fillOpacity={0.22}
+                barSize={period === "1d" ? 1 : period === "1w" ? 3 : period === "1mo" ? 4 : period === "1y" ? 2 : 3}
+                radius={[1, 1, 0, 0]}
+                isAnimationActive={false}
+              />
+            )}
+
             <Line
-              type="monotone"
+              yAxisId="price"
+              type="linear"
               dataKey="close"
               stroke={strokeColor}
-              strokeWidth={1.75}
+              strokeWidth={2}
               dot={false}
               activeDot={{ r: 4, fill: strokeColor, strokeWidth: 0 }}
+              isAnimationActive={false}
             />
-          </LineChart>
+          </ComposedChart>
         </ResponsiveContainer>
       )}
+      </div>
     </div>
   );
 }
