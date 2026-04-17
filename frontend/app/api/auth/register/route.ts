@@ -23,13 +23,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Password must be at least 6 characters." }, { status: 400 });
   }
 
-  const existing = findUserByEmail(email);
+  const existing = await findUserByEmail(email);
   if (existing) {
     return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
-  addUser({ name: name.trim(), email: email.trim().toLowerCase(), passwordHash, provider: "credentials" });
+  const created = await addUser({
+    name: name.trim(),
+    email: email.trim().toLowerCase(),
+    passwordHash,
+    provider: "credentials",
+  });
+  if (!created) {
+    return NextResponse.json({ error: "Unable to create account right now." }, { status: 500 });
+  }
 
   return NextResponse.json({ success: true });
 }

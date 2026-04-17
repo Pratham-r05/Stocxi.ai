@@ -19,7 +19,7 @@ const handler = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        const user = findUserByEmail(credentials.email);
+        const user = await findUserByEmail(credentials.email);
         if (!user || !user.passwordHash) return null;
 
         const valid = await bcrypt.compare(credentials.password, user.passwordHash);
@@ -39,7 +39,7 @@ const handler = NextAuth({
     async signIn({ user, account }) {
       // persist Google users to our DB on first sign-in
       if (account?.provider === "google" && user.email) {
-        upsertGoogleUser(user.name ?? user.email, user.email);
+        await upsertGoogleUser(user.name ?? user.email, user.email);
       }
       return true;
     },

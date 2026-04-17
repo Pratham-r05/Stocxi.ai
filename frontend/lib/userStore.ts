@@ -1,10 +1,13 @@
-// userStore — JSON file-based user persistence for email/password auth
+// userStore — Redis-backed persistence in production with JSON fallback for local dev
 
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
+import { createClient, type RedisClientType } from "redis";
 
 const DB_PATH = path.join(process.cwd(), "data", "users.json");
+const USERS_KEY = "stocxi:auth:users";
+const REDIS_URL = process.env.REDIS_URL;
 
 export interface User {
   id: string;
@@ -15,7 +18,28 @@ export interface User {
   createdAt: string;
 }
 
-function readUsers(): User[] {
+let redisClientPromise: Promise<RedisClientType | null> | null = null;
+
+async function getRedisClient(): Promise<RedisClientType | null> {
+  if (!REDIS_URL) return null;
+  if (!redisClientPromise) {
+    redisClientPromise = (async () => {
+      try {
+        const client = createClient({ url: REDIS_URL });
+        client.on("error", () => {
+          // Keep auth flow resilient; fallback storage handles transient issues.
+        });
+        await client.connect();
+        return client;
+      } catch {
+        return null;
+      }
+    })();
+  }
+  return redisClientPromise;
+}
+
+function readUsersFromFile(): User[] {
   try {
     const raw = fs.readFileSync(DB_PATH, "utf-8");
     return JSON.parse(raw) as User[];
@@ -24,32 +48,68 @@ function readUsers(): User[] {
   }
 }
 
-function writeUsers(users: User[]): void {
+function writeUsersToFile(users: User[]): void {
   // ensure data dir exists
   const dir = path.dirname(DB_PATH);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(DB_PATH, JSON.stringify(users, null, 2), "utf-8");
 }
 
-export function findUserByEmail(email: string): User | undefined {
-  return readUsers().find((u) => u.email.toLowerCase() === email.toLowerCase());
+async function readUsers(): Promise<User[]> {
+  try {
+    const client = await getRedisClient();
+    if (!client) return readUsersFromFile();
+
+    const raw = await client.get(USERS_KEY);
+    if (!raw) return [];
+
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as User[]) : [];
+  } catch {
+    return readUsersFromFile();
+  }
 }
 
-export function addUser(user: Omit<User, "id" | "createdAt">): User {
-  const users = readUsers();
+async function writeUsers(users: User[]): Promise<boolean> {
+  try {
+    const client = await getRedisClient();
+    if (!client) {
+      writeUsersToFile(users);
+      return true;
+    }
+    await client.set(USERS_KEY, JSON.stringify(users));
+    return true;
+  } catch {
+    try {
+      writeUsersToFile(users);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+}
+
+export async function findUserByEmail(email: string): Promise<User | undefined> {
+  const users = await readUsers();
+  return users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+}
+
+export async function addUser(user: Omit<User, "id" | "createdAt">): Promise<User | null> {
+  const users = await readUsers();
   const newUser: User = {
     ...user,
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
   };
   users.push(newUser);
-  writeUsers(users);
+  const ok = await writeUsers(users);
+  if (!ok) return null;
   return newUser;
 }
 
-export function upsertGoogleUser(name: string, email: string): User {
+export async function upsertGoogleUser(name: string, email: string): Promise<User | null> {
   // if account exists (any provider), return it; else create
-  const existing = findUserByEmail(email);
+  const existing = await findUserByEmail(email);
   if (existing) return existing;
   return addUser({ name, email, passwordHash: null, provider: "google" });
 }
