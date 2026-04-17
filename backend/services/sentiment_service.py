@@ -311,16 +311,23 @@ def _fetch_social_from_google_news(symbol: str, source: str) -> list[dict]:
         link = str(item.findtext("link", "")).strip()
         pub_date = str(item.findtext("pubDate", "")).strip()
         description = str(item.findtext("description", "")).strip()
+        source_el = item.find("source")
+        source_url = ""
+        source_name = ""
+        if source_el is not None:
+            source_url = str(source_el.attrib.get("url", "")).strip().lower()
+            source_name = str(source_el.text or "").strip().lower()
 
         if not title or not link or link in seen_urls:
             continue
 
         low_link = link.lower()
+        source_hint = " ".join([source_url, source_name, low_link])
         if source == "reddit":
-            if "reddit.com" not in low_link:
+            if "reddit.com" not in source_hint:
                 continue
         else:
-            if "x.com" not in low_link and "twitter.com" not in low_link:
+            if "x.com" not in source_hint and "twitter.com" not in source_hint:
                 continue
 
         text = _clean_summary_text(f"{title} {description}")
