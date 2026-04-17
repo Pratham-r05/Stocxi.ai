@@ -112,6 +112,7 @@ export default function AIAnalysisPanel({ symbol }: { symbol: string }) {
         tabs={RISK_TABS as unknown as { id: string; label: string }[]}
         active={riskLevel}
         onChange={(id) => setRiskLevel(id as "low" | "medium" | "high")}
+        equalWidth
         className="mb-4"
       />
 
