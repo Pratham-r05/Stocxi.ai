@@ -26,12 +26,26 @@ import re
 import shutil
 import subprocess
 from datetime import datetime, timezone, timedelta
+from urllib.parse import quote
+from xml.etree import ElementTree as ET
+
+import requests
 
 logger = logging.getLogger(__name__)
 
 TTL_SENTIMENT = 3600  # 1 hour
 _CLI_TIMEOUT = 20     # seconds per subprocess call
 _MAX_RETRIES = 3      # retry attempts on CLI failure
+_SOCIAL_TIMEOUT = 10
+_SOCIAL_MAX_ITEMS = 30
+
+_HTTP_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    ),
+    "Accept": "application/rss+xml, application/xml, text/xml, */*",
+}
 
 # ── Import guard: vaderSentiment ─────────────────────────────────────────────
 _vader = None
@@ -231,6 +245,108 @@ def _clean_summary_text(text: str) -> str:
     cleaned = re.sub(r"[#@]\w+", "", cleaned)
     cleaned = re.sub(r"\s+", " ", cleaned).strip()
     return cleaned
+
+
+def _looks_like_target_stock_post(text: str, symbol: str, company_name: str) -> bool:
+    """Relaxed relevance check for fallback sources where metadata is sparse."""
+    low = _clean_summary_text(text).lower()
+    if not low:
+        return False
+
+    symbol_l = symbol.lower().strip()
+    has_symbol = bool(symbol_l and re.search(rf"\b{re.escape(symbol_l)}\b", low))
+
+    company_l = company_name.lower().strip()
+    company_tokens = [
+        tok for tok in re.split(r"[^a-z0-9]+", company_l)
+        if tok and len(tok) >= 4 and tok not in {"limited", "india", "retail", "ltd"}
+    ]
+    token_hits = sum(1 for tok in company_tokens if re.search(rf"\b{re.escape(tok)}\b", low))
+    has_company = (token_hits >= 1) or (company_l and company_l in low)
+
+    return has_symbol or has_company
+
+
+def _rss_pub_to_iso(pub_date: str) -> str:
+    """Parse RSS pubDate to ISO string; returns raw date on parse failure."""
+    raw = str(pub_date or "").strip()
+    if not raw:
+        return datetime.now(timezone.utc).isoformat()
+    try:
+        dt = datetime.strptime(raw, "%a, %d %b %Y %H:%M:%S %Z")
+        return dt.replace(tzinfo=timezone.utc).isoformat()
+    except Exception:
+        return raw
+
+
+def _fetch_social_from_google_news(symbol: str, source: str) -> list[dict]:
+    """Fetch Reddit/X links via Google News RSS, deploy-safe fallback for serverless."""
+    company_name = _get_company_name(symbol)
+    after_date = (datetime.now(timezone.utc) - timedelta(days=7)).strftime("%Y-%m-%d")
+    if source == "reddit":
+        site_filter = "site:reddit.com"
+    else:
+        site_filter = "(site:x.com OR site:twitter.com)"
+
+    query = f"({symbol} OR \"{company_name}\") stock india {site_filter} after:{after_date}"
+    url = (
+        "https://news.google.com/rss/search"
+        f"?q={quote(query)}&hl=en-IN&gl=IN&ceid=IN:en"
+    )
+
+    try:
+        resp = requests.get(url, headers=_HTTP_HEADERS, timeout=_SOCIAL_TIMEOUT)
+        resp.raise_for_status()
+        root = ET.fromstring(resp.content)
+    except Exception as e:
+        logger.warning(f"Google News social fallback failed for {symbol} {source}: {e}")
+        return []
+
+    cutoff = datetime.now(timezone.utc) - timedelta(days=7)
+    items: list[dict] = []
+    seen_urls: set[str] = set()
+
+    for item in root.findall(".//item")[:_SOCIAL_MAX_ITEMS]:
+        title = str(item.findtext("title", "")).strip()
+        link = str(item.findtext("link", "")).strip()
+        pub_date = str(item.findtext("pubDate", "")).strip()
+        description = str(item.findtext("description", "")).strip()
+
+        if not title or not link or link in seen_urls:
+            continue
+
+        low_link = link.lower()
+        if source == "reddit":
+            if "reddit.com" not in low_link:
+                continue
+        else:
+            if "x.com" not in low_link and "twitter.com" not in low_link:
+                continue
+
+        text = _clean_summary_text(f"{title} {description}")
+        if not _looks_like_target_stock_post(text, symbol, company_name):
+            continue
+
+        post_iso = _rss_pub_to_iso(pub_date)
+        try:
+            parsed_dt = datetime.fromisoformat(post_iso.replace("Z", "+00:00"))
+            if parsed_dt.tzinfo is None:
+                parsed_dt = parsed_dt.replace(tzinfo=timezone.utc)
+            if parsed_dt < cutoff:
+                continue
+        except Exception:
+            pass
+
+        seen_urls.add(link)
+        items.append({
+            "text": text[:500],
+            "date": post_iso,
+            "url": link,
+            "source": source,
+        })
+
+    logger.info(f"Google News social fallback: {len(items)} posts for {symbol} {source}")
+    return items
 
 
 def _short_snippet(text: str, limit: int = 120) -> str:
@@ -517,8 +633,8 @@ def _fetch_reddit_sync(symbol: str) -> list[dict]:
     """
     cli = _find_cli("rdt")
     if not cli:
-        logger.warning("rdt CLI not found — skipping Reddit sentiment")
-        return []
+        logger.warning("rdt CLI not found — using Google News fallback for Reddit")
+        return _fetch_social_from_google_news(symbol, "reddit")
 
     company_name = _get_company_name(symbol)
     queries_raw = [
@@ -612,7 +728,11 @@ def _fetch_reddit_sync(symbol: str) -> list[dict]:
             unique.append(p)
 
     logger.info(f"Reddit: {len(unique)} posts fetched for {symbol}")
-    return unique
+    if unique:
+        return unique
+
+    logger.info(f"Reddit CLI returned 0 posts for {symbol}, trying fallback")
+    return _fetch_social_from_google_news(symbol, "reddit")
 
 
 # ── Twitter fetch ─────────────────────────────────────────────────────────────
@@ -624,8 +744,8 @@ def _fetch_twitter_sync(symbol: str) -> list[dict]:
     """
     cli = _find_cli("twitter")
     if not cli:
-        logger.warning("twitter CLI not found — skipping Twitter sentiment")
-        return []
+        logger.warning("twitter CLI not found — using Google News fallback for Twitter/X")
+        return _fetch_social_from_google_news(symbol, "twitter")
 
     company_name = _get_company_name(symbol)
     query = f"{symbol} NSE stock"
@@ -684,7 +804,11 @@ def _fetch_twitter_sync(symbol: str) -> list[dict]:
         return []
 
     logger.info(f"Twitter: {len(posts)} posts fetched for {symbol}")
-    return posts
+    if posts:
+        return posts
+
+    logger.info(f"Twitter CLI returned 0 posts for {symbol}, trying fallback")
+    return _fetch_social_from_google_news(symbol, "twitter")
 
 
 # ── Processing ────────────────────────────────────────────────────────────────

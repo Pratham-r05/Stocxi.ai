@@ -120,6 +120,8 @@ export default function SocialBuzzLauncher({ symbol }: { symbol: string }) {
     return normalized;
   }, [currentSource]);
 
+  const summaryHeading = activeTab === "twitter" ? "Twitter/X Summary" : "Reddit Summary";
+
   const relevantLinks = useMemo(() => {
     const seen = new Set<string>();
     const links: { url: string; label: string }[] = [];
@@ -229,9 +231,9 @@ export default function SocialBuzzLauncher({ symbol }: { symbol: string }) {
                 <div className="max-h-[60vh] overflow-y-auto space-y-3 pr-1">
                   <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
                     <p className="text-xs uppercase tracking-[0.12em] text-zinc-500 mb-2">
-                      10-Line Summary
+                      {summaryHeading}
                     </p>
-                    <ol className="space-y-1.5 text-sm text-zinc-300">
+                    <ol key={activeTab} className="space-y-1.5 text-sm text-zinc-300">
                       {summaryLines.map((line, idx) => (
                         <li key={`${line}-${idx}`} className="leading-relaxed">
                           <span className="text-zinc-500 mr-2">{idx + 1}.</span>
