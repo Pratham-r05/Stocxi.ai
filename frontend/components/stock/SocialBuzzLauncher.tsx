@@ -8,6 +8,27 @@ import Image from "next/image";
 
 type SourceTab = "twitter" | "reddit";
 
+function isMeaningfulMarketText(raw: string): boolean {
+  const text = String(raw || "").toLowerCase().trim();
+  if (text.length < 28) return false;
+
+  const noise = [
+    "liked this post",
+    "proud moment",
+    "follow me",
+    "subscribe",
+    "giveaway",
+    "happy birthday",
+  ];
+  if (noise.some((n) => text.includes(n))) return false;
+
+  const financeMarkers = [
+    "stock", "share", "buy", "sell", "hold", "target", "earnings", "results",
+    "revenue", "profit", "valuation", "ipo", "market cap", "nse", "bse", "bullish", "bearish",
+  ];
+  return financeMarkers.some((marker) => text.includes(marker));
+}
+
 function formatWhen(iso: string | undefined): string {
   if (!iso) return "Unknown time";
   try {
@@ -112,11 +133,7 @@ export default function SocialBuzzLauncher({ symbol }: { symbol: string }) {
     const normalized = lines
       .map((line) => String(line || "").trim())
       .filter(Boolean)
-      .slice(0, 10);
-
-    while (normalized.length < 10) {
-      normalized.push("No additional high-confidence insight from available posts.");
-    }
+      .slice(0, 8);
     return normalized;
   }, [currentSource]);
 
@@ -130,6 +147,7 @@ export default function SocialBuzzLauncher({ symbol }: { symbol: string }) {
       if (!url || seen.has(url)) continue;
       seen.add(url);
       const labelRaw = (post.title || post.text || "Open post").trim();
+      if (!isMeaningfulMarketText(labelRaw)) continue;
       const label = labelRaw.length > 96 ? `${labelRaw.slice(0, 96).trim()}...` : labelRaw;
       links.push({ url, label: label || "Open post" });
       if (links.length >= 10) break;
@@ -233,14 +251,13 @@ export default function SocialBuzzLauncher({ symbol }: { symbol: string }) {
                     <p className="text-xs uppercase tracking-[0.12em] text-zinc-500 mb-2">
                       {summaryHeading}
                     </p>
-                    <ol key={activeTab} className="space-y-1.5 text-sm text-zinc-300">
+                    <div key={activeTab} className="space-y-2 text-sm text-zinc-300">
                       {summaryLines.map((line, idx) => (
-                        <li key={`${line}-${idx}`} className="leading-relaxed">
-                          <span className="text-zinc-500 mr-2">{idx + 1}.</span>
+                        <p key={`${line}-${idx}`} className="leading-relaxed">
                           {line}
-                        </li>
+                        </p>
                       ))}
-                    </ol>
+                    </div>
                   </div>
 
                   <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">

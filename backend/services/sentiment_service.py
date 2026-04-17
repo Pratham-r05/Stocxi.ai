@@ -19,6 +19,7 @@ Cache keys:
 
 import asyncio
 from collections import Counter
+from html import unescape
 import json
 import logging
 import os
@@ -198,7 +199,7 @@ def _score_text(text: str) -> float:
 def _is_relevant_market_post(text: str, symbol: str, company_name: str) -> bool:
     """Checks if a post is likely a real market opinion for the target stock."""
     cleaned = _clean_summary_text(text)
-    if len(cleaned) < 20:
+    if not _is_informative_social_text(cleaned):
         return False
 
     low = cleaned.lower()
@@ -216,11 +217,7 @@ def _is_relevant_market_post(text: str, symbol: str, company_name: str) -> bool:
     if any(marker in low for marker in noise_markers):
         return False
 
-    finance_markers = [
-        "stock", "share", "buy", "sell", "hold", "target", "results", "earnings",
-        "revenue", "profit", "valuation", "pe", "p/e", "nse", "bse", "bullish", "bearish",
-    ]
-    has_finance_context = any(marker in low for marker in finance_markers)
+    has_finance_context = _has_finance_context(low)
 
     symbol_l = symbol.lower().strip()
     has_symbol = bool(symbol_l and re.search(rf"\b{re.escape(symbol_l)}\b", low))
@@ -241,15 +238,63 @@ def _clean_summary_text(text: str) -> str:
     """Cleans social text to readable snippet for summaries."""
     if not text:
         return ""
-    cleaned = re.sub(r"http\S+", "", str(text))
+    cleaned = unescape(str(text))
+    cleaned = re.sub(r"<[^>]+>", " ", cleaned)
+    cleaned = re.sub(r"http\S+", "", cleaned)
     cleaned = re.sub(r"[#@]\w+", "", cleaned)
+    cleaned = re.sub(r"\b(?:x\.com|twitter\.com|reddit\.com)\b", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\s*[|•·]+\s*", " ", cleaned)
     cleaned = re.sub(r"\s+", " ", cleaned).strip()
     return cleaned
 
 
+def _has_finance_context(low_text: str) -> bool:
+    """Check if text carries stock-market context."""
+    finance_markers = [
+        "stock", "share", "buy", "sell", "hold", "target", "results", "earnings",
+        "revenue", "profit", "valuation", "pe", "p/e", "nse", "bse", "bullish", "bearish",
+        "ipo", "q1", "q2", "q3", "q4", "guidance", "margin", "brokerage", "market cap",
+    ]
+    return any(marker in low_text for marker in finance_markers)
+
+
+def _is_informative_social_text(cleaned_text: str) -> bool:
+    """Reject noisy social chatter and keep only informative investor posts."""
+    if len(cleaned_text) < 28:
+        return False
+
+    low = cleaned_text.lower()
+    noise_markers = [
+        "liked this post",
+        "proud moment",
+        "follow me",
+        "subscribe",
+        "giveaway",
+        "coupon",
+        "meme",
+        "lol",
+        "lmao",
+        "happy birthday",
+        "good morning",
+        "what a day",
+    ]
+    if any(marker in low for marker in noise_markers):
+        return False
+
+    letters = re.sub(r"[^a-zA-Z]", "", cleaned_text)
+    if len(letters) < 18:
+        return False
+
+    return _has_finance_context(low)
+
+
 def _looks_like_target_stock_post(text: str, symbol: str, company_name: str) -> bool:
     """Relaxed relevance check for fallback sources where metadata is sparse."""
-    low = _clean_summary_text(text).lower()
+    cleaned = _clean_summary_text(text)
+    if not _is_informative_social_text(cleaned):
+        return False
+
+    low = cleaned.lower()
     if not low:
         return False
 
@@ -471,7 +516,7 @@ def _build_summary_lines(
     posts: list[dict],
     structured_summary: dict,
 ) -> list[str]:
-    """Build exactly 10 short summary lines for UI tabs."""
+    """Build concise source-specific summary lines for UI tabs."""
     source_label = "Reddit" if source == "reddit" else "Twitter/X"
     themes = structured_summary.get("key_themes", []) if isinstance(structured_summary, dict) else []
     bullish = structured_summary.get("bullish_points", []) if isinstance(structured_summary, dict) else []
@@ -481,22 +526,17 @@ def _build_summary_lines(
     takeaway = (structured_summary.get("investor_takeaway", "") if isinstance(structured_summary, dict) else "").strip()
 
     lines: list[str] = [
-        f"Source: {source_label} conversations from the last 7 days.",
-        f"Signal: {signal} | Mood: {sentiment} | Score: {score:+.2f}.",
-        f"Total relevant posts analyzed: {len(posts)}.",
-        overall or "Overall view is neutral due to limited high-confidence discussion.",
-        takeaway or "Use this as context, and prioritize fundamentals plus technical trend.",
-        f"Key themes: {', '.join(themes)}." if themes else "Key themes: No dominant theme emerged.",
-        f"Bullish cue: {bullish[0]}" if bullish else "Bullish cue: No strong bullish consensus found.",
-        f"Risk cue: {risks[0]}" if risks else "Risk cue: No strong bearish warning dominated discussion.",
-        f"Discussion highlight: {discussions[0]}" if discussions else "Discussion highlight: Conversations are scattered without one clear narrative.",
-        "Decision use: treat social sentiment as supporting evidence, not as a standalone buy/sell trigger.",
+        f"From {source_label}, {len(posts)} relevant market discussions were analyzed from the last 7 days.",
+        f"Overall signal is {signal} with a {sentiment.lower()} mood and sentiment score {score:+.2f}.",
+        overall or "Overall discussion was mixed without a strong consensus.",
+        takeaway or "Use this sentiment as supporting context, not as the only decision input.",
+        f"Main themes discussed: {', '.join(themes)}." if themes else "Main themes were scattered and did not cluster strongly.",
+        f"Bullish side: {bullish[0]}" if bullish else "Bullish side had no strong high-confidence point repeated across posts.",
+        f"Risk side: {risks[0]}" if risks else "Risk side had no dominant bearish point repeated across posts.",
+        f"Most repeated discussion point: {discussions[0]}" if discussions else "No single discussion point dominated, opinions were fragmented.",
     ]
 
-    # Guarantee exactly 10 lines for predictable rendering.
-    if len(lines) < 10:
-        lines.extend(["No additional high-confidence insight from available posts."] * (10 - len(lines)))
-    return lines[:10]
+    return lines[:8]
 
 
 def _parse_ai_lines(raw_text: str) -> list[str]:
@@ -603,16 +643,14 @@ def _fallback_source(source: str) -> dict:
         "posts": [],
         "summary": f"No meaningful {source_label} data available right now.",
         "summary_lines": [
-            f"Source: {source_label} conversations from the last 7 days.",
-            "Signal: HOLD | Mood: Neutral | Score: +0.00.",
-            "Total relevant posts analyzed: 0.",
-            f"No meaningful {source_label} discussions were found in the last 7 days.",
-            "Use fundamentals and technical indicators until social data is available.",
-            "Key themes: No dominant theme emerged.",
-            "Bullish cue: No strong bullish consensus found.",
-            "Risk cue: No strong bearish warning dominated discussion.",
-            "Discussion highlight: Conversations are scattered without one clear narrative.",
-            "Decision use: treat social sentiment as supporting evidence, not as a standalone buy/sell trigger.",
+            f"No credible {source_label} posts were found in the last 7 days for this stock.",
+            "Current social signal stays HOLD with neutral sentiment due to insufficient reliable discussion volume.",
+            "No trustworthy bullish argument appeared repeatedly across recent posts.",
+            "No trustworthy bearish argument appeared repeatedly across recent posts.",
+            "No stable theme emerged from this source in the selected window.",
+            "Use fundamentals, technical indicators, and official news as primary decision inputs for now.",
+            "Treat this as temporary social-data unavailability, not as a directional market signal.",
+            "Refresh later when new posts with real market context are available.",
         ],
         "structured_summary": {
             "overall_view": f"No meaningful {source_label} discussions were found in the last 7 days.",
@@ -955,30 +993,7 @@ async def get_sentiment(symbol: str, force_refresh: bool = False) -> dict:
         reddit_data  = _process_source(reddit_raw,  "reddit")
         twitter_data = _process_source(twitter_raw, "twitter")
 
-        # Fill symbol into AI-summary generation path when available.
-        if reddit_data.get("posts"):
-            ai_lines = _build_ai_summary_lines(
-                source="reddit",
-                symbol=symbol,
-                signal=reddit_data.get("signal", "HOLD"),
-                sentiment=reddit_data.get("sentiment", "Neutral"),
-                score=float(reddit_data.get("sentiment_score", 0.0)),
-                posts=reddit_data.get("posts", []),
-            )
-            if ai_lines:
-                reddit_data["summary_lines"] = ai_lines
-
-        if twitter_data.get("posts"):
-            ai_lines = _build_ai_summary_lines(
-                source="twitter",
-                symbol=symbol,
-                signal=twitter_data.get("signal", "HOLD"),
-                sentiment=twitter_data.get("sentiment", "Neutral"),
-                score=float(twitter_data.get("sentiment_score", 0.0)),
-                posts=twitter_data.get("posts", []),
-            )
-            if ai_lines:
-                twitter_data["summary_lines"] = ai_lines
+        # Keep deterministic summary lines for consistency and predictable quality.
         chart_data   = _build_chart_data(reddit_data, twitter_data)
 
         # ── Cache results ─────────────────────────────────────────────────────
