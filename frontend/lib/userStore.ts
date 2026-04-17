@@ -3,7 +3,7 @@
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
-import { createClient, type RedisClientType } from "redis";
+import { createClient } from "redis";
 
 const DB_PATH = path.join(process.cwd(), "data", "users.json");
 const USERS_KEY = "stocxi:auth:users";
@@ -18,9 +18,11 @@ export interface User {
   createdAt: string;
 }
 
-let redisClientPromise: Promise<RedisClientType | null> | null = null;
+type AppRedisClient = ReturnType<typeof createClient>;
 
-async function getRedisClient(): Promise<RedisClientType | null> {
+let redisClientPromise: Promise<AppRedisClient | null> | null = null;
+
+async function getRedisClient(): Promise<AppRedisClient | null> {
   if (!REDIS_URL) return null;
   if (!redisClientPromise) {
     redisClientPromise = (async () => {
