@@ -241,6 +241,22 @@ export default function PriceChart({
           }
         }
       });
+
+      const missingLongPeriods: Period[] = ["6mo", "1y"].filter((p) => !updates[p]);
+      for (const longPeriod of missingLongPeriods) {
+        try {
+          const retryData = await fetchHistory(symbol, longPeriod);
+          if (retryData !== null) {
+            gotAnyResponse = true;
+          }
+          if (retryData?.closes?.length) {
+            updates[longPeriod] = retryData.closes;
+          }
+        } catch {
+          // Keep existing behavior: show available periods even if one range fails.
+        }
+      }
+
       setDataMap((prev) => ({ ...prev, ...updates }));
       if (active) {
         setFailed(!gotAnyResponse);

@@ -45,9 +45,8 @@ _HEADERS = {
 }
 _TIMEOUT = 10
 _MAX_NEWS = 10
-_NEWS_MAX_AGE_DAYS = 30  # only show news from last 30 days
-_SCANX_MAX_AGE_DAYS = 7  # ScanX feed targets latest 1 week
-_SCANX_TARGET_MIN_NEWS = 7  # user-facing floor when enough ScanX history exists
+_NEWS_MAX_AGE_DAYS = 4  # only show recent news from last 4 days
+_SCANX_MAX_AGE_DAYS = 4  # ScanX feed recency window
 _SCANX_BASE_URL = "https://scanx.trade"
 
 
@@ -122,11 +121,53 @@ def _is_recent_news(published_iso: str, max_age_days: int = _NEWS_MAX_AGE_DAYS) 
 
 def _is_relevant_news_title(title: str, symbol: str, company_name: str | None = None) -> bool:
     """Keep only headlines clearly tied to the requested stock/company."""
-    text = str(title or "").strip()
-    if not text:
+    text = str(title or "")
+    if not text.strip():
         return False
 
     low = text.lower()
+    normalized_title = re.sub(r"[^a-z0-9]+", " ", low).strip()
+    title_tokens = set(tok for tok in normalized_title.split() if tok)
+
+    def _canonical_token(token: str) -> str:
+        tok = token.lower().strip()
+        if not tok:
+            return ""
+
+        replacements = {
+            "pharmaceutical": "pharma",
+            "pharmaceuticals": "pharma",
+            "technologies": "tech",
+            "technology": "tech",
+            "laboratory": "labs",
+            "laboratories": "labs",
+            "industries": "industry",
+            "services": "service",
+        }
+        tok = replacements.get(tok, tok)
+
+        for suffix in ("ies", "ing", "ed", "es", "s"):
+            if len(tok) > 5 and tok.endswith(suffix):
+                tok = tok[: -len(suffix)]
+                break
+        return tok
+
+    symbol_l = symbol.lower().strip()
+    symbol_compact = re.sub(r"[^a-z0-9]+", "", symbol_l)
+    symbol_spaced = ""
+    if symbol_compact and company_name:
+        company_words = [
+            _canonical_token(tok)
+            for tok in re.findall(r"[a-z0-9]+", str(company_name).lower())
+            if tok and tok not in {"limited", "ltd", "plc", "inc", "corp", "co", "company", "india", "group"}
+        ]
+        if len(company_words) >= 2:
+            symbol_spaced = f"{company_words[0]} {company_words[1]}".strip()
+
+    has_symbol = bool(symbol_l and re.search(rf"\b{re.escape(symbol_l)}\b", low))
+    has_symbol_compact = bool(symbol_compact and symbol_compact in normalized_title.replace(" ", ""))
+    has_symbol_spaced = bool(symbol_spaced and symbol_spaced in normalized_title)
+
     broad_noise = [
         "stocks to watch",
         "top brokerage ratings",
@@ -137,19 +178,19 @@ def _is_relevant_news_title(title: str, symbol: str, company_name: str | None = 
         "pre-open",
     ]
 
-    symbol_l = symbol.lower().strip()
-    has_symbol = bool(symbol_l and re.search(rf"\b{re.escape(symbol_l)}\b", low))
-
     company_l = str(company_name or "").lower().strip()
     company_tokens = [
-        tok for tok in re.split(r"[^a-z0-9]+", company_l)
-        if tok and len(tok) >= 4 and tok not in {"limited", "india", "group", "ltd", "plc"}
+        _canonical_token(tok)
+        for tok in re.split(r"[^a-z0-9]+", company_l)
+        if tok and tok not in {"limited", "india", "group", "ltd", "plc", "inc", "corp", "co", "company"}
     ]
-    token_hits = sum(1 for tok in company_tokens if re.search(rf"\b{re.escape(tok)}\b", low))
+    company_tokens = [tok for tok in company_tokens if tok]
+
+    title_canonical_tokens = {_canonical_token(tok) for tok in title_tokens}
+    token_hits = sum(1 for tok in company_tokens if tok in title_canonical_tokens)
     has_company = token_hits >= 1 or (company_l and company_l in low)
 
-    # Many Indian headlines use short company aliases (e.g., HUL, RIL, TCS).
-    # Build acronym candidates from company name so these titles are retained.
+    # Many Indian headlines use short company aliases (e.g., HUL, RIL, TCS, Sun Pharma).
     acronym_candidates: set[str] = set()
     company_words = [tok for tok in re.split(r"[^a-z0-9]+", company_l) if tok]
     if len(company_words) >= 2:
@@ -166,15 +207,32 @@ def _is_relevant_news_title(title: str, symbol: str, company_name: str | None = 
             if len(acronym_core) >= 3:
                 acronym_candidates.add(acronym_core)
 
+            # First two core words often appear as a market alias (e.g., "sun pharma").
+            first = _canonical_token(core_words[0])
+            second = _canonical_token(core_words[1])
+            if first and second:
+                acronym_candidates.add(f"{first} {second}")
+                acronym_candidates.add(f"{first}{second}")
+
     has_company_alias = any(
-        re.search(rf"\b{re.escape(alias)}\b", low)
+        (
+            (" " in alias and alias in normalized_title)
+            or re.search(rf"\b{re.escape(alias)}\b", low)
+            or alias.replace(" ", "") in normalized_title.replace(" ", "")
+        )
         for alias in acronym_candidates
     )
 
-    if not (has_symbol or has_company or has_company_alias):
+    if not (has_symbol or has_symbol_compact or has_symbol_spaced or has_company or has_company_alias):
         return False
 
-    if any(marker in low for marker in broad_noise) and not (has_symbol or token_hits >= 2 or has_company_alias):
+    if any(marker in low for marker in broad_noise) and not (
+        has_symbol
+        or has_symbol_compact
+        or has_symbol_spaced
+        or token_hits >= 2
+        or has_company_alias
+    ):
         return False
 
     return True
@@ -258,8 +316,7 @@ def _extract_scanx_entries_from_state(state_obj: dict) -> list[dict]:
 def _fetch_scanx_news(symbol: str, company_name: str | None = None) -> list[dict]:
     """
     ScanX stock-news pages — primary source for India stock headlines.
-    Prioritizes last _SCANX_MAX_AGE_DAYS days, then backfills older ScanX
-    items to reach 6-7 headlines when enough history exists.
+    Keeps only items inside the recent window.
     """
     symbol_u = symbol.upper().strip()
     company_slug = _to_scanx_company_slug(company_name, symbol_u)
@@ -327,12 +384,7 @@ def _fetch_scanx_news(symbol: str, company_name: str | None = None) -> list[dict
         item for item in articles
         if _is_recent_news(str(item.get("published") or ""), max_age_days=_SCANX_MAX_AGE_DAYS)
     ]
-    older_articles = [item for item in articles if item not in recent_articles]
-
-    target = min(_MAX_NEWS, max(_SCANX_TARGET_MIN_NEWS, len(recent_articles)))
-    selected = recent_articles[:target]
-    if len(selected) < target:
-        selected.extend(older_articles[: target - len(selected)])
+    selected = recent_articles[:_MAX_NEWS]
 
     logger.info(
         f"ScanX news: selected={len(selected)} recent={len(recent_articles)} total={len(articles)} for {symbol_u}"
@@ -346,11 +398,12 @@ def _fetch_google_news(symbol: str, company_name: str | None = None) -> list[dic
     Google News RSS — completely free, India-focused, in English.
     Query: "<symbol> NSE stock" OR "<company_name> stock" if available.
     """
-    # Build query — include company name if available for better relevance
+    # Build query — include company name if available for better relevance.
+    # Add `when:Xd` for stronger recency bias from Google News.
     after_date = (datetime.now(timezone.utc) - timedelta(days=_NEWS_MAX_AGE_DAYS)).strftime("%Y-%m-%d")
-    query_parts = [f"{symbol} NSE stock after:{after_date}"]
+    query_parts = [f"{symbol} NSE stock when:{_NEWS_MAX_AGE_DAYS}d after:{after_date}"]
     if company_name and company_name != symbol:
-        query_parts.append(f"{company_name} stock India after:{after_date}")
+        query_parts.append(f"{company_name} stock India when:{_NEWS_MAX_AGE_DAYS}d after:{after_date}")
     query = " OR ".join(query_parts)
 
     url = (
@@ -377,13 +430,8 @@ def _fetch_google_news(symbol: str, company_name: str | None = None) -> list[dic
             if not _is_relevant_news_title(title, symbol, company_name):
                 continue
 
-            # Parse pubDate → ISO format ("Mon, 14 Apr 2025 03:00:00 GMT")
-            published_iso = pub_date
-            try:
-                dt = datetime.strptime(pub_date, "%a, %d %b %Y %H:%M:%S %Z")
-                published_iso = dt.isoformat() + "Z"
-            except Exception:
-                pass
+            parsed_dt = _parse_published_datetime(pub_date)
+            published_iso = parsed_dt.isoformat() if parsed_dt else pub_date
 
             items.append({
                 "title":     title,

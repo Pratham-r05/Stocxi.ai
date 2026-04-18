@@ -499,6 +499,85 @@ async def get_history(symbol: str, period: str = "1y") -> dict:
 
         return []
 
+    def _download_from_yahoo_daily_chart() -> list[dict]:
+        """Fetch daily candles from Yahoo chart API without crumb auth."""
+        if is_intraday:
+            return []
+
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+            "Referer": "https://finance.yahoo.com",
+            "Accept": "application/json",
+        }
+        IST = timezone(timedelta(hours=5, minutes=30))
+
+        for suffix in [".NS", ".BO"]:
+            url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}{suffix}"
+            try:
+                with httpx.Client(timeout=12.0, follow_redirects=True) as client:
+                    resp = client.get(
+                        url,
+                        headers=headers,
+                        params={
+                            "range": yf_period,
+                            "interval": "1d",
+                            "includePrePost": "false",
+                            "events": "div,splits",
+                        },
+                    )
+                    resp.raise_for_status()
+                    payload = resp.json()
+
+                results = (payload.get("chart") or {}).get("result") or []
+                if not results:
+                    continue
+
+                result0 = results[0] or {}
+                timestamps = result0.get("timestamp") or []
+                quote_list = ((result0.get("indicators") or {}).get("quote") or [{}])
+                quote0 = quote_list[0] if quote_list else {}
+                closes = quote0.get("close") or []
+                volumes = quote0.get("volume") or []
+
+                if not timestamps or not closes:
+                    continue
+
+                out: list[dict] = []
+                for i, ts in enumerate(timestamps):
+                    if i >= len(closes):
+                        break
+                    close_val = closes[i]
+                    if close_val is None:
+                        continue
+
+                    try:
+                        dt = datetime.fromtimestamp(int(ts), tz=timezone.utc).astimezone(IST)
+                    except Exception:
+                        continue
+
+                    entry: dict = {
+                        "date": dt.strftime("%Y-%m-%d"),
+                        "close": round(float(close_val), 2),
+                    }
+
+                    if i < len(volumes) and volumes[i] is not None:
+                        try:
+                            vol_int = int(float(volumes[i]))
+                            if vol_int > 0:
+                                entry["volume"] = vol_int
+                        except Exception:
+                            pass
+
+                    out.append(entry)
+
+                if out:
+                    logger.info(f"Yahoo daily chart: {len(out)} points for {symbol}{suffix} period={period}")
+                    return out
+            except Exception as e:
+                logger.warning(f"Yahoo daily chart failed for {symbol}{suffix} period={period}: {e}")
+
+        return []
+
     def _download_from_yfinance() -> list[dict]:
         """Download history from Yahoo chart endpoint for NSE/BSE variants."""
         for suffix in [".NS", ".BO"]:
@@ -592,7 +671,11 @@ async def get_history(symbol: str, period: str = "1y") -> dict:
                 logger.warning(f"Intraday history unavailable for {symbol} period={period}; returning empty set")
                 return []
 
-            # Remaining daily periods: yfinance first, then NSE historical fallback.
+            # Remaining daily periods: direct Yahoo chart first, then yfinance, then NSE historical.
+            points = _download_from_yahoo_daily_chart()
+            if points:
+                return points
+
             points = _download_from_yfinance()
             if points:
                 return points

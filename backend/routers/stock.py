@@ -533,7 +533,7 @@ async def get_stock_news(
     Cached 2 hours.
     """
     symbol = symbol.upper().strip()
-    cache_key = f"stock:news:v6:{symbol}"  # v6: enforce newest-first datetime sorting across all sources
+    cache_key = f"stock:news:v7:{symbol}"  # v7: stronger company-alias relevance + strict 4-day recency
 
     cached = await cache_get(cache_key)
     if cached:
