@@ -242,7 +242,7 @@ export default function PriceChart({
         }
       });
 
-      const missingLongPeriods: Period[] = ["6mo", "1y"].filter((p) => !updates[p]);
+      const missingLongPeriods = (["6mo", "1y"] as const).filter((p) => !updates[p]);
       for (const longPeriod of missingLongPeriods) {
         try {
           const retryData = await fetchHistory(symbol, longPeriod);
