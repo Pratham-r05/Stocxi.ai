@@ -79,6 +79,8 @@ stocxi/
 │   ├── package.json
 │   └── .env.example
 ├── config/
+├── graphify-out/
+│   └── graph3d.html (3D knowledge graph visualization)
 └── README.md
 ```
 
@@ -201,3 +203,15 @@ Deploy as two separate Vercel projects from the same repository:
 
 - This project is for educational and product-building purposes.
 - It is not financial advice and not a SEBI-registered advisory service.
+
+## Knowledge Graph Visualization
+
+The project includes an advanced 3D knowledge graph visualization in the `graphify-out/` directory:
+
+- **Interactive 3D graph** using Three.js and 3D-Force-Graph
+- **Community detection** with color-coded node groups
+- **Advanced search functionality** with exact matching and direct connection highlighting
+- **Real-time filtering** by communities and search terms
+- **Enhanced visual design** with improved edge visibility and node information display
+
+The graph visualization provides insights into the codebase structure and relationships between different components, making it easier to understand the architecture and data flow within the Stocxi application.
