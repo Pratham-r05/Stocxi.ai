@@ -1,9 +1,9 @@
 """
-ai_service.py — AI stock analysis via OpenRouter → DeepSeek (free tier).
+ai_service.py — AI stock analysis via Google Gemini API.
 
 From AI_CONTEXT.md:
-  - API: OpenRouter with OpenAI-compatible client
-  - Model: deepseek/deepseek-chat-v3-0324:free (zero cost, strong JSON output)
+  - API: Google Gemini with OpenAI-compatible client
+  - Model: models/gemini-3-pro-preview
   - Prompt structure: system (SEBI-aware analyst) + user (structured data)
   - Response: strict JSON with 6 keys
 
@@ -22,17 +22,28 @@ import time
 from datetime import datetime, timezone
 from typing import Any
 
+import google.auth
+import google.auth.transport.requests
 from openai import OpenAI, RateLimitError, APIStatusError
 
 from config import settings
 
 logger = logging.getLogger(__name__)
 
-# OpenAI-compatible client pointed at OpenRouter
-_client = OpenAI(
-    api_key=settings.openrouter_api_key,
-    base_url=settings.openrouter_base_url,
-)
+
+def _get_vertex_client():
+    """Return OpenAI-compatible client using Vertex AI ADC credentials."""
+    credentials, _ = google.auth.default(
+        scopes=["https://www.googleapis.com/auth/cloud-platform"]
+    )
+    credentials.refresh(google.auth.transport.requests.Request())
+    return OpenAI(
+        api_key=credentials.token,
+        base_url=settings.google_base_url,
+    )
+
+
+_client = _get_vertex_client()
 
 # ── Prompt builders ───────────────────────────────────────────────────────────
 
@@ -252,12 +263,12 @@ def _risk_adjusted_verdict(
 
 
 def _normalize_report_verdict(value: str | None) -> str:
-    """Normalize report verdict labels to BUY/HOLD/SELL."""
+    """Normalize report verdict labels to BUY/HOLD/AVOID (SEBI-compliant — no SELL)."""
     text = (value or "HOLD").strip().upper()
-    if text in {"BUY", "HOLD", "SELL"}:
+    if text in {"BUY", "HOLD", "AVOID"}:
         return text
-    if text in {"AVOID", "REDUCE"}:
-        return "SELL"
+    if text in {"SELL", "REDUCE"}:
+        return "AVOID"  # SEBI Rule 12: never write "SELL" in user-facing output
     return "HOLD"
 
 
@@ -347,12 +358,12 @@ Output policy:
 - Integrate all key sources: key indicators, technical indicators, AI analysis context, announcements, news, and financial snapshot (quarterly/annual/balance sheet/cash flow/shareholding).
 - Mention data limitations when present.
 - Keep it concise enough for a one-page PDF.
-- Verdict must be one of BUY, HOLD, SELL.
+- Verdict must be one of BUY, HOLD, AVOID.
 
 Return ONLY this JSON shape:
 {{
   "report_title": "string (max 80 chars)",
-  "verdict": "BUY|HOLD|SELL",
+  "verdict": "BUY|HOLD|AVOID",
   "confidence": "High|Medium|Low",
   "investor_fit": "one sentence (max 140 chars)",
   "executive_summary": "one paragraph (max 420 chars)",
@@ -505,19 +516,19 @@ def _build_report_fallback_payload(
     return payload
 
 
-def _call_openrouter_report(symbol: str, user_prompt: str) -> dict:
-    """Call OpenRouter for report JSON with retry and JSON fence handling."""
+def _call_gemini_report(symbol: str, user_prompt: str) -> dict:
+    """Call Google Gemini for report JSON with retry and JSON fence handling."""
     last_error = None
     for attempt in range(3):
         try:
             response = _client.chat.completions.create(
-                model=settings.openrouter_model,
+                model=settings.google_model,
                 messages=[
                     {"role": "system", "content": _REPORT_SYSTEM_PROMPT},
                     {"role": "user", "content": user_prompt},
                 ],
                 temperature=0.2,
-                max_tokens=1400,
+                max_tokens=8192,
             )
 
             raw = (response.choices[0].message.content or "").strip()
@@ -531,13 +542,13 @@ def _call_openrouter_report(symbol: str, user_prompt: str) -> dict:
         except (RateLimitError, APIStatusError, json.JSONDecodeError) as e:
             wait = 2 ** attempt
             logger.warning(
-                f"OpenRouter report generation failed for {symbol} (attempt {attempt+1}/3), retrying in {wait}s: {e}"
+                f"Gemini report generation failed for {symbol} (attempt {attempt+1}/3), retrying in {wait}s: {e}"
             )
             time.sleep(wait)
             last_error = e
             continue
         except Exception as e:
-            logger.error(f"OpenRouter report unexpected error for {symbol}: {e}")
+            logger.error(f"Gemini report unexpected error for {symbol}: {e}")
             raise
 
     raise last_error or RuntimeError("Report generation failed after retries")
@@ -579,8 +590,8 @@ async def generate_report_payload(
             analysis_snapshot=analysis_snapshot,
             ai_analysis=ai_analysis,
         )
-        loop = asyncio.get_event_loop()
-        raw = await loop.run_in_executor(None, _call_openrouter_report, symbol, prompt)
+        loop = asyncio.get_running_loop()
+        raw = await loop.run_in_executor(None, _call_gemini_report, symbol, prompt)
         return _validate_report_payload(
             raw,
             symbol=symbol,
@@ -602,9 +613,9 @@ async def generate_report_payload(
 
 # ── Core AI call ──────────────────────────────────────────────────────────────
 
-def _call_openrouter(symbol: str, user_prompt: str) -> dict:
+def _call_gemini(symbol: str, user_prompt: str) -> dict:
     """
-    Sync call to OpenRouter. Runs in thread pool.
+    Sync call to Google Gemini. Runs in thread pool.
     Retries 3x with backoff on rate limit / server errors.
     Returns parsed dict or raises on total failure.
     """
@@ -613,19 +624,19 @@ def _call_openrouter(symbol: str, user_prompt: str) -> dict:
     for attempt in range(3):
         try:
             response = _client.chat.completions.create(
-                model=settings.openrouter_model,
+                model=settings.google_model,
                 messages=[
                     {"role": "system", "content": _SYSTEM_PROMPT},
                     {"role": "user",   "content": user_prompt},
                 ],
                 temperature=0.3,
-                max_tokens=1200,
+                max_tokens=8192,
                 # response_format not used — not supported by all free models
                 # JSON is enforced via explicit prompt instruction instead
             )
 
             raw = response.choices[0].message.content.strip()
-            logger.info(f"OpenRouter response for {symbol}: {len(raw)} chars")
+            logger.info(f"Gemini response for {symbol}: {len(raw)} chars")
 
             # Strip markdown fences if model wraps in ```json ... ```
             if raw.startswith("```"):
@@ -638,14 +649,14 @@ def _call_openrouter(symbol: str, user_prompt: str) -> dict:
 
         except RateLimitError as e:
             wait = 2 ** attempt
-            logger.warning(f"OpenRouter rate limit (attempt {attempt+1}/3), retrying in {wait}s: {e}")
+            logger.warning(f"Gemini rate limit (attempt {attempt+1}/3), retrying in {wait}s: {e}")
             time.sleep(wait)
             last_error = e
 
         except json.JSONDecodeError as e:
             wait = 2 ** attempt
             logger.warning(
-                f"OpenRouter returned invalid JSON for {symbol} "
+                f"Gemini returned invalid JSON for {symbol} "
                 f"(attempt {attempt+1}/3), retrying in {wait}s: {e}"
             )
             time.sleep(wait)
@@ -655,17 +666,17 @@ def _call_openrouter(symbol: str, user_prompt: str) -> dict:
         except APIStatusError as e:
             if e.status_code >= 500:
                 wait = 2 ** attempt
-                logger.warning(f"OpenRouter server error {e.status_code} (attempt {attempt+1}/3), retrying in {wait}s")
+                logger.warning(f"Gemini server error {e.status_code} (attempt {attempt+1}/3), retrying in {wait}s")
                 time.sleep(wait)
                 last_error = e
             else:
                 raise  # 4xx errors (bad key, wrong model) shouldn't be retried
 
         except Exception as e:
-            logger.error(f"OpenRouter unexpected error for {symbol}: {e}")
+            logger.error(f"Gemini unexpected error for {symbol}: {e}")
             raise
 
-    raise last_error or RuntimeError("OpenRouter call failed after 3 attempts")
+    raise last_error or RuntimeError("Gemini call failed after 3 attempts")
 
 
 # ── Response validation ───────────────────────────────────────────────────────
@@ -916,7 +927,7 @@ async def analyse(
     analysis_snapshot: dict | None = None,
 ) -> dict:
     """
-    Async entry point — runs blocking OpenRouter call in thread pool.
+    Async entry point — runs blocking Gemini call in thread pool.
 
     Args:
         symbol:           NSE stock symbol (e.g. "RELIANCE")
@@ -946,8 +957,8 @@ async def analyse(
             social_sentiment,
             analysis_snapshot,
         )
-        loop = asyncio.get_event_loop()
-        raw  = await loop.run_in_executor(None, _call_openrouter, symbol, user_prompt)
+        loop = asyncio.get_running_loop()
+        raw  = await loop.run_in_executor(None, _call_gemini, symbol, user_prompt)
         return _validate_and_enrich(raw, symbol, risk_level)
 
     except Exception as e:

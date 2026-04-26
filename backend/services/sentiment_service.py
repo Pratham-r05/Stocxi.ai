@@ -66,11 +66,11 @@ except ImportError:
 
 
 _ai_client = None
-if OpenAI is not None and getattr(settings, "openrouter_api_key", None):
+if OpenAI is not None and getattr(settings, "google_api_key", None):
     try:
         _ai_client = OpenAI(
-            api_key=settings.openrouter_api_key,
-            base_url=settings.openrouter_base_url,
+            api_key=settings.google_api_key,
+            base_url=settings.google_base_url,
         )
     except Exception as e:
         logger.warning(f"Sentiment AI client init failed: {e}")
@@ -658,7 +658,7 @@ def _build_ai_summary_lines(
 
     try:
         resp = _ai_client.chat.completions.create(
-            model=settings.openrouter_model,
+            model=settings.google_model,
             messages=[
                 {"role": "system", "content": "You are a precise market summary assistant. Output strict JSON array only."},
                 {"role": "user", "content": prompt},
@@ -1016,7 +1016,7 @@ async def get_sentiment(symbol: str, force_refresh: bool = False) -> dict:
         chart_data   = cached_chart
     else:
         # ── Fetch both sources concurrently in thread pool ────────────────────
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         try:
             reddit_raw, twitter_raw = await asyncio.gather(
                 loop.run_in_executor(None, _fetch_reddit_sync, symbol),

@@ -41,7 +41,7 @@ async def _load_nse_symbols() -> list[dict]:
         from nsepython import nse_eq_symbols
 
         # nse_eq_symbols() is synchronous — run in thread pool to avoid blocking
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         symbols_raw = await loop.run_in_executor(None, nse_eq_symbols)
 
         # nsepython returns a plain list of ticker strings

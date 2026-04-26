@@ -26,7 +26,7 @@ from bs4 import BeautifulSoup
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import JSONResponse
 
-from cache.redis_client import cache_get, cache_set, TTL_OVERVIEW, TTL_FINANCIALS, TTL_NEWS, TTL_ANALYSIS
+from cache.redis_client import cache_get, cache_set, TTL_OVERVIEW, TTL_FINANCIALS, TTL_NEWS
 from services.yfinance_service import get_price_and_fundamentals, get_history
 from services.screener_service import get_financials
 from services.technicals_service import calculate_technicals

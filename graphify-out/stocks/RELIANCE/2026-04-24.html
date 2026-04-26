@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>RELIANCE Knowledge Graph</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0d1117; color: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; overflow: hidden; }
+  #graph { width: 100vw; height: 100vh; }
+  #ui {
+    position: fixed; top: 16px; right: 16px; z-index: 100;
+    background: rgba(13,17,23,0.96); border: 1px solid #30363d;
+    border-radius: 12px; padding: 16px 18px; min-width: 260px; max-width: 300px;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  #title-bar {
+    font-size: 12px; color: #f0f6fc; margin-bottom: 12px;
+    letter-spacing: .8px; text-transform: uppercase; font-weight: 700;
+    border-bottom: 1px solid #30363d; padding-bottom: 8px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #search {
+    width: 100%; background: #0d1117; border: 2px solid #30363d;
+    border-radius: 8px; color: #e6edf3; padding: 8px 12px;
+    font-size: 13px; outline: none; margin-bottom: 10px; transition: all .2s;
+  }
+  #search:focus { border-color: #00e676; box-shadow: 0 0 0 3px rgba(0,230,118,.12); background: #161b22; }
+  #node-info {
+    font-size: 12px; color: #8b949e; min-height: 60px; margin-bottom: 10px;
+    padding: 10px; background: rgba(255,255,255,.03);
+    border-radius: 8px; border: 1px solid rgba(48,54,61,.6); line-height: 1.5;
+  }
+  #node-info strong { color: #e6edf3; display: block; margin-bottom: 4px; font-size: 13px; }
+  #controls { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+  button {
+    background: #21262d; border: 1px solid #30363d; color: #e6edf3;
+    padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;
+    transition: all .15s; font-weight: 500;
+  }
+  button:hover { background: #30363d; border-color: #484f58; }
+  button.active { background: #1f6feb; border-color: #388bfd; color: #fff; }
+  #legend { max-height: 220px; overflow-y: auto; }
+  #legend::-webkit-scrollbar { width: 3px; }
+  #legend::-webkit-scrollbar-thumb { background: #30363d; border-radius: 2px; }
+  .legend-item {
+    display: flex; align-items: center; gap: 8px; padding: 7px 6px;
+    font-size: 12px; cursor: pointer; border-radius: 6px;
+    transition: all .2s; margin-bottom: 2px;
+  }
+  .legend-item:hover { background: rgba(255,255,255,.08); transform: translateX(2px); }
+  .legend-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(255,255,255,.15); }
+  .legend-count { margin-left: auto; color: #484f58; font-size: 11px; }
+  #stats { font-size: 11px; color: #6e7681; margin-top: 10px; padding-top: 8px; border-top: 1px solid #21262d; }
+  #edge-legend { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+  .edge-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #8b949e; }
+  .edge-line { width: 22px; height: 2px; border-radius: 2px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div id="graph"></div>
+<div id="ui">
+  <div id="title-bar">RELIANCE Knowledge Graph</div>
+  <input id="search" placeholder="&#128269; Search indicators..." type="text">
+  <div id="node-info">Click any node to inspect</div>
+  <div id="controls">
+    <button id="btn-rotate" class="active" onclick="toggleRotate()">&#9654; Rotate</button>
+    <button onclick="resetCamera()">Reset</button>
+    <button id="btn-labels" onclick="toggleLabels()">Labels</button>
+    <button id="btn-layout" onclick="cycleLayout()">Layout: 3D</button>
+    <button id="btn-edges" class="active" onclick="toggleEdges()">Edges</button>
+  </div>
+  <div id="legend"></div>
+  <div id="edge-legend">
+    <div class="edge-item"><div class="edge-line" style="background:#00e676"></div> Agreement</div>
+    <div class="edge-item"><div class="edge-line" style="background:#ff5252"></div> Contradiction</div>
+    <div class="edge-item"><div class="edge-line" style="background:#ffab40"></div> Verdict support</div>
+  </div>
+  <div id="stats"></div>
+</div>
+
+<script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
+<script src="https://unpkg.com/3d-force-graph@1.73.2/dist/3d-force-graph.min.js"></script>
+<script>
+const GRAPH_DATA = {"nodes": [{"id": "RELIANCE|technical|SMA|2026-04-24", "label": "RELIANCE|technical|SMA|2026-04-24", "community": 0, "signal": "negative", "value_text": "SMA20=1346.145, SMA50=1384.352, SMA200=1434.3165 — Bearish", "weight": 0.05, "color": "#ff5252", "val": 2, "degree": 5, "source_file": "technical · negative"}, {"id": "RELIANCE|technical|EMA|2026-04-24", "label": "RELIANCE|technical|EMA|2026-04-24", "community": 0, "signal": "negative", "value_text": "EMA20=1353.0157, EMA50=1380.7325, EMA200=1415.0716 — Bearish", "weight": 0.06, "color": "#ff5252", "val": 2, "degree": 6, "source_file": "technical · negative"}, {"id": "RELIANCE|technical|Ichimoku_Cloud|2026-04-24", "label": "RELIANCE|technical|Ichimoku_Cloud|2026-04-24", "community": 0, "signal": "negative", "value_text": "SpanA=1354.625, SpanB=1381.5, Base=1360.25, Conv=1349.0 — Below Cloud", "weight": 0.05, "color": "#ff5252", "val": 2, "degree": 6, "source_file": "technical · negative"}, {"id": "RELIANCE|technical|Parabolic_SAR|2026-04-24", "label": "RELIANCE|technical|Parabolic_SAR|2026-04-24", "community": 0, "signal": "negative", "value_text": "SAR=1368.179 — Bearish", "weight": 0.04, "color": "#ff5252", "val": 2, "degree": 7, "source_file": "technical · negative"}, {"id": "RELIANCE|technical|RSI|2026-04-24", "label": "RELIANCE|technical|RSI|2026-04-24", "community": 0, "signal": "neutral", "value_text": "RSI(14)=42.545 — Neutral", "weight": 0.08, "color": "#4FC3F7", "val": 2, "degree": 6, "source_file": "technical · neutral"}, {"id": "RELIANCE|technical|MACD|2026-04-24", "label": "RELIANCE|technical|MACD|2026-04-24", "community": 0, "signal": "positive", "value_text": "MACD=-11.742, Signal=-13.4149, Hist=1.6729 — Bullish", "weight": 0.08, "color": "#00e676", "val": 2, "degree": 8, "source_file": "technical · positive"}, {"id": "RELIANCE|technical|Stochastic|2026-04-24", "label": "RELIANCE|technical|Stochastic|2026-04-24", "community": 0, "signal": "neutral", "value_text": "%K=44.878, %D=57.8509 — Neutral", "weight": 0.05, "color": "#4FC3F7", "val": 2, "degree": 6, "source_file": "technical · neutral"}, {"id": "RELIANCE|technical|Williams_R|2026-04-24", "label": "RELIANCE|technical|Williams_R|2026-04-24", "community": 0, "signal": "neutral", "value_text": "W%R(14)=-55.122 — Neutral", "weight": 0.04, "color": "#4FC3F7", "val": 2, "degree": 6, "source_file": "technical · neutral"}, {"id": "RELIANCE|technical|ROC|2026-04-24", "label": "RELIANCE|technical|ROC|2026-04-24", "community": 0, "signal": "negative", "value_text": "ROC(12)=-1.4839% — Bearish", "weight": 0.04, "color": "#ff5252", "val": 2, "degree": 7, "source_file": "technical · negative"}, {"id": "RELIANCE|technical|Bollinger_Bands|2026-04-24", "label": "RELIANCE|technical|Bollinger_Bands|2026-04-24", "community": 0, "signal": "neutral", "value_text": "Upper=1393.1537, Mid=1346.145, Lower=1299.1363 — Inside Bands", "weight": 0.06, "color": "#4FC3F7", "val": 2, "degree": 6, "source_file": "technical · neutral"}, {"id": "RELIANCE|technical|ATR|2026-04-24", "label": "RELIANCE|technical|ATR|2026-04-24", "community": 0, "signal": "neutral", "value_text": "ATR(14)=27.4495 — Normal Volatility", "weight": 0.05, "color": "#4FC3F7", "val": 2, "degree": 6, "source_file": "technical · neutral"}, {"id": "RELIANCE|technical|OBV|2026-04-24", "label": "RELIANCE|technical|OBV|2026-04-24", "community": 0, "signal": "negative", "value_text": "OBV=-6173258.0 — Bearish Confirmation", "weight": 0.06, "color": "#ff5252", "val": 2, "degree": 9, "source_file": "technical · negative"}, {"id": "RELIANCE|technical|VWAP|2026-04-24", "label": "RELIANCE|technical|VWAP|2026-04-24", "community": 0, "signal": "negative", "value_text": "VWAP(14)=1338.5752 — Bearish", "weight": 0.06, "color": "#ff5252", "val": 2, "degree": 7, "source_file": "technical · negative"}, {"id": "RELIANCE|technical|CMF|2026-04-24", "label": "RELIANCE|technical|CMF|2026-04-24", "community": 0, "signal": "neutral", "value_text": "CMF(20)=-0.0748 — Neutral", "weight": 0.05, "color": "#4FC3F7", "val": 2, "degree": 6, "source_file": "technical · neutral"}, {"id": "RELIANCE|technical|MFI|2026-04-24", "label": "RELIANCE|technical|MFI|2026-04-24", "community": 0, "signal": "neutral", "value_text": "MFI(14)=48.4689 — Neutral", "weight": 0.05, "color": "#4FC3F7", "val": 2, "degree": 5, "source_file": "technical · neutral"}, {"id": "RELIANCE|technical|ADX|2026-04-24", "label": "RELIANCE|technical|ADX|2026-04-24", "community": 0, "signal": "neutral", "value_text": "ADX(14)=20.7799 — Weak Trend", "weight": 0.06, "color": "#4FC3F7", "val": 2, "degree": 4, "source_file": "technical · neutral"}, {"id": "RELIANCE|technical|Week_52_Ratio|2026-04-24", "label": "RELIANCE|technical|Week_52_Ratio|2026-04-24", "community": 0, "signal": "negative", "value_text": "52W High=1611.8, Low=1290.0, Ratio=0.1175 — Near 52W Low", "weight": 0.04, "color": "#ff5252", "val": 2, "degree": 5, "source_file": "technical · negative"}, {"id": "RELIANCE|fundamental|Revenue_Growth_YoY|2026-04-24", "label": "RELIANCE|fundamental|Revenue_Growth_YoY|2026-04-24", "community": 1, "signal": "positive", "value_text": "Revenue YoY Growth: +37.34%", "weight": 0.08, "color": "#00e676", "val": 2, "degree": 6, "source_file": "fundamental · positive"}, {"id": "RELIANCE|fundamental|Profit_Growth_YoY|2026-04-24", "label": "RELIANCE|fundamental|Profit_Growth_YoY|2026-04-24", "community": 1, "signal": "negative", "value_text": "Net Profit YoY Growth: -20.83%", "weight": 0.08, "color": "#ff5252", "val": 2, "degree": 7, "source_file": "fundamental · negative"}, {"id": "RELIANCE|fundamental|ROCE|2026-04-24", "label": "RELIANCE|fundamental|ROCE|2026-04-24", "community": 1, "signal": "neutral", "value_text": "ROCE: 10.5%", "weight": 0.04, "color": "#81C784", "val": 2, "degree": 5, "source_file": "fundamental · neutral"}, {"id": "RELIANCE|fundamental|ROE|2026-04-24", "label": "RELIANCE|fundamental|ROE|2026-04-24", "community": 1, "signal": "negative", "value_text": "ROE: 9.25%", "weight": 0.04, "color": "#ff5252", "val": 2, "degree": 7, "source_file": "fundamental · negative"}, {"id": "RELIANCE|fundamental|Debt_Equity|2026-04-24", "label": "RELIANCE|fundamental|Debt_Equity|2026-04-24", "community": 1, "signal": "neutral", "value_text": "Debt/Equity: 0.77x", "weight": 0.05, "color": "#81C784", "val": 2, "degree": 6, "source_file": "fundamental · neutral"}, {"id": "RELIANCE|fundamental|Valuation|2026-04-24", "label": "RELIANCE|fundamental|Valuation|2026-04-24", "community": 1, "signal": "neutral", "value_text": "PE: 22.2, Market Cap: Mega-cap", "weight": 0.06, "color": "#81C784", "val": 2, "degree": 6, "source_file": "fundamental · neutral"}, {"id": "RELIANCE|fundamental|Promoter_Holding_Trend|2026-04-24", "label": "RELIANCE|fundamental|Promoter_Holding_Trend|2026-04-24", "community": 1, "signal": "neutral", "value_text": "Promoter Holding Trend: 50.39% (+0.12% QoQ)", "weight": 0.05, "color": "#81C784", "val": 2, "degree": 6, "source_file": "fundamental · neutral"}, {"id": "RELIANCE|fundamental|FII_Holding_Trend|2026-04-24", "label": "RELIANCE|fundamental|FII_Holding_Trend|2026-04-24", "community": 1, "signal": "neutral", "value_text": "FII Holding Trend: 22.55% (-0.05% QoQ)", "weight": 0.06, "color": "#81C784", "val": 2, "degree": 5, "source_file": "fundamental · neutral"}, {"id": "RELIANCE|fundamental|DII_MF_Holding_Trend|2026-04-24", "label": "RELIANCE|fundamental|DII_MF_Holding_Trend|2026-04-24", "community": 1, "signal": "neutral", "value_text": "DII MF Holding Trend: 16.13% (+0.14% QoQ)", "weight": 0.05, "color": "#81C784", "val": 2, "degree": 4, "source_file": "fundamental · neutral"}, {"id": "RELIANCE|fundamental|Cash_Flow_Ops|2026-04-24", "label": "RELIANCE|fundamental|Cash_Flow_Ops|2026-04-24", "community": 1, "signal": "positive", "value_text": "Operating Cash Flow: Positive, -9.86% YoY", "weight": 0.04, "color": "#00e676", "val": 2, "degree": 3, "source_file": "fundamental · positive"}, {"id": "RELIANCE|news|News_01|2026-04-24", "label": "RELIANCE|news|News_01|2026-04-24", "community": 2, "signal": "neutral", "value_text": "STOCK_A Retail Q4 Results: Cons PAT rises marginally YoY to Rs 3,563 crore; revenue up 11% - The Economic Times", "weight": 0.024, "color": "#FFB74D", "val": 2, "degree": 4, "source_file": "news · neutral"}, {"id": "RELIANCE|news|News_02|2026-04-24", "label": "RELIANCE|news|News_02|2026-04-24", "community": 2, "signal": "neutral", "value_text": "STOCK_A Jio Q4 Results: Cons PAT jumps 13% YoY to Rs 7,935 crore, revenue rises 13%; ARPU climbs to Rs 21 - The Economic", "weight": 0.024, "color": "#FFB74D", "val": 2, "degree": 5, "source_file": "news · neutral"}, {"id": "RELIANCE|news|News_03|2026-04-24", "label": "RELIANCE|news|News_03|2026-04-24", "community": 2, "signal": "positive", "value_text": "STOCK_A Industries Q4 Results: Profit falls 13% YoY to Rs 16,971 crore; revenue rises 13% - The Economic Times", "weight": 0.024, "color": "#00e676", "val": 2, "degree": 8, "source_file": "news · positive"}, {"id": "RELIANCE|news|News_04|2026-04-24", "label": "RELIANCE|news|News_04|2026-04-24", "community": 2, "signal": "negative", "value_text": "STOCK_A Shares Drop Before Earnings - Rediff MoneyWiz", "weight": 0.024, "color": "#ff5252", "val": 2, "degree": 7, "source_file": "news · negative"}, {"id": "RELIANCE|news|News_05|2026-04-24", "label": "RELIANCE|news|News_05|2026-04-24", "community": 2, "signal": "neutral", "value_text": "Vodafone Idea, JP Power, Himadri Speciality, STOCK_A Power among the most traded stocks today, 24 April 2026 - Mint", "weight": 0.024, "color": "#FFB74D", "val": 2, "degree": 6, "source_file": "news · neutral"}, {"id": "RELIANCE|news|News_06|2026-04-24", "label": "RELIANCE|news|News_06|2026-04-24", "community": 2, "signal": "neutral", "value_text": "We Think That There Are Some Issues For STOCK_A Industrial Infrastructure (NSE:RIIL) Beyond Its Promising Earnings - sim", "weight": 0.024, "color": "#FFB74D", "val": 2, "degree": 6, "source_file": "news · neutral"}, {"id": "RELIANCE|news|News_07|2026-04-24", "label": "RELIANCE|news|News_07|2026-04-24", "community": 2, "signal": "positive", "value_text": "Power stocks surge today, April 22: Adani Power gains 4.73%, BF Utilities rises 5%,STOCK_A Infra falls 5% - Dailyhunt", "weight": 0.024, "color": "#00e676", "val": 2, "degree": 5, "source_file": "news · positive"}, {"id": "RELIANCE|news|News_08|2026-04-24", "label": "RELIANCE|news|News_08|2026-04-24", "community": 2, "signal": "neutral", "value_text": "STOCK_A Jio, Zepto, and Flipkart among key upcoming IPOs as ₹3 lakh crore worth of issues remain in the pipeline - Upsto", "weight": 0.024, "color": "#FFB74D", "val": 2, "degree": 4, "source_file": "news · neutral"}, {"id": "RELIANCE|news|News_09|2026-04-24", "label": "RELIANCE|news|News_09|2026-04-24", "community": 2, "signal": "neutral", "value_text": "STOCK_A Industries Limited: IndiaCast Media Amalgamates with Jiostar India Effective April 21, 2026 - scanx.trade", "weight": 0.024, "color": "#FFB74D", "val": 2, "degree": 3, "source_file": "news · neutral"}, {"id": "RELIANCE|announcement|Announcement_01|2026-04-24", "label": "RELIANCE|announcement|Announcement_01|2026-04-24", "community": 3, "signal": "neutral", "value_text": "Investor Presentation", "weight": 0.005, "color": "#F06292", "val": 2, "degree": 4, "source_file": "announcement · neutral"}, {"id": "RELIANCE|announcement|Announcement_02|2026-04-24", "label": "RELIANCE|announcement|Announcement_02|2026-04-24", "community": 3, "signal": "neutral", "value_text": "Press Release", "weight": 0.005, "color": "#F06292", "val": 2, "degree": 4, "source_file": "announcement · neutral"}, {"id": "RELIANCE|announcement|Announcement_03|2026-04-24", "label": "RELIANCE|announcement|Announcement_03|2026-04-24", "community": 3, "signal": "positive", "value_text": "Dividend", "weight": 0.005, "color": "#00e676", "val": 2, "degree": 6, "source_file": "announcement · positive"}, {"id": "RELIANCE|announcement|Announcement_04|2026-04-24", "label": "RELIANCE|announcement|Announcement_04|2026-04-24", "community": 3, "signal": "neutral", "value_text": "Outcome of Board Meeting", "weight": 0.005, "color": "#F06292", "val": 2, "degree": 7, "source_file": "announcement · neutral"}, {"id": "RELIANCE|announcement|Announcement_05|2026-04-24", "label": "RELIANCE|announcement|Announcement_05|2026-04-24", "community": 3, "signal": "neutral", "value_text": "Updates", "weight": 0.005, "color": "#F06292", "val": 2, "degree": 6, "source_file": "announcement · neutral"}, {"id": "RELIANCE|announcement|Announcement_06|2026-04-24", "label": "RELIANCE|announcement|Announcement_06|2026-04-24", "community": 3, "signal": "neutral", "value_text": "Other Restructuring", "weight": 0.005, "color": "#F06292", "val": 2, "degree": 6, "source_file": "announcement · neutral"}, {"id": "RELIANCE|announcement|Announcement_07|2026-04-24", "label": "RELIANCE|announcement|Announcement_07|2026-04-24", "community": 3, "signal": "neutral", "value_text": "Analysts/Institutional Investor Meet/Con. Call Updates", "weight": 0.005, "color": "#F06292", "val": 2, "degree": 6, "source_file": "announcement · neutral"}, {"id": "RELIANCE|announcement|Announcement_08|2026-04-24", "label": "RELIANCE|announcement|Announcement_08|2026-04-24", "community": 3, "signal": "neutral", "value_text": "ESOP/ESOS/ESPS", "weight": 0.005, "color": "#F06292", "val": 2, "degree": 6, "source_file": "announcement · neutral"}, {"id": "RELIANCE|announcement|Announcement_09|2026-04-24", "label": "RELIANCE|announcement|Announcement_09|2026-04-24", "community": 3, "signal": "neutral", "value_text": "Sale or disposal", "weight": 0.005, "color": "#F06292", "val": 2, "degree": 6, "source_file": "announcement · neutral"}, {"id": "RELIANCE|announcement|Announcement_10|2026-04-24", "label": "RELIANCE|announcement|Announcement_10|2026-04-24", "community": 3, "signal": "neutral", "value_text": "Copy of Newspaper Publication", "weight": 0.005, "color": "#F06292", "val": 2, "degree": 6, "source_file": "announcement · neutral"}, {"id": "RELIANCE|announcement|Announcement_11|2026-04-24", "label": "RELIANCE|announcement|Announcement_11|2026-04-24", "community": 3, "signal": "neutral", "value_text": "Trading Window", "weight": 0.005, "color": "#F06292", "val": 2, "degree": 6, "source_file": "announcement · neutral"}, {"id": "RELIANCE|announcement|Announcement_12|2026-04-24", "label": "RELIANCE|announcement|Announcement_12|2026-04-24", "community": 3, "signal": "neutral", "value_text": "Action(s) taken or orders passed", "weight": 0.005, "color": "#F06292", "val": 2, "degree": 6, "source_file": "announcement · neutral"}, {"id": "RELIANCE|announcement|Announcement_13|2026-04-24", "label": "RELIANCE|announcement|Announcement_13|2026-04-24", "community": 3, "signal": "neutral", "value_text": "Updates", "weight": 0.005, "color": "#F06292", "val": 2, "degree": 5, "source_file": "announcement · neutral"}, {"id": "RELIANCE|announcement|Announcement_14|2026-04-24", "label": "RELIANCE|announcement|Announcement_14|2026-04-24", "community": 3, "signal": "neutral", "value_text": "Action(s) taken or orders passed", "weight": 0.005, "color": "#F06292", "val": 2, "degree": 4, "source_file": "announcement · neutral"}, {"id": "RELIANCE|announcement|Announcement_15|2026-04-24", "label": "RELIANCE|announcement|Announcement_15|2026-04-24", "community": 3, "signal": "neutral", "value_text": "Updates", "weight": 0.005, "color": "#F06292", "val": 2, "degree": 3, "source_file": "announcement · neutral"}, {"id": "RELIANCE|context|Market_Regime|2026-04-24", "label": "RELIANCE|context|Market_Regime|2026-04-24", "community": 4, "signal": "neutral", "value_text": "Indeterminate (data unavailable)", "weight": 0.03, "color": "#CE93D8", "val": 2, "degree": 2, "source_file": "context · neutral"}, {"id": "RELIANCE|context|Price_Context|2026-04-24", "label": "RELIANCE|context|Price_Context|2026-04-24", "community": 4, "signal": "neutral", "value_text": "Price context unavailable", "weight": 0.03, "color": "#CE93D8", "val": 2, "degree": 2, "source_file": "context · neutral"}, {"id": "RELIANCE|context|Sector_Context|2026-04-24", "label": "RELIANCE|context|Sector_Context|2026-04-24", "community": 4, "signal": "neutral", "value_text": "Sector: Oil, Gas & Consumable Fuels | Industry: Refineries & Marketing", "weight": 0.03, "color": "#CE93D8", "val": 2, "degree": 2, "source_file": "context · neutral"}, {"id": "verdict::technical", "label": "TECHNICAL verdict", "community": 5, "signal": "bearish", "value_text": "bearish", "weight": 2.5, "color": "#ff5252", "val": 10, "degree": 9, "source_file": "verdict · technical"}, {"id": "verdict::fundamental", "label": "FUNDAMENTAL verdict", "community": 5, "signal": "mixed", "value_text": "mixed", "weight": 2.5, "color": "#ffd740", "val": 10, "degree": 3, "source_file": "verdict · fundamental"}, {"id": "verdict::news", "label": "NEWS verdict", "community": 5, "signal": "mixed", "value_text": "mixed", "weight": 2.5, "color": "#ffd740", "val": 10, "degree": 4, "source_file": "verdict · news"}, {"id": "verdict::announcement", "label": "ANNOUNCEMENT verdict", "community": 5, "signal": "neutral", "value_text": "neutral", "weight": 2.5, "color": "#FF7043", "val": 10, "degree": 3, "source_file": "verdict · announcement"}], "links": [{"source": "RELIANCE|technical|SMA|2026-04-24", "target": "RELIANCE|technical|EMA|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|SMA|2026-04-24", "target": "RELIANCE|technical|Ichimoku_Cloud|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|SMA|2026-04-24", "target": "RELIANCE|technical|Parabolic_SAR|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|EMA|2026-04-24", "target": "RELIANCE|technical|Ichimoku_Cloud|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|EMA|2026-04-24", "target": "RELIANCE|technical|Parabolic_SAR|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|EMA|2026-04-24", "target": "RELIANCE|technical|RSI|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|Ichimoku_Cloud|2026-04-24", "target": "RELIANCE|technical|Parabolic_SAR|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|Ichimoku_Cloud|2026-04-24", "target": "RELIANCE|technical|RSI|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|Ichimoku_Cloud|2026-04-24", "target": "RELIANCE|technical|MACD|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|Parabolic_SAR|2026-04-24", "target": "RELIANCE|technical|RSI|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|Parabolic_SAR|2026-04-24", "target": "RELIANCE|technical|MACD|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|Parabolic_SAR|2026-04-24", "target": "RELIANCE|technical|Stochastic|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|RSI|2026-04-24", "target": "RELIANCE|technical|MACD|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|RSI|2026-04-24", "target": "RELIANCE|technical|Stochastic|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|RSI|2026-04-24", "target": "RELIANCE|technical|Williams_R|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|MACD|2026-04-24", "target": "RELIANCE|technical|Stochastic|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|MACD|2026-04-24", "target": "RELIANCE|technical|Williams_R|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|MACD|2026-04-24", "target": "RELIANCE|technical|ROC|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|Stochastic|2026-04-24", "target": "RELIANCE|technical|Williams_R|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|Stochastic|2026-04-24", "target": "RELIANCE|technical|ROC|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|Stochastic|2026-04-24", "target": "RELIANCE|technical|Bollinger_Bands|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|Williams_R|2026-04-24", "target": "RELIANCE|technical|ROC|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|Williams_R|2026-04-24", "target": "RELIANCE|technical|Bollinger_Bands|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|Williams_R|2026-04-24", "target": "RELIANCE|technical|ATR|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|ROC|2026-04-24", "target": "RELIANCE|technical|Bollinger_Bands|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|ROC|2026-04-24", "target": "RELIANCE|technical|ATR|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|ROC|2026-04-24", "target": "RELIANCE|technical|OBV|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|Bollinger_Bands|2026-04-24", "target": "RELIANCE|technical|ATR|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|Bollinger_Bands|2026-04-24", "target": "RELIANCE|technical|OBV|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|Bollinger_Bands|2026-04-24", "target": "RELIANCE|technical|VWAP|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|ATR|2026-04-24", "target": "RELIANCE|technical|OBV|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|ATR|2026-04-24", "target": "RELIANCE|technical|VWAP|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|ATR|2026-04-24", "target": "RELIANCE|technical|CMF|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|OBV|2026-04-24", "target": "RELIANCE|technical|VWAP|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|OBV|2026-04-24", "target": "RELIANCE|technical|CMF|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|OBV|2026-04-24", "target": "RELIANCE|technical|MFI|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|VWAP|2026-04-24", "target": "RELIANCE|technical|CMF|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|VWAP|2026-04-24", "target": "RELIANCE|technical|MFI|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|VWAP|2026-04-24", "target": "RELIANCE|technical|ADX|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|CMF|2026-04-24", "target": "RELIANCE|technical|MFI|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|CMF|2026-04-24", "target": "RELIANCE|technical|ADX|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|CMF|2026-04-24", "target": "RELIANCE|technical|Week_52_Ratio|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|MFI|2026-04-24", "target": "RELIANCE|technical|ADX|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|MFI|2026-04-24", "target": "RELIANCE|technical|Week_52_Ratio|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|ADX|2026-04-24", "target": "RELIANCE|technical|Week_52_Ratio|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|Revenue_Growth_YoY|2026-04-24", "target": "RELIANCE|fundamental|Profit_Growth_YoY|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|Revenue_Growth_YoY|2026-04-24", "target": "RELIANCE|fundamental|ROCE|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|Revenue_Growth_YoY|2026-04-24", "target": "RELIANCE|fundamental|ROE|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|Profit_Growth_YoY|2026-04-24", "target": "RELIANCE|fundamental|ROCE|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|Profit_Growth_YoY|2026-04-24", "target": "RELIANCE|fundamental|ROE|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|Profit_Growth_YoY|2026-04-24", "target": "RELIANCE|fundamental|Debt_Equity|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|ROCE|2026-04-24", "target": "RELIANCE|fundamental|ROE|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|ROCE|2026-04-24", "target": "RELIANCE|fundamental|Debt_Equity|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|ROCE|2026-04-24", "target": "RELIANCE|fundamental|Valuation|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|ROE|2026-04-24", "target": "RELIANCE|fundamental|Debt_Equity|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|ROE|2026-04-24", "target": "RELIANCE|fundamental|Valuation|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|ROE|2026-04-24", "target": "RELIANCE|fundamental|Promoter_Holding_Trend|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|Debt_Equity|2026-04-24", "target": "RELIANCE|fundamental|Valuation|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|Debt_Equity|2026-04-24", "target": "RELIANCE|fundamental|Promoter_Holding_Trend|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|Debt_Equity|2026-04-24", "target": "RELIANCE|fundamental|FII_Holding_Trend|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|Valuation|2026-04-24", "target": "RELIANCE|fundamental|Promoter_Holding_Trend|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|Valuation|2026-04-24", "target": "RELIANCE|fundamental|FII_Holding_Trend|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|Valuation|2026-04-24", "target": "RELIANCE|fundamental|DII_MF_Holding_Trend|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|Promoter_Holding_Trend|2026-04-24", "target": "RELIANCE|fundamental|FII_Holding_Trend|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|Promoter_Holding_Trend|2026-04-24", "target": "RELIANCE|fundamental|DII_MF_Holding_Trend|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|Promoter_Holding_Trend|2026-04-24", "target": "RELIANCE|fundamental|Cash_Flow_Ops|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|FII_Holding_Trend|2026-04-24", "target": "RELIANCE|fundamental|DII_MF_Holding_Trend|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|FII_Holding_Trend|2026-04-24", "target": "RELIANCE|fundamental|Cash_Flow_Ops|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|fundamental|DII_MF_Holding_Trend|2026-04-24", "target": "RELIANCE|fundamental|Cash_Flow_Ops|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|news|News_01|2026-04-24", "target": "RELIANCE|news|News_02|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|news|News_01|2026-04-24", "target": "RELIANCE|news|News_03|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|news|News_01|2026-04-24", "target": "RELIANCE|news|News_04|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|news|News_02|2026-04-24", "target": "RELIANCE|news|News_03|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|news|News_02|2026-04-24", "target": "RELIANCE|news|News_04|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|news|News_02|2026-04-24", "target": "RELIANCE|news|News_05|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|news|News_03|2026-04-24", "target": "RELIANCE|news|News_04|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|news|News_03|2026-04-24", "target": "RELIANCE|news|News_05|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|news|News_03|2026-04-24", "target": "RELIANCE|news|News_06|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|news|News_04|2026-04-24", "target": "RELIANCE|news|News_05|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|news|News_04|2026-04-24", "target": "RELIANCE|news|News_06|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|news|News_04|2026-04-24", "target": "RELIANCE|news|News_07|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|news|News_05|2026-04-24", "target": "RELIANCE|news|News_06|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|news|News_05|2026-04-24", "target": "RELIANCE|news|News_07|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|news|News_05|2026-04-24", "target": "RELIANCE|news|News_08|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|news|News_06|2026-04-24", "target": "RELIANCE|news|News_07|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|news|News_06|2026-04-24", "target": "RELIANCE|news|News_08|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|news|News_06|2026-04-24", "target": "RELIANCE|news|News_09|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|news|News_07|2026-04-24", "target": "RELIANCE|news|News_08|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|news|News_07|2026-04-24", "target": "RELIANCE|news|News_09|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|news|News_08|2026-04-24", "target": "RELIANCE|news|News_09|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_01|2026-04-24", "target": "RELIANCE|announcement|Announcement_02|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_01|2026-04-24", "target": "RELIANCE|announcement|Announcement_03|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_01|2026-04-24", "target": "RELIANCE|announcement|Announcement_04|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_02|2026-04-24", "target": "RELIANCE|announcement|Announcement_03|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_02|2026-04-24", "target": "RELIANCE|announcement|Announcement_04|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_02|2026-04-24", "target": "RELIANCE|announcement|Announcement_05|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_03|2026-04-24", "target": "RELIANCE|announcement|Announcement_04|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_03|2026-04-24", "target": "RELIANCE|announcement|Announcement_05|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_03|2026-04-24", "target": "RELIANCE|announcement|Announcement_06|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_04|2026-04-24", "target": "RELIANCE|announcement|Announcement_05|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_04|2026-04-24", "target": "RELIANCE|announcement|Announcement_06|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_04|2026-04-24", "target": "RELIANCE|announcement|Announcement_07|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_05|2026-04-24", "target": "RELIANCE|announcement|Announcement_06|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_05|2026-04-24", "target": "RELIANCE|announcement|Announcement_07|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_05|2026-04-24", "target": "RELIANCE|announcement|Announcement_08|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_06|2026-04-24", "target": "RELIANCE|announcement|Announcement_07|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_06|2026-04-24", "target": "RELIANCE|announcement|Announcement_08|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_06|2026-04-24", "target": "RELIANCE|announcement|Announcement_09|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_07|2026-04-24", "target": "RELIANCE|announcement|Announcement_08|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_07|2026-04-24", "target": "RELIANCE|announcement|Announcement_09|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_07|2026-04-24", "target": "RELIANCE|announcement|Announcement_10|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_08|2026-04-24", "target": "RELIANCE|announcement|Announcement_09|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_08|2026-04-24", "target": "RELIANCE|announcement|Announcement_10|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_08|2026-04-24", "target": "RELIANCE|announcement|Announcement_11|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_09|2026-04-24", "target": "RELIANCE|announcement|Announcement_10|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_09|2026-04-24", "target": "RELIANCE|announcement|Announcement_11|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_09|2026-04-24", "target": "RELIANCE|announcement|Announcement_12|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_10|2026-04-24", "target": "RELIANCE|announcement|Announcement_11|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_10|2026-04-24", "target": "RELIANCE|announcement|Announcement_12|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_10|2026-04-24", "target": "RELIANCE|announcement|Announcement_13|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_11|2026-04-24", "target": "RELIANCE|announcement|Announcement_12|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_11|2026-04-24", "target": "RELIANCE|announcement|Announcement_13|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_11|2026-04-24", "target": "RELIANCE|announcement|Announcement_14|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_12|2026-04-24", "target": "RELIANCE|announcement|Announcement_13|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_12|2026-04-24", "target": "RELIANCE|announcement|Announcement_14|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_12|2026-04-24", "target": "RELIANCE|announcement|Announcement_15|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_13|2026-04-24", "target": "RELIANCE|announcement|Announcement_14|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_13|2026-04-24", "target": "RELIANCE|announcement|Announcement_15|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|announcement|Announcement_14|2026-04-24", "target": "RELIANCE|announcement|Announcement_15|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|context|Market_Regime|2026-04-24", "target": "RELIANCE|context|Price_Context|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|context|Market_Regime|2026-04-24", "target": "RELIANCE|context|Sector_Context|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|context|Price_Context|2026-04-24", "target": "RELIANCE|context|Sector_Context|2026-04-24", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "RELIANCE|technical|SMA|2026-04-24", "target": "RELIANCE|technical|EMA|2026-04-24", "type": "agreement", "color": "rgba(0,230,118,0.7)"}, {"source": "RELIANCE|fundamental|Profit_Growth_YoY|2026-04-24", "target": "RELIANCE|news|News_03|2026-04-24", "type": "agreement", "color": "rgba(0,230,118,0.7)"}, {"source": "RELIANCE|technical|OBV|2026-04-24", "target": "RELIANCE|technical|Week_52_Ratio|2026-04-24", "type": "agreement", "color": "rgba(0,230,118,0.7)"}, {"source": "RELIANCE|fundamental|Revenue_Growth_YoY|2026-04-24", "target": "RELIANCE|news|News_03|2026-04-24", "type": "agreement", "color": "rgba(0,230,118,0.7)"}, {"source": "RELIANCE|fundamental|Revenue_Growth_YoY|2026-04-24", "target": "RELIANCE|fundamental|Profit_Growth_YoY|2026-04-24", "type": "contradiction", "color": "rgba(255,82,82,0.7)"}, {"source": "RELIANCE|technical|MACD|2026-04-24", "target": "RELIANCE|technical|OBV|2026-04-24", "type": "contradiction", "color": "rgba(255,82,82,0.7)"}, {"source": "RELIANCE|technical|SMA|2026-04-24", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "RELIANCE|technical|EMA|2026-04-24", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "RELIANCE|technical|Ichimoku_Cloud|2026-04-24", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "RELIANCE|technical|Parabolic_SAR|2026-04-24", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "RELIANCE|technical|ROC|2026-04-24", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "RELIANCE|technical|OBV|2026-04-24", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "RELIANCE|technical|VWAP|2026-04-24", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "RELIANCE|technical|Week_52_Ratio|2026-04-24", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "RELIANCE|technical|MACD|2026-04-24", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "RELIANCE|fundamental|Revenue_Growth_YoY|2026-04-24", "target": "verdict::fundamental", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "RELIANCE|fundamental|Profit_Growth_YoY|2026-04-24", "target": "verdict::fundamental", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "RELIANCE|fundamental|ROE|2026-04-24", "target": "verdict::fundamental", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "RELIANCE|news|News_04|2026-04-24", "target": "verdict::news", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "RELIANCE|news|News_03|2026-04-24", "target": "verdict::news", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "RELIANCE|news|News_01|2026-04-24", "target": "verdict::news", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "RELIANCE|news|News_02|2026-04-24", "target": "verdict::news", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "RELIANCE|announcement|Announcement_01|2026-04-24", "target": "verdict::announcement", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "RELIANCE|announcement|Announcement_04|2026-04-24", "target": "verdict::announcement", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "RELIANCE|announcement|Announcement_03|2026-04-24", "target": "verdict::announcement", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}], "communities": [{"id": 0, "key": "technical", "name": "Technical", "color": "#4FC3F7"}, {"id": 1, "key": "fundamental", "name": "Fundamental", "color": "#81C784"}, {"id": 2, "key": "news", "name": "News", "color": "#FFB74D"}, {"id": 3, "key": "announcement", "name": "Announcement", "color": "#F06292"}, {"id": 4, "key": "context", "name": "Context", "color": "#CE93D8"}, {"id": 5, "key": "verdict", "name": "Verdict", "color": "#FF7043"}], "meta": {"node_count": 58, "edge_count": 157}};
+
+let rotating    = true;
+let showLabels  = false;
+let edgesVisible= true;
+let layoutMode  = 0;
+const layouts   = ['3D Force', 'Sphere', 'Clusters'];
+
+const highlightNodes = new Set();
+const highlightLinks = new Set();
+
+// ── Colour helpers ─────────────────────────────────────────────────────────
+function nodeColor(node) {
+  if (!highlightNodes.size) return node.color;
+  return highlightNodes.has(node.id) ? node.color : node.color + '18';
+}
+function linkColor(link) {
+  if (!highlightLinks.size) return edgesVisible ? (link.color || 'rgba(255,255,255,0.12)') : 'rgba(255,255,255,0)';
+  return highlightLinks.has(link)
+    ? (link.color || 'rgba(100,200,255,0.8)')
+    : 'rgba(255,255,255,0.03)';
+}
+function linkWidth(link) {
+  if (!edgesVisible) return 0;
+  if (highlightLinks.has(link)) return 2.5;
+  if (link.type === 'same_category') return 0.3;
+  return 1.0;
+}
+
+// ── Build graph ────────────────────────────────────────────────────────────
+const Graph = ForceGraph3D()(document.getElementById('graph'))
+  .graphData(GRAPH_DATA)
+  .nodeId('id')
+  .nodeLabel(n => `<div style="background:rgba(13,17,23,.92);border:1px solid #30363d;border-radius:8px;padding:8px 12px;font-size:12px;color:#e6edf3;max-width:260px">
+    <strong style="color:${n.color}">${n.label}</strong><br>
+    <span style="color:#8b949e">${n.source_file}</span><br>
+    <span style="font-size:11px;color:#6e7681">${n.value_text}</span>
+  </div>`)
+  .nodeColor(nodeColor)
+  .nodeVal('val')
+  .nodeOpacity(0.92)
+  .linkSource('source')
+  .linkTarget('target')
+  .linkColor(linkColor)
+  .linkWidth(linkWidth)
+  .linkOpacity(0.85)
+  .linkDirectionalParticles(l => (l.type === 'agreement' || l.type === 'contradiction') ? 2 : 0)
+  .linkDirectionalParticleSpeed(0.004)
+  .linkDirectionalParticleColor(l => l.color || '#fff')
+  .backgroundColor('#0d1117')
+  .onNodeClick(node => {
+    highlightNodes.clear(); highlightLinks.clear();
+    if (node) {
+      highlightNodes.add(node.id);
+      GRAPH_DATA.links.forEach(l => {
+        const s = typeof l.source === 'object' ? l.source.id : l.source;
+        const t = typeof l.target === 'object' ? l.target.id : l.target;
+        if (s === node.id || t === node.id) {
+          highlightLinks.add(l); highlightNodes.add(s); highlightNodes.add(t);
+        }
+      });
+    }
+    Graph.nodeColor(nodeColor).linkColor(linkColor).linkWidth(linkWidth);
+    if (node) {
+      const comm = GRAPH_DATA.communities.find(c => c.id === node.community);
+      document.getElementById('node-info').innerHTML = `
+        <strong style="color:${node.color}">${node.label}</strong>
+        <span style="color:#58a6ff">${node.source_file}</span><br>
+        <span style="color:#8b949e;font-size:11px">${node.value_text || ''}</span><br>
+        <span style="color:#484f58;font-size:11px">Weight: ${node.weight} &nbsp;|&nbsp; ${highlightNodes.size - 1} connections</span>
+      `;
+      const dist = 100;
+      const r = 1 + dist / Math.hypot(node.x || 1, node.y || 1, node.z || 1);
+      Graph.cameraPosition({x: node.x*r, y: node.y*r, z: node.z*r}, node, 800);
+    }
+  })
+  .onBackgroundClick(() => {
+    highlightNodes.clear(); highlightLinks.clear();
+    Graph.nodeColor(nodeColor).linkColor(linkColor).linkWidth(linkWidth);
+    document.getElementById('node-info').textContent = 'Click any node to inspect';
+  });
+
+// ── Auto-rotate ────────────────────────────────────────────────────────────
+Graph.onEngineStop(() => {
+  const c = Graph.controls();
+  if (c) { c.autoRotate = rotating; c.autoRotateSpeed = 1.2; }
+});
+setTimeout(() => {
+  const c = Graph.controls();
+  if (c) { c.autoRotate = true; c.autoRotateSpeed = 1.2; }
+}, 600);
+
+// ── Legend ─────────────────────────────────────────────────────────────────
+const legendEl = document.getElementById('legend');
+const nodeCounts = {};
+GRAPH_DATA.nodes.forEach(n => { nodeCounts[n.community] = (nodeCounts[n.community] || 0) + 1; });
+
+GRAPH_DATA.communities.forEach(comm => {
+  if (!nodeCounts[comm.id]) return;
+  const div = document.createElement('div');
+  div.className = 'legend-item';
+  div.innerHTML = `<div class="legend-dot" style="background:${comm.color}"></div>
+    <span>${comm.name}</span><span class="legend-count">${nodeCounts[comm.id]}</span>`;
+  div.onclick = () => filterCommunity(comm.id);
+  legendEl.appendChild(div);
+});
+
+// ── Stats ──────────────────────────────────────────────────────────────────
+document.getElementById('stats').innerHTML =
+  `${GRAPH_DATA.meta.node_count} nodes &nbsp;|&nbsp; ${GRAPH_DATA.meta.edge_count} edges`;
+
+// ── Controls ───────────────────────────────────────────────────────────────
+function toggleRotate() {
+  rotating = !rotating;
+  document.getElementById('btn-rotate').classList.toggle('active', rotating);
+  const c = Graph.controls(); if (c) c.autoRotate = rotating;
+}
+function resetCamera() {
+  Graph.cameraPosition({x:0, y:0, z:600}, {x:0,y:0,z:0}, 800);
+  highlightNodes.clear(); highlightLinks.clear();
+  Graph.nodeColor(nodeColor).linkColor(linkColor).linkWidth(linkWidth);
+  document.getElementById('node-info').textContent = 'Click any node to inspect';
+}
+function toggleLabels() {
+  showLabels = !showLabels;
+  document.getElementById('btn-labels').classList.toggle('active', showLabels);
+  if (showLabels) {
+    Graph.nodeThreeObjectExtend(true).nodeThreeObject(node => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512; canvas.height = 72;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = 'rgba(13,17,23,0.88)';
+      ctx.beginPath(); ctx.roundRect(4, 8, 504, 56, 8); ctx.fill();
+      ctx.strokeStyle = node.color; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.roundRect(4, 8, 504, 56, 8); ctx.stroke();
+      const txt = node.label.length > 24 ? node.label.slice(0,22)+'…' : node.label;
+      ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle'; ctx.fillStyle = node.color;
+      ctx.fillText(txt, 256, 36);
+      const tex = new THREE.CanvasTexture(canvas);
+      const mat = new THREE.SpriteMaterial({map:tex, depthWrite:false, transparent:true});
+      const sprite = new THREE.Sprite(mat);
+      sprite.scale.set(42, 8, 1); sprite.position.set(0, 9, 0);
+      return sprite;
+    });
+  } else {
+    Graph.nodeThreeObjectExtend(false).nodeThreeObject(null);
+  }
+}
+function toggleEdges() {
+  edgesVisible = !edgesVisible;
+  document.getElementById('btn-edges').classList.toggle('active', edgesVisible);
+  Graph.linkColor(linkColor).linkWidth(linkWidth).linkOpacity(edgesVisible ? 0.85 : 0);
+}
+function cycleLayout() {
+  layoutMode = (layoutMode + 1) % 3;
+  document.getElementById('btn-layout').textContent = 'Layout: ' + layouts[layoutMode];
+  if (layoutMode === 1) {
+    const N = GRAPH_DATA.nodes.length;
+    GRAPH_DATA.nodes.forEach((n, i) => {
+      const phi = Math.acos(-1 + (2*i)/N), theta = Math.sqrt(N*Math.PI)*phi, R = 220;
+      n.fx = R*Math.cos(theta)*Math.sin(phi); n.fy = R*Math.sin(theta)*Math.sin(phi); n.fz = R*Math.cos(phi);
+    });
+    Graph.cameraPosition({x:0,y:0,z:600},{x:0,y:0,z:0},800);
+  } else if (layoutMode === 2) {
+    const comms = {};
+    GRAPH_DATA.nodes.forEach(n => { (comms[n.community] = comms[n.community]||[]).push(n); });
+    Object.keys(comms).forEach((cid, ci, keys) => {
+      const theta = (ci/keys.length)*2*Math.PI, R=280;
+      comms[cid].forEach((n,ni) => {
+        const r=60, a=(ni/comms[cid].length)*2*Math.PI;
+        n.fx = R*Math.cos(theta)+r*Math.cos(a); n.fy = R*Math.sin(theta)+r*Math.sin(a); n.fz=(Math.random()-.5)*80;
+      });
+    });
+  } else {
+    GRAPH_DATA.nodes.forEach(n => { delete n.fx; delete n.fy; delete n.fz; });
+    Graph.cameraPosition({x:0,y:0,z:600},{x:0,y:0,z:0},800);
+  }
+  Graph.graphData(GRAPH_DATA);
+}
+function filterCommunity(cid) {
+  highlightNodes.clear(); highlightLinks.clear();
+  const comm = GRAPH_DATA.communities.find(c => c.id === cid);
+  GRAPH_DATA.nodes.forEach(n => { if (n.community === cid) highlightNodes.add(n.id); });
+  GRAPH_DATA.links.forEach(l => {
+    const s = typeof l.source==='object'?l.source.id:l.source;
+    const t = typeof l.target==='object'?l.target.id:l.target;
+    if (highlightNodes.has(s) && highlightNodes.has(t)) highlightLinks.add(l);
+  });
+  Graph.nodeColor(node => highlightNodes.has(node.id) ? node.color : node.color+'18')
+       .linkColor(link => highlightLinks.has(link) ? (link.color||'rgba(100,200,255,0.7)') : 'rgba(255,255,255,0.02)')
+       .linkWidth(link => highlightLinks.has(link) ? 2.0 : 0.1);
+  document.getElementById('node-info').innerHTML =
+    `<strong style="color:${comm.color}">${comm.name}</strong><br>
+     <span style="color:#8b949e">${highlightNodes.size} nodes &nbsp;|&nbsp; ${highlightLinks.size} connections</span>`;
+}
+
+// ── Search ────────────────────────────────────────────────────────────────
+document.getElementById('search').addEventListener('input', e => {
+  const q = e.target.value.toLowerCase().trim();
+  if (!q) {
+    highlightNodes.clear(); highlightLinks.clear();
+    Graph.nodeColor(nodeColor).linkColor(linkColor).linkWidth(linkWidth);
+    document.getElementById('node-info').textContent = 'Click any node to inspect';
+    return;
+  }
+  highlightNodes.clear(); highlightLinks.clear();
+  const matched = GRAPH_DATA.nodes.filter(n =>
+    n.label.toLowerCase().includes(q) || n.source_file.toLowerCase().includes(q) || n.value_text.toLowerCase().includes(q)
+  );
+  matched.forEach(n => highlightNodes.add(n.id));
+  GRAPH_DATA.links.forEach(l => {
+    const s = typeof l.source==='object'?l.source.id:l.source;
+    const t = typeof l.target==='object'?l.target.id:l.target;
+    if (highlightNodes.has(s)||highlightNodes.has(t)) {
+      highlightLinks.add(l); highlightNodes.add(s); highlightNodes.add(t);
+    }
+  });
+  const G = '#00e676';
+  Graph.nodeColor(n => matched.some(m=>m.id===n.id) ? G : highlightNodes.has(n.id) ? G+'66' : n.color+'10')
+       .linkColor(l => highlightLinks.has(l) ? 'rgba(0,230,118,0.7)' : 'rgba(255,255,255,0.02)')
+       .linkWidth(l => highlightLinks.has(l) ? 3.0 : 0.05);
+  document.getElementById('node-info').innerHTML = matched.length === 1
+    ? `<strong style="color:${G}">${matched[0].label}</strong><br>
+       <span style="color:#8b949e">${matched[0].source_file}</span><br>
+       <span style="font-size:11px;color:#6e7681">${matched[0].value_text}</span>`
+    : `<strong style="color:${G}">${matched.length} matches found</strong><br>
+       <span style="color:#8b949e">${highlightNodes.size - matched.length} connected nodes</span>`;
+});
+</script>
+</body>
+</html>

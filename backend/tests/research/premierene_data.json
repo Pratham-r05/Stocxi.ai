@@ -1,0 +1,1432 @@
+{
+  "symbol": "PREMIERENE",
+  "as_of": "2026-04-26",
+  "fetched_at": "2026-04-26T18:21:01.529621",
+  "components": {
+    "price": {
+      "node_count": 1,
+      "nodes": [
+        {
+          "node_id": "PREMIERENE|context|Price|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "context",
+          "name": "Price",
+          "value": "\u20b91,007.55",
+          "value_raw": {
+            "price": 1007.55,
+            "open": 990.0,
+            "high": 1032.0,
+            "low": 956.55,
+            "volume": 4534019,
+            "market_cap_cr": null,
+            "company_name": "PREMIERENE",
+            "isin": ""
+          },
+          "signal": "neutral",
+          "confidence": 1.0,
+          "source": "nse_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:02.499654+05:30",
+          "horizon_relevance": "both",
+          "weight": 0.0,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        }
+      ]
+    },
+    "ohlcv": {
+      "total_rows": 268,
+      "columns": [
+        "Open",
+        "High",
+        "Low",
+        "Close",
+        "Volume"
+      ],
+      "date_range": {
+        "from": "2025-03-24",
+        "to": "2026-04-24"
+      },
+      "latest_30_rows": [
+        {
+          "date": "2026-03-10",
+          "open": 728.0,
+          "high": 750.0,
+          "low": 721.85,
+          "close": 747.75,
+          "volume": 1392796
+        },
+        {
+          "date": "2026-03-11",
+          "open": 749.0,
+          "high": 795.0,
+          "low": 747.75,
+          "close": 788.1,
+          "volume": 5224183
+        },
+        {
+          "date": "2026-03-12",
+          "open": 781.05,
+          "high": 794.35,
+          "low": 767.25,
+          "close": 789.35,
+          "volume": 1671737
+        },
+        {
+          "date": "2026-03-13",
+          "open": 781.95,
+          "high": 804.0,
+          "low": 773.25,
+          "close": 781.85,
+          "volume": 2919116
+        },
+        {
+          "date": "2026-03-16",
+          "open": 781.0,
+          "high": 800.65,
+          "low": 768.05,
+          "close": 795.75,
+          "volume": 1878694
+        },
+        {
+          "date": "2026-03-17",
+          "open": 795.75,
+          "high": 830.9,
+          "low": 792.2,
+          "close": 811.2,
+          "volume": 3228018
+        },
+        {
+          "date": "2026-03-18",
+          "open": 818.8,
+          "high": 876.0,
+          "low": 813.3,
+          "close": 869.6,
+          "volume": 6329950
+        },
+        {
+          "date": "2026-03-19",
+          "open": 850.0,
+          "high": 874.25,
+          "low": 847.2,
+          "close": 864.35,
+          "volume": 2653688
+        },
+        {
+          "date": "2026-03-20",
+          "open": 870.0,
+          "high": 879.0,
+          "low": 848.55,
+          "close": 864.75,
+          "volume": 2542018
+        },
+        {
+          "date": "2026-03-23",
+          "open": 851.0,
+          "high": 875.0,
+          "low": 843.9,
+          "close": 866.55,
+          "volume": 2931759
+        },
+        {
+          "date": "2026-03-24",
+          "open": 880.0,
+          "high": 904.85,
+          "low": 868.4,
+          "close": 889.35,
+          "volume": 3008287
+        },
+        {
+          "date": "2026-03-25",
+          "open": 891.5,
+          "high": 923.75,
+          "low": 891.45,
+          "close": 916.9,
+          "volume": 2747719
+        },
+        {
+          "date": "2026-03-27",
+          "open": 905.2,
+          "high": 920.65,
+          "low": 889.25,
+          "close": 893.8,
+          "volume": 2400261
+        },
+        {
+          "date": "2026-03-30",
+          "open": 885.0,
+          "high": 900.8,
+          "low": 874.35,
+          "close": 891.65,
+          "volume": 2035849
+        },
+        {
+          "date": "2026-04-01",
+          "open": 911.0,
+          "high": 941.8,
+          "low": 884.05,
+          "close": 937.7,
+          "volume": 5836550
+        },
+        {
+          "date": "2026-04-02",
+          "open": 930.0,
+          "high": 931.3,
+          "low": 894.05,
+          "close": 917.35,
+          "volume": 2050183
+        },
+        {
+          "date": "2026-04-06",
+          "open": 918.0,
+          "high": 932.5,
+          "low": 909.9,
+          "close": 925.95,
+          "volume": 1173910
+        },
+        {
+          "date": "2026-04-07",
+          "open": 919.0,
+          "high": 952.85,
+          "low": 919.0,
+          "close": 943.3,
+          "volume": 2193891
+        },
+        {
+          "date": "2026-04-08",
+          "open": 962.5,
+          "high": 973.95,
+          "low": 939.05,
+          "close": 959.65,
+          "volume": 1663028
+        },
+        {
+          "date": "2026-04-09",
+          "open": 971.95,
+          "high": 977.8,
+          "low": 949.15,
+          "close": 956.45,
+          "volume": 2616652
+        },
+        {
+          "date": "2026-04-10",
+          "open": 964.0,
+          "high": 979.35,
+          "low": 956.2,
+          "close": 975.2,
+          "volume": 1387510
+        },
+        {
+          "date": "2026-04-13",
+          "open": 955.0,
+          "high": 994.6,
+          "low": 955.0,
+          "close": 974.0,
+          "volume": 2541810
+        },
+        {
+          "date": "2026-04-15",
+          "open": 980.0,
+          "high": 1005.5,
+          "low": 980.0,
+          "close": 998.5,
+          "volume": 1972332
+        },
+        {
+          "date": "2026-04-16",
+          "open": 1009.9,
+          "high": 1022.7,
+          "low": 998.2,
+          "close": 1003.1,
+          "volume": 957309
+        },
+        {
+          "date": "2026-04-17",
+          "open": 1008.0,
+          "high": 1050.8,
+          "low": 1004.0,
+          "close": 1034.6,
+          "volume": 7485168
+        },
+        {
+          "date": "2026-04-20",
+          "open": 1038.4,
+          "high": 1044.6,
+          "low": 1001.85,
+          "close": 1010.75,
+          "volume": 1891731
+        },
+        {
+          "date": "2026-04-21",
+          "open": 1013.0,
+          "high": 1017.25,
+          "low": 992.25,
+          "close": 995.7,
+          "volume": 1128955
+        },
+        {
+          "date": "2026-04-22",
+          "open": 991.1,
+          "high": 1000.15,
+          "low": 986.45,
+          "close": 990.8,
+          "volume": 995070
+        },
+        {
+          "date": "2026-04-23",
+          "open": 990.0,
+          "high": 1010.55,
+          "low": 981.6,
+          "close": 1000.7,
+          "volume": 1371374
+        },
+        {
+          "date": "2026-04-24",
+          "open": 990.0,
+          "high": 1032.0,
+          "low": 956.55,
+          "close": 1007.55,
+          "volume": 4534019
+        }
+      ]
+    },
+    "key_ratios": {
+      "node_count": 6,
+      "nodes": [
+        {
+          "node_id": "PREMIERENE|fundamental|PE_Ratio|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "fundamental",
+          "name": "PE_Ratio",
+          "value": "PE: 296.7",
+          "value_raw": {
+            "pe": 296.68,
+            "con_pe": null,
+            "sector_pe": null
+          },
+          "signal": "neutral",
+          "confidence": 1.0,
+          "source": "bse_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:04.182952+05:30",
+          "horizon_relevance": "long",
+          "weight": 0.06,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|fundamental|PB_Ratio|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "fundamental",
+          "name": "PB_Ratio",
+          "value": "PB: 26.49",
+          "value_raw": {
+            "pb": 26.49
+          },
+          "signal": "negative",
+          "confidence": 1.0,
+          "source": "bse_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:04.182952+05:30",
+          "horizon_relevance": "long",
+          "weight": 0.06,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|fundamental|ROE|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "fundamental",
+          "name": "ROE",
+          "value": "ROE: 8.9%",
+          "value_raw": {
+            "roe_pct": 8.93
+          },
+          "signal": "neutral",
+          "confidence": 1.0,
+          "source": "bse_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:04.182952+05:30",
+          "horizon_relevance": "long",
+          "weight": 0.04,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|fundamental|EPS|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "fundamental",
+          "name": "EPS",
+          "value": "EPS: \u20b93.40",
+          "value_raw": {
+            "eps": 3.4,
+            "basis": "standalone"
+          },
+          "signal": "neutral",
+          "confidence": 1.0,
+          "source": "bse_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:04.182952+05:30",
+          "horizon_relevance": "both",
+          "weight": 0.06,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|fundamental|OPM|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "fundamental",
+          "name": "OPM",
+          "value": "OPM: 24.8%",
+          "value_raw": {
+            "opm_pct": 24.76
+          },
+          "signal": "positive",
+          "confidence": 1.0,
+          "source": "bse_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:04.182952+05:30",
+          "horizon_relevance": "long",
+          "weight": 0.06,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|fundamental|NPM|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "fundamental",
+          "name": "NPM",
+          "value": "NPM: 9.0%",
+          "value_raw": {
+            "npm_pct": 9.04
+          },
+          "signal": "neutral",
+          "confidence": 1.0,
+          "source": "bse_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:04.182952+05:30",
+          "horizon_relevance": "long",
+          "weight": 0.06,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        }
+      ]
+    },
+    "financial_statements": {
+      "node_count": 6,
+      "nodes": [
+        {
+          "node_id": "PREMIERENE|fundamental|Revenue_Quarterly|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "fundamental",
+          "name": "Revenue_Quarterly",
+          "value": "Q Revenue: \u20b9139 Cr (latest period: Dec 2025)",
+          "value_raw": {
+            "periods": [
+              {
+                "period": "Dec 2025",
+                "value_cr": 139.0
+              },
+              {
+                "period": "Sep 2025",
+                "value_cr": 193.0
+              },
+              {
+                "period": "Jun 2025",
+                "value_cr": 187.0
+              },
+              {
+                "period": "Mar 2025",
+                "value_cr": 139.0
+              },
+              {
+                "period": "Dec 2024",
+                "value_cr": 295.0
+              },
+              {
+                "period": "Sep 2024",
+                "value_cr": 216.0
+              },
+              {
+                "period": "Jun 2024",
+                "value_cr": 339.0
+              },
+              {
+                "period": "Mar 2024",
+                "value_cr": 256.0
+              }
+            ],
+            "source_type": "PREMIERENE",
+            "num_quarters": 10,
+            "yoy_growth_pct": -52.9
+          },
+          "signal": "negative",
+          "confidence": 0.85,
+          "source": "screener_in",
+          "source_url": "https://www.screener.in/company/PREMIERENE/",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:04.706366+05:30",
+          "horizon_relevance": "both",
+          "weight": 0.08,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|fundamental|Net_Profit_Quarterly|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "fundamental",
+          "name": "Net_Profit_Quarterly",
+          "value": "Q PAT: \u20b913 Cr (latest period: Dec 2025)",
+          "value_raw": {
+            "periods": [
+              {
+                "period": "Dec 2025",
+                "value_cr": 13.0
+              },
+              {
+                "period": "Sep 2025",
+                "value_cr": 55.0
+              },
+              {
+                "period": "Jun 2025",
+                "value_cr": 23.0
+              },
+              {
+                "period": "Mar 2025",
+                "value_cr": 63.0
+              },
+              {
+                "period": "Dec 2024",
+                "value_cr": 36.0
+              },
+              {
+                "period": "Sep 2024",
+                "value_cr": 16.0
+              },
+              {
+                "period": "Jun 2024",
+                "value_cr": -6.0
+              },
+              {
+                "period": "Mar 2024",
+                "value_cr": 4.0
+              }
+            ],
+            "yoy_growth_pct": -63.9
+          },
+          "signal": "negative",
+          "confidence": 0.85,
+          "source": "screener_in",
+          "source_url": "https://www.screener.in/company/PREMIERENE/",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:04.706366+05:30",
+          "horizon_relevance": "both",
+          "weight": 0.08,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|fundamental|Revenue_Annual|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "fundamental",
+          "name": "Revenue_Annual",
+          "value": "FY Revenue: \u20b9658 Cr (TTM)",
+          "value_raw": {
+            "periods": [
+              {
+                "period": "TTM",
+                "value_cr": 658.0
+              },
+              {
+                "period": "Mar 2025",
+                "value_cr": 989.0
+              },
+              {
+                "period": "Mar 2024",
+                "value_cr": 1050.0
+              },
+              {
+                "period": "Mar 2023",
+                "value_cr": 721.0
+              },
+              {
+                "period": "Mar 2022",
+                "value_cr": 748.0
+              }
+            ],
+            "yoy_growth_pct": -33.5
+          },
+          "signal": "negative",
+          "confidence": 0.85,
+          "source": "screener_in",
+          "source_url": "https://www.screener.in/company/PREMIERENE/",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:04.706366+05:30",
+          "horizon_relevance": "long",
+          "weight": 0.08,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|fundamental|Net_Profit_Annual|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "fundamental",
+          "name": "Net_Profit_Annual",
+          "value": "FY PAT: \u20b9154 Cr (TTM)",
+          "value_raw": {
+            "periods": [
+              {
+                "period": "TTM",
+                "value_cr": 154.0
+              },
+              {
+                "period": "Mar 2025",
+                "value_cr": 109.0
+              },
+              {
+                "period": "Mar 2024",
+                "value_cr": 7.0
+              },
+              {
+                "period": "Mar 2023",
+                "value_cr": 14.0
+              },
+              {
+                "period": "Mar 2022",
+                "value_cr": 18.0
+              }
+            ],
+            "yoy_growth_pct": 41.3
+          },
+          "signal": "positive",
+          "confidence": 0.85,
+          "source": "screener_in",
+          "source_url": "https://www.screener.in/company/PREMIERENE/",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:04.706366+05:30",
+          "horizon_relevance": "long",
+          "weight": 0.08,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|fundamental|Debt_To_Equity|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "fundamental",
+          "name": "Debt_To_Equity",
+          "value": "D/E: 0.40",
+          "value_raw": {
+            "debt_cr": 18.0,
+            "equity_cr": 45.0,
+            "de_ratio": 0.4,
+            "period": "Sep 2025"
+          },
+          "signal": "positive",
+          "confidence": 0.85,
+          "source": "screener_in",
+          "source_url": "https://www.screener.in/company/PREMIERENE/",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:04.706366+05:30",
+          "horizon_relevance": "long",
+          "weight": 0.05,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|fundamental|Operating_Cash_Flow|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "fundamental",
+          "name": "Operating_Cash_Flow",
+          "value": "OCF: \u20b950 Cr (Mar 2025)",
+          "value_raw": {
+            "periods": [
+              {
+                "period": "Mar 2025",
+                "value_cr": 50.0
+              },
+              {
+                "period": "Mar 2024",
+                "value_cr": 114.0
+              },
+              {
+                "period": "Mar 2023",
+                "value_cr": -8.0
+              }
+            ]
+          },
+          "signal": "positive",
+          "confidence": 0.85,
+          "source": "screener_in",
+          "source_url": "https://www.screener.in/company/PREMIERENE/",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:04.706366+05:30",
+          "horizon_relevance": "long",
+          "weight": 0.04,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        }
+      ]
+    },
+    "shareholding": {
+      "node_count": 2,
+      "nodes": [
+        {
+          "node_id": "PREMIERENE|fundamental|Promoter_Holding|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "fundamental",
+          "name": "Promoter_Holding",
+          "value": "Promoter: 63.9%",
+          "value_raw": {
+            "current_pct": 63.94,
+            "period": "31-MAR-2026",
+            "prev_quarter_pct": null,
+            "change_pct": null
+          },
+          "signal": "positive",
+          "confidence": 1.0,
+          "source": "nse_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:04.828228+05:30",
+          "horizon_relevance": "long",
+          "weight": 0.05,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|fundamental|Public_Retail_Holding|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "fundamental",
+          "name": "Public_Retail_Holding",
+          "value": "Public/Retail: 35.7%",
+          "value_raw": {
+            "current_pct": 35.69
+          },
+          "signal": "neutral",
+          "confidence": 1.0,
+          "source": "nse_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:04.828228+05:30",
+          "horizon_relevance": "long",
+          "weight": 0.05,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        }
+      ]
+    },
+    "technicals": {
+      "node_count": 17,
+      "nodes": [
+        {
+          "node_id": "PREMIERENE|technical|RSI_14|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "technical",
+          "name": "RSI_14",
+          "value": "RSI: 69.1",
+          "value_raw": {
+            "rsi": 69.0584
+          },
+          "signal": "neutral",
+          "confidence": 1.0,
+          "source": "ta_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:06.799087+05:30",
+          "horizon_relevance": "short",
+          "weight": 0.08,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|technical|MACD|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "technical",
+          "name": "MACD",
+          "value": "MACD: 47.23, Signal: 49.42",
+          "value_raw": {
+            "macd": 47.2289,
+            "signal": 49.4163,
+            "histogram": -2.1873
+          },
+          "signal": "negative",
+          "confidence": 1.0,
+          "source": "ta_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:06.799087+05:30",
+          "horizon_relevance": "short",
+          "weight": 0.08,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|technical|ADX_14|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "technical",
+          "name": "ADX_14",
+          "value": "ADX: 47.0 (Strong Trend)",
+          "value_raw": {
+            "adx": 47.0289
+          },
+          "signal": "positive",
+          "confidence": 1.0,
+          "source": "ta_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:06.799087+05:30",
+          "horizon_relevance": "both",
+          "weight": 0.06,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|technical|ATR_14|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "technical",
+          "name": "ATR_14",
+          "value": "ATR: 35.33 (3.5%)",
+          "value_raw": {
+            "atr": 35.3319,
+            "atr_pct": 3.51
+          },
+          "signal": "negative",
+          "confidence": 1.0,
+          "source": "ta_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:06.799087+05:30",
+          "horizon_relevance": "short",
+          "weight": 0.05,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|technical|Bollinger_Bands|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "technical",
+          "name": "Bollinger_Bands",
+          "value": "BB: 874.3 | 961.1 | 1048.0 | P: 1007.5",
+          "value_raw": {
+            "upper": 1047.9743,
+            "middle": 961.15,
+            "lower": 874.3257,
+            "price": 1007.55
+          },
+          "signal": "neutral",
+          "confidence": 1.0,
+          "source": "ta_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:06.799087+05:30",
+          "horizon_relevance": "short",
+          "weight": 0.06,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|technical|EMA|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "technical",
+          "name": "EMA",
+          "value": "EMA20: 956.6 | EMA50: 890.7 | EMA200: 905.0",
+          "value_raw": {
+            "ema_20": 956.6266,
+            "ema_50": 890.6636,
+            "ema_200": 904.9946,
+            "price": 1007.55
+          },
+          "signal": "positive",
+          "confidence": 1.0,
+          "source": "ta_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:06.799087+05:30",
+          "horizon_relevance": "both",
+          "weight": 0.06,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|technical|SMA|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "technical",
+          "name": "SMA",
+          "value": "SMA20: 961.1 | SMA50: 849.5 | SMA200: 937.4",
+          "value_raw": {
+            "sma_20": 961.15,
+            "sma_50": 849.493,
+            "sma_200": 937.4288,
+            "price": 1007.55
+          },
+          "signal": "positive",
+          "confidence": 1.0,
+          "source": "ta_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:06.799087+05:30",
+          "horizon_relevance": "long",
+          "weight": 0.05,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|technical|Ichimoku|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "technical",
+          "name": "Ichimoku",
+          "value": "Cloud: 858.9\u2013956.2 | Price: 1007.5",
+          "value_raw": {
+            "ichimoku_a": 956.1625,
+            "ichimoku_b": 858.85,
+            "base_line": 909.425,
+            "conv_line": 1002.9,
+            "price": 1007.55
+          },
+          "signal": "positive",
+          "confidence": 1.0,
+          "source": "ta_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:06.799087+05:30",
+          "horizon_relevance": "both",
+          "weight": 0.05,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|technical|Parabolic_SAR|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "technical",
+          "name": "Parabolic_SAR",
+          "value": "PSAR: 1043.17, Price: 1007.55",
+          "value_raw": {
+            "psar": 1043.1717,
+            "price": 1007.55
+          },
+          "signal": "negative",
+          "confidence": 1.0,
+          "source": "ta_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:06.799087+05:30",
+          "horizon_relevance": "short",
+          "weight": 0.04,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|technical|Stochastic|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "technical",
+          "name": "Stochastic",
+          "value": "Stoch %K: 69.3, %D: 67.1",
+          "value_raw": {
+            "stoch_k": 69.3045,
+            "stoch_d": 67.1202
+          },
+          "signal": "neutral",
+          "confidence": 1.0,
+          "source": "ta_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:06.799087+05:30",
+          "horizon_relevance": "short",
+          "weight": 0.05,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|technical|Williams_R|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "technical",
+          "name": "Williams_R",
+          "value": "Williams %R: -30.7",
+          "value_raw": {
+            "williams_r": -30.6955
+          },
+          "signal": "neutral",
+          "confidence": 1.0,
+          "source": "ta_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:06.799087+05:30",
+          "horizon_relevance": "short",
+          "weight": 0.04,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|technical|ROC|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "technical",
+          "name": "ROC",
+          "value": "ROC: 6.81%",
+          "value_raw": {
+            "roc_pct": 6.8112
+          },
+          "signal": "positive",
+          "confidence": 1.0,
+          "source": "ta_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:06.799087+05:30",
+          "horizon_relevance": "short",
+          "weight": 0.04,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|technical|OBV|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "technical",
+          "name": "OBV",
+          "value": "OBV: 49.3M, Trend: Bullish Confirmation",
+          "value_raw": {
+            "obv": 49307538.0,
+            "obv_sma": 39738228.55,
+            "trend": "bullish confirmation"
+          },
+          "signal": "positive",
+          "confidence": 1.0,
+          "source": "ta_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:06.799087+05:30",
+          "horizon_relevance": "both",
+          "weight": 0.06,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|technical|VWAP|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "technical",
+          "name": "VWAP",
+          "value": "VWAP: 991.77, Price: 1007.55",
+          "value_raw": {
+            "vwap": 991.7723,
+            "price": 1007.55
+          },
+          "signal": "positive",
+          "confidence": 1.0,
+          "source": "ta_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:06.799087+05:30",
+          "horizon_relevance": "short",
+          "weight": 0.06,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|technical|CMF|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "technical",
+          "name": "CMF",
+          "value": "CMF: 0.202",
+          "value_raw": {
+            "cmf": 0.202
+          },
+          "signal": "positive",
+          "confidence": 1.0,
+          "source": "ta_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:06.799087+05:30",
+          "horizon_relevance": "short",
+          "weight": 0.05,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|technical|MFI|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "technical",
+          "name": "MFI",
+          "value": "MFI: 87.2",
+          "value_raw": {
+            "mfi": 87.2156
+          },
+          "signal": "negative",
+          "confidence": 1.0,
+          "source": "ta_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:06.799087+05:30",
+          "horizon_relevance": "short",
+          "weight": 0.05,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|technical|52W_HL_Ratio|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "technical",
+          "name": "52W_HL_Ratio",
+          "value": "52W: 660\u20131164, CMP: 1008 (69%)",
+          "value_raw": {
+            "high": 1163.9,
+            "low": 660.0,
+            "price": 1007.55,
+            "ratio": 0.6897
+          },
+          "signal": "neutral",
+          "confidence": 1.0,
+          "source": "ta_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:06.799087+05:30",
+          "horizon_relevance": "both",
+          "weight": 0.04,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        }
+      ]
+    },
+    "announcements": {
+      "node_count": 10,
+      "nodes": [
+        {
+          "node_id": "PREMIERENE|announcement|Board_Meeting|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "announcement",
+          "name": "Board_Meeting",
+          "value": "Board meeting: Board Meeting Intimation on 2026-01-22",
+          "value_raw": {
+            "purpose": "Board Meeting Intimation",
+            "classification": "board_meeting_generic",
+            "date": "2026-01-22",
+            "attachment_url": "",
+            "pdf_text": "",
+            "filing_type": "board_meeting",
+            "facevalue": null,
+            "ex_date": "",
+            "record_date": "",
+            "source": "nse_library"
+          },
+          "signal": "neutral",
+          "confidence": 1.0,
+          "source": "nse_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:07.781777+05:30",
+          "horizon_relevance": "short",
+          "weight": 0.14,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|announcement|Board_Meeting|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "announcement",
+          "name": "Board_Meeting",
+          "value": "Board meeting: Financial Results/Other business matters on 2026-01-22",
+          "value_raw": {
+            "purpose": "Financial Results/Other business matters",
+            "classification": "board_meeting_results",
+            "date": "2026-01-22",
+            "attachment_url": "",
+            "pdf_text": "",
+            "filing_type": "board_meeting",
+            "facevalue": null,
+            "ex_date": "",
+            "record_date": "",
+            "source": "nse_library"
+          },
+          "signal": "neutral",
+          "confidence": 1.0,
+          "source": "nse_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:07.781777+05:30",
+          "horizon_relevance": "both",
+          "weight": 0.4,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|announcement|Board_Meeting|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "announcement",
+          "name": "Board_Meeting",
+          "value": "Board meeting: Board Meeting Intimation on 2025-10-28",
+          "value_raw": {
+            "purpose": "Board Meeting Intimation",
+            "classification": "board_meeting_generic",
+            "date": "2025-10-28",
+            "attachment_url": "",
+            "pdf_text": "",
+            "filing_type": "board_meeting",
+            "facevalue": null,
+            "ex_date": "",
+            "record_date": "",
+            "source": "nse_library"
+          },
+          "signal": "neutral",
+          "confidence": 1.0,
+          "source": "nse_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:07.781777+05:30",
+          "horizon_relevance": "short",
+          "weight": 0.14,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|announcement|Board_Meeting|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "announcement",
+          "name": "Board_Meeting",
+          "value": "Board meeting: Financial Results on 2025-10-28",
+          "value_raw": {
+            "purpose": "Financial Results",
+            "classification": "board_meeting_results",
+            "date": "2025-10-28",
+            "attachment_url": "",
+            "pdf_text": "",
+            "filing_type": "board_meeting",
+            "facevalue": null,
+            "ex_date": "",
+            "record_date": "",
+            "source": "nse_library"
+          },
+          "signal": "neutral",
+          "confidence": 1.0,
+          "source": "nse_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:07.781777+05:30",
+          "horizon_relevance": "both",
+          "weight": 0.4,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|announcement|Dividend_Declared|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "announcement",
+          "name": "Dividend_Declared",
+          "value": "Dividend: \u20b91.0/share, ex-date 2025-08-29",
+          "value_raw": {
+            "purpose": "Dividend - Re 0.50 Per Share",
+            "classification": "dividend_declared",
+            "date": "2025-08-29",
+            "attachment_url": "",
+            "pdf_text": "",
+            "filing_type": "corporate_action",
+            "facevalue": 1.0,
+            "ex_date": "2025-08-29",
+            "record_date": "",
+            "source": "nse_library"
+          },
+          "signal": "positive",
+          "confidence": 1.0,
+          "source": "nse_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:07.781777+05:30",
+          "horizon_relevance": "short",
+          "weight": 0.55,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|announcement|Dividend_Declared|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "announcement",
+          "name": "Dividend_Declared",
+          "value": "Dividend declared, ex-date 2025-08-29",
+          "value_raw": {
+            "purpose": "Final Dividend - Rs. - 0.5000",
+            "classification": "dividend_declared",
+            "date": "2025-08-29",
+            "attachment_url": "",
+            "pdf_text": "",
+            "filing_type": "corporate_action",
+            "facevalue": null,
+            "ex_date": "2025-08-29",
+            "record_date": "",
+            "source": "bse_library"
+          },
+          "signal": "positive",
+          "confidence": 1.0,
+          "source": "bse_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:07.781777+05:30",
+          "horizon_relevance": "short",
+          "weight": 0.55,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|announcement|Dividend_Declared|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "announcement",
+          "name": "Dividend_Declared",
+          "value": "Dividend: \u20b91.0/share, ex-date 2025-08-01",
+          "value_raw": {
+            "purpose": "Interim Dividend - Re 0.25 Per Share",
+            "classification": "dividend_declared",
+            "date": "2025-08-01",
+            "attachment_url": "",
+            "pdf_text": "",
+            "filing_type": "corporate_action",
+            "facevalue": 1.0,
+            "ex_date": "2025-08-01",
+            "record_date": "",
+            "source": "nse_library"
+          },
+          "signal": "positive",
+          "confidence": 1.0,
+          "source": "nse_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:07.781777+05:30",
+          "horizon_relevance": "short",
+          "weight": 0.55,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|announcement|Dividend_Declared|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "announcement",
+          "name": "Dividend_Declared",
+          "value": "Dividend declared, ex-date 2025-08-01",
+          "value_raw": {
+            "purpose": "Interim Dividend - Rs. - 0.2500",
+            "classification": "dividend_declared",
+            "date": "2025-08-01",
+            "attachment_url": "",
+            "pdf_text": "",
+            "filing_type": "corporate_action",
+            "facevalue": null,
+            "ex_date": "2025-08-01",
+            "record_date": "",
+            "source": "bse_library"
+          },
+          "signal": "positive",
+          "confidence": 1.0,
+          "source": "bse_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:07.781777+05:30",
+          "horizon_relevance": "short",
+          "weight": 0.55,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|announcement|Board_Meeting|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "announcement",
+          "name": "Board_Meeting",
+          "value": "Board meeting: Board Meeting Intimation on 2025-07-26",
+          "value_raw": {
+            "purpose": "Board Meeting Intimation",
+            "classification": "board_meeting_generic",
+            "date": "2025-07-26",
+            "attachment_url": "",
+            "pdf_text": "",
+            "filing_type": "board_meeting",
+            "facevalue": null,
+            "ex_date": "",
+            "record_date": "",
+            "source": "nse_library"
+          },
+          "signal": "neutral",
+          "confidence": 1.0,
+          "source": "nse_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:07.781777+05:30",
+          "horizon_relevance": "short",
+          "weight": 0.14,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        },
+        {
+          "node_id": "PREMIERENE|announcement|Dividend_Declared|2026-04-26",
+          "stock": "PREMIERENE",
+          "category": "announcement",
+          "name": "Dividend_Declared",
+          "value": "Dividend declared, ex-date 2025-07-26",
+          "value_raw": {
+            "purpose": "Financial Results/Dividend/Other business matters",
+            "classification": "dividend_declared",
+            "date": "2025-07-26",
+            "attachment_url": "",
+            "pdf_text": "",
+            "filing_type": "board_meeting",
+            "facevalue": null,
+            "ex_date": "",
+            "record_date": "",
+            "source": "nse_library"
+          },
+          "signal": "positive",
+          "confidence": 1.0,
+          "source": "nse_library",
+          "source_url": "",
+          "as_of_date": "2026-04-26",
+          "fetched_at_ist": "2026-04-26T18:21:07.781777+05:30",
+          "horizon_relevance": "short",
+          "weight": 0.55,
+          "weight_version": "2026.04",
+          "schema_version": 1,
+          "sanitized": false
+        }
+      ]
+    }
+  }
+}

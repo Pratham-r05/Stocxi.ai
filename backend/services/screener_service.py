@@ -6,11 +6,14 @@ Why scraping?
   cash flow, and shareholding data. No official API exists. Public pages
   need only a User-Agent header; no login required.
 
-Strategy (from AI_CONTEXT.md):
-  1. Try consolidated URL first (most companies have it)
-  2. Fallback to standalone URL if consolidated returns 404 / empty tables
-  3. On timeout or any error → return empty dict (frontend shows "unavailable")
-  4. Cached 7 days — screener data updates only at quarterly results
+Strategy:
+  1. Fetch BOTH consolidated and standalone URLs
+  2. Compare the most recent period header from each (e.g. "Mar 2025" vs "Dec 2020")
+  3. Use whichever page has more recent data — not always consolidated
+  4. Rationale: small caps / NBFCs (e.g. QUESTCAP) may have stale consolidated
+     data while standalone has current quarterly results up to present
+  5. On timeout or any error → return empty dict (frontend shows "unavailable")
+  6. Cached 7 days — screener data updates only at quarterly results
 
 Tables extracted (by HTML id):
   #top-ratios           → PE ratio, market cap, book value, dividend yield, ROCE, ROE
@@ -28,9 +31,11 @@ Runs sync requests in a thread pool.
 import asyncio
 import logging
 import re
+from functools import lru_cache
 from typing import Any
 
 import requests
+import yaml
 from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
@@ -47,6 +52,27 @@ _HEADERS = {
 }
 
 _TIMEOUT = 10  # seconds — from AI_CONTEXT.md; return empty on breach
+
+# ── Screener slug override config ─────────────────────────────────────────────
+
+@lru_cache(maxsize=1)
+def _load_screener_slug_overrides() -> dict[str, str]:
+    """
+    Load NSE symbol → Screener slug overrides from config/screener_slugs.yaml.
+
+    Returns:
+        Dict mapping uppercase NSE symbols to their Screener URL slugs.
+        Returns empty dict if config file is missing or malformed.
+    """
+    import pathlib
+    config_path = pathlib.Path(__file__).parent.parent.parent / "config" / "screener_slugs.yaml"
+    try:
+        with open(config_path) as f:
+            data = yaml.safe_load(f) or {}
+        return {str(k).upper(): str(v) for k, v in data.items()}
+    except Exception as e:
+        logger.debug("screener_slugs.yaml not found or malformed: %s", e)
+        return {}
 
 
 def _parse_company_website(soup) -> str | None:
@@ -120,6 +146,53 @@ def _parse_table(table) -> dict:
             rows.append({"label": label, "values": values})
 
     return {"headers": headers, "rows": rows}
+
+
+_MONTH_MAP = {
+    "jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6,
+    "jul": 7, "aug": 8, "sep": 9, "oct": 10, "nov": 11, "dec": 12,
+}
+
+
+def _most_recent_period(soup) -> tuple[int, int] | None:
+    """
+    Extract the most recent data period from the #quarters table headers.
+
+    Screener period strings look like "Mar 2025", "Dec 2024", "TTM".
+    Returns (year, month) tuple for comparison, or None if unparseable.
+    "TTM" is treated as current month — always wins.
+    """
+    section = soup.find("section", {"id": "quarters"})
+    if section is None:
+        return None
+    table = section.find("table")
+    if table is None:
+        return None
+    thead = table.find("thead")
+    if thead is None:
+        return None
+    header_row = thead.find("tr")
+    if header_row is None:
+        return None
+
+    # Headers are newest-first after the label column
+    headers = [th.get_text(strip=True) for th in header_row.find_all("th")[1:]]
+
+    import datetime as _dt
+    for h in headers:
+        h_low = h.lower().strip()
+        if "ttm" in h_low:
+            now = _dt.date.today()
+            return (now.year, now.month)
+        # Match "Mar 2025", "Dec 2024" etc.
+        m = re.match(r"([a-zA-Z]{3})\s+(\d{4})", h)
+        if m:
+            month_str = m.group(1).lower()
+            year = int(m.group(2))
+            month = _MONTH_MAP.get(month_str)
+            if month:
+                return (year, month)
+    return None
 
 
 def _parse_top_ratios(soup) -> dict:
@@ -274,6 +347,81 @@ def _extract_mf_holdings(symbol: str, soup, referer_url: str | None) -> dict:
         return {}
 
 
+def _resolve_screener_slug(symbol: str) -> str:
+    """
+    Resolve the correct Screener.in URL slug for a given NSE symbol.
+
+    Resolution order:
+      1. config/screener_slugs.yaml — static overrides for known mismatches.
+      2. Screener search API by NSE symbol (exact match).
+      3. Screener search API by NSE company name (for stocks with different slugs).
+      4. Raw symbol as-is (last resort).
+
+    Args:
+        symbol: NSE ticker symbol (e.g. "TATAMOTORS").
+
+    Returns:
+        Screener URL slug string (e.g. "TMCV", "eternal").
+    """
+    symbol = symbol.upper().strip()
+
+    # 1. Static overrides
+    overrides = _load_screener_slug_overrides()
+    if symbol in overrides:
+        slug = overrides[symbol]
+        logger.debug("Screener slug override: %s → %s", symbol, slug)
+        return slug
+
+    skip = {"company", "consolidated", "standalone", ""}
+
+    def _extract_slug(results: list) -> str | None:
+        valid = [r for r in results if r.get("id") is not None]
+        if not valid:
+            return None
+        url_path = valid[0].get("url", "")
+        parts = [p for p in url_path.strip("/").split("/") if p not in skip]
+        return parts[0] if parts else None
+
+    # 2. Search by NSE symbol
+    try:
+        resp = requests.get(
+            f"https://www.screener.in/api/company/search/?q={symbol}&v=3&fts=1",
+            headers=_HEADERS, timeout=8,
+        )
+        if resp.status_code == 200:
+            slug = _extract_slug(resp.json())
+            if slug:
+                logger.info("Screener slug resolved by symbol: %s → %s", symbol, slug)
+                return slug
+    except Exception as e:
+        logger.debug("Screener symbol search failed for %s: %s", symbol, e)
+
+    # 3. Fallback: look up NSE company name and search by that
+    try:
+        from backend.fetchers.nse_client import _get_nse, _run_sync
+        import asyncio
+        loop = asyncio.get_event_loop()
+        nse = _get_nse()
+        raw = loop.run_until_complete(_run_sync(nse.equityQuote, symbol))
+        company_name = raw.get("companyName") or raw.get("name") if isinstance(raw, dict) else None
+        if company_name:
+            resp2 = requests.get(
+                f"https://www.screener.in/api/company/search/?q={company_name}&v=3&fts=1",
+                headers=_HEADERS, timeout=8,
+            )
+            if resp2.status_code == 200:
+                slug = _extract_slug(resp2.json())
+                if slug:
+                    logger.info("Screener slug resolved by company name '%s': %s → %s",
+                                company_name, symbol, slug)
+                    return slug
+    except Exception as e:
+        logger.debug("Screener name-based slug resolution failed for %s: %s", symbol, e)
+
+    logger.warning("Screener: no data found for %s", symbol)
+    return symbol
+
+
 def _fetch_screener(symbol: str) -> dict:
     """
     Sync fetch — runs in thread pool.
@@ -282,27 +430,31 @@ def _fetch_screener(symbol: str) -> dict:
     Returns empty sub-dicts on any failure (never raises).
     """
     symbol = symbol.upper().strip()
+    slug = _resolve_screener_slug(symbol)
 
-    # Try consolidated first, then standalone
-    urls = [
-        f"https://www.screener.in/company/{symbol}/consolidated/",
-        f"https://www.screener.in/company/{symbol}/",
+    # Fetch BOTH consolidated and standalone, then pick the one with more recent data.
+    # Reason: small caps / NBFCs (e.g. QUESTCAP) can have stale consolidated pages
+    # while standalone is current. Always comparing prevents silently returning
+    # years-old data when fresh standalone data exists.
+    candidate_urls = [
+        f"https://www.screener.in/company/{slug}/consolidated/",
+        f"https://www.screener.in/company/{slug}/",
     ]
 
-    soup = None
-    used_url = None
+    # (soup, url, most_recent_period_tuple)
+    candidates: list[tuple] = []
 
-    for url in urls:
+    for url in candidate_urls:
         try:
             resp = requests.get(url, headers=_HEADERS, timeout=_TIMEOUT)
             if resp.status_code == 200:
                 candidate = BeautifulSoup(resp.text, "lxml")
-                # Confirm we got real data — check if #quarters table exists
                 if candidate.find("section", {"id": "quarters"}):
-                    soup = candidate
-                    used_url = url
-                    logger.info(f"Screener: fetched {symbol} from {url}")
-                    break
+                    period = _most_recent_period(candidate)
+                    candidates.append((candidate, url, period))
+                    logger.debug(
+                        f"Screener: {url} → most recent period: {period}"
+                    )
                 else:
                     logger.debug(f"Screener: {url} returned 200 but no #quarters table")
             else:
@@ -311,6 +463,19 @@ def _fetch_screener(symbol: str) -> dict:
             logger.warning(f"Screener: timeout fetching {url} for {symbol}")
         except Exception as e:
             logger.warning(f"Screener: error fetching {url} for {symbol}: {e}")
+
+    # Pick the candidate with the most recent period header.
+    # If period is None (unparseable), treat as (0, 0) so any dated page wins.
+    soup = None
+    used_url = None
+
+    if candidates:
+        best = max(candidates, key=lambda c: c[2] if c[2] is not None else (0, 0))
+        soup, used_url, best_period = best
+        logger.info(
+            f"Screener: using {used_url} for {symbol} "
+            f"(most recent period: {best_period})"
+        )
 
     if soup is None:
         logger.warning(f"Screener: no data found for {symbol}")
@@ -338,10 +503,31 @@ def _fetch_screener(symbol: str) -> dict:
         table = section.find("table")
         return _parse_table(table)
 
+    ratios         = _parse_top_ratios(soup)
+    annual_results = extract("profit-loss")
+
+    # EPS fallback: if top-ratios didn't have EPS, pull the most recent value
+    # from the annual P&L table (row label contains "eps").
+    if ratios.get("eps") is None and annual_results:
+        try:
+            for row in annual_results.get("rows", []):
+                label = (row.get("label") or "").lower()
+                if "eps" in label:
+                    values = [v for v in row.get("values", []) if v not in (None, "", "0")]
+                    if values:
+                        import re as _re
+                        raw = str(values[-1]).replace(",", "")
+                        m = _re.search(r"[-+]?\d+\.?\d*", raw)
+                        if m:
+                            ratios["eps"] = float(m.group())
+                    break
+        except Exception:
+            pass
+
     return {
-        "ratios":            _parse_top_ratios(soup),   # PE, market cap, sector, etc.
+        "ratios":            ratios,
         "quarterly_results": extract("quarters"),
-        "annual_results":    extract("profit-loss"),    # annual P&L (YoY)
+        "annual_results":    annual_results,
         "balance_sheet":     extract("balance-sheet"),
         "cash_flow":         extract("cash-flow"),
         "shareholding":      extract_shareholding(),
@@ -356,5 +542,5 @@ async def get_financials(symbol: str) -> dict:
     Async entry point — offloads sync HTTP + BS4 parse to thread pool.
     Returns financials dict. Never raises — returns empty sub-dicts on failure.
     """
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     return await loop.run_in_executor(None, _fetch_screener, symbol)

@@ -1,0 +1,42 @@
+# versions.yaml — Pinned versions for every moving part
+#
+# RULE: Change any value here = bump arch_version + flush analysis cache.
+# Never hardcode these values in Python. Always read via config loader.
+# Every production analysis logs the versions used at run time.
+
+# ── Architecture ──────────────────────────────────────────────────────────────
+arch_version: "2026.04.a"
+
+# ── LLM (Google Gemini only) ──────────────────────────────────────────────────
+# Only Google Gemini is supported. Remove all other providers.
+llm:
+  # Active model — what the system actually uses right now
+  active: "google/gemini-2.5-pro"
+
+  # LLM generation settings — never change temperature in prod
+  temperature: 0
+  max_tokens: 32768
+
+# ── Prompt ────────────────────────────────────────────────────────────────────
+# Bump this whenever the prompt template changes.
+# Bumping invalidates the analysis cache automatically.
+prompt_version: "2026.04.a"
+
+# ── Signal Weights ────────────────────────────────────────────────────────────
+# v1 = hand-picked bootstrap weights (ARCHITECTURE.md §7)
+# v2+ = refit from backtest (backend/calibration/refit_weights.py)
+# Never hand-edit past v1.
+weight_version: "2026.04"
+
+# ── Node Schema ───────────────────────────────────────────────────────────────
+# Bump when the Node pydantic model shape changes.
+# Old nodes with a lower schema_version are migrated or dropped.
+node_schema_version: 1
+
+# ── Minimum nodes required for a valid analysis (ARCHITECTURE.md §14) ─────────
+# Below these thresholds → refuse with INSUFFICIENT_DATA, never guess.
+min_nodes:
+  technical: 10
+  fundamental: 8
+  announcement: 3
+  # news: 0 — news is optional; analysis degrades gracefully if 0 news nodes

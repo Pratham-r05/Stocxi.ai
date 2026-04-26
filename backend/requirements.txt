@@ -4,8 +4,11 @@ uvicorn[standard]==0.32.1
 
 # ── Data sources ───────────────────────────────────────────────────────────────
 yfinance==0.2.51           # OHLCV priority 1 (chart endpoint, sometimes works)
-nsepython==2.97            # NSE India direct API — quotes, no Yahoo rate limits
+nse==2.1.3                 # BennyThadikaran/NseIndiaApi — exchange-direct NSE data (L1)
+bse==3.2.0                 # BennyThadikaran/BseIndiaApi — exchange-direct BSE data (L1)
+nsepython==2.97            # NSE India direct API — legacy services layer (kept for compatibility)
 jugaad-data                # OHLCV priority 2 — NSE historical data, no Yahoo needed
+feedparser==6.0.12         # RSS news feed parsing
 beautifulsoup4==4.12.3     # Screener.in HTML scraping
 lxml==5.3.0                # Faster BS4 parser
 requests==2.32.3           # Sync HTTP for screener scraping
@@ -28,8 +31,15 @@ pydantic==2.10.4           # Response models (ships with FastAPI but pinned for 
 pydantic-settings==2.7.0   # BaseSettings for typed env config
 reportlab==4.2.5           # One-page PDF report generation
 
+# ── Database ───────────────────────────────────────────────────────────────────
+asyncpg==0.30.0            # async Postgres driver for graph store.py
+
+# ── PDF parsing ────────────────────────────────────────────────────────────────
+pypdf==4.3.1               # NSE/BSE announcement PDF text extraction
+
 # ── Sentiment ──────────────────────────────────────────────────────────────────
 vaderSentiment==3.3.2      # Offline sentiment scoring — no API key needed
 # Reddit + Twitter data via CLI tools (no credentials in app):
 #   pipx install rdt-cli      (rdt command)
 #   pipx install twitter-cli  (twitter command)
+google-auth

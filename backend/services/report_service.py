@@ -415,8 +415,10 @@ def build_stock_report_pdf(
         total_pages = {"orbiter": 1, "stellar": 2, "apex": 3}.get(tier, 2)
 
         verdict = _to_text(report_payload.get("verdict"), _to_text(ai_analysis.get("final_verdict"), "HOLD")).upper()
-        if verdict == "AVOID":
-            verdict = "SELL"
+        # SEBI compliance (CLAUDE.md Rule 12): never write "SELL" in user-facing output.
+        # Normalize: SELL→AVOID, keep BUY/HOLD/AVOID.
+        if verdict == "SELL":
+            verdict = "AVOID"
 
         confidence = _to_text(report_payload.get("confidence"), "Medium")
         investor_fit = _limit_text(_to_text(report_payload.get("investor_fit"), "Balanced for this risk profile."), 140)

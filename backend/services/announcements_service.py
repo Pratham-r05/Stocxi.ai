@@ -1,262 +1,559 @@
 """
-announcements_service.py — Fetch recent corporate announcements.
+announcements_service.py — Corporate announcement nodes: NSE + BSE (parallel fetch).
 
-Source strategy:
-    1. NSE corporate-announcements API via nsepython.nsefetch (primary)
-    2. BSE public API fallback (kept for resilience)
+Unlike most services, announcements are fetched from BOTH sources simultaneously
+and merged (not a waterfall). NSE and BSE often have different subsets of filings.
 
-Why NSE primary:
-    - Reliable JSON responses in our runtime through nsepython session handling
-    - Direct symbol filtering by NSE ticker
+Sources:
+  NSE: announcements() + boardMeetings(symbol) + actions(symbol)
+  BSE: actions(scripcode) + announcements(scripcode)
 
-Caching: 2 hours (same TTL as news — announcements update infrequently)
+Output nodes (NodeCategory.announcement):
+  Board_Meeting     — upcoming/recent board meetings
+  Dividend_Declared — dividend declarations (ex-date, amount)
+  Bonus_Split       — bonus issues and stock splits
+  Corporate_Action  — other actions (rights, buyback, AGM)
+  NSE_Filing        — regulatory filings, exchange notices
 
-Error strategy:
-    - Any upstream failure → return empty list (never crashes endpoints)
+Signal logic:
+  Board meetings near a result date → neutral (watch signal)
+  Dividend declaration → positive (income signal)
+  Bonus/split → positive (confidence signal)
+  Regulatory filing → neutral (informational)
 """
+
+from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime
 from typing import Any
 
-import httpx
+from backend.fetchers import bse_client, nse_client
+from backend.schemas.node import Node, NodeCategory, NodeSignal, HorizonRelevance
+from backend.schemas.messages import UserProfile
+from backend.config import yaml_cfg
+from backend.util.ist_calendar import now_ist
 
 logger = logging.getLogger(__name__)
 
-_TIMEOUT = 10  # seconds
-_ANNOUNCE_MAX_AGE_DAYS = 60  # only show announcements within 2 months
 
-
-def _is_recent_announcement(date_str: str) -> bool:
-    """Return True if announcement date is within _ANNOUNCE_MAX_AGE_DAYS."""
-    if not date_str:
-        return True  # keep if date unknown
-    try:
-        # Handles ISO format "2026-04-16T19:30:36" and "2026-04-16T19:30:36Z"
-        dt_str = date_str.rstrip("Z")
-        dt = datetime.fromisoformat(dt_str)
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
-        cutoff = datetime.now(timezone.utc) - timedelta(days=_ANNOUNCE_MAX_AGE_DAYS)
-        return dt >= cutoff
-    except Exception:
-        return True  # keep on parse failure
-
-# BSE blocks plain Python UA — mimic a browser
-_HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/120.0.0.0 Safari/537.36"
-    ),
-    "Referer": "https://www.bseindia.com",
-    "Accept": "application/json, text/plain, */*",
-    "Origin": "https://www.bseindia.com",
-}
-
-
-def _parse_nse_dt(value: str) -> str:
-    """Convert NSE datetime strings like 13042026231734 to ISO-like format."""
-    if not value:
-        return ""
-    try:
-        dt = datetime.strptime(value, "%d%m%Y%H%M%S")
-        return dt.isoformat()
-    except Exception:
-        return value
-
-
-def _fetch_from_nse(symbol: str, limit: int) -> list[dict]:
+def _normalise_date(raw: str) -> str:
     """
-    Fetch announcements from NSE corporate announcements API via nsepython.
-    Returns normalized list with consistent fields.
-    """
-    from nsepython import nsefetch  # type: ignore
+    Normalise a date string to ISO format (YYYY-MM-DD).
 
-    url = f"https://www.nseindia.com/api/corporate-announcements?index=equities&symbol={symbol}"
-    raw = nsefetch(url)
-    if not isinstance(raw, list):
+    NSE/BSE return dates in "DD-Mon-YYYY" (e.g. "12-May-2026").
+    Slicing to [:10] truncates the year — this helper converts to ISO instead.
+
+    Args:
+        raw: Raw date string from NSE/BSE (any format).
+
+    Returns:
+        ISO date string "YYYY-MM-DD", or the raw string unchanged if parsing fails.
+    """
+    if not raw:
+        return raw
+    for fmt in ("%d-%b-%Y", "%d-%B-%Y", "%Y-%m-%d", "%d/%m/%Y"):
+        try:
+            return datetime.strptime(raw.strip(), fmt).date().isoformat()
+        except ValueError:
+            continue
+    # Generic fallback via pandas if available
+    try:
+        import pandas as pd
+        parsed = pd.to_datetime(raw, errors="coerce")
+        if parsed is not pd.NaT:
+            return parsed.date().isoformat()
+    except Exception:
+        pass
+    logger.debug("_normalise_date: could not parse %r — returning as-is", raw)
+    return raw
+
+
+async def get_announcements(
+    symbol: str,
+    as_of_date: date,
+    profile: UserProfile,
+    request_id: str = "",
+) -> list[Node]:
+    """
+    Fetch corporate announcements from NSE and BSE in parallel and merge.
+
+    Args:
+        symbol:     NSE ticker in uppercase.
+        as_of_date: Analysis date (nodes stamped with this date).
+        profile:    User profile for weight selection.
+        request_id: Trace ID for logging.
+
+    Returns:
+        list[Node] — announcement nodes, deduplicated by (date, purpose).
+        Empty list if both sources fail.
+    """
+    symbol = symbol.upper().strip()
+    bse_code = await _try_bse_code(symbol)
+
+    # Fetch from NSE and BSE concurrently
+    nse_result, bse_result = await asyncio.gather(
+        _fetch_nse(symbol),
+        _fetch_bse(symbol, bse_code),
+        return_exceptions=True,
+    )
+
+    all_items: list[dict] = []
+
+    if isinstance(nse_result, dict):
+        all_items.extend(nse_result.get("board_meetings", []))
+        all_items.extend(nse_result.get("actions", []))
+    else:
+        logger.debug("NSE announcements failed for %s: %s", symbol, nse_result)
+
+    if isinstance(bse_result, dict):
+        all_items.extend(bse_result.get("actions", []))
+    else:
+        logger.debug("BSE announcements failed for %s: %s", symbol, bse_result)
+
+    if not all_items:
         return []
 
-    filtered = [
-        item for item in raw
-        if isinstance(item, dict) and str(item.get("symbol", "")).upper() == symbol
-    ]
+    # Sort by date descending (newest first) before deduplication
+    def _sort_key(item: dict) -> str:
+        raw = str(item.get("date") or item.get("ex_date") or "")
+        return _normalise_date(raw) or "0000-00-00"
 
-    results = []
-    for item in filtered[: max(limit * 3, 30)]:
-        subject = (item.get("desc") or item.get("attchmntText") or "No subject").strip()
-        date = _parse_nse_dt(str(item.get("dt") or ""))
-        pdf_url = item.get("attchmntFile")
-        company_name = item.get("sm_name")
-        category = (item.get("desc") or "").strip()
+    all_items.sort(key=_sort_key, reverse=True)
 
-        results.append(
-            {
-                "title": subject,
-                "subject": subject,
-                "date": date,
-                "category": category,
-                "pdf_url": pdf_url,
-                "source": "NSE",
-                "symbol": symbol,
-                "company_name": company_name,
-            }
+    # Deduplicate by (date, purpose) — NSE and BSE often carry the same events
+    seen: set[tuple] = set()
+    unique: list[dict] = []
+    for item in all_items:
+        key = (
+            _normalise_date(str(item.get("date") or item.get("ex_date") or "")),
+            str(item.get("purpose") or "")[:50].lower(),
         )
+        if key not in seen:
+            seen.add(key)
+            unique.append(item)
 
-    return results[:limit]
+    # Keep only the 10 most recent meaningful announcements
+    unique = unique[:10]
+
+    # Enrich with PDF text (best-effort, failures silently skipped)
+    enriched = await _enrich_with_pdf_text(unique)
+
+    return _build_nodes(enriched, symbol, as_of_date, profile, now_ist())
 
 
-async def _get_bse_code(symbol: str, client: httpx.AsyncClient) -> str | None:
-    """
-    Resolve NSE ticker → BSE scrip code via BSE's company search API.
-    Returns the 6-digit BSE code as a string, or None if not found.
-    """
-    url = (
-        "https://api.bseindia.com/BseIndiaAPI/api/GetCompanySearch/w"
-        f"?stype=EQ&value={symbol}"
+# ── Fetch helpers ─────────────────────────────────────────────────────────────
+
+async def _fetch_nse(symbol: str) -> dict:
+    """Fetch board meetings + actions from NSE."""
+    meetings_task = nse_client.fetch_board_meetings(symbol)
+    actions_task  = nse_client.fetch_actions(symbol)
+    meetings, actions = await asyncio.gather(
+        meetings_task, actions_task, return_exceptions=True
     )
+    result: dict = {"board_meetings": [], "actions": []}
+    if isinstance(meetings, dict):
+        result["board_meetings"] = [
+            {**m, "_type": "board_meeting", "_source": "nse_library"}
+            for m in meetings.get("meetings", [])
+        ]
+    if isinstance(actions, dict):
+        result["actions"] = [
+            {**a, "_type": "corporate_action", "_source": "nse_library"}
+            for a in actions.get("actions", [])
+        ]
+    return result
+
+
+async def _fetch_bse(symbol: str, bse_code: str | None) -> dict:
+    """Fetch actions from BSE."""
+    if not bse_code:
+        return {"actions": []}
     try:
-        resp = await client.get(url, headers=_HEADERS, timeout=_TIMEOUT)
-        resp.raise_for_status()
-        data = resp.json()
+        actions = await bse_client.fetch_actions(symbol)
+        return {
+            "actions": [
+                {**a, "_type": "corporate_action", "_source": "bse_library"}
+                for a in actions.get("actions", [])
+            ]
+        }
+    except Exception as exc:
+        logger.debug("BSE actions fetch failed for %s: %s", symbol, exc)
+        return {"actions": []}
 
-        # BSE returns a list of matching companies
-        companies = data if isinstance(data, list) else data.get("Table", [])
-        if not companies:
-            logger.warning(f"Announcements: BSE code not found for {symbol}")
-            return None
 
-        # First result is usually the exact match
-        # Fields vary: SECURITY_CODE or scrip_cd or Code
-        first = companies[0]
-        code = (
-            first.get("SECURITY_CODE") or
-            first.get("scrip_cd") or
-            first.get("Code") or
-            first.get("SecurityCode")
-        )
-        return str(code) if code else None
+# ── Node builder ──────────────────────────────────────────────────────────────
 
-    except Exception as e:
-        logger.warning(f"Announcements: BSE code lookup failed for {symbol}: {e}")
+def _build_nodes(
+    items: list[dict],
+    symbol: str,
+    as_of_date: date,
+    profile: UserProfile,
+    fetched_at: datetime,
+) -> list[Node]:
+    """Convert raw announcement items to Node list."""
+    nodes: list[Node] = []
+    w_ver = yaml_cfg.versions.get("weight_version", "")
+
+    for item in items:
+        node = _item_to_node(item, symbol, as_of_date, profile, fetched_at, w_ver)
+        if node is not None:
+            nodes.append(node)
+
+    return nodes
+
+
+def _classify(purpose: str, item_type: str) -> str:
+    """
+    Classify an announcement into one of the 14 weight classes defined in weights.yaml.
+
+    Order matters — higher-impact classes are checked first so a SEBI notice is
+    never misclassified as a generic filing.
+
+    Args:
+        purpose:   Lowercased purpose/subject text.
+        item_type: Raw "_type" field from the fetcher ("board_meeting" / "corporate_action").
+
+    Returns:
+        Classification key matching a key in weights.yaml announcement section.
+    """
+    p = purpose.lower()
+
+    # Tier 1 — regulatory / legal risk (check before anything else)
+    if any(k in p for k in ("sebi", "securities and exchange", "investigation",
+                             "penalty", "show cause", "enforcement", "violation",
+                             "insider trading", "market manipulation")):
+        return "sebi_action"
+
+    # Tier 2 — fraud / audit risk
+    if any(k in p for k in ("fraud", "forensic", "accounting irregulari",
+                             "qualified opinion", "audit qualification",
+                             "going concern", "embezzlement", "misappropriation")):
+        return "fraud_allegation"
+
+    # Tier 3 — promoter activity
+    if any(k in p for k in ("promoter", "pledge", "encumber",
+                             "creeping acquisition", "open offer")):
+        return "promoter_trade"
+
+    # Tier 4 — leadership change
+    if any(k in p for k in ("appointment", "resignation", "cessation",
+                             "managing director", "chief executive", "ceo", "cfo",
+                             "chief financial", "whole-time director", "key managerial")):
+        return "leadership_change"
+
+    # Tier 5 — credit rating
+    if any(k in p for k in ("credit rating", "crisil", "icra", "care rating",
+                             "fitch", "rating upgrade", "rating downgrade",
+                             "rating reaffirm", "rating assigned")):
+        return "credit_rating"
+
+    # Tier 6 — M&A / restructuring
+    if any(k in p for k in ("merger", "amalgamation", "acquisition", "demerger",
+                             "scheme of arrangement", "joint venture", "takeover",
+                             "slump sale", "business transfer")):
+        return "ma_event"
+
+    # Tier 7 — buyback
+    if any(k in p for k in ("buyback", "buy back", "share repurchase")):
+        return "buyback"
+
+    # Tier 8 — dividend
+    if any(k in p for k in ("dividend", "interim div", "final div",
+                             "special dividend")):
+        return "dividend_declared"
+
+    # Tier 9 — bonus / split
+    if any(k in p for k in ("bonus", "stock split", "sub-division",
+                             "consolidation of shares")):
+        return "bonus_split"
+
+    # Tier 10 — rights issue
+    if any(k in p for k in ("rights issue", "rights entitlement",
+                             "rights share", "fpo", "further public offer")):
+        return "rights_issue"
+
+    # Tier 11 — board meeting (results agenda vs generic)
+    if item_type == "board_meeting" or "board meeting" in p or "board of directors" in p:
+        if any(k in p for k in ("financial result", "quarterly result",
+                                 "q1", "q2", "q3", "q4", "annual result",
+                                 "unaudited result", "audited result")):
+            return "board_meeting_results"
+        return "board_meeting_generic"
+
+    # Tier 12 — AGM / EGM
+    if any(k in p for k in ("annual general meeting", "agm",
+                             "extraordinary general meeting", "egm",
+                             "general meeting")):
+        return "agm_egm"
+
+    # Default — generic regulatory filing
+    return "nse_filing_generic"
+
+
+def _item_to_node(
+    item: dict,
+    symbol: str,
+    as_of_date: date,
+    profile: "UserProfile",
+    fetched_at: datetime,
+    w_ver: str,
+) -> Node | None:
+    """
+    Convert one announcement item to a Node.
+
+    Classification is done by _classify() → 14 impact classes.
+    Weight and horizon_relevance are read from weights.yaml for the class.
+    Node name reflects the actual impact class, not just a generic bucket.
+
+    Args:
+        item:       Raw announcement dict from fetcher.
+        symbol:     NSE ticker.
+        as_of_date: Analysis date.
+        profile:    UserProfile — determines short vs long weight.
+        fetched_at: Fetch timestamp.
+        w_ver:      Weight version string from versions.yaml.
+
+    Returns:
+        Node, or None if purpose text is missing.
+    """
+    purpose = str(item.get("purpose") or item.get("subject") or item.get("details") or "").strip()
+    if not purpose:
+        return None
+
+    event_date = (
+        item.get("date") or
+        item.get("ex_date") or
+        item.get("record_date") or
+        str(as_of_date)
+    )
+    iso_date   = _normalise_date(str(event_date))
+    source     = item.get("_source", "nse_library")
+    item_type  = item.get("_type", "corporate_action")
+    pdf_text   = item.get("pdf_text") or ""
+
+    # ── Classify ──────────────────────────────────────────────────────────────
+    cls = _classify(purpose, item_type)
+
+    # ── Weight lookup from weights.yaml ───────────────────────────────────────
+    ann_weights = yaml_cfg.weights.get("announcement", {})
+    cls_cfg     = ann_weights.get(cls, {})
+    is_short    = getattr(profile, "horizon", "short") in ("short", "Horizon.short")
+    weight      = float(cls_cfg.get("short" if is_short else "long", 0.10))
+    horizon_str = cls_cfg.get("horizon", "both")
+    horizon     = HorizonRelevance(horizon_str) if horizon_str in ("short", "long", "both") else HorizonRelevance.both
+
+    # ── Node name (human-readable, matches classification) ────────────────────
+    _NODE_NAMES: dict[str, str] = {
+        "sebi_action":           "SEBI_Action",
+        "fraud_allegation":      "Fraud_Flag",
+        "promoter_trade":        "Promoter_Trade",
+        "leadership_change":     "Leadership_Change",
+        "credit_rating":         "Credit_Rating_Change",
+        "ma_event":              "MA_Event",
+        "buyback":               "Buyback",
+        "dividend_declared":     "Dividend_Declared",
+        "bonus_split":           "Bonus_Split",
+        "rights_issue":          "Rights_Issue",
+        "board_meeting_results": "Board_Meeting",
+        "agm_egm":               "AGM_EGM",
+        "board_meeting_generic": "Board_Meeting",
+        "nse_filing_generic":    "NSE_Filing",
+    }
+    name = _NODE_NAMES.get(cls, "NSE_Filing")
+
+    # ── Signal ────────────────────────────────────────────────────────────────
+    # Use yaml signal hint as default, then override for context-dependent cases.
+    _SIGNAL_DEFAULTS: dict[str, NodeSignal] = {
+        "sebi_action":           NodeSignal.negative,
+        "fraud_allegation":      NodeSignal.negative,
+        "promoter_trade":        NodeSignal.neutral,   # caller must check buy vs sell
+        "leadership_change":     NodeSignal.neutral,
+        "credit_rating":         NodeSignal.neutral,   # caller must check upgrade vs downgrade
+        "ma_event":              NodeSignal.neutral,
+        "buyback":               NodeSignal.positive,
+        "dividend_declared":     NodeSignal.positive,
+        "bonus_split":           NodeSignal.positive,
+        "rights_issue":          NodeSignal.neutral,
+        "board_meeting_results": NodeSignal.neutral,
+        "agm_egm":               NodeSignal.neutral,
+        "board_meeting_generic": NodeSignal.neutral,
+        "nse_filing_generic":    NodeSignal.neutral,
+    }
+    signal = _SIGNAL_DEFAULTS.get(cls, NodeSignal.neutral)
+
+    # Refine signal for context-dependent classes
+    p_low = purpose.lower()
+    if cls == "promoter_trade":
+        if any(k in p_low for k in ("purchase", "acquisition", "buy", "increase")):
+            signal = NodeSignal.positive
+        elif any(k in p_low for k in ("sale", "sell", "pledge", "encumber", "reduce")):
+            signal = NodeSignal.negative
+    elif cls == "credit_rating":
+        if any(k in p_low for k in ("upgrade", "positive outlook", "reaffirm")):
+            signal = NodeSignal.positive
+        elif any(k in p_low for k in ("downgrade", "negative outlook", "watch negative")):
+            signal = NodeSignal.negative
+    elif cls == "leadership_change":
+        if "resignation" in p_low or "cessation" in p_low:
+            signal = NodeSignal.negative   # exits are a flag
+
+    # ── Value string — include PDF snippet if available ───────────────────────
+    pdf_snippet = f" | Filing: {pdf_text[:120].strip()}" if pdf_text else ""
+    amount = _to_float(item.get("facevalue"))
+
+    if cls == "dividend_declared":
+        base = (f"Dividend: ₹{amount}/share, ex-date {iso_date}"
+                if amount else f"Dividend declared, ex-date {iso_date}")
+    elif cls == "buyback":
+        base = f"Buyback: {purpose[:100]}"
+    elif cls in ("board_meeting_results", "board_meeting_generic"):
+        base = f"Board meeting: {purpose[:80]} on {iso_date}"
+    elif cls == "sebi_action":
+        base = f"SEBI/Regulatory action: {purpose[:100]}"
+    elif cls == "fraud_allegation":
+        base = f"Fraud/audit flag: {purpose[:100]}"
+    elif cls == "leadership_change":
+        base = f"Leadership: {purpose[:100]}"
+    elif cls == "ma_event":
+        base = f"M&A/Restructuring: {purpose[:100]}"
+    elif cls == "promoter_trade":
+        base = f"Promoter activity: {purpose[:100]}"
+    elif cls == "credit_rating":
+        base = f"Credit rating: {purpose[:100]}"
+    elif cls == "rights_issue":
+        base = f"Rights issue: {purpose[:100]}"
+    elif cls == "agm_egm":
+        base = f"General meeting: {purpose[:100]}"
+    elif cls == "bonus_split":
+        base = f"{purpose[:100]}, date: {iso_date}"
+    else:
+        base = purpose[:120]
+
+    value = (base + pdf_snippet)[:150]   # cap at Node.value max 150 chars
+
+    return Node(
+        stock=symbol,
+        category=NodeCategory.announcement,
+        name=name,
+        value=value,
+        value_raw={
+            "purpose":        purpose,
+            "classification": cls,
+            "date":           iso_date,
+            "attachment_url": item.get("pdf_url") or "",
+            "pdf_text":       pdf_text,
+            "filing_type":    item_type,
+            "facevalue":      item.get("facevalue"),
+            "ex_date":        _normalise_date(str(item.get("ex_date") or "")),
+            "record_date":    _normalise_date(str(item.get("record_date") or "")),
+            "source":         source,
+        },
+        signal=signal,
+        confidence=1.00,   # both NSE and BSE are L1
+        source=source,
+        source_url=item.get("pdf_url") or "",
+        as_of_date=as_of_date,
+        fetched_at_ist=fetched_at,
+        horizon_relevance=horizon,
+        weight=weight,
+        weight_version=w_ver,
+        sanitized=False,
+    )
+
+
+# ── PDF extraction ────────────────────────────────────────────────────────────
+
+_PDF_ALLOWED_DOMAINS = {"nseindia.com", "bseindia.com", "static.bseindia.com"}
+_PDF_MAX_CHARS       = 1000   # first N chars of extracted text per announcement
+_PDF_FETCH_TIMEOUT   = 10     # seconds
+
+
+async def _enrich_with_pdf_text(items: list[dict]) -> list[dict]:
+    """
+    Fetch and parse PDF attachments for items that have a pdf_url.
+
+    Runs fetches concurrently. Each item gets a `pdf_text` key added.
+    Failures are silently skipped — the announcement is kept without pdf_text.
+
+    Args:
+        items: List of raw announcement dicts.
+
+    Returns:
+        Same list with `pdf_text` populated where available.
+    """
+    tasks = [_fetch_pdf_text(item.get("pdf_url") or "") for item in items]
+    texts = await asyncio.gather(*tasks, return_exceptions=True)
+    for item, text in zip(items, texts):
+        item["pdf_text"] = text if isinstance(text, str) else ""
+    return items
+
+
+async def _fetch_pdf_text(url: str) -> str:
+    """
+    Download a PDF from an approved NSE/BSE domain and extract the first 1000 chars.
+
+    Args:
+        url: Absolute URL to the PDF file.
+
+    Returns:
+        Extracted text (up to _PDF_MAX_CHARS), or "" on any failure.
+
+    Raises:
+        Nothing — all exceptions caught and logged at DEBUG level.
+    """
+    if not url or not url.lower().endswith(".pdf"):
+        return ""
+
+    from urllib.parse import urlparse
+    try:
+        domain = urlparse(url).netloc.lower().removeprefix("www.")
+    except Exception:
+        return ""
+
+    if not any(domain == d or domain.endswith("." + d) for d in _PDF_ALLOWED_DOMAINS):
+        logger.debug("_fetch_pdf_text: skipping unapproved domain %s", domain)
+        return ""
+
+    try:
+        import io
+        import httpx
+        import pypdf
+
+        async with httpx.AsyncClient(timeout=_PDF_FETCH_TIMEOUT, follow_redirects=True) as client:
+            resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
+            resp.raise_for_status()
+
+        reader = pypdf.PdfReader(io.BytesIO(resp.content))
+        parts: list[str] = []
+        for page in reader.pages:
+            parts.append(page.extract_text() or "")
+            if sum(len(p) for p in parts) >= _PDF_MAX_CHARS:
+                break
+
+        full_text = " ".join(parts).strip()
+        return full_text[:_PDF_MAX_CHARS]
+
+    except Exception as exc:
+        logger.debug("_fetch_pdf_text: failed for %s — %s", url, exc)
+        return ""
+
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
+
+async def _try_bse_code(symbol: str) -> str | None:
+    try:
+        return await bse_client.resolve_scrip_code(symbol)
+    except Exception:
         return None
 
 
-async def _get_announcements(bse_code: str, client: httpx.AsyncClient) -> list[dict]:
-    """
-    Fetch recent corporate announcements for a BSE scrip code.
-    Returns list of cleaned announcement dicts.
-    """
-    url = (
-        "https://api.bseindia.com/BseIndiaAPI/api/AnnGetAnnouncementsQuarter/w"
-        f"?scrip_cd={bse_code}&strCat=-1&strType=C&Year=&Month=&FDT=&TDT="
-    )
+def _to_float(v: Any) -> float | None:
+    if v is None:
+        return None
     try:
-        resp = await client.get(url, headers=_HEADERS, timeout=_TIMEOUT)
-        resp.raise_for_status()
-        data = resp.json()
-
-        # BSE wraps results in "Table" key
-        raw_list = data.get("Table", data) if isinstance(data, dict) else data
-        if not isinstance(raw_list, list):
-            return []
-
-        results = []
-        for item in raw_list[:20]:  # cap at 20 most recent
-            # Normalise field names — BSE API field names differ across endpoints
-            subject = (
-                item.get("HEADLINE") or
-                item.get("SUBJECT") or
-                item.get("Headline") or
-                item.get("Subject") or
-                "No subject"
-            )
-            date = (
-                item.get("News_submission_dt") or
-                item.get("DT_TM") or
-                item.get("Date") or
-                ""
-            )
-            category = (
-                item.get("CATEGORYNAME") or
-                item.get("Category") or
-                item.get("NEWSSUB") or
-                ""
-            )
-            # PDF attachment link (optional)
-            attachment = item.get("ATTACHMENTNAME") or item.get("AttachmentName") or ""
-            pdf_url = (
-                f"https://www.bseindia.com/xml-data/corpfiling/AttachHis/{attachment}"
-                if attachment else None
-            )
-
-            results.append({
-                "subject":  subject.strip(),
-                "date":     date.strip(),
-                "category": category.strip(),
-                "pdf_url":  pdf_url,
-                "bse_code": bse_code,
-            })
-
-        return results
-
-    except Exception as e:
-        logger.warning(f"Announcements: fetch failed for BSE code {bse_code}: {e}")
-        return []
-
-
-async def get_announcements(symbol: str, limit: int = 10) -> list[dict]:
-    """
-    Public async entry point.
-    Returns list of recent BSE announcements for the given NSE symbol.
-    Returns empty list if BSE code not found or API fails — never raises.
-
-    Args:
-        symbol: NSE ticker (e.g. "RELIANCE", "TCS")
-        limit: Max announcements to return (default 10)
-    """
-    symbol = symbol.upper().strip()
-
-    # Stage 1: NSE primary via nsepython
-    try:
-        loop = asyncio.get_event_loop()
-        nse_items = await loop.run_in_executor(None, _fetch_from_nse, symbol, limit)
-        if nse_items:
-            nse_items = [a for a in nse_items if _is_recent_announcement(a.get("date", ""))]
-            logger.info(f"Announcements: {len(nse_items)} recent items for {symbol} (NSE)")
-            return nse_items
-    except Exception as e:
-        logger.warning(f"Announcements: NSE fetch failed for {symbol}: {e}")
-
-    # Stage 2: BSE fallback
-    async with httpx.AsyncClient() as client:
-        bse_code = await _get_bse_code(symbol, client)
-        if not bse_code:
-            return []
-
-        announcements = await _get_announcements(bse_code, client)
-
-    normalized = []
-    for item in announcements[:limit]:
-        date_val = item.get("date", "")
-        if not _is_recent_announcement(date_val):
-            continue  # skip announcements older than 60 days
-        subject = (item.get("subject") or "No subject").strip()
-        normalized.append(
-            {
-                "title": subject,
-                "subject": subject,
-                "date": date_val,
-                "category": item.get("category"),
-                "pdf_url": item.get("pdf_url"),
-                "source": "BSE",
-                "symbol": symbol,
-                "company_name": None,
-                "bse_code": item.get("bse_code"),
-            }
-        )
-
-    logger.info(f"Announcements: {len(normalized)} recent items for {symbol} (BSE {bse_code})")
-    return normalized
+        f = float(v)
+        return None if (f != f) else f
+    except (ValueError, TypeError):
+        return None

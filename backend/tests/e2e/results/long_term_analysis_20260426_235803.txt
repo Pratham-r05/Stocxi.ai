@@ -1,0 +1,371 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║  STOCXI  —  DEEP END-TO-END ANALYSIS TEST REPORT                    ║
+║  Time Horizon : Long Term (1 Year – 3 Years)                         ║
+║  Stocks       : MPHASIS, ALKYLAMINE, KANSAINER, EIDPARRY             ║
+║  Run Time     : 2026-04-26 18:25:55 UTC                              ║
+║  AI Model     : google/gemini-2.5-pro                                ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+DISCLAIMER: All analysis in this file is AI-generated for testing
+purposes only. It is NOT financial advice. Do NOT make investment
+decisions based on this output. Consult a SEBI-registered advisor.
+
+════════════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════════════
+STOCK 1  |  MPHASIS  |  Long Term (1 Year – 3 Years)
+Generated: 2026-04-26 18:26:27 UTC
+════════════════════════════════════════════════════════════════════════
+
+▶ 3.1.1  COMPANY DESCRIPTION
+────────────────────────────────────────────────────────────────────────
+MphasiS Limited is an Indian multinational information technology services and consulting company based in Bengaluru. The company provides a wide range of services, including application development and maintenance, infrastructure outsourcing, and business process outsourcing, with a strong focus on cloud and cognitive solutions. A significant portion of its business comes from the Banking, Financial Services, and Insurance (BFSI) sector. The private equity firm Blackstone is a majority stakeholder, which has been a key factor in its strategic direction since their investment.
+
+▶ 3.1.2  KEY FUNDAMENTAL INDICATORS
+────────────────────────────────────────────────────────────────────────
+  • {'point': 'The Price to Earnings (P/E) ratio stands at 22.8. This valuation is moderate for the IT sector, suggesting the stock is not excessively expensive relative to its current earnings of ₹94.57 per share.', 'evidence': 'P/E Ratio: 22.8, EPS: ₹94.57'}
+  • {'point': 'The company demonstrates strong profitability and efficient use of capital. Its Return on Equity (ROE) is 18.2% and Return on Capital Employed (ROCE) is 22.7%, both of which are healthy figures indicating effective management.', 'evidence': 'ROE: 18.2%, ROCE: 22.7%'}
+  • {'point': 'For income-focused investors, the stock offers a dividend yield of 2.62%. This provides a regular income stream and is a competitive yield within the Indian IT industry.', 'evidence': 'Dividend Yield: 2.62%'}
+  • {'point': 'The stock is currently trading at ₹2177.0, which is significantly below its 52-week high of ₹3037.2 but close to its 52-week low of ₹2013. This indicates substantial price correction over the past year.', 'evidence': 'Current Price: ₹2177.0, 52W High/Low: ₹3037.2 / ₹2013'}
+  • {'point': "The company's book value per share is ₹505.0. The current price is approximately 4.3 times its book value, which is a common valuation metric for service-based companies.", 'evidence': 'Book Value: ₹505.0, Current Price: ₹2177.0'}
+
+▶ 3.1.3  TECHNICAL INDICATORS
+────────────────────────────────────────────────────────────────────────
+  • {'point': 'The Relative Strength Index (RSI) is at 40.17. This value is in the neutral range (between 30 and 70), suggesting the stock is neither overbought nor oversold at the moment, though it is on the weaker side of neutral.', 'evidence': 'RSI(14): 40.1683'}
+  • {'point': 'The MACD line (17.18) is below the MACD Signal line (21.71). This bearish crossover indicates that recent downward price momentum is currently in place.', 'evidence': 'MACD: 17.1859, MACD Signal: 21.7081'}
+  • {'point': 'The Average Directional Index (ADX) is 22.82. A value between 20 and 25 suggests the presence of a trend, but it is not considered strong. In this case, it points to a weak bearish trend.', 'evidence': 'ADX(14): 22.8167'}
+  • {'point': 'The current price of ₹2177 is trading below all key long-term moving averages: the 20-day EMA (₹2299.65), 50-day EMA (₹2345.59), and the 200-day EMA (₹2560.34). This is a strong bearish signal for the long-term trend.', 'evidence': 'EMA 20: 2299.65, EMA 50: 2345.59, EMA 200: 2560.34'}
+  • {'point': 'The stock price is trading in the lower half of its Bollinger Bands, closer to the lower band of ₹2035.64. This confirms the recent selling pressure and suggests the lower band may act as a potential support level.', 'evidence': 'BB Upper: 2528.43, BB Lower: 2035.64'}
+
+▶ 3.1.4  NEWS, ANNOUNCEMENTS & FINANCIAL STATEMENTS
+────────────────────────────────────────────────────────────────────────
+  • {'point': 'Multiple recent news reports highlight a surge in open interest combined with weak price action. This often indicates that traders are building bearish positions, anticipating further price declines in the short term.', 'evidence': 'Mphasis Ltd Sees Significant Open Interest Surge Amid Bearish Momentum'}
+  • {'point': 'A key news item links the recent fall in MphasiS and other IT stocks to market concerns about the impact of Artificial Intelligence (AI). This suggests a sector-wide headwind as investors re-evaluate the business models of IT service companies.', 'evidence': 'AI impact! Infosys, Coforge, Mphasis... Why IT stocks tanked today'}
+  • {'point': 'The absence of recent corporate announcements, such as major contract wins or positive guidance, means there are no immediate company-specific catalysts to counter the prevailing negative market sentiment.', 'evidence': 'No recent corporate announcements available.'}
+
+  Financial Statements:
+    → {'point': 'Investors should examine the quarterly and annual income statements to assess revenue and net profit trends. Consistent growth over the past several years would be a positive indicator, while any recent slowdown would align with current industry concerns.', 'evidence': 'Quarterly and Annual Results tables are available for review.'}
+    → {'point': "The balance sheet should be reviewed to confirm financial health, paying close attention to the company's debt-to-equity ratio and cash reserves. A low debt level is a sign of financial strength.", 'evidence': 'Balance Sheet is available for review.'}
+    → {'point': "Analysis of the cash flow statement is crucial. A consistent history of positive cash flow from operations indicates the company's core business is healthy and can self-fund investments and dividends.", 'evidence': 'Cash Flow statement is available for review.'}
+    → {'point': "The shareholding pattern reveals the ownership structure. A high and stable promoter/major shareholder stake (like Blackstone's) and consistent or increasing ownership by Domestic (DII) and Foreign (FII) Institutions are generally viewed as positive signs of confidence.", 'evidence': 'Shareholding Pattern is available for review.'}
+
+▶ 3.1.5  AI TAKEAWAY (LONG TERM (1 YEAR – 3 YEARS))
+────────────────────────────────────────────────────────────────────────
+For a long-term (1-3 years) investor, MphasiS presents a NEUTRAL outlook. The company's fundamentals are solid, with a strong ROCE of 22.7% and a healthy dividend yield of 2.62%. However, this is countered by significant headwinds. The stock is in a clear technical downtrend, trading below its 200-day EMA of ₹2560.34, and faces sector-wide uncertainty regarding the business impact of AI. The stock's future performance will likely depend on its ability to navigate these industry shifts and demonstrate resilience in its financial performance. This is NOT financial advice — consult a SEBI-registered advisor.
+
+▶ 4.     KNOWLEDGE GRAPH
+────────────────────────────────────────────────────────────────────────
+╔══════════════════════════════════════════════════════════════════════╗
+║  KNOWLEDGE GRAPH — MPHASIS                                           ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+  ┌─────────────────────────────────────────┐
+  │  COMPANY: MphasiS Limited                         │
+  │  Symbol:  MPHASIS       Exchange: NSE              │
+  │  Sector:  Information Technology                  │
+  └─────────────────────────────────────────┘
+                         │
+       ┌─────────────────┼──────────────────┐
+       │                 │                  │
+       ▼                 ▼                  ▼
+
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
+  │  PRICE NODE  │  │  FUND. NODE  │  │  TECHNICALS NODE     │
+  │──────────────│  │──────────────│  │──────────────────────│
+  │ ₹2177.0        │  │ P/E   : 22.8     │  │ RSI(14): 40.168 [RSI:]      │
+  │ 1D: -4.39%    │  │ P/B   : N/A      │  │ MACD  : 17.185 [N/A]       │
+  │              │  │ ROE   : 18.2 %  │  │ ADX   : 22.816 [NEUTRAL]   │
+  │              │  │ ROCE  : 22.7 %  │  │ EMA   :        [N/A]       │
+  │              │  │ EPS   : 94.57    │  │ BB    :        [N/A]       │
+  │              │  │ MCap  : 41518000 │  │ Signal:   [N/A]         │
+  └──────────────┘  └──────────────┘  └──────────────────────┘
+
+       ┌─────────────────┼──────────────────┐
+       │                 │                  │
+       ▼                 ▼                  ▼
+
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
+  │  NEWS NODE   │  │  ANNOUNCE.   │  │  FINANCIALS NODE     │
+  │──────────────│  │  NODE        │  │──────────────────────│
+  │ 10 headlines│  │──────────────│  │ Tables available:    │
+  │              │  │ 0 items     │  │ Quarterly Results, Annual Results │
+  │              │  │              │  │ Balance Sheet, Cash Flow │
+  │              │  │              │  │ Shareholding         │
+  └──────────────┘  └──────────────┘  └──────────────────────┘
+
+  Price Movement Summary:
+  1w: -10.61%  |  1mo: +1.92%  |  6mo: -22.81%  |  1y: -11.84%
+
+  Edge Legend:
+  ── Agreement (signals aligned)   ~~~ Contradiction (signals conflict)
+  === Neutral / Inconclusive        *** Data unavailable
+
+
+════════════════════════════════════════════════════════════════════════
+STOCK 2  |  ALKYLAMINE  |  Long Term (1 Year – 3 Years)
+Generated: 2026-04-26 18:26:57 UTC
+════════════════════════════════════════════════════════════════════════
+
+▶ 3.1.1  COMPANY DESCRIPTION
+────────────────────────────────────────────────────────────────────────
+Alkyl Amines Chemicals Limited is a key player in the Indian specialty chemicals sector, specializing in the manufacturing and marketing of aliphatic amines. Its products serve as essential raw materials for diverse industries, including pharmaceuticals, agrochemicals, rubber chemicals, and water treatment. The company is recognized as a global leader in various amine products and has been a significant part of the Indian chemical industry for several decades.
+
+▶ 3.1.2  KEY FUNDAMENTAL INDICATORS
+────────────────────────────────────────────────────────────────────────
+  • The Price-to-Earnings (P/E) ratio stands at 41.8, which is relatively high. This suggests that investors have high expectations for future earnings growth, but it also implies the stock could be sensitive to any slowdowns in performance.
+  • The Return on Capital Employed (ROCE) is 18.7% and Return on Equity (ROE) is 14.0%. A ROCE above 15% generally indicates efficient use of capital to generate profits, which is a positive sign for long-term business health.
+  • The company's market capitalization is ₹7,547 crore, placing it in the small-to-mid-cap segment. While this category offers potential for high growth, it can also experience higher price volatility compared to large-cap stocks.
+  • The current price of ₹1474.0 is over 5 times its Book Value of ₹282.0 per share. This premium indicates the market values the company's earning power and intangible assets far more than its net assets on paper.
+  • The Dividend Yield is low at 0.68%. This suggests the company is reinvesting a significant portion of its profits back into the business, likely to fund future growth and expansion projects.
+
+▶ 3.1.3  TECHNICAL INDICATORS
+────────────────────────────────────────────────────────────────────────
+  • The Relative Strength Index or RSI(14) is 57.70. This value is in the neutral range (between 30 and 70), indicating that the stock is neither overbought nor oversold at the current price level.
+  • The MACD line (28.87) is currently above its Signal line (9.45). This is a bullish crossover, suggesting a recent increase in positive momentum, though this is typically a shorter-term indicator.
+  • The Average Directional Index or ADX(14) is 19.96. A value below 20 suggests a weak or non-existent trend, indicating the stock may be in a consolidation or sideways movement phase.
+  • The current price of ₹1474 is above the short-term 20-day EMA (₹1412.79) and 50-day EMA (₹1427.81), but remains significantly below the long-term 200-day EMA (₹1641.83). This signals a potential short-term recovery within a broader long-term downtrend.
+  • The stock price is trading within the Bollinger Bands (Upper: ₹1530.50, Lower: ₹1246.55) and is closer to the upper band. This indicates increased volatility and recent upward price movement.
+
+▶ 3.1.4  NEWS, ANNOUNCEMENTS & FINANCIAL STATEMENTS
+────────────────────────────────────────────────────────────────────────
+  • Recent news about the restart of ammonia production is a significant positive operational update. This resolves a supply disruption, which should help normalize operations and restore revenue streams that were potentially impacted.
+  • Reports of the stock hitting a 52-week low of ₹1282.7 in the recent past highlight the strong bearish pressure the stock was under. The subsequent recovery suggests a potential short-term bottom may have been formed.
+  • Multiple news items from 'Markets Mojo' point to mixed technical signals and shifting momentum. This reflects the current market uncertainty, where the stock is recovering from lows but has not yet established a clear, strong trend.
+
+  Financial Statements:
+    → Investors should review the quarterly and annual income statements to assess trends in revenue and net profit. Given the high P/E of 41.8, consistent growth is critical to justify the valuation.
+    → Analysis of the balance sheet is necessary to check the company's debt-to-equity ratio. A low level of debt would indicate a strong financial position and lower risk, especially in a challenging economic environment.
+    → The cash flow statement should be examined to confirm if the company is generating positive cash flow from its core operations. Strong operating cash flow is a sign of a healthy and sustainable business model.
+    → The shareholding pattern provides insights into ownership. A stable or increasing percentage of shares held by promoters and institutional investors (FIIs/DIIs) is generally considered a sign of confidence in the company's long-term prospects.
+
+▶ 3.1.5  AI TAKEAWAY (LONG TERM (1 YEAR – 3 YEARS))
+────────────────────────────────────────────────────────────────────────
+For a long-term horizon of 1-3 years, the outlook for Alkyl Amines Chemicals appears NEUTRAL. The stock is in a long-term downtrend, trading below its 200-day EMA and down nearly 20% over the past year. Its high P/E ratio of 41.8 requires strong future growth to be justified. However, the company's fundamentals show a healthy ROCE of 18.7%, and recent positive news about restarting production could act as a catalyst for operational recovery. The weak trend indicated by the ADX at 19.96 suggests the stock may consolidate before a clear direction emerges. This is NOT financial advice — consult a SEBI-registered advisor.
+
+▶ 4.     KNOWLEDGE GRAPH
+────────────────────────────────────────────────────────────────────────
+╔══════════════════════════════════════════════════════════════════════╗
+║  KNOWLEDGE GRAPH — ALKYLAMINE                                        ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+  ┌─────────────────────────────────────────┐
+  │  COMPANY: Alkyl Amines Chemicals Limited          │
+  │  Symbol:  ALKYLAMINE    Exchange: NSE              │
+  │  Sector:  Chemicals                               │
+  └─────────────────────────────────────────┘
+                         │
+       ┌─────────────────┼──────────────────┐
+       │                 │                  │
+       ▼                 ▼                  ▼
+
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
+  │  PRICE NODE  │  │  FUND. NODE  │  │  TECHNICALS NODE     │
+  │──────────────│  │──────────────│  │──────────────────────│
+  │ ₹1474.0        │  │ P/E   : 41.8     │  │ RSI(14): 57.702 [RSI:]      │
+  │ 1D: -3.34%    │  │ P/B   : N/A      │  │ MACD  : 28.873 [N/A]       │
+  │              │  │ ROE   : 14.0 %  │  │ ADX   : 19.965 [NEUTRAL]   │
+  │              │  │ ROCE  : 18.7 %  │  │ EMA   :        [N/A]       │
+  │              │  │ EPS   : 35.33    │  │ BB    :        [N/A]       │
+  │              │  │ MCap  : 75470000 │  │ Signal:   [N/A]         │
+  └──────────────┘  └──────────────┘  └──────────────────────┘
+
+       ┌─────────────────┼──────────────────┐
+       │                 │                  │
+       ▼                 ▼                  ▼
+
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
+  │  NEWS NODE   │  │  ANNOUNCE.   │  │  FINANCIALS NODE     │
+  │──────────────│  │  NODE        │  │──────────────────────│
+  │ 7 headlines│  │──────────────│  │ Tables available:    │
+  │              │  │ 0 items     │  │ Quarterly Results, Annual Results │
+  │              │  │              │  │ Balance Sheet, Cash Flow │
+  │              │  │              │  │ Shareholding         │
+  └──────────────┘  └──────────────┘  └──────────────────────┘
+
+  Price Movement Summary:
+  1w: +4.03%  |  1mo: +6.04%  |  6mo: -21.15%  |  1y: -19.46%
+
+  Edge Legend:
+  ── Agreement (signals aligned)   ~~~ Contradiction (signals conflict)
+  === Neutral / Inconclusive        *** Data unavailable
+
+
+════════════════════════════════════════════════════════════════════════
+STOCK 3  |  KANSAINER  |  Long Term (1 Year – 3 Years)
+Generated: 2026-04-26 18:27:30 UTC
+════════════════════════════════════════════════════════════════════════
+
+▶ 3.1.1  COMPANY DESCRIPTION
+────────────────────────────────────────────────────────────────────────
+Kansai Nerolac Paints Limited is a leading Indian paint company, operating in the Consumer Durables sector. It manufactures and markets a wide range of products, including decorative paints for homes and industrial coatings for various industries like automotive. As one of the oldest paint companies in India, it is a subsidiary of Japan's Kansai Paint Co., Ltd., a global leader in the paints and coatings industry. The company has a significant presence in both the decorative and industrial paint segments in India.
+
+▶ 3.1.2  KEY FUNDAMENTAL INDICATORS
+────────────────────────────────────────────────────────────────────────
+  • {'point': "The Price-to-Earnings (P/E) ratio stands at 25.8. This valuation metric suggests that investors are willing to pay ₹25.8 for every ₹1 of the company's annual earnings, which can be considered moderate for the sector.", 'source': 'Fundamental Data'}
+  • {'point': "Profitability metrics show a Return on Equity (ROE) of 10.4% and a Return on Capital Employed (ROCE) of 13.0%. These figures indicate the company's efficiency in generating profits from shareholder funds and total capital, respectively. These returns are modest.", 'source': 'Fundamental Data'}
+  • {'point': "The stock's current price of ₹197.96 is trading closer to its 52-week low of ₹157.91 than its 52-week high of ₹271.18. This indicates significant price depreciation over the past year.", 'source': 'Fundamental Data'}
+  • {'point': 'The company has a market capitalization of ₹15,943 Crores, positioning it as a large-cap player within the Indian paint industry.', 'source': 'Fundamental Data'}
+  • {'point': "The dividend yield is 1.27%. This represents the annual dividend per share as a percentage of the stock's current price, providing a small but consistent return to shareholders.", 'source': 'Fundamental Data'}
+
+▶ 3.1.3  TECHNICAL INDICATORS
+────────────────────────────────────────────────────────────────────────
+  • {'point': 'The Relative Strength Index or RSI(14) is 55.63. This value is in the neutral range (between 30 and 70), suggesting the stock is neither in an overbought nor an oversold condition at present.', 'source': 'Technical Indicators'}
+  • {'point': 'The MACD line (4.5115) is currently above its Signal line (2.2671). This is often interpreted as a bullish crossover, indicating potential for upward momentum in the near term.', 'source': 'Technical Indicators'}
+  • {'point': "The Average Directional Index or ADX(14) is 29.78, which is above the 25 mark. This suggests that a trend is in place and has some strength. The 'positive' signal indicates the current trend is upward.", 'source': 'Technical Indicators'}
+  • {'point': 'The current price (₹197.96) is above the 20-day EMA (₹192.66) and 50-day EMA (₹195.02), signaling recent positive momentum. However, it remains significantly below the long-term 200-day EMA (₹219.95), which is a key level of resistance and indicates the long-term trend is still weak.', 'source': 'Technical Indicators'}
+  • {'point': 'The stock is trading between the upper Bollinger Band (₹214.40) and the lower band (₹160.66). The price is not touching either band, indicating a lack of immediate price extremes.', 'source': 'Technical Indicators'}
+
+▶ 3.1.4  NEWS, ANNOUNCEMENTS & FINANCIAL STATEMENTS
+────────────────────────────────────────────────────────────────────────
+  • {'point': "The company received a GST penalty order of ₹29.26 Lakhs for input tax credit disallowance. For a company with a market cap of over ₹15,000 Crores, this amount is financially immaterial and is unlikely to have a significant impact on the stock's performance.", 'source': 'Recent News'}
+  • {'point': "A recent marketing campaign, 'Kansai Nerolac Puts its Paint Through the Most Extreme Test', is a brand-building exercise. While positive for brand visibility, it does not have a direct, quantifiable financial impact on the company's performance.", 'source': 'Recent News'}
+  • {'point': 'No major corporate announcements regarding earnings, mergers, or significant strategic shifts were available. The absence of major news suggests business is proceeding as usual.', 'source': 'Corporate Announcements'}
+
+  Financial Statements:
+    → {'point': "Analysis of quarterly and annual results is crucial. An investor should look at the revenue and net profit trends over the last 8 quarters and 3 years to assess growth consistency, especially given the stock's negative 1-year price performance of -25.86%.", 'source': 'Financial Statements Availability'}
+    → {'point': "The balance sheet should be examined for the company's debt-to-equity ratio and current ratio. A low level of debt and healthy liquidity are positive indicators for long-term stability.", 'source': 'Financial Statements Availability'}
+    → {'point': 'A review of the cash flow statement is important, specifically to confirm if the company is generating positive cash flow from its core operations. Consistent positive operating cash flow is a sign of a healthy underlying business.', 'source': 'Financial Statements Availability'}
+    → {'point': 'The shareholding pattern reveals ownership structure. An investor should check for promoter holding percentage (high and stable is often preferred), as well as trends in institutional (FII/DII) ownership, which can indicate investor confidence.', 'source': 'Financial Statements Availability'}
+
+▶ 3.1.5  AI TAKEAWAY (LONG TERM (1 YEAR – 3 YEARS))
+────────────────────────────────────────────────────────────────────────
+For a long-term horizon of 1-3 years, the outlook for Kansai Nerolac Paints appears NEUTRAL. The stock is showing signs of a short-term recovery, with a 15.93% gain in the last month and positive technical signals like the MACD crossover. However, this follows a significant long-term decline, with the price still down 25.86% over the past year and trading below its 200-day EMA of ₹219.95. While fundamental profitability metrics like ROE (10.4%) are modest, the company is a major industry player. The current situation suggests a potential bottoming-out process, but a sustained uptrend is not yet confirmed. This is NOT financial advice — consult a SEBI-registered advisor.
+
+▶ 4.     KNOWLEDGE GRAPH
+────────────────────────────────────────────────────────────────────────
+╔══════════════════════════════════════════════════════════════════════╗
+║  KNOWLEDGE GRAPH — KANSAINER                                         ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+  ┌─────────────────────────────────────────┐
+  │  COMPANY: Kansai Nerolac Paints Limited           │
+  │  Symbol:  KANSAINER     Exchange: NSE              │
+  │  Sector:  Consumer Durables                       │
+  └─────────────────────────────────────────┘
+                         │
+       ┌─────────────────┼──────────────────┐
+       │                 │                  │
+       ▼                 ▼                  ▼
+
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
+  │  PRICE NODE  │  │  FUND. NODE  │  │  TECHNICALS NODE     │
+  │──────────────│  │──────────────│  │──────────────────────│
+  │ ₹197.96        │  │ P/E   : 25.8     │  │ RSI(14): 55.634 [RSI:]      │
+  │ 1D: -1.38%    │  │ P/B   : N/A      │  │ MACD  : 4.5115 [N/A]       │
+  │              │  │ ROE   : 10.4 %  │  │ ADX   : 29.789 [POSITIVE]  │
+  │              │  │ ROCE  : 13.0 %  │  │ EMA   :        [N/A]       │
+  │              │  │ EPS   : 7.24     │  │ BB    :        [N/A]       │
+  │              │  │ MCap  : 15943000 │  │ Signal:   [N/A]         │
+  └──────────────┘  └──────────────┘  └──────────────────────┘
+
+       ┌─────────────────┼──────────────────┐
+       │                 │                  │
+       ▼                 ▼                  ▼
+
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
+  │  NEWS NODE   │  │  ANNOUNCE.   │  │  FINANCIALS NODE     │
+  │──────────────│  │  NODE        │  │──────────────────────│
+  │ 3 headlines│  │──────────────│  │ Tables available:    │
+  │              │  │ 0 items     │  │ Quarterly Results, Annual Results │
+  │              │  │              │  │ Balance Sheet, Cash Flow │
+  │              │  │              │  │ Shareholding         │
+  └──────────────┘  └──────────────┘  └──────────────────────┘
+
+  Price Movement Summary:
+  1w: -1.82%  |  1mo: +15.93%  |  6mo: -22.37%  |  1y: -25.86%
+
+  Edge Legend:
+  ── Agreement (signals aligned)   ~~~ Contradiction (signals conflict)
+  === Neutral / Inconclusive        *** Data unavailable
+
+
+════════════════════════════════════════════════════════════════════════
+STOCK 4  |  EIDPARRY  |  Long Term (1 Year – 3 Years)
+Generated: 2026-04-26 18:28:03 UTC
+════════════════════════════════════════════════════════════════════════
+
+▶ 3.1.1  COMPANY DESCRIPTION
+────────────────────────────────────────────────────────────────────────
+EID Parry India Limited, part of the Murugappa Group, is a prominent player in the Sugar and Nutraceuticals sectors. Established in 1788, it is one of India's oldest companies and has a significant presence in sugar manufacturing, cogeneration of power, distillery operations, and the production of bio-pesticides. A key business fact is its majority stake in Coromandel International Ltd., a major fertilizer and agrochemical company, which significantly contributes to its overall valuation.
+
+▶ 3.1.2  KEY FUNDAMENTAL INDICATORS
+────────────────────────────────────────────────────────────────────────
+  • {'point': 'The Price-to-Earnings (P/E) ratio stands at 14.3, which is generally considered moderate. This suggests the stock is not excessively overvalued compared to its earnings per share of ₹66.88.', 'source': 'Fundamental Data'}
+  • {'point': "Return on Capital Employed (ROCE) is 16.6%, indicating reasonable efficiency in using its capital to generate profits. However, the Return on Equity (ROE) is lower at 9.54%, suggesting returns to shareholders' equity could be improved.", 'source': 'Fundamental Data'}
+  • {'point': "The stock's current price of ₹841.2 is trading at approximately 1.73 times its book value of ₹486.0 per share. This Price-to-Book (P/B) ratio is not in an expensive zone.", 'source': 'Fundamental Data'}
+  • {'point': 'The company has a dividend yield of 0.0%. This indicates that the company is not currently distributing profits to shareholders in the form of dividends, which may be a consideration for income-focused investors.', 'source': 'Fundamental Data'}
+  • {'point': 'The stock has shown negative price performance over the past year (-1.71%) and six months (-18.65%), indicating a period of underperformance despite a recent monthly gain of 3.50%.', 'source': 'Price Movement (historical)'}
+
+▶ 3.1.3  TECHNICAL INDICATORS
+────────────────────────────────────────────────────────────────────────
+  • {'point': 'The Relative Strength Index (RSI-14) is 50.68, which is in the neutral range (between 30 and 70). For a long-term investor, this suggests the stock is neither overbought nor oversold and lacks strong momentum in either direction at present.', 'source': 'Technical Indicators'}
+  • {'point': 'The MACD line (7.8868) is currently above its signal line (3.4945). This is typically a short-term bullish signal, indicating recent positive price momentum, but it needs to be sustained to impact the long-term trend.', 'source': 'Technical Indicators'}
+  • {'point': 'The Average Directional Index (ADX-14) is 19.10. A value below 25, like this one, indicates a weak or non-existent trend, suggesting the stock is in a sideways or consolidating phase.', 'source': 'Technical Indicators'}
+  • {'point': 'The current price of ₹841.2 is trading below its 50-day EMA (₹856.17) and significantly below its 200-day EMA (₹931.27). Trading below the 200-day moving average is often viewed as a bearish signal for the long-term trend.', 'source': 'Technical Indicators'}
+  • {'point': 'The price is trading within the Bollinger Bands (Upper: ₹890.90, Lower: ₹777.56) and close to the 20-day moving average. This indicates a period of relatively low volatility and price consolidation.', 'source': 'Technical Indicators'}
+
+▶ 3.1.4  NEWS, ANNOUNCEMENTS & FINANCIAL STATEMENTS
+────────────────────────────────────────────────────────────────────────
+  • {'point': "Recent news from Markets Mojo highlights a downgrade to 'Sell' and raises concerns about the company's valuation. This reflects negative sentiment from some market analysts which could pressure the stock price.", 'source': 'Recent News'}
+  • {'point': "Shareholders approved the re-appointment of an Independent Director with a very high majority of 99.82%. This suggests strong shareholder confidence in the company's board and corporate governance practices.", 'source': 'Recent News'}
+  • {'point': 'The company announced an equity capital raise through an ESOP share allotment. This is a routine corporate action to reward employees and typically has a minor, slightly dilutive impact on the share price.', 'source': 'Recent News'}
+
+  Financial Statements:
+    → {'point': 'Based on the provided data, the company is profitable with an Earnings Per Share (EPS) of ₹66.88. However, a detailed review of quarterly and annual revenue and profit trends from the financial statements is required to assess growth consistency.', 'source': 'Fundamental Data'}
+    → {'point': "The balance sheet appears reasonable with a book value of ₹486.0 per share, resulting in a moderate Price-to-Book ratio of 1.73. This suggests the company's assets are not excessively valued by the market.", 'source': 'Fundamental Data'}
+    → {'point': "No specific data on cash flow was provided. An analysis of the Cash Flow Statement is crucial to understand the company's ability to generate cash from its operations, which is a key indicator of financial health.", 'source': 'Financial Statements Availability'}
+    → {'point': 'No specific data on the shareholding pattern was provided. Examining the promoter, FII/DII, and public shareholding is important to gauge institutional confidence and ownership structure.', 'source': 'Financial Statements Availability'}
+
+▶ 3.1.5  AI TAKEAWAY (LONG TERM (1 YEAR – 3 YEARS))
+────────────────────────────────────────────────────────────────────────
+For a long-term (1-3 year) horizon, the outlook for EID Parry appears NEUTRAL. The company shows reasonable fundamentals with a moderate P/E ratio of 14.3 and a decent ROCE of 16.6%. However, these positives are counterbalanced by significant concerns. The stock is trading below its long-term 200-day EMA (₹931.27), a bearish technical signal, and has delivered negative returns over the past year (-1.71%). Recent news also highlights valuation concerns from market analysts. The lack of a dividend (0.0% yield) and a relatively low ROE (9.54%) further temper the investment case. This is NOT financial advice — consult a SEBI-registered advisor.
+
+▶ 4.     KNOWLEDGE GRAPH
+────────────────────────────────────────────────────────────────────────
+╔══════════════════════════════════════════════════════════════════════╗
+║  KNOWLEDGE GRAPH — EIDPARRY                                          ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+  ┌─────────────────────────────────────────┐
+  │  COMPANY: EID Parry India Limited                 │
+  │  Symbol:  EIDPARRY      Exchange: NSE              │
+  │  Sector:  Fast Moving Consumer Goods              │
+  └─────────────────────────────────────────┘
+                         │
+       ┌─────────────────┼──────────────────┐
+       │                 │                  │
+       ▼                 ▼                  ▼
+
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
+  │  PRICE NODE  │  │  FUND. NODE  │  │  TECHNICALS NODE     │
+  │──────────────│  │──────────────│  │──────────────────────│
+  │ ₹841.2         │  │ P/E   : 14.3     │  │ RSI(14): 50.681 [RSI:]      │
+  │ 1D: -3.49%    │  │ P/B   : N/A      │  │ MACD  : 7.8868 [N/A]       │
+  │              │  │ ROE   : 9.54 %  │  │ ADX   : 19.107 [NEUTRAL]   │
+  │              │  │ ROCE  : 16.6 %  │  │ EMA   :        [N/A]       │
+  │              │  │ EPS   : 66.88    │  │ BB    :        [N/A]       │
+  │              │  │ MCap  : 15032000 │  │ Signal:   [N/A]         │
+  └──────────────┘  └──────────────┘  └──────────────────────┘
+
+       ┌─────────────────┼──────────────────┐
+       │                 │                  │
+       ▼                 ▼                  ▼
+
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
+  │  NEWS NODE   │  │  ANNOUNCE.   │  │  FINANCIALS NODE     │
+  │──────────────│  │  NODE        │  │──────────────────────│
+  │ 7 headlines│  │──────────────│  │ Tables available:    │
+  │              │  │ 0 items     │  │ Quarterly Results, Annual Results │
+  │              │  │              │  │ Balance Sheet, Cash Flow │
+  │              │  │              │  │ Shareholding         │
+  └──────────────┘  └──────────────┘  └──────────────────────┘
+
+  Price Movement Summary:
+  1w: -1.49%  |  1mo: +3.50%  |  6mo: -18.65%  |  1y: -1.71%
+
+  Edge Legend:
+  ── Agreement (signals aligned)   ~~~ Contradiction (signals conflict)
+  === Neutral / Inconclusive        *** Data unavailable
+
+════════════════════════════════════════════════════════════════════════
+END OF REPORT  |  Total run time: 127.4s
+════════════════════════════════════════════════════════════════════════

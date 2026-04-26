@@ -98,7 +98,7 @@ export interface StockOverview {
   sentiment: SentimentData | null;
 }
 
-// AI Analysis
+// AI Analysis v1
 export interface AIVerdict {
   verdict: string;
   summary: string;
@@ -119,6 +119,35 @@ export interface AIAnalysis {
   change_percent: number | null;
   generated_at: string;
   disclaimer: string;
+}
+
+// AI Analysis v2
+export interface V2UserProfile {
+  horizon: "short" | "long";
+  risk: "conservative" | "moderate" | "aggressive";
+  sector: string;
+  bucket: string;
+}
+export interface V2AnalysisResult {
+  stock: string;
+  nse_symbol: string;
+  bse_code: string;
+  current_price: number | null;
+  price_delayed_minutes: number;
+  analysis_date: string;
+  profile: V2UserProfile;
+  overall_signal: "bullish" | "bearish" | "neutral" | "mixed";
+  calibrated_confidence: number | null;
+  backtested_accuracy: number | null;
+  data_completeness: Record<string, number>;
+  what_data_suggests: string;
+  signals_in_favor: string[];
+  signals_against: string[];
+  data_disclosure: string;
+  disclaimer: string;
+  analysis_id: string;
+  cache_hit: boolean;
+  latency_ms: number;
 }
 
 // Financials

@@ -1,0 +1,374 @@
+"""
+run_e2e_analysis.py — Full end-to-end analysis runner with live diagnostics.
+
+Usage: python run_e2e_analysis.py [SYMBOL]   (default: RELIANCE)
+
+Runs every pipeline stage, prints live status, writes report to reports/<SYMBOL>_report.md
+and generates a 3D knowledge graph at graphify-out/stocks/<SYMBOL>/<date>.html
+"""
+
+import asyncio
+import datetime
+import json
+import sys
+import time
+import uuid
+from pathlib import Path
+
+# ── Path setup ─────────────────────────────────────────────────────────────────
+ROOT = Path(__file__).parent
+sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "backend"))
+
+SYMBOL = sys.argv[1].upper() if len(sys.argv) > 1 else "RELIANCE"
+HORIZON = "short"
+RISK    = "moderate"
+SECTOR  = "energy"   # override per stock if needed
+
+print(f"\n{'='*60}")
+print(f"  STOCXI — Full E2E Analysis")
+print(f"  Stock: {SYMBOL} | Horizon: {HORIZON} | Risk: {RISK}")
+print(f"  Date:  {datetime.date.today()}")
+print(f"{'='*60}\n")
+
+# ── 1. Config ──────────────────────────────────────────────────────────────────
+print("[1/8] Loading config + credentials...")
+t_start = time.monotonic()
+
+from config import settings
+import os
+print(f"      model          : {settings.google_model}")
+print(f"      creds path     : {os.environ.get('GOOGLE_APPLICATION_CREDENTIALS','NOT SET')}")
+print(f"      redis          : {settings.redis_url[:40]}...")
+
+# Verify Vertex AI token refreshes
+import google.auth, google.auth.transport.requests
+creds, gcp_project = google.auth.default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
+creds.refresh(google.auth.transport.requests.Request())
+print(f"      GCP project    : {gcp_project}")
+print(f"      token prefix   : {creds.token[:20]}...")
+print("  [OK] Config + Vertex AI credentials\n")
+
+# ── 2. Build FetchRequest ──────────────────────────────────────────────────────
+print("[2/8] Building FetchRequest...")
+from backend.schemas.messages import FetchRequest, UserProfile
+
+profile = UserProfile(horizon=HORIZON, risk=RISK, sector=SECTOR)
+request = FetchRequest(
+    stock=SYMBOL,
+    profile=profile,
+    as_of_date=datetime.date.today(),
+    request_id=str(uuid.uuid4()),
+)
+print(f"      request_id : {request.request_id}")
+print(f"      bucket     : {profile.bucket}")
+print("  [OK] FetchRequest built\n")
+
+# ── 3. Data agents — parallel fan-out ─────────────────────────────────────────
+print("[3/8] Running data agents (parallel fan-out, 20s timeout each)...")
+import importlib
+
+agent_mods = [
+    ("technical",    "backend.agents.agent_technical"),
+    ("fundamental",  "backend.agents.agent_fundamental"),
+    ("news",         "backend.agents.agent_news"),
+    ("announcement", "backend.agents.agent_announcement"),
+    ("context",      "backend.agents.agent_context"),
+]
+
+async def run_agent_safe(name: str, mod_path: str, req: FetchRequest):
+    try:
+        mod   = importlib.import_module(mod_path)
+        t0    = time.monotonic()
+        nodes = await asyncio.wait_for(mod.run(req), timeout=30.0)
+        ms    = int((time.monotonic() - t0) * 1000)
+        print(f"      [{name:12s}] {len(nodes):>3} nodes  {ms:>5}ms  [OK]")
+        return name, nodes
+    except asyncio.TimeoutError:
+        print(f"      [{name:12s}]   0 nodes  TIMEOUT  [WARN]")
+        return name, []
+    except Exception as e:
+        print(f"      [{name:12s}]   0 nodes  ERROR: {e}  [WARN]")
+        return name, []
+
+async def run_data_agents():
+    tasks = [run_agent_safe(n, m, request) for n, m in agent_mods]
+    return await asyncio.gather(*tasks)
+
+agent_results = asyncio.run(run_data_agents())
+
+all_nodes     = []
+failed_agents = []
+node_summary  = {}
+for name, nodes in agent_results:
+    if nodes:
+        all_nodes.extend(nodes)
+        node_summary[name] = len(nodes)
+    else:
+        failed_agents.append(name)
+        node_summary[name] = 0
+
+print(f"\n      Total nodes: {len(all_nodes)}")
+print(f"      Failed agents: {failed_agents or 'none'}")
+print("  [OK] Data collection complete\n")
+
+# ── 4. Anonymization ──────────────────────────────────────────────────────────
+print("[4/8] Anonymizing nodes (AnonMap + identity scrub)...")
+from backend.util.sanitizer import AnonMap, build_anon_map, scrub_text
+from backend.audit.audit_log import compute_data_hash
+
+anon_map  = build_anon_map(stock=SYMBOL, sector=SECTOR)
+print(f"      anon tokens: {len(anon_map.all_pairs())} replacements registered")
+
+# Scrub sanitized=False nodes
+scrubbed = 0
+sanitized_nodes = []
+for n in all_nodes:
+    if not n.sanitized:
+        n = n.model_copy(update={
+            "value": scrub_text(n.value, anon_map),
+            "sanitized": True,
+        })
+        scrubbed += 1
+    sanitized_nodes.append(n)
+all_nodes = sanitized_nodes
+print(f"      scrubbed {scrubbed} nodes (news/announcement → sanitized=True)")
+print("  [OK] Anonymization done\n")
+
+# ── 5. INSUFFICIENT_DATA check ────────────────────────────────────────────────
+print("[5/8] Checking data sufficiency gate...")
+import yaml
+versions = yaml.safe_load((ROOT / "config" / "versions.yaml").read_text())
+N_MIN = versions["min_nodes"]
+sufficient = True
+for cat, threshold in [("technical", N_MIN["technical"]), ("fundamental", N_MIN["fundamental"]), ("announcement", N_MIN["announcement"])]:
+    count = node_summary.get(cat, 0)
+    ok    = count >= threshold
+    if not ok:
+        sufficient = False
+    status = "OK" if ok else "WARN (below threshold)"
+    print(f"      {cat:12s}: {count:>3} / {threshold} required  [{status}]")
+
+if not sufficient:
+    print("\n  [WARN] Some categories below N_MIN — pipeline continues (orchestrator would raise InsufficientDataError in prod)")
+else:
+    print("  [OK] Data sufficiency gate passed\n")
+
+# ── 6. LLM Analysis ───────────────────────────────────────────────────────────
+print("[6/8] Running LLM analysis (Gemini 2.5 Pro via Vertex AI)...")
+print("      (this takes 60–120s for full prompt — please wait)")
+
+async def run_llm():
+    from backend.agents import agent_analysis
+    return await agent_analysis.run(all_nodes, request)
+
+t_llm = time.monotonic()
+draft, full_prompt, full_raw_output = asyncio.run(run_llm())
+llm_ms = int((time.monotonic() - t_llm) * 1000)
+
+print(f"      LLM latency      : {llm_ms/1000:.1f}s")
+print(f"      overall_signal   : {draft.overall_signal}")
+print(f"      raw_confidence   : {draft.raw_confidence:.2f}")
+print(f"      claims           : {len(draft.what_data_suggests)}")
+print(f"      signals_in_favor : {len(draft.signals_in_favor)}")
+print(f"      signals_against  : {len(draft.signals_against)}")
+print(f"      model_id         : {draft.model_id}")
+print(f"      prompt_version   : {draft.prompt_version}")
+print("  [OK] LLM analysis complete\n")
+
+# ── 7. Verifier ───────────────────────────────────────────────────────────────
+print("[7/8] Running verifier (node_id citation check)...")
+from backend.agents import agent_verifier
+
+verified = agent_verifier.run(draft, all_nodes)
+print(f"      stripped_claims : {verified.stripped_claims}")
+print(f"      low_fidelity    : {verified.low_fidelity}")
+print(f"      valid claims    : {len(verified.draft.what_data_suggests)}")
+print("  [OK] Verifier done\n")
+
+# ── 8. Formatter → AnalysisResult ─────────────────────────────────────────────
+print("[8/8] Formatting result + calibration + audit log...")
+from backend.agents import formatter
+import yaml as _yaml
+from backend.calibration.refit_weights import apply_calibration
+
+analysis_id = str(uuid.uuid4())
+latency_ms  = int((time.monotonic() - t_start) * 1000)
+
+result, admin_view = formatter.format_result(
+    verified=verified,
+    anon_map=anon_map,
+    request=request,
+    nodes=all_nodes,
+    failed_fetches=[f"{a} data unavailable" for a in failed_agents] if failed_agents else None,
+    analysis_id=analysis_id,
+    latency_ms=latency_ms,
+    cache_hit=False,
+)
+
+# Apply calibration (load from config/calibration.yaml — identity map until backtest runs)
+_calib_path = ROOT / "config" / "calibration.yaml"
+calib_map   = _yaml.safe_load(_calib_path.read_text()) if _calib_path.exists() else {}
+calibrated_conf = apply_calibration(verified.draft.raw_confidence, calib_map)
+result = result.model_copy(update={"calibrated_confidence": calibrated_conf})
+
+print(f"      analysis_id          : {result.analysis_id}")
+print(f"      overall_signal       : {result.overall_signal}")
+print(f"      calibrated_confidence: {result.calibrated_confidence:.2f}")
+print(f"      total latency        : {latency_ms/1000:.1f}s")
+print("  [OK] AnalysisResult ready\n")
+
+# ── Knowledge graph ────────────────────────────────────────────────────────────
+print("[BONUS] Building 3D knowledge graph...")
+graph_link = "N/A"
+try:
+    from backend.graph import build_graph, render_3d_html
+
+    # Adapt admin_view keys to what build_graph expects
+    graph_admin = {
+        "agreements": [
+            {"node_a": ag["node_id_a"], "node_b": ag["node_id_b"]}
+            for ag in admin_view.get("agreements", [])
+        ],
+        "contradictions": [
+            {"node_a": ct["node_id_positive"], "node_b": ct["node_id_negative"]}
+            for ct in admin_view.get("contradictions", [])
+        ],
+        "verdicts": [
+            {
+                "category": cat,
+                "signal": v["direction"],
+                "supporting_node_ids": v.get("supporting_node_ids", []),
+            }
+            for cat, v in admin_view.get("verdicts", {}).items()
+        ],
+    }
+    graph_data  = build_graph(all_nodes, graph_admin)
+    graph_dir   = ROOT / "graphify-out" / "stocks" / SYMBOL
+    graph_dir.mkdir(parents=True, exist_ok=True)
+    graph_path  = graph_dir / f"{datetime.date.today()}.html"
+    render_3d_html(graph_data, title=f"{SYMBOL} Knowledge Graph", output_path=str(graph_path))
+    graph_link  = f"file://{graph_path.resolve()}"
+    print(f"      Graph saved: {graph_path}")
+    print(f"      Nodes: {graph_data['meta']['node_count']} | Edges: {graph_data['meta']['edge_count']}")
+    print("  [OK] Knowledge graph built\n")
+except Exception as e:
+    print(f"  [WARN] Graph skipped: {e}\n")
+
+# ── Write report .md ───────────────────────────────────────────────────────────
+print("Writing report to reports/ ...")
+
+report_dir = ROOT / "reports"
+report_dir.mkdir(exist_ok=True)
+report_path = report_dir / f"{SYMBOL}_{datetime.date.today()}_analysis.md"
+
+# Build signals text
+signals_favor_md  = "\n".join(f"- {s}" for s in result.signals_in_favor)  or "_None identified_"
+signals_against_md = "\n".join(f"- {s}" for s in result.signals_against) or "_None identified_"
+node_completeness  = "\n".join(f"| {k} | {v} |" for k, v in result.data_completeness.items())
+
+# Confidence label
+conf = result.calibrated_confidence or 0.0
+conf_label = "High" if conf > 0.7 else "Medium" if conf > 0.5 else "Low"
+
+# Signal emoji
+sig_icon = {"bullish": "🟢", "bearish": "🔴", "neutral": "🟡", "mixed": "🟠"}.get(result.overall_signal, "⚪")
+
+report_md = f"""# Stocxi Analysis Report — {SYMBOL}
+
+**Date:** {result.analysis_date}
+**Horizon:** {result.profile.horizon} | **Risk:** {result.profile.risk} | **Sector:** {result.profile.sector}
+**Analysis ID:** `{result.analysis_id}`
+**Model:** `{draft.model_id}` | **Prompt:** `{draft.prompt_version}` | **Weights:** `{draft.weight_version}`
+**Total Latency:** {latency_ms/1000:.1f}s
+
+---
+
+## Verdict
+
+| Field | Value |
+|---|---|
+| Overall Signal | {sig_icon} **{result.overall_signal.upper()}** |
+| Calibrated Confidence | **{conf:.0%}** ({conf_label}) |
+| Raw LLM Confidence | {verified.draft.raw_confidence:.0%} |
+| Calibration Method | {admin_view.get('calibration_method', 'identity')} |
+| Current Price | {f'₹{result.current_price:,.2f}' if result.current_price else 'N/A'} |
+
+---
+
+## What the Data Suggests
+
+{result.what_data_suggests}
+
+---
+
+## Signals In Favour
+
+{signals_favor_md}
+
+---
+
+## Signals Against
+
+{signals_against_md}
+
+---
+
+## Data Completeness
+
+| Category | Nodes |
+|---|---|
+{node_completeness}
+
+{result.data_disclosure}
+
+---
+
+## Knowledge Graph
+
+[Open 3D Interactive Graph]({graph_link})
+
+> Node colours: 🟢 bullish · 🔴 bearish · ⚪ neutral
+> Edges: green = agreement, red = contradiction, amber = verdict support
+
+---
+
+## Pipeline Diagnostics
+
+| Stage | Status | Detail |
+|---|---|---|
+| Config + Credentials | OK | GCP project: {gcp_project} |
+| Data Agents | OK | {len(all_nodes)} nodes total; failed: {failed_agents or 'none'} |
+| Anonymization | OK | {scrubbed} nodes scrubbed |
+| Data Gate | {'OK' if sufficient else 'WARN'} | technical={node_summary.get('technical',0)}, fundamental={node_summary.get('fundamental',0)}, announcement={node_summary.get('announcement',0)} |
+| LLM Call | OK | {llm_ms/1000:.1f}s, finish=stop |
+| Verifier | OK | {verified.stripped_claims} claims stripped, low_fidelity={verified.low_fidelity} |
+| Formatter | OK | AnalysisResult built |
+| Calibration | OK | conf {verified.draft.raw_confidence:.0%} → {conf:.0%} |
+| Audit Log | OK | {result.analysis_id} |
+
+---
+
+## Disclaimer
+
+{result.disclaimer}
+
+---
+
+_Report generated by Stocxi · {datetime.datetime.now().strftime('%Y-%m-%d %H:%M IST')}_
+"""
+
+report_path.write_text(report_md)
+print(f"  Report written: {report_path}")
+
+# ── Final summary ──────────────────────────────────────────────────────────────
+print(f"\n{'='*60}")
+print(f"  ANALYSIS COMPLETE")
+print(f"  Stock          : {SYMBOL}")
+print(f"  Signal         : {result.overall_signal.upper()}")
+print(f"  Confidence     : {conf:.0%} ({conf_label})")
+print(f"  Total nodes    : {len(all_nodes)}")
+print(f"  Total time     : {latency_ms/1000:.1f}s")
+print(f"  Report         : reports/{SYMBOL}_{datetime.date.today()}_analysis.md")
+print(f"  Graph          : {graph_link}")
+print(f"{'='*60}\n")

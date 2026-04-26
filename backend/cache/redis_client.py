@@ -1,19 +1,13 @@
 """
 redis_client.py — Async Redis wrapper for Stocxi.
 
-Why async redis?
-  FastAPI is async-native; using the async redis client avoids blocking the
-  event loop during cache reads/writes (which happen on every request).
+Connection is lazy-initialised on first use so importing this module
+never fails at test/CLI time when REDIS_URL is not set.
 
-Connection:
-  Uses Upstash's rediss:// (TLS) URL from .env.
-  redis-py auto-creates a connection pool — we use a single module-level
-  client instead of opening/closing connections per request.
-
-Public API (used by all services):
-  await cache_get(key)          → dict | list | None
+Public API:
+  await cache_get(key)           → dict | list | None
   await cache_set(key, val, ttl) → None
-  await cache_delete(key)       → None
+  await cache_delete(key)        → None
 """
 
 import json
@@ -22,65 +16,67 @@ from typing import Any
 
 import redis.asyncio as aioredis
 
-from config import settings
-
 logger = logging.getLogger(__name__)
 
-# ── Single shared client across the entire app ─────────────────────────────────
-# decode_responses=True → redis-py returns str instead of bytes automatically
-redis_client: aioredis.Redis = aioredis.from_url(
-    settings.redis_url,
-    decode_responses=True,
-    socket_connect_timeout=5,   # fail fast if Upstash unreachable
-    socket_timeout=5,
-)
+_client: aioredis.Redis | None = None
+
+
+def _get_client() -> aioredis.Redis:
+    global _client
+    if _client is None:
+        from config import settings
+        _client = aioredis.from_url(
+            settings.redis_url,
+            decode_responses=True,
+            socket_connect_timeout=5,
+            socket_timeout=5,
+        )
+    return _client
 
 
 async def cache_get(key: str) -> Any | None:
-    """
-    Fetch a cached value by key.
-    Returns deserialized Python object or None on miss / error.
-    Never raises — a cache miss is not an error; callers fall through to live fetch.
-    """
+    """Return deserialized object or None on miss / error. Never raises."""
     try:
-        raw = await redis_client.get(key)
+        raw = await _get_client().get(key)
         if raw is None:
             return None
         return json.loads(raw)
     except Exception as e:
-        # Log but never crash — degrade gracefully to live data
-        logger.warning(f"Redis GET failed for key '{key}': {e}")
+        logger.warning("Redis GET failed for key '%s': %s", key, e)
         return None
 
 
 async def cache_set(key: str, value: Any, ttl: int) -> None:
-    """
-    Store a value in Redis with a TTL (seconds).
-    Serializes to JSON so any dict/list can be stored.
-    Never raises — failing to cache is non-fatal.
-    """
+    """Store value as JSON with TTL (seconds). Never raises."""
     try:
-        serialized = json.dumps(value, default=str)  # default=str handles datetime etc.
-        await redis_client.setex(key, ttl, serialized)
+        serialized = json.dumps(value, default=str)
+        await _get_client().setex(key, ttl, serialized)
     except Exception as e:
-        logger.warning(f"Redis SET failed for key '{key}': {e}")
+        logger.warning("Redis SET failed for key '%s': %s", key, e)
 
 
 async def cache_delete(key: str) -> None:
-    """
-    Invalidate a specific cache key.
-    Used when forcing a fresh fetch (e.g. user explicitly refreshes).
-    """
+    """Invalidate a cache key. Never raises."""
     try:
-        await redis_client.delete(key)
+        await _get_client().delete(key)
     except Exception as e:
-        logger.warning(f"Redis DELETE failed for key '{key}': {e}")
+        logger.warning("Redis DELETE failed for key '%s': %s", key, e)
 
 
-# ── TTL constants (from AI_CONTEXT.md) ────────────────────────────────────────
-# Centralised here so they never drift between services
-TTL_OVERVIEW = 300          # stock:overview:{symbol}       → 5 min
-TTL_FINANCIALS = 604_800    # stock:financials:{symbol}     → 7 days (quarterly data)
-TTL_NEWS = 7_200            # stock:news:{symbol}           → 2 hrs
-TTL_ANALYSIS = 21_600       # stock:analysis:{symbol}:{risk}→ 6 hrs
-TTL_SEARCH = 3_600          # search:{query}                → 1 hr
+async def ping() -> bool:
+    """Ping Redis. Returns True on success, False on failure. Never raises."""
+    try:
+        await _get_client().ping()
+        return True
+    except Exception:
+        return False
+
+
+# ── TTL constants ──────────────────────────────────────────────────────────────
+TTL_OVERVIEW        = 300        # stock:overview:{symbol}            → 5 min
+TTL_FINANCIALS      = 604_800    # stock:financials:{symbol}          → 7 days
+TTL_NEWS            = 7_200      # stock:news:{symbol}                → 2 hrs
+TTL_SEARCH          = 3_600      # search:{query}                     → 1 hr
+TTL_ANALYSIS_RESULT = 7_200      # analysis:v{pv}:{wv}:{s}:{pb}:{dh} → 2 hrs
+                                 # (data_hash in key ensures correctness; 2h avoids
+                                 #  stale intraday announcements sitting 24h)

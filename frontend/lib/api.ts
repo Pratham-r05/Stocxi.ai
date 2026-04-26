@@ -1,6 +1,7 @@
 import type {
   SearchResult, StockOverview, AIAnalysis, Financials,
   NewsResponse, AnnouncementsResponse, SentimentData, HistoryData,
+  V2AnalysisResult,
 } from "./types";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -31,6 +32,35 @@ export async function fetchAIAnalysis(
   riskLevel: "low" | "medium" | "high" = "medium"
 ): Promise<AIAnalysis | null> {
   return apiFetch<AIAnalysis>(`/api/v1/analysis/${symbol}?risk_level=${riskLevel}`);
+}
+
+export async function fetchAIAnalysisV2(
+  symbol: string,
+  horizon: "short" | "long" = "short",
+  risk: "conservative" | "moderate" | "aggressive" = "moderate",
+  sector = ""
+): Promise<V2AnalysisResult | null> {
+  const params = new URLSearchParams({ horizon, risk });
+  if (sector) params.set("sector", sector);
+  return apiFetch<V2AnalysisResult>(`/api/v2/analysis/${symbol}?${params.toString()}`);
+}
+
+export async function fetchAIAnalysisV2Report(
+  symbol: string,
+  horizon: "short" | "long" = "short",
+  risk: "conservative" | "moderate" | "aggressive" = "moderate",
+  sector = "",
+  tier: "orbiter" | "stellar" | "apex" = "stellar"
+): Promise<Blob | null> {
+  const params = new URLSearchParams({ horizon, risk, tier });
+  if (sector) params.set("sector", sector);
+  try {
+    const res = await fetch(`${BASE}/api/v2/analysis/${symbol}/report?${params.toString()}`);
+    if (!res.ok) return null;
+    return res.blob();
+  } catch {
+    return null;
+  }
 }
 
 export async function fetchFinancials(symbol: string): Promise<Financials | null> {

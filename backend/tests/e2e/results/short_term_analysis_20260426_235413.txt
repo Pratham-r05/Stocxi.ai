@@ -1,0 +1,282 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║  STOCXI  —  DEEP END-TO-END ANALYSIS TEST REPORT                    ║
+║  Time Horizon : Short Term (1 Day – 3 Months)                        ║
+║  Stocks       : BAJAJFINSV, NESTLEIND, TATACHEM                      ║
+║  Run Time     : 2026-04-26 18:22:44 UTC                              ║
+║  AI Model     : google/gemini-2.5-pro                                ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+DISCLAIMER: All analysis in this file is AI-generated for testing
+purposes only. It is NOT financial advice. Do NOT make investment
+decisions based on this output. Consult a SEBI-registered advisor.
+
+════════════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════════════
+STOCK 1  |  BAJAJFINSV  |  Short Term (1 Day – 3 Months)
+Generated: 2026-04-26 18:23:14 UTC
+════════════════════════════════════════════════════════════════════════
+
+▶ 3.1.1  COMPANY DESCRIPTION
+────────────────────────────────────────────────────────────────────────
+Bajaj Finserv Limited is a holding company for various financial services businesses under the Bajaj Group. It operates in sectors like lending, insurance, and wealth management through its key subsidiaries. These include Bajaj Finance Ltd (a major non-banking financial company), Bajaj Allianz Life Insurance, and Bajaj Allianz General Insurance. As a core investment company, its performance is closely linked to the success of these underlying businesses.
+
+▶ 3.1.2  KEY FUNDAMENTAL INDICATORS
+────────────────────────────────────────────────────────────────────────
+  • The Price-to-Earnings (P/E) ratio is 28.9. This valuation metric indicates the price investors are willing to pay for each rupee of the company's earnings. A higher P/E can suggest market expectations of future growth.
+  • The stock is currently trading at ₹1777.7, which is closer to its 52-week low of ₹1597 than its 52-week high of ₹2195. This suggests the stock has been under pressure over the past year.
+  • Return on Equity (ROE) is 13.4% and Return on Capital Employed (ROCE) is 11.0%. These figures measure how efficiently the company is generating profits from shareholder equity and its total capital, respectively.
+  • The Dividend Yield is very low at 0.06%. This implies that returns from this stock are expected primarily from price appreciation rather than regular income distributions.
+  • The stock has shown negative price movement over the last week (-3.34%), six months (-18.00%), and one year (-15.88%), indicating a sustained period of underperformance.
+
+▶ 3.1.3  TECHNICAL INDICATORS
+────────────────────────────────────────────────────────────────────────
+  • The Relative Strength Index, RSI(14), is at 46.11. This value is in the neutral range (between 30 and 70), suggesting the stock is neither overbought nor oversold at the current price.
+  • The MACD line (0.1867) is currently above its signal line (-11.4061). This is often interpreted as a potential upward momentum signal, though the small difference suggests the signal is not very strong.
+  • The Average Directional Index, ADX(14), is 21.31. A value below 25 typically indicates a weak trend or a sideways market, suggesting a lack of strong directional momentum.
+  • The current price of ₹1777.7 is below its 20-day (₹1792.03), 50-day (₹1836.67), and 200-day (₹1942.91) Exponential Moving Averages (EMAs). Trading below these key averages is generally considered a bearish sign for the short to medium term.
+  • The price is trading within the Bollinger Bands (Upper: ₹1902.62, Lower: ₹1612.79). The price is not touching either band, which, combined with the neutral RSI, points to a lack of immediate strong buying or selling pressure.
+
+▶ 3.1.4  NEWS, ANNOUNCEMENTS & FINANCIAL STATEMENTS
+────────────────────────────────────────────────────────────────────────
+  • Recent news from MarketWatch on April 23rd and 24th repeatedly highlights that Bajaj Finserv has been underperforming its competitors. This relative weakness can negatively impact investor sentiment.
+  • Multiple reports from Markets Mojo mention a 'significant open interest surge' amid 'bearish price action'. This suggests that derivatives traders may be building positions that anticipate a further decline in the stock price.
+  • A report on April 21st noted 'heavy call option activity amid bearish stock momentum'. This could indicate that some market participants are either betting against a significant price rise or using complex strategies, contributing to a complex and potentially bearish outlook.
+
+  Financial Statements:
+    → An analysis of the quarterly and annual results should focus on the revenue and profit growth of its key subsidiaries, particularly Bajaj Finance and the insurance ventures, as they are the primary drivers of the holding company's value.
+    → From the balance sheet, it is crucial to assess the health of the lending business by checking the Gross and Net Non-Performing Assets (NPAs) and the solvency ratios of the insurance businesses to understand overall financial stability.
+    → The cash flow statement should be reviewed to confirm if the consolidated entity is generating positive cash from its core operations, which is a sign of a healthy underlying business.
+    → The shareholding pattern provides insight into ownership. A review should focus on trends in promoter holding and the buying or selling activity of Foreign Institutional Investors (FIIs) and Domestic Institutional Investors (DIIs), as changes can signal shifts in institutional confidence.
+
+▶ 3.1.5  AI TAKEAWAY (SHORT TERM (1 DAY – 3 MONTHS))
+────────────────────────────────────────────────────────────────────────
+For the short term, the outlook for Bajaj Finserv appears BEARISH. This view is supported by the stock price trading below all key short, medium, and long-term moving averages (20, 50, and 200-day EMAs), which indicates a clear downtrend. Furthermore, recent news consistently points to underperformance relative to peers and bearish activity in the derivatives market. While the RSI (46.11) is neutral, the weight of technical and news-based evidence suggests potential for further price weakness or consolidation at lower levels. This is NOT financial advice — consult a SEBI-registered advisor.
+
+▶ 4.     KNOWLEDGE GRAPH
+────────────────────────────────────────────────────────────────────────
+╔══════════════════════════════════════════════════════════════════════╗
+║  KNOWLEDGE GRAPH — BAJAJFINSV                                        ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+  ┌─────────────────────────────────────────┐
+  │  COMPANY: Bajaj Finserv Limited                   │
+  │  Symbol:  BAJAJFINSV    Exchange: NSE              │
+  │  Sector:  Financial Services                      │
+  └─────────────────────────────────────────┘
+                         │
+       ┌─────────────────┼──────────────────┐
+       │                 │                  │
+       ▼                 ▼                  ▼
+
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
+  │  PRICE NODE  │  │  FUND. NODE  │  │  TECHNICALS NODE     │
+  │──────────────│  │──────────────│  │──────────────────────│
+  │ ₹1777.7        │  │ P/E   : 28.9     │  │ RSI(14): 46.116 [RSI:]      │
+  │ 1D: -0.83%    │  │ P/B   : N/A      │  │ MACD  : 0.1867 [N/A]       │
+  │              │  │ ROE   : 13.4 %  │  │ ADX   : 21.318 [NEUTRAL]   │
+  │              │  │ ROCE  : 11.0 %  │  │ EMA   :        [N/A]       │
+  │              │  │ EPS   : 60.59    │  │ BB    :        [N/A]       │
+  │              │  │ MCap  : 28340900 │  │ Signal:   [N/A]         │
+  └──────────────┘  └──────────────┘  └──────────────────────┘
+
+       ┌─────────────────┼──────────────────┐
+       │                 │                  │
+       ▼                 ▼                  ▼
+
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
+  │  NEWS NODE   │  │  ANNOUNCE.   │  │  FINANCIALS NODE     │
+  │──────────────│  │  NODE        │  │──────────────────────│
+  │ 10 headlines│  │──────────────│  │ Tables available:    │
+  │              │  │ 0 items     │  │ Quarterly Results, Annual Results │
+  │              │  │              │  │ Balance Sheet, Cash Flow │
+  │              │  │              │  │ Shareholding         │
+  └──────────────┘  └──────────────┘  └──────────────────────┘
+
+  Price Movement Summary:
+  1w: -3.34%  |  1mo: +1.32%  |  6mo: -18.00%  |  1y: -15.88%
+
+  Edge Legend:
+  ── Agreement (signals aligned)   ~~~ Contradiction (signals conflict)
+  === Neutral / Inconclusive        *** Data unavailable
+
+
+════════════════════════════════════════════════════════════════════════
+STOCK 2  |  NESTLEIND  |  Short Term (1 Day – 3 Months)
+Generated: 2026-04-26 18:23:43 UTC
+════════════════════════════════════════════════════════════════════════
+
+▶ 3.1.1  COMPANY DESCRIPTION
+────────────────────────────────────────────────────────────────────────
+Nestle India Limited is a prominent company in the Indian Fast Moving Consumer Goods (FMCG) sector, specifically within the Packaged Foods industry. It is the Indian subsidiary of the Swiss multinational company Nestlé. The company's product portfolio includes well-known brands like Maggi, Nescafé, KitKat, and Cerelac. As a major player in the Indian market, its performance is often seen as an indicator of consumer spending trends.
+
+▶ 3.1.2  KEY FUNDAMENTAL INDICATORS
+────────────────────────────────────────────────────────────────────────
+  • {'point': 'The Price-to-Earnings (P/E) Ratio stands at 80.5, which is significantly high. This suggests that the stock is trading at a premium valuation compared to its current earnings per share of ₹18.15, indicating high growth expectations are already priced in.', 'evidence': 'P/E Ratio: 80.5'}
+  • {'point': "Return on Equity (ROE) is exceptionally high at 74.3%, and Return on Capital Employed (ROCE) is 85.4%. These figures demonstrate the company's outstanding efficiency in using shareholder funds and total capital to generate profits.", 'evidence': 'ROE: 74.3%, ROCE: 85.4%'}
+  • {'point': 'The current stock price of ₹1420.0 is very close to its 52-week high of ₹1430.9. This proximity to the peak indicates strong positive momentum and investor confidence in the recent past.', 'evidence': 'Current Price: ₹1420.0, 52W High: ₹1430.9'}
+  • {'point': 'The Dividend Yield is 0.95%. For investors focused on regular income, this yield is relatively low, which is common for stocks that are priced high or are reinvesting heavily for growth.', 'evidence': 'Dividend Yield: 0.95%'}
+  • {'point': 'With a Market Capitalization of ₹2,740,710 Cr, Nestle India is a large-cap stock. This size generally implies greater stability and lower volatility compared to smaller companies.', 'evidence': 'Market Cap: ₹2,740,710 Cr'}
+
+▶ 3.1.3  TECHNICAL INDICATORS
+────────────────────────────────────────────────────────────────────────
+  • {'point': "The Relative Strength Index (RSI-14) is 79.16. A value above 70 is considered to be in the 'overbought' territory, which can sometimes signal that the recent upward price move may be due for a pause or a short-term correction.", 'evidence': 'RSI(14): 79.1566'}
+  • {'point': 'The MACD line (41.98) is substantially above its signal line (17.64). This is a bullish indicator, suggesting that the upward momentum in the stock price is strong and has been accelerating recently.', 'evidence': 'MACD: 41.9842, MACD Signal: 17.6415'}
+  • {'point': 'The Average Directional Index (ADX-14) is 36.23, which indicates a strong prevailing trend. Since the price has been moving up, this confirms the strength of the current uptrend.', 'evidence': 'ADX(14): 36.2277'}
+  • {'point': 'The current price (₹1420.0) is trading above its 20-day EMA (₹1291.65) and 50-day EMA (₹1268.99), which is a positive sign for the short to medium term trend. However, it is still below the 200-day EMA (₹1444.88), which could act as a potential resistance level.', 'evidence': 'EMA 20: ₹1291.65, EMA 50: ₹1268.99, EMA 200: ₹1444.88'}
+  • {'point': 'The stock price is currently trading above the upper Bollinger Band (₹1415.26). While this confirms very strong buying pressure, it also suggests the price is in an extreme condition and might revert back towards the average in the short term.', 'evidence': 'BB Upper: ₹1415.2556'}
+
+▶ 3.1.4  NEWS, ANNOUNCEMENTS & FINANCIAL STATEMENTS
+────────────────────────────────────────────────────────────────────────
+  • {'point': "Recent news highlights a significant stock price surge of 10% in a week, driven by 'strong quarterly results' and positive expectations for Q4 performance. This has created strong positive sentiment in the market.", 'evidence': 'News from Investing.com and CNBC TV18'}
+  • {'point': "Multiple reports from Markets Mojo point to a conflict between 'Strong Momentum' and 'Stretched Valuations' as the stock reaches an all-time high. This suggests that while the trend is up, concerns about the high price are also present.", 'evidence': 'News from Markets Mojo'}
+  • {'point': "News also indicates 'High-Value Trading and Institutional Interest', which has contributed to the recent rally. Strong institutional buying can sustain upward price movements.", 'evidence': 'News from Markets Mojo'}
+
+  Financial Statements:
+    → {'point': "Based on recent news, the company has delivered 'strong quarterly results', which has been a primary driver for the recent 17.86% price increase over the last month. This indicates healthy growth in revenue and profitability.", 'evidence': '1mo price change: +17.86%, News reports'}
+    → {'point': "The company's balance sheet health appears robust, as evidenced by its very high Return on Equity of 74.3% and Return on Capital Employed of 85.4%. This shows highly efficient management of its assets and capital.", 'evidence': 'ROE: 74.3%, ROCE: 85.4%'}
+    → {'point': 'As a leading FMCG company with strong profitability, Nestle India is expected to have strong and consistent cash flow from operations, which provides financial stability and funds for future growth or dividends.', 'evidence': 'Inferred from high ROCE and sector characteristics'}
+    → {'point': 'As a subsidiary of a multinational corporation and a large-cap stock, Nestle India likely has a high percentage of shares held by promoters and institutional investors, which typically lends stability to the stock price.', 'evidence': 'General knowledge of MNC subsidiaries in India'}
+
+▶ 3.1.5  AI TAKEAWAY (SHORT TERM (1 DAY – 3 MONTHS))
+────────────────────────────────────────────────────────────────────────
+For the short-term horizon, the outlook for Nestle India is NEUTRAL. The stock is experiencing very strong bullish momentum, evidenced by a 17.86% gain in one month and positive MACD and ADX indicators. However, this is countered by significant overbought signals, such as an RSI of 79.16 and the price trading above its upper Bollinger Band. The high P/E ratio of 80.5 also points to a stretched valuation. This creates a conflict between the powerful uptrend and the high risk of a short-term price correction. This is NOT financial advice — consult a SEBI-registered advisor.
+
+▶ 4.     KNOWLEDGE GRAPH
+────────────────────────────────────────────────────────────────────────
+╔══════════════════════════════════════════════════════════════════════╗
+║  KNOWLEDGE GRAPH — NESTLEIND                                         ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+  ┌─────────────────────────────────────────┐
+  │  COMPANY: Nestle India Limited                    │
+  │  Symbol:  NESTLEIND     Exchange: NSE              │
+  │  Sector:  Fast Moving Consumer Goods              │
+  └─────────────────────────────────────────┘
+                         │
+       ┌─────────────────┼──────────────────┐
+       │                 │                  │
+       ▼                 ▼                  ▼
+
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
+  │  PRICE NODE  │  │  FUND. NODE  │  │  TECHNICALS NODE     │
+  │──────────────│  │──────────────│  │──────────────────────│
+  │ ₹1420.0        │  │ P/E   : 80.5     │  │ RSI(14): 79.156 [RSI:]      │
+  │ 1D: +0.67%    │  │ P/B   : N/A      │  │ MACD  : 41.984 [N/A]       │
+  │              │  │ ROE   : 74.3 %  │  │ ADX   : 36.227 [POSITIVE]  │
+  │              │  │ ROCE  : 85.4 %  │  │ EMA   :        [N/A]       │
+  │              │  │ EPS   : 18.15    │  │ BB    :        [N/A]       │
+  │              │  │ MCap  : 27407100 │  │ Signal:   [N/A]         │
+  └──────────────┘  └──────────────┘  └──────────────────────┘
+
+       ┌─────────────────┼──────────────────┐
+       │                 │                  │
+       ▼                 ▼                  ▼
+
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
+  │  NEWS NODE   │  │  ANNOUNCE.   │  │  FINANCIALS NODE     │
+  │──────────────│  │  NODE        │  │──────────────────────│
+  │ 10 headlines│  │──────────────│  │ Tables available:    │
+  │              │  │ 0 items     │  │ Quarterly Results, Annual Results │
+  │              │  │              │  │ Balance Sheet, Cash Flow │
+  │              │  │              │  │ Shareholding         │
+  └──────────────┘  └──────────────┘  └──────────────────────┘
+
+  Price Movement Summary:
+  1w: +10.33%  |  1mo: +17.86%  |  6mo: +10.87%  |  1y: +16.83%
+
+  Edge Legend:
+  ── Agreement (signals aligned)   ~~~ Contradiction (signals conflict)
+  === Neutral / Inconclusive        *** Data unavailable
+
+
+════════════════════════════════════════════════════════════════════════
+STOCK 3  |  TATACHEM  |  Short Term (1 Day – 3 Months)
+Generated: 2026-04-26 18:24:13 UTC
+════════════════════════════════════════════════════════════════════════
+
+▶ 3.1.1  COMPANY DESCRIPTION
+────────────────────────────────────────────────────────────────────────
+Tata Chemicals Limited is a key player in the Indian Chemicals sector, operating within the Commodity Chemicals industry. The company is a leading global producer of soda ash, sodium bicarbonate, and other basic chemistry products that serve industries like glass, detergents, and food. As part of the Tata Group, it is also expanding its portfolio into specialty chemicals and nutritional sciences. Tata Chemicals has been a publicly listed company for several decades, evolving from a basic chemicals manufacturer to a more diversified science-led organization.
+
+▶ 3.1.2  KEY FUNDAMENTAL INDICATORS
+────────────────────────────────────────────────────────────────────────
+  • {'point': "The Price-to-Earnings (P/E) ratio is currently high at 64.9. This suggests the stock's price is significantly higher relative to its earnings per share (₹7.06), which can indicate an expensive valuation compared to its profit generation.", 'interpretation': 'A high P/E can be a point of caution, as the market may have high growth expectations that need to be met to justify the price.'}
+  • {'point': "The current price of ₹696.0 is below its Book Value per share of ₹877.0. This means the stock is trading at a discount to the company's net asset value on its books.", 'interpretation': 'For some investors, a price below book value can suggest the stock is potentially undervalued from an asset perspective.'}
+  • {'point': 'Return on Equity (ROE) is very low at 1.2%, and Return on Capital Employed (ROCE) is also low at 3.96%.', 'interpretation': "These figures indicate that the company is currently generating low profits from its shareholders' equity and total capital, suggesting operational inefficiency in the recent past."}
+  • {'point': 'The stock price has shown significant weakness over the medium term, with a 6-month decline of -22.96% and a 1-year decline of -19.77%.', 'interpretation': 'This sustained downward trend highlights poor past performance, although the recent 1-month gain of +10.23% shows a potential reversal or short-term recovery.'}
+  • {'point': 'The Dividend Yield is 1.59%.', 'interpretation': 'This provides a small, regular income to investors, but it is generally more relevant for long-term holders than for short-term traders focused on price movements.'}
+
+▶ 3.1.3  TECHNICAL INDICATORS
+────────────────────────────────────────────────────────────────────────
+  • {'point': 'The Relative Strength Index, RSI(14), is at 54.14.', 'interpretation': 'This value is in the neutral range (between 30 and 70), indicating that the stock is neither overbought nor oversold. It suggests a balance between buying and selling pressure in the short term.'}
+  • {'point': 'The MACD line (11.3176) is currently above the MACD Signal line (5.5483).', 'interpretation': 'This is a bullish crossover, which often signals the start of an upward momentum or trend for the short term.'}
+  • {'point': 'The Average Directional Index, ADX(14), is at 31.59, which is considered a strong value (above 25).', 'interpretation': 'This indicates that the current trend has strength. Combined with the recent price rise, it suggests the short-term uptrend is gaining traction.'}
+  • {'point': 'The current price (₹696.0) is above the 20-day EMA (₹683.27) and 50-day EMA (₹688.25), but below the 200-day EMA (₹775.34).', 'interpretation': 'This shows positive short-term momentum, but the stock remains in a long-term downtrend. The 200-day EMA could act as a significant resistance level.'}
+  • {'point': 'The price is trading in the upper half of its Bollinger Bands (Upper: ₹754.28, Lower: ₹575.81).', 'interpretation': 'Trading above the middle line of the Bollinger Bands is a positive sign, suggesting strength in the current price action.'}
+
+▶ 3.1.4  NEWS, ANNOUNCEMENTS & FINANCIAL STATEMENTS
+────────────────────────────────────────────────────────────────────────
+  • {'point': 'Recent news highlights a significant single-day price jump of 12% on April 24, 2026, which has contributed to the positive 1-month performance.', 'interpretation': 'This event created strong short-term interest and momentum, but such sharp moves can also be followed by corrections.'}
+  • {'point': 'Multiple sources have announced that the company will hold its Q4 and FY26 earnings call on May 4, 2026.', 'interpretation': "This is a critical upcoming event. The stock price is likely to be volatile around this date as investors react to the financial results and management's future outlook."}
+  • {'point': "A news item mentions the company's strategic shift towards specialty chemicals.", 'interpretation': 'While this is a long-term strategy, any positive updates on this front during the upcoming earnings call could boost short-term investor sentiment.'}
+
+  Financial Statements:
+    → {'point': 'Quarterly and annual results are available. The upcoming Q4FY26 results on May 4th will be crucial to assess if revenue and profit trends are improving from the low levels indicated by the current ROE of 1.2%.', 'interpretation': 'Investors should compare the new results with previous quarters to identify signs of a turnaround or continued weakness.'}
+    → {'point': "The balance sheet is available for review. Given the stock price (₹696.0) is below book value (₹877.0), examining the company's debt levels and the quality of its assets is important to understand its financial stability.", 'interpretation': 'A strong balance sheet would support the idea that the stock is undervalued, while high debt could be a risk.'}
+    → {'point': "The cash flow statement is available. It is important to check the 'Cash Flow from Operations' to see if the company is generating healthy cash, which is a more direct measure of business health than net profit.", 'interpretation': "Positive and growing operating cash flow is a strong indicator of a company's fundamental health."}
+    → {'point': 'The shareholding pattern is available. Changes in holdings by promoters, Foreign Institutional Investors (FIIs), and Domestic Institutional Investors (DIIs) should be monitored.', 'interpretation': "An increase in institutional ownership can be a sign of growing confidence in the company's prospects."}
+
+▶ 3.1.5  AI TAKEAWAY (SHORT TERM (1 DAY – 3 MONTHS))
+────────────────────────────────────────────────────────────────────────
+For the short term, the outlook for Tata Chemicals is NEUTRAL. The stock shows conflicting signals: technical indicators like the MACD crossover and a strong ADX (31.59) suggest bullish momentum, supported by a recent 10.23% monthly price gain. However, fundamental metrics are weak, with a high P/E of 64.9 and a very low ROE of 1.2%. The most significant factor is the upcoming earnings announcement on May 4, 2026, which introduces major uncertainty and potential for high volatility. The outcome of this event will likely determine the stock's direction in the coming weeks. This is NOT financial advice — consult a SEBI-registered advisor.
+
+▶ 4.     KNOWLEDGE GRAPH
+────────────────────────────────────────────────────────────────────────
+╔══════════════════════════════════════════════════════════════════════╗
+║  KNOWLEDGE GRAPH — TATACHEM                                          ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+  ┌─────────────────────────────────────────┐
+  │  COMPANY: Tata Chemicals Limited                  │
+  │  Symbol:  TATACHEM      Exchange: NSE              │
+  │  Sector:  Chemicals                               │
+  └─────────────────────────────────────────┘
+                         │
+       ┌─────────────────┼──────────────────┐
+       │                 │                  │
+       ▼                 ▼                  ▼
+
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
+  │  PRICE NODE  │  │  FUND. NODE  │  │  TECHNICALS NODE     │
+  │──────────────│  │──────────────│  │──────────────────────│
+  │ ₹696.0         │  │ P/E   : 64.9     │  │ RSI(14): 54.139 [RSI:]      │
+  │ 1D: -1.65%    │  │ P/B   : N/A      │  │ MACD  : 11.317 [N/A]       │
+  │              │  │ ROE   : 1.2  %  │  │ ADX   : 31.595 [POSITIVE]  │
+  │              │  │ ROCE  : 3.96 %  │  │ EMA   :        [N/A]       │
+  │              │  │ EPS   : 7.06     │  │ BB    :        [N/A]       │
+  │              │  │ MCap  : 17661000 │  │ Signal:   [N/A]         │
+  └──────────────┘  └──────────────┘  └──────────────────────┘
+
+       ┌─────────────────┼──────────────────┐
+       │                 │                  │
+       ▼                 ▼                  ▼
+
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
+  │  NEWS NODE   │  │  ANNOUNCE.   │  │  FINANCIALS NODE     │
+  │──────────────│  │  NODE        │  │──────────────────────│
+  │ 6 headlines│  │──────────────│  │ Tables available:    │
+  │              │  │ 0 items     │  │ Quarterly Results, Annual Results │
+  │              │  │              │  │ Balance Sheet, Cash Flow │
+  │              │  │              │  │ Shareholding         │
+  └──────────────┘  └──────────────┘  └──────────────────────┘
+
+  Price Movement Summary:
+  1w: -1.69%  |  1mo: +10.23%  |  6mo: -22.96%  |  1y: -19.77%
+
+  Edge Legend:
+  ── Agreement (signals aligned)   ~~~ Contradiction (signals conflict)
+  === Neutral / Inconclusive        *** Data unavailable
+
+════════════════════════════════════════════════════════════════════════
+END OF REPORT  |  Total run time: 88.7s
+════════════════════════════════════════════════════════════════════════

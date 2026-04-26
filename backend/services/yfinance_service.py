@@ -688,7 +688,7 @@ async def get_history(symbol: str, period: str = "1y") -> dict:
             return []
 
     try:
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         closes = await loop.run_in_executor(None, _download)
     except Exception as e:
         logger.warning(f"get_history executor failed for {symbol}: {e}")
@@ -697,13 +697,57 @@ async def get_history(symbol: str, period: str = "1y") -> dict:
     return {"symbol": symbol, "period": period, "closes": closes}
 
 
+def _fetch_from_groww(symbol: str) -> dict:
+    """
+    Fetch live quote from Groww Trade API.
+    Returns normalised price dict or raises on failure.
+    """
+    try:
+        from fetchers.groww_client import get_quote
+    except ModuleNotFoundError:
+        from backend.fetchers.groww_client import get_quote
+
+    q = get_quote(symbol)
+    if not q or not q.get("last_price"):
+        raise ValueError(f"Groww returned no price for {symbol}")
+
+    price = float(q["last_price"])
+    prev  = float(q.get("prev_close") or price)
+    return {
+        "exchange":       "NSE",
+        "company_name":   symbol,
+        "industry":       None,
+        "sector":         None,
+        "price":          round(price, 2),
+        "previous_close": round(prev, 2),
+        "change":         round(price - prev, 2),
+        "change_percent": round(((price - prev) / prev) * 100, 2) if prev else 0.0,
+        "open":           q.get("open"),
+        "day_high":       q.get("high"),
+        "day_low":        q.get("low"),
+        "week_52_high":   q.get("week_52_high"),
+        "week_52_low":    q.get("week_52_low"),
+        "volume":         q.get("volume"),
+        "market_cap":     None,   # Groww quote doesn't expose market cap
+        "pe_ratio":       None,
+        "pb_ratio":       None,
+        "eps":            None,
+        "dividend_yield": None,
+        "beta":           None,
+        "description":    None,
+        "website":        None,
+        "employees":      None,
+    }
+
+
 async def get_price_and_fundamentals(symbol: str) -> dict:
     """
     Async entry point for all services.
     Flow:
       1. Try NSE via nsepython (direct NSE API, fastest, no rate limits)
-      2. If NSE fails → try Yahoo chart API (no crumb, works for BSE stocks)
-      3. If both fail → raise ValueError
+      2. If NSE fails → try Groww Trade API (reliable, uses our authenticated client)
+      3. If Groww fails → try Yahoo chart API (no crumb, works for BSE stocks)
+      4. If all fail → raise ValueError
 
     The result always has the same keys — some may be None if source
     doesn't provide them (frontend shows "—" for null fields).
@@ -712,15 +756,25 @@ async def get_price_and_fundamentals(symbol: str) -> dict:
 
     # Stage 1: NSE direct
     try:
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         data = await loop.run_in_executor(None, _fetch_from_nse, symbol)
-        data["symbol"] = symbol          # ← add symbol key
+        data["symbol"] = symbol
         logger.info(f"Quote source: NSE direct for {symbol}")
         return data
     except Exception as e:
-        logger.warning(f"NSE direct failed for {symbol}: {e}. Trying Yahoo chart...")
+        logger.warning(f"NSE direct failed for {symbol}: {e}. Trying Groww...")
 
-    # Stage 2: Yahoo chart API (BSE fallback)
+    # Stage 2: Groww Trade API
+    try:
+        loop = asyncio.get_running_loop()
+        data = await loop.run_in_executor(None, _fetch_from_groww, symbol)
+        data["symbol"] = symbol
+        logger.info(f"Quote source: Groww for {symbol}")
+        return data
+    except Exception as e:
+        logger.warning(f"Groww quote failed for {symbol}: {e}. Trying Yahoo chart...")
+
+    # Stage 3: Yahoo chart API (BSE fallback)
     data = await _fetch_from_yahoo_chart(symbol)
-    data["symbol"] = symbol              # ← add symbol key
+    data["symbol"] = symbol
     return data

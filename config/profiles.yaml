@@ -1,0 +1,103 @@
+# profiles.yaml — User profile → analysis weight map
+#
+# A user's profile has three dimensions:
+#   horizon:  "short" | "long"
+#   risk:     "conservative" | "moderate" | "aggressive"
+#   sector:   free text (does NOT change weights — affects peer selection only)
+#
+# Category weights: how much of the final signal comes from each data layer.
+# These are the OUTER weights (how to combine the 4 category verdicts).
+# The INNER weights (which indicator matters within a category) live in weights.yaml.
+
+# ── Category mix by horizon ───────────────────────────────────────────────────
+# Source: ARCHITECTURE.md §8
+
+category_mix:
+  short:
+    technical:    0.50
+    news:         0.30
+    fundamental:  0.15
+    announcement: 0.05
+
+  long:
+    technical:    0.20
+    news:         0.10
+    fundamental:  0.50
+    announcement: 0.20
+
+# ── Risk adjustments ──────────────────────────────────────────────────────────
+# Applied AFTER category mix to individual signal verdicts.
+# Multipliers shift emphasis without changing the category split.
+#
+# Conservative: amplify negatives + volatility signals (caution-first)
+# Moderate:     no adjustment (baseline)
+# Aggressive:   amplify positive momentum, dampen volatility warnings
+
+risk_adjustments:
+  conservative:
+    negative_signal_multiplier:   1.3   # negative nodes count 30% more
+    volatility_signal_multiplier: 1.2   # ATR, BB signals count 20% more
+    positive_signal_multiplier:   1.0
+    description: "Prioritise downside protection. Volatility and negative signals weigh more."
+
+  moderate:
+    negative_signal_multiplier:   1.0
+    volatility_signal_multiplier: 1.0
+    positive_signal_multiplier:   1.0
+    description: "Balanced. No adjustment applied."
+
+  aggressive:
+    negative_signal_multiplier:   1.0
+    volatility_signal_multiplier: 0.9   # volatility warnings slightly dampened
+    positive_signal_multiplier:   1.2   # positive momentum signals count 20% more
+    description: "Growth-oriented. Positive momentum signals weigh more."
+
+# ── Profile buckets ───────────────────────────────────────────────────────────
+# Used as cache key component. Only horizon + risk matter for analysis weights.
+# Sector is separate (peer selection, not weight change).
+#
+# 2 horizons × 3 risks = 6 buckets total.
+# Cache key format: "{horizon}_{risk}"  e.g. "short_conservative"
+
+profile_buckets:
+  - "short_conservative"
+  - "short_moderate"
+  - "short_aggressive"
+  - "long_conservative"
+  - "long_moderate"
+  - "long_aggressive"
+
+# ── Chart window by horizon ───────────────────────────────────────────────────
+# What price history window to show in the user-facing report.
+
+chart_window:
+  short:
+    default: "3M"
+    options: ["1M", "3M", "6M"]
+  long:
+    default: "3Y"
+    options: ["1Y", "3Y", "5Y"]
+
+# ── News age cutoff by horizon ────────────────────────────────────────────────
+news_max_age_days:
+  short: 30
+  long:  90
+
+# ── Sector list (for UI dropdown and peer selection) ─────────────────────────
+# Not used in weight calculation. Displayed to user during profile setup.
+
+sectors:
+  - "IT & Technology"
+  - "Banking & Finance"
+  - "Pharmaceuticals"
+  - "FMCG"
+  - "Energy & Oil"
+  - "Automobiles"
+  - "Infrastructure & Real Estate"
+  - "Metals & Mining"
+  - "Telecom"
+  - "Consumer Durables"
+  - "Chemicals"
+  - "Healthcare"
+  - "Retail"
+  - "Defence & Aerospace"

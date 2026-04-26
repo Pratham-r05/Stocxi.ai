@@ -1,0 +1,282 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║  STOCXI  —  DEEP END-TO-END ANALYSIS TEST REPORT                    ║
+║  Time Horizon : Medium Term (3 Months – 1 Year)                      ║
+║  Stocks       : MOTHERSON, PAGEIND, PIIND                            ║
+║  Run Time     : 2026-04-26 18:30:10 UTC                              ║
+║  AI Model     : google/gemini-2.5-pro                                ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+DISCLAIMER: All analysis in this file is AI-generated for testing
+purposes only. It is NOT financial advice. Do NOT make investment
+decisions based on this output. Consult a SEBI-registered advisor.
+
+════════════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════════════
+STOCK 1  |  MOTHERSON  |  Medium Term (3 Months – 1 Year)
+Generated: 2026-04-26 18:30:38 UTC
+════════════════════════════════════════════════════════════════════════
+
+▶ 3.1.1  COMPANY DESCRIPTION
+────────────────────────────────────────────────────────────────────────
+Samvardhana Motherson International Limited is a major player in the global Automobile and Auto Components sector. The company manufactures a diverse range of products including wiring harnesses, vision systems (mirrors), modules, and polymer products for automotive original equipment manufacturers (OEMs) worldwide. As a large-cap company with a significant global footprint, it serves as a key supplier to nearly all major vehicle manufacturers, reflecting its integral role in the automotive supply chain.
+
+▶ 3.1.2  KEY FUNDAMENTAL INDICATORS
+────────────────────────────────────────────────────────────────────────
+  • The Price-to-Earnings (P/E) ratio stands at 37.6, which is relatively high. This suggests that investors have high expectations for future earnings growth and are willing to pay a premium for the stock compared to its current earnings of ₹3.23 per share.
+  • Return on Equity (ROE) is 12.2% and Return on Capital Employed (ROCE) is 13.7%. These figures indicate moderate profitability and efficiency in using shareholder funds and total capital to generate profits.
+  • The stock is trading at approximately 3.58 times its Book Value of ₹35.2. This Price-to-Book (P/B) value indicates the market values the company's future growth prospects and intangible assets significantly higher than its net asset value on paper.
+  • The Dividend Yield is low at 0.45%. This suggests the company prefers to reinvest a majority of its profits back into the business for expansion and growth, rather than distributing them to shareholders as dividends.
+  • With a Market Capitalization of ₹1,32,669 Cr, Samvardhana Motherson is a large-cap stock. This generally implies greater financial stability, a well-established market position, and higher trading liquidity compared to smaller companies.
+
+▶ 3.1.3  TECHNICAL INDICATORS
+────────────────────────────────────────────────────────────────────────
+  • The RSI(14) is 56.7, which is in the neutral range (between 30 and 70). This indicates that the stock is neither overbought nor oversold, suggesting balanced momentum with room for movement in either direction.
+  • The MACD line (2.6856) is positioned above its Signal line (1.109). This crossover is typically considered a bullish signal, indicating positive momentum has recently increased.
+  • The ADX(14) value is 25.22, which suggests a strengthening trend. An ADX value above 25 indicates that the current price trend (which is upwards based on price movement) is gaining strength.
+  • The stock price (₹125.9) is trading above its key short, medium, and long-term moving averages: EMA 20 (₹121.02), EMA 50 (₹119.61), and EMA 200 (₹119.33). This alignment is a strong bullish indicator, confirming a sustained uptrend.
+  • The current price is trading in the upper half of the Bollinger Bands, closer to the upper band of ₹133.35. This signals strong buying pressure, though the upper band may act as a potential resistance level in the short term.
+
+▶ 3.1.4  NEWS, ANNOUNCEMENTS & FINANCIAL STATEMENTS
+────────────────────────────────────────────────────────────────────────
+  • Recent news highlights that major brokerage firms like Citi and Jefferies have increased their target price for the stock. This institutional confidence can positively influence market sentiment and attract more investors.
+  • Reports from Markets Mojo indicate a significant surge in Open Interest. This points to increased trader participation and activity in the stock's derivatives, which often precedes or accompanies price volatility and trend continuation.
+  • The company was recognized in the 2026 Hurun Successors list as a top employer. While this is positive for the company's brand and reputation, it is unlikely to have a direct, immediate impact on the stock price.
+
+  Financial Statements:
+    → The positive Earnings Per Share (EPS) of ₹3.23 and moderate ROE of 12.2% confirm the company is profitable. Investors should review the available quarterly and annual results to assess the consistency and growth rate of revenue and net profit over the last several periods.
+    → The balance sheet shows a Book Value of ₹35.2 per share. The health of the balance sheet can be further assessed by examining the debt-to-equity ratio and current ratio from the available financial statements to understand its leverage and liquidity.
+    → The availability of the Cash Flow statement is crucial. Investors should check if the company is generating positive cash flow from its core operations, as this is a key indicator of a healthy, self-sustaining business.
+    → The shareholding pattern, which is available for review, should be checked to understand the level of promoter commitment (promoter holding), institutional interest (FII/DII holding), and whether any promoter shares are pledged.
+
+▶ 3.1.5  AI TAKEAWAY (MEDIUM TERM (3 MONTHS – 1 YEAR))
+────────────────────────────────────────────────────────────────────────
+For the medium term (3 months to 1 year), the outlook for Samvardhana Motherson appears BULLISH. This is supported by strong technical indicators, including a sustained uptrend with the price above all key EMAs and a bullish MACD crossover. Positive sentiment from analyst target price hikes and strong one-year price performance of +38.45% further reinforce this view. While the valuation is high with a P/E of 37.6, the market momentum and growth expectations seem to be driving the stock. This is NOT financial advice — consult a SEBI-registered advisor.
+
+▶ 4.     KNOWLEDGE GRAPH
+────────────────────────────────────────────────────────────────────────
+╔══════════════════════════════════════════════════════════════════════╗
+║  KNOWLEDGE GRAPH — MOTHERSON                                         ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+  ┌─────────────────────────────────────────┐
+  │  COMPANY: Samvardhana Motherson International Limi│
+  │  Symbol:  MOTHERSON     Exchange: NSE              │
+  │  Sector:  Automobile and Auto Components          │
+  └─────────────────────────────────────────┘
+                         │
+       ┌─────────────────┼──────────────────┐
+       │                 │                  │
+       ▼                 ▼                  ▼
+
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
+  │  PRICE NODE  │  │  FUND. NODE  │  │  TECHNICALS NODE     │
+  │──────────────│  │──────────────│  │──────────────────────│
+  │ ₹125.9         │  │ P/E   : 37.6     │  │ RSI(14): 56.696 [RSI:]      │
+  │ 1D: -1.04%    │  │ P/B   : N/A      │  │ MACD  : 2.6856 [N/A]       │
+  │              │  │ ROE   : 12.2 %  │  │ ADX   : 25.219 [POSITIVE]  │
+  │              │  │ ROCE  : 13.7 %  │  │ EMA   :        [N/A]       │
+  │              │  │ EPS   : 3.23     │  │ BB    :        [N/A]       │
+  │              │  │ MCap  : 13266900 │  │ Signal:   [N/A]         │
+  └──────────────┘  └──────────────┘  └──────────────────────┘
+
+       ┌─────────────────┼──────────────────┐
+       │                 │                  │
+       ▼                 ▼                  ▼
+
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
+  │  NEWS NODE   │  │  ANNOUNCE.   │  │  FINANCIALS NODE     │
+  │──────────────│  │  NODE        │  │──────────────────────│
+  │ 10 headlines│  │──────────────│  │ Tables available:    │
+  │              │  │ 0 items     │  │ Quarterly Results, Annual Results │
+  │              │  │              │  │ Balance Sheet, Cash Flow │
+  │              │  │              │  │ Shareholding         │
+  └──────────────┘  └──────────────┘  └──────────────────────┘
+
+  Price Movement Summary:
+  1w: +1.62%  |  1mo: +9.58%  |  6mo: +18.31%  |  1y: +38.45%
+
+  Edge Legend:
+  ── Agreement (signals aligned)   ~~~ Contradiction (signals conflict)
+  === Neutral / Inconclusive        *** Data unavailable
+
+
+════════════════════════════════════════════════════════════════════════
+STOCK 2  |  PAGEIND  |  Medium Term (3 Months – 1 Year)
+Generated: 2026-04-26 18:31:07 UTC
+════════════════════════════════════════════════════════════════════════
+
+▶ 3.1.1  COMPANY DESCRIPTION
+────────────────────────────────────────────────────────────────────────
+Page Industries Limited is the exclusive licensee of JOCKEY International Inc. for manufacturing, distribution, and marketing in India, Sri Lanka, Bangladesh, Nepal, and the UAE. The company operates in the textiles and apparel industry, primarily known for its premium innerwear, loungewear, and sportswear products under the Jockey brand, and swimwear under the Speedo brand. It has established a strong brand presence and a wide distribution network across India since its inception.
+
+▶ 3.1.2  KEY FUNDAMENTAL INDICATORS
+────────────────────────────────────────────────────────────────────────
+  • The Price-to-Earnings (P/E) ratio stands at 54.2, which is relatively high. This suggests that investors have high expectations for future earnings growth, or that the stock is priced at a premium compared to its current earnings of ₹671.61 per share.
+  • The company demonstrates exceptional profitability with a Return on Equity (ROE) of 48.5% and a Return on Capital Employed (ROCE) of 59.4%. These figures indicate highly efficient use of shareholder funds and total capital to generate profits.
+  • The Dividend Yield is 2.39%, which is a reasonable return for shareholders. This shows the company's ability and willingness to share profits, even while being valued as a growth company.
+  • The stock is currently trading at ₹37,700, which is 25.3% below its 52-week high of ₹50,590 but 26.5% above its 52-week low of ₹29,805. This indicates significant volatility over the past year.
+  • With a market capitalization of ₹42,011 Cr, Page Industries is a large-cap company. This size generally implies a more stable business model compared to smaller companies in the sector.
+
+▶ 3.1.3  TECHNICAL INDICATORS
+────────────────────────────────────────────────────────────────────────
+  • The RSI(14) is at 69.775, which is very close to the overbought threshold of 70. This suggests that the recent upward price momentum may be nearing its peak, and a period of consolidation or a minor pullback could occur.
+  • The MACD line (1475.45) is positioned significantly above its signal line (1262.39). This is a bullish indicator, signaling strong positive momentum in the stock's price in the recent past.
+  • The ADX(14) value is 43.3914, which indicates a very strong trend. Combined with the recent price increase of 12.82% in one month, this confirms the strength of the current uptrend.
+  • The 20-day EMA (₹35,900.55) has crossed above the 50-day EMA (₹34,619.02), signaling bullish short-term momentum. However, the current price is trading just above its 200-day EMA (₹37,669.48), a key long-term level that could act as support or resistance.
+  • The current price is trading in the upper half of the Bollinger Bands, closer to the upper band of ₹39,915.28. This suggests the price is strong but could be considered expensive in the very short term.
+
+▶ 3.1.4  NEWS, ANNOUNCEMENTS & FINANCIAL STATEMENTS
+────────────────────────────────────────────────────────────────────────
+  • The upcoming board meeting on May 21, 2026, to discuss FY26 results and a potential dividend is a key event. The outcome and management's future outlook will likely cause significant price movement.
+  • A report of a 'Significant Open Interest Surge' suggests increased speculative activity from traders. This can lead to higher price volatility, especially around the earnings announcement.
+  • The stock's inclusion in analyst reports and market outlooks (e.g., 'Stocks to buy, sell or hold') indicates it is being actively watched by the market, which can contribute to trading volume and price sensitivity to news.
+
+  Financial Statements:
+    → Investors should examine the quarterly and annual results for revenue and profit trends. A key question is whether the growth rate justifies the high P/E ratio of 54.2, especially given the stock's -16.33% performance over the last year.
+    → Analysis of the balance sheet is crucial to assess the company's debt levels. A low debt-to-equity ratio would indicate a strong financial position, which is important for navigating economic uncertainties.
+    → The cash flow statement should be checked to confirm if the company is generating strong cash from its core operations. Positive operating cash flow is essential for funding dividends, capital expenditure, and managing debt.
+    → The shareholding pattern provides insight into investor confidence. A stable or increasing promoter and institutional (FII/DII) holding is generally a positive sign, while significant selling could be a cause for concern.
+
+▶ 3.1.5  AI TAKEAWAY (MEDIUM TERM (3 MONTHS – 1 YEAR))
+────────────────────────────────────────────────────────────────────────
+For the medium term, the outlook for Page Industries is NEUTRAL. The stock presents a conflicting picture: strong fundamentals like a high ROCE of 59.4% are pitted against a high valuation with a P/E ratio of 54.2. Technically, while recent momentum is strong (+12.82% in 1 month), the RSI at 69.77 suggests the stock is approaching an overbought condition. The upcoming earnings announcement is a major catalyst that could provide a clearer direction, making a wait-and-watch approach prudent. This is NOT financial advice — consult a SEBI-registered advisor.
+
+▶ 4.     KNOWLEDGE GRAPH
+────────────────────────────────────────────────────────────────────────
+╔══════════════════════════════════════════════════════════════════════╗
+║  KNOWLEDGE GRAPH — PAGEIND                                           ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+  ┌─────────────────────────────────────────┐
+  │  COMPANY: Page Industries Limited                 │
+  │  Symbol:  PAGEIND       Exchange: NSE              │
+  │  Sector:  Textiles                                │
+  └─────────────────────────────────────────┘
+                         │
+       ┌─────────────────┼──────────────────┐
+       │                 │                  │
+       ▼                 ▼                  ▼
+
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
+  │  PRICE NODE  │  │  FUND. NODE  │  │  TECHNICALS NODE     │
+  │──────────────│  │──────────────│  │──────────────────────│
+  │ ₹37700.0       │  │ P/E   : 54.2     │  │ RSI(14): 69.775 [RSI:]      │
+  │ 1D: -0.70%    │  │ P/B   : N/A      │  │ MACD  : 1475.4 [N/A]       │
+  │              │  │ ROE   : 48.5 %  │  │ ADX   : 43.391 [POSITIVE]  │
+  │              │  │ ROCE  : 59.4 %  │  │ EMA   :        [N/A]       │
+  │              │  │ EPS   : 671.61   │  │ BB    :        [N/A]       │
+  │              │  │ MCap  : 42011000 │  │ Signal:   [N/A]         │
+  └──────────────┘  └──────────────┘  └──────────────────────┘
+
+       ┌─────────────────┼──────────────────┐
+       │                 │                  │
+       ▼                 ▼                  ▼
+
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
+  │  NEWS NODE   │  │  ANNOUNCE.   │  │  FINANCIALS NODE     │
+  │──────────────│  │  NODE        │  │──────────────────────│
+  │ 5 headlines│  │──────────────│  │ Tables available:    │
+  │              │  │ 0 items     │  │ Quarterly Results, Annual Results │
+  │              │  │              │  │ Balance Sheet, Cash Flow │
+  │              │  │              │  │ Shareholding         │
+  └──────────────┘  └──────────────┘  └──────────────────────┘
+
+  Price Movement Summary:
+  1w: +0.00%  |  1mo: +12.82%  |  6mo: -8.19%  |  1y: -16.33%
+
+  Edge Legend:
+  ── Agreement (signals aligned)   ~~~ Contradiction (signals conflict)
+  === Neutral / Inconclusive        *** Data unavailable
+
+
+════════════════════════════════════════════════════════════════════════
+STOCK 3  |  PIIND  |  Medium Term (3 Months – 1 Year)
+Generated: 2026-04-26 18:31:37 UTC
+════════════════════════════════════════════════════════════════════════
+
+▶ 3.1.1  COMPANY DESCRIPTION
+────────────────────────────────────────────────────────────────────────
+PI Industries Limited is a prominent player in the Indian agrochemicals sector. The company operates through two main business segments: domestic agri-inputs, offering a range of insecticides, fungicides, and herbicides, and Custom Synthesis & Manufacturing (CSM), where it partners with global innovators for research, development, and production of novel molecules. Founded in 1946, PI Industries has built a reputation for its strong R&D capabilities and long-term relationships with global agrochemical companies, making the CSM segment a significant growth driver.
+
+▶ 3.1.2  KEY FUNDAMENTAL INDICATORS
+────────────────────────────────────────────────────────────────────────
+  • The Price to Earnings (P/E) ratio stands at 34.2, which suggests that investors have high growth expectations from the company. This valuation is higher than many peers, indicating the stock is priced at a premium, likely due to its strong position in the high-margin Custom Synthesis business.
+  • Return on Capital Employed (ROCE) is a healthy 22.9% and Return on Equity (ROE) is 17.6%. These figures indicate that the company is efficiently using its capital and shareholder funds to generate profits, a sign of strong operational performance and management effectiveness.
+  • The stock's current price of ₹3075.0 is trading closer to its 52-week low (₹2700) than its 52-week high (₹4330). This reflects a significant price correction of -15.78% over the past year, which could present a different valuation perspective compared to when it was at its peak.
+  • The company's Earnings Per Share (EPS) is ₹95.64. This solid profitability underpins the company's operations and its capacity for future investment and growth, despite the recent stock price underperformance.
+  • Dividend Yield is low at 0.52%. This suggests that the company prefers to reinvest a majority of its earnings back into the business for expansion and R&D, a common strategy for growth-oriented companies in the specialty chemicals space.
+
+▶ 3.1.3  TECHNICAL INDICATORS
+────────────────────────────────────────────────────────────────────────
+  • The RSI(14) is 57.59, which is in the neutral zone (between 30 and 70). This indicates that the stock is neither overbought nor oversold at the current price, suggesting balanced momentum with room for movement in either direction.
+  • The MACD line (32.51) is positioned above its Signal line (7.55). This is typically interpreted as a bullish crossover, signaling positive upward momentum in the short term.
+  • The ADX(14) value is 13.98, which is very low (below 20). This indicates a weak or non-existent trend. The stock appears to be in a consolidation phase, and recent price movements lack strong directional conviction.
+  • The current price is above the short-term 20-day EMA (₹2990.19) and 50-day EMA (₹3017.17), which is a positive sign. However, it remains significantly below the long-term 200-day EMA (₹3308.29), indicating that the stock is still in a long-term downtrend despite the recent bounce.
+  • The stock is trading in the upper half of its Bollinger Bands (Upper: ₹3181.71, Lower: ₹2686.12). This suggests some positive price pressure, but the price has not yet challenged the upper band, which would signal stronger bullish momentum.
+
+▶ 3.1.4  NEWS, ANNOUNCEMENTS & FINANCIAL STATEMENTS
+────────────────────────────────────────────────────────────────────────
+  • No recent news or corporate announcements were provided. The absence of company-specific news flow means the stock's price is likely being influenced more by broader market trends, sector-specific sentiment, and its own technical and fundamental characteristics.
+  • Investors should monitor future announcements, particularly regarding quarterly earnings, new contracts in the CSM business, or updates on its diversification into the pharma sector, as these could act as significant catalysts.
+  • Without any immediate news triggers, the stock may continue to trade based on technical levels and overall market direction in the near term.
+
+  Financial Statements:
+    → While specific financial tables were not provided, the given EPS of ₹95.64 indicates a profitable operation. An analysis of quarterly and annual trends in revenue and net profit would be essential to understand the growth trajectory and identify any seasonality or slowdowns.
+    → The strong ROCE of 22.9% suggests a healthy balance sheet and efficient asset utilization. A deeper look at the debt-to-equity ratio and current ratio from the balance sheet is necessary to confirm its long-term financial stability.
+    → Analysis of the cash flow statement is crucial to see if the company is generating positive cash from operations, which is vital for funding its capital-intensive R&D and manufacturing expansion plans without relying heavily on debt.
+    → The shareholding pattern would provide insights into investor confidence. Stable or increasing promoter holding and rising ownership by institutional investors (FIIs/DIIs) are generally considered positive signs.
+
+▶ 3.1.5  AI TAKEAWAY (MEDIUM TERM (3 MONTHS – 1 YEAR))
+────────────────────────────────────────────────────────────────────────
+For the medium term (3-12 months), the outlook for PI Industries appears NEUTRAL. The company's fundamentals are robust, highlighted by a strong ROCE of 22.9%, but this is countered by a premium valuation with a P/E ratio of 34.2. Technically, the stock shows signs of a short-term bounce with a positive MACD crossover, but it remains in a long-term downtrend, trading below its 200-day EMA of ₹3308. The weak ADX at 13.98 suggests the stock is consolidating rather than starting a new, strong trend. A sustained move above the 200-day EMA would be needed to signal a more bullish outlook. This is NOT financial advice — consult a SEBI-registered advisor.
+
+▶ 4.     KNOWLEDGE GRAPH
+────────────────────────────────────────────────────────────────────────
+╔══════════════════════════════════════════════════════════════════════╗
+║  KNOWLEDGE GRAPH — PIIND                                             ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+  ┌─────────────────────────────────────────┐
+  │  COMPANY: PI Industries Limited                   │
+  │  Symbol:  PIIND         Exchange: NSE              │
+  │  Sector:  Chemicals                               │
+  └─────────────────────────────────────────┘
+                         │
+       ┌─────────────────┼──────────────────┐
+       │                 │                  │
+       ▼                 ▼                  ▼
+
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
+  │  PRICE NODE  │  │  FUND. NODE  │  │  TECHNICALS NODE     │
+  │──────────────│  │──────────────│  │──────────────────────│
+  │ ₹3075.0        │  │ P/E   : 34.2     │  │ RSI(14): 57.590 [RSI:]      │
+  │ 1D: +0.18%    │  │ P/B   : N/A      │  │ MACD  : 32.510 [N/A]       │
+  │              │  │ ROE   : 17.6 %  │  │ ADX   : 13.983 [NEUTRAL]   │
+  │              │  │ ROCE  : 22.9 %  │  │ EMA   :        [N/A]       │
+  │              │  │ EPS   : 95.64    │  │ BB    :        [N/A]       │
+  │              │  │ MCap  : 46747000 │  │ Signal:   [N/A]         │
+  └──────────────┘  └──────────────┘  └──────────────────────┘
+
+       ┌─────────────────┼──────────────────┐
+       │                 │                  │
+       ▼                 ▼                  ▼
+
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
+  │  NEWS NODE   │  │  ANNOUNCE.   │  │  FINANCIALS NODE     │
+  │──────────────│  │  NODE        │  │──────────────────────│
+  │ 0 headlines│  │──────────────│  │ Tables available:    │
+  │              │  │ 0 items     │  │ Quarterly Results, Annual Results │
+  │              │  │              │  │ Balance Sheet, Cash Flow │
+  │              │  │              │  │ Shareholding         │
+  └──────────────┘  └──────────────┘  └──────────────────────┘
+
+  Price Movement Summary:
+  1w: -0.61%  |  1mo: +5.11%  |  6mo: -14.01%  |  1y: -15.78%
+
+  Edge Legend:
+  ── Agreement (signals aligned)   ~~~ Contradiction (signals conflict)
+  === Neutral / Inconclusive        *** Data unavailable
+
+════════════════════════════════════════════════════════════════════════
+END OF REPORT  |  Total run time: 87.2s
+════════════════════════════════════════════════════════════════════════

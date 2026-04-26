@@ -13,5 +13,6 @@
         "true": true,
         "/Users/prathamraj/miniforge3/envs/stocxi/bin/python": true,
         "conda": true
-    }
+    },
+    "liveServer.settings.port": 5501
 }

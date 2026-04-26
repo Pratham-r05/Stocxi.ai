@@ -1,411 +1,182 @@
 """
-news_service.py — Recent news headlines for a stock symbol.
+news_service.py — Top-10 stock news with key sentence extraction.
 
-AI_CONTEXT.md spec: "News | yfinance .news property | Good enough for phase 1"
+Waterfall (L1 → L2):
+  L1: newsdata.io REST API  (NEWSDATA_API_KEY required; confidence=0.80)
+  L2: Google News RSS        (free; confidence=0.50)
 
-Reality: yfinance .news also hits crumb-gated endpoints and 429s with our IP.
+For each article the service:
+  1. Calls article_extractor.extract_key_sentence on description+content.
+  2. Produces a one-line stock_impact via article_extractor.derive_stock_impact.
+  3. Returns a normalised dict with fields: title, description, content,
+     key_sentence, stock_impact, link, published, source, source_name.
 
-Fix: Primary source = ScanX stock-news pages
-    URL: https://scanx.trade/stock-news/{company-slug}
-    - Parse Angular SSR ng-state JSON for company-specific latest stories
-    - Build stable article links: /stock-market-news/{category}/{slug}/{id}
-    - Keep only last 7 days for genuinely recent headlines
-
-Fallback 1: Google News RSS
-  URL: https://news.google.com/rss/search?q={symbol}+stock+NSE&hl=en-IN&gl=IN&ceid=IN:en
-  - Completely free, no auth, no API key, no rate limits
-  - Returns real financial news in English, India-focused
-  - Parse with stdlib xml.etree (no extra deps)
-
-Fallback 2: yfinance .news (works when Yahoo isn't throttling)
-Fallback 3: Empty list (never crash)
-
-Cache TTL: 7200s (2 hrs) — set in redis_client.py TTL_NEWS
+Max 10 articles returned, sorted newest-first.
+Never raises — returns [] on complete failure.
 """
 
+from __future__ import annotations
+
 import asyncio
-import json
 import logging
 import re
 from datetime import datetime, timedelta, timezone
-from html import unescape
+from typing import Any
 from urllib.parse import quote
 from xml.etree import ElementTree as ET
 
 import requests
 
+from backend.fetchers.newsdata_client import fetch_stock_news
+from backend.util.article_extractor import derive_stock_impact, extract_key_sentence
+
 logger = logging.getLogger(__name__)
 
-_HEADERS = {
+_MAX_NEWS       = 10
+_MAX_AGE_DAYS   = 7
+_TIMEOUT        = 10
+_HEADERS        = {
     "User-Agent": (
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
         "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    ),
-    "Accept": "application/rss+xml, application/xml, text/xml, */*",
+    )
 }
-_TIMEOUT = 10
-_MAX_NEWS = 10
-_NEWS_MAX_AGE_DAYS = 4  # only show recent news from last 4 days
-_SCANX_MAX_AGE_DAYS = 4  # ScanX feed recency window
-_SCANX_BASE_URL = "https://scanx.trade"
+
+# Signal-class keywords (mirrors agent_news._CLASS_KEYWORDS for impact lookup)
+_CLASS_KEYWORDS: list[tuple[str, list[str]]] = [
+    ("regulatory_sebi_action", ["sebi", "penalty", "investigation", "ban", "enforcement",
+                                 "adjudication", "insider trading", "show cause"]),
+    ("fraud_allegation",       ["fraud", "scam", "irregularity", "misappropriation",
+                                 "embezzlement", "manipulation", "siphon"]),
+    ("credit_rating_change",   ["downgrade", "upgrade", "crisil", "icra", "care ratings",
+                                 "fitch", "moody", "credit rating", "rating action"]),
+    ("leadership_change",      ["ceo", "chief executive", "cfo", "chief financial",
+                                 "managing director", "chairman", "resignation",
+                                 "quits", "appoints", "board change"]),
+    ("ma_event",               ["merger", "acquisition", "takeover", "demerger",
+                                 "amalgamation", "joint venture", "strategic alliance"]),
+    ("major_contract",         ["bags order", "wins contract", "secures deal",
+                                 "order win", "major contract", "new order"]),
+    ("dividend_or_buyback",    ["dividend", "buyback", "buy-back", "bonus share",
+                                 "special dividend", "interim dividend"]),
+]
 
 
-def _parse_published_datetime(published: str | None) -> datetime | None:
-    """Parse published timestamp into UTC datetime, supporting common formats."""
-    if not published:
-        return None
+# ── Public async entry point ─────────────────────────────────��────────────────
 
-    raw = str(published).strip()
-    if not raw:
-        return None
+async def get_news(symbol: str, company_name: str | None = None) -> list[dict[str, Any]]:
+    """
+    Fetch and enrich top-10 news articles for a stock, async entry point.
 
-    # Epoch seconds support (e.g. "1713163200" or "1713163200.0").
-    if re.fullmatch(r"\d+(?:\.\d+)?", raw):
-        try:
-            return datetime.fromtimestamp(float(raw), tz=timezone.utc)
-        except Exception:
-            return None
+    Runs the waterfall (newsdata.io → Google News RSS) in a thread pool,
+    then extracts key_sentence + stock_impact for each article.
 
-    # ISO-8601 support, including trailing Z.
-    try:
-        iso = raw[:-1] + "+00:00" if raw.endswith("Z") else raw
-        dt = datetime.fromisoformat(iso)
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
-        return dt.astimezone(timezone.utc)
-    except Exception:
-        pass
+    Args:
+        symbol:       NSE ticker (e.g. "RELIANCE").
+        company_name: Full company name for broader matching.
 
-    # RFC-style news dates.
-    for fmt in ("%a, %d %b %Y %H:%M:%S %Z", "%a, %d %b %Y %H:%M:%S %z"):
-        try:
-            dt = datetime.strptime(raw, fmt)
-            if dt.tzinfo is None:
-                dt = dt.replace(tzinfo=timezone.utc)
-            return dt.astimezone(timezone.utc)
-        except Exception:
-            continue
-
-    return None
-
-
-def _sort_news_articles(articles: list[dict]) -> list[dict]:
-    """Sort articles by published datetime (newest first, unknown dates last)."""
-    return sorted(
-        list(articles),
-        key=lambda item: _parse_published_datetime(item.get("published"))
-        or datetime.min.replace(tzinfo=timezone.utc),
-        reverse=True,
+    Returns:
+        list[dict] with fields: title, description, content, key_sentence,
+        stock_impact, link, published, source, source_name, signal_class.
+        Empty list on complete failure.
+    """
+    loop = asyncio.get_running_loop()
+    return await loop.run_in_executor(
+        None, _get_news_sync, symbol, company_name or ""
     )
 
 
-def _is_recent_news(published_iso: str, max_age_days: int = _NEWS_MAX_AGE_DAYS) -> bool:
-    """Return True if article was published within the provided age window."""
-    if not published_iso:
-        return True  # keep if date unknown
-    try:
-        dt_str = str(published_iso).strip()
-        if dt_str.endswith("Z"):
-            dt_str = dt_str[:-1] + "+00:00"
-        dt = datetime.fromisoformat(dt_str)
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
-        else:
-            dt = dt.astimezone(timezone.utc)
+# ── Sync pipeline ───────────────────────────────────────────────────────────��─
 
-        cutoff = datetime.now(timezone.utc) - timedelta(days=max_age_days)
-        return dt >= cutoff
-    except Exception:
-        return True  # keep on parse failure
+def _get_news_sync(symbol: str, company_name: str) -> list[dict[str, Any]]:
+    """
+    Sync waterfall: newsdata.io → Google News RSS.
 
+    Args:
+        symbol:       NSE ticker.
+        company_name: Full company name (may be empty string).
 
-def _is_relevant_news_title(title: str, symbol: str, company_name: str | None = None) -> bool:
-    """Keep only headlines clearly tied to the requested stock/company."""
-    text = str(title or "")
-    if not text.strip():
-        return False
+    Returns:
+        Enriched article list (max 10).
+    """
+    symbol = symbol.upper().strip()
 
-    low = text.lower()
-    normalized_title = re.sub(r"[^a-z0-9]+", " ", low).strip()
-    title_tokens = set(tok for tok in normalized_title.split() if tok)
+    # L1: newsdata.io
+    result = fetch_stock_news(symbol, company_name)
+    if result.ok:
+        raw_articles = _normalise_newsdata(result.payload, symbol, company_name)
+        if raw_articles:
+            logger.info("news_service: newsdata.io → %d articles for %s", len(raw_articles), symbol)
+            return _enrich(raw_articles, symbol, company_name)
 
-    def _canonical_token(token: str) -> str:
-        tok = token.lower().strip()
-        if not tok:
-            return ""
+    # L2: Google News RSS
+    logger.info("news_service: newsdata.io empty/missing for %s, trying Google News RSS", symbol)
+    raw_articles = _fetch_google_news_rss(symbol, company_name)
+    if raw_articles:
+        logger.info("news_service: Google News RSS → %d articles for %s", len(raw_articles), symbol)
+        return _enrich(raw_articles, symbol, company_name)
 
-        replacements = {
-            "pharmaceutical": "pharma",
-            "pharmaceuticals": "pharma",
-            "technologies": "tech",
-            "technology": "tech",
-            "laboratory": "labs",
-            "laboratories": "labs",
-            "industries": "industry",
-            "services": "service",
-        }
-        tok = replacements.get(tok, tok)
-
-        for suffix in ("ies", "ing", "ed", "es", "s"):
-            if len(tok) > 5 and tok.endswith(suffix):
-                tok = tok[: -len(suffix)]
-                break
-        return tok
-
-    symbol_l = symbol.lower().strip()
-    symbol_compact = re.sub(r"[^a-z0-9]+", "", symbol_l)
-    symbol_spaced = ""
-    if symbol_compact and company_name:
-        company_words = [
-            _canonical_token(tok)
-            for tok in re.findall(r"[a-z0-9]+", str(company_name).lower())
-            if tok and tok not in {"limited", "ltd", "plc", "inc", "corp", "co", "company", "india", "group"}
-        ]
-        if len(company_words) >= 2:
-            symbol_spaced = f"{company_words[0]} {company_words[1]}".strip()
-
-    has_symbol = bool(symbol_l and re.search(rf"\b{re.escape(symbol_l)}\b", low))
-    has_symbol_compact = bool(symbol_compact and symbol_compact in normalized_title.replace(" ", ""))
-    has_symbol_spaced = bool(symbol_spaced and symbol_spaced in normalized_title)
-
-    broad_noise = [
-        "stocks to watch",
-        "top brokerage ratings",
-        "market wrap",
-        "sensex",
-        "nifty today",
-        "share market live",
-        "pre-open",
-    ]
-
-    company_l = str(company_name or "").lower().strip()
-    company_tokens = [
-        _canonical_token(tok)
-        for tok in re.split(r"[^a-z0-9]+", company_l)
-        if tok and tok not in {"limited", "india", "group", "ltd", "plc", "inc", "corp", "co", "company"}
-    ]
-    company_tokens = [tok for tok in company_tokens if tok]
-
-    title_canonical_tokens = {_canonical_token(tok) for tok in title_tokens}
-    token_hits = sum(1 for tok in company_tokens if tok in title_canonical_tokens)
-    has_company = token_hits >= 1 or (company_l and company_l in low)
-
-    # Many Indian headlines use short company aliases (e.g., HUL, RIL, TCS, Sun Pharma).
-    acronym_candidates: set[str] = set()
-    company_words = [tok for tok in re.split(r"[^a-z0-9]+", company_l) if tok]
-    if len(company_words) >= 2:
-        acronym_full = "".join(tok[0] for tok in company_words if tok)
-        if len(acronym_full) >= 3:
-            acronym_candidates.add(acronym_full)
-
-        core_words = [
-            tok for tok in company_words
-            if tok not in {"limited", "ltd", "plc", "inc", "corp", "corporation", "co", "company", "india"}
-        ]
-        if len(core_words) >= 2:
-            acronym_core = "".join(tok[0] for tok in core_words if tok)
-            if len(acronym_core) >= 3:
-                acronym_candidates.add(acronym_core)
-
-            # First two core words often appear as a market alias (e.g., "sun pharma").
-            first = _canonical_token(core_words[0])
-            second = _canonical_token(core_words[1])
-            if first and second:
-                acronym_candidates.add(f"{first} {second}")
-                acronym_candidates.add(f"{first}{second}")
-
-    has_company_alias = any(
-        (
-            (" " in alias and alias in normalized_title)
-            or re.search(rf"\b{re.escape(alias)}\b", low)
-            or alias.replace(" ", "") in normalized_title.replace(" ", "")
-        )
-        for alias in acronym_candidates
-    )
-
-    if not (has_symbol or has_symbol_compact or has_symbol_spaced or has_company or has_company_alias):
-        return False
-
-    if any(marker in low for marker in broad_noise) and not (
-        has_symbol
-        or has_symbol_compact
-        or has_symbol_spaced
-        or token_hits >= 2
-        or has_company_alias
-    ):
-        return False
-
-    return True
+    logger.warning("news_service: no news from any source for %s", symbol)
+    return []
 
 
-def _to_scanx_company_slug(company_name: str | None, symbol: str) -> str | None:
-    """Convert company name to a likely ScanX stock-news slug."""
-    if not company_name:
-        return None
+# ── Normalisers ────────────────────────────────��──────────────────────────────
 
-    replacements = {
-        "limited": "ltd",
-        "ltd": "ltd",
-        "incorporated": "inc",
-        "corporation": "corp",
-        "company": "co",
-    }
+def _normalise_newsdata(
+    raw: list[dict[str, Any]],
+    symbol: str,
+    company_name: str,
+) -> list[dict[str, Any]]:
+    """
+    Convert newsdata.io article dicts to the canonical intermediate format.
 
-    tokens = []
-    for token in re.findall(r"[a-z0-9]+", company_name.lower()):
-        if token == "the":
+    Args:
+        raw:          List of article dicts from newsdata_client.fetch_stock_news.
+        symbol:       NSE ticker for relevance filtering.
+        company_name: Company name for relevance filtering.
+
+    Returns:
+        Filtered, normalised list (newest-first, max 10).
+    """
+    articles: list[dict[str, Any]] = []
+    for item in raw:
+        title = item.get("title", "").strip()
+        if not title:
             continue
-        tokens.append(replacements.get(token, token))
-
-    slug = "-".join(tokens).strip("-")
-    if not slug:
-        return None
-    if len(slug) < 5 and symbol:
-        return None
-    return slug
-
-
-def _parse_scanx_state(html: str) -> dict:
-    """Parse ScanX Angular ng-state JSON payload from HTML."""
-    match = re.search(r'<script id="ng-state" type="application/json">(.*?)</script>', html, re.S)
-    if not match:
-        return {}
-
-    payload = unescape(match.group(1))
-    try:
-        parsed = json.loads(payload)
-        return parsed if isinstance(parsed, dict) else {}
-    except Exception:
-        return {}
-
-
-def _extract_scanx_entries_from_state(state_obj: dict) -> list[dict]:
-    """Extract article dictionaries from ScanX ng-state structure."""
-    entries: list[dict] = []
-
-    def add_entry(entry: object):
-        if not isinstance(entry, dict):
-            return
-        if not entry.get("articletitle"):
-            return
-        entries.append(entry)
-
-    for value in state_obj.values():
-        if not isinstance(value, dict):
-            continue
-        data = value.get("b", {}).get("data", {})
-        if not isinstance(data, dict):
+        if not _is_relevant(title, symbol, company_name):
             continue
 
-        latest = data.get("latest")
-        if isinstance(latest, list):
-            for item in latest:
-                add_entry(item)
-        else:
-            add_entry(latest)
+        pub_dt: datetime | None = item.get("pub_dt")
+        published_iso = pub_dt.isoformat() if pub_dt else item.get("pubDate", "")
 
-        next_items = data.get("next")
-        if isinstance(next_items, list):
-            for item in next_items:
-                add_entry(item)
+        articles.append({
+            "title":       title,
+            "description": item.get("description", ""),
+            "content":     item.get("content", ""),
+            "link":        item.get("link", ""),
+            "published":   published_iso,
+            "source":      item.get("source_id", "newsdata_io"),
+            "source_name": item.get("source_name", ""),
+            "sentiment":   item.get("sentiment", ""),   # may be empty on free tier
+        })
 
-    return entries
+    return articles[:_MAX_NEWS]
 
 
-# ── Source 1: ScanX stock-news (primary) ────────────────────────────────────
-def _fetch_scanx_news(symbol: str, company_name: str | None = None) -> list[dict]:
+def _fetch_google_news_rss(symbol: str, company_name: str) -> list[dict[str, Any]]:
     """
-    ScanX stock-news pages — primary source for India stock headlines.
-    Keeps only items inside the recent window.
+    Fetch news from Google News RSS as L2 fallback.
+
+    Args:
+        symbol:       NSE ticker.
+        company_name: Company name for query building.
+
+    Returns:
+        Normalised article list (max 10).
     """
-    symbol_u = symbol.upper().strip()
-    company_slug = _to_scanx_company_slug(company_name, symbol_u)
-
-    candidate_slugs: list[str] = []
-    for candidate in [company_slug, symbol_u.lower()]:
-        if candidate and candidate not in candidate_slugs:
-            candidate_slugs.append(candidate)
-
-    if not candidate_slugs:
-        return []
-
-    articles: list[dict] = []
-    seen_links: set[str] = set()
-
-    for slug in candidate_slugs:
-        url = f"{_SCANX_BASE_URL}/stock-news/{slug}"
-        try:
-            resp = requests.get(url, headers=_HEADERS, timeout=_TIMEOUT)
-            if resp.status_code != 200 or not resp.text:
-                continue
-
-            state = _parse_scanx_state(resp.text)
-            if not state:
-                continue
-
-            entries = _extract_scanx_entries_from_state(state)
-            if not entries:
-                continue
-
-            for entry in entries:
-                title = str(entry.get("articletitle") or "").strip()
-                category = str(entry.get("category") or "").strip().strip("/")
-                article_slug = str(entry.get("slug") or "").strip().strip("/")
-                article_id = entry.get("id")
-                published = str(entry.get("pubdate") or "").strip()
-
-                if not title or not category or not article_slug or not article_id:
-                    continue
-                if not _is_relevant_news_title(title, symbol_u, company_name):
-                    continue
-
-                link = f"{_SCANX_BASE_URL}/stock-market-news/{category}/{article_slug}/{article_id}"
-                if link in seen_links:
-                    continue
-
-                seen_links.add(link)
-                articles.append({
-                    "title": title,
-                    "link": link,
-                    "published": published,
-                    "source": "ScanX",
-                })
-
-            if articles:
-                break
-        except Exception as e:
-            logger.warning(f"ScanX news fetch failed for {symbol_u} via slug '{slug}': {e}")
-
-    if not articles:
-        return []
-    articles = _sort_news_articles(articles)
-
-    recent_articles = [
-        item for item in articles
-        if _is_recent_news(str(item.get("published") or ""), max_age_days=_SCANX_MAX_AGE_DAYS)
-    ]
-    selected = recent_articles[:_MAX_NEWS]
-
-    logger.info(
-        f"ScanX news: selected={len(selected)} recent={len(recent_articles)} total={len(articles)} for {symbol_u}"
-    )
-    return _sort_news_articles(selected)
-
-
-# ── Source 2: Google News RSS (fallback) ─────────────────────────────────────
-def _fetch_google_news(symbol: str, company_name: str | None = None) -> list[dict]:
-    """
-    Google News RSS — completely free, India-focused, in English.
-    Query: "<symbol> NSE stock" OR "<company_name> stock" if available.
-    """
-    # Build query — include company name if available for better relevance.
-    # Add `when:Xd` for stronger recency bias from Google News.
-    after_date = (datetime.now(timezone.utc) - timedelta(days=_NEWS_MAX_AGE_DAYS)).strftime("%Y-%m-%d")
-    query_parts = [f"{symbol} NSE stock when:{_NEWS_MAX_AGE_DAYS}d after:{after_date}"]
-    if company_name and company_name != symbol:
-        query_parts.append(f"{company_name} stock India when:{_NEWS_MAX_AGE_DAYS}d after:{after_date}")
-    query = " OR ".join(query_parts)
-
+    query_term = company_name if company_name else f"{symbol} NSE"
+    after_date = (datetime.now(timezone.utc) - timedelta(days=_MAX_AGE_DAYS)).strftime("%Y-%m-%d")
+    query = f"{query_term} stock when:{_MAX_AGE_DAYS}d after:{after_date}"
     url = (
         f"https://news.google.com/rss/search"
         f"?q={quote(query)}&hl=en-IN&gl=IN&ceid=IN:en"
@@ -414,124 +185,173 @@ def _fetch_google_news(symbol: str, company_name: str | None = None) -> list[dic
     try:
         resp = requests.get(url, headers=_HEADERS, timeout=_TIMEOUT)
         resp.raise_for_status()
-
         root = ET.fromstring(resp.content)
-        items = []
-
-        for item in root.findall(".//item")[:_MAX_NEWS]:
-            title     = item.findtext("title", "").strip()
-            link      = item.findtext("link", "").strip()
-            pub_date  = item.findtext("pubDate", "").strip()
-            source_el = item.find("source")
-            source    = source_el.text.strip() if source_el is not None else "Google News"
-
-            if not title:
-                continue
-            if not _is_relevant_news_title(title, symbol, company_name):
-                continue
-
-            parsed_dt = _parse_published_datetime(pub_date)
-            published_iso = parsed_dt.isoformat() if parsed_dt else pub_date
-
-            items.append({
-                "title":     title,
-                "link":      link,
-                "published": published_iso,
-                "source":    source,
-            })
-
-        # Post-filter: drop anything older than cutoff (Google `after:` is fuzzy)
-        items = [a for a in items if _is_recent_news(a["published"])]
-        items = _sort_news_articles(items)
-        logger.info(f"Google News RSS: {len(items)} recent articles for {symbol}")
-        return items
-
-    except Exception as e:
-        logger.warning(f"Google News RSS failed for {symbol}: {e}")
+    except Exception as exc:
+        logger.warning("news_service: Google News RSS failed for %s — %s", symbol, exc)
         return []
 
+    articles: list[dict[str, Any]] = []
+    for item in root.findall(".//item")[:_MAX_NEWS * 2]:
+        title    = (item.findtext("title") or "").strip()
+        link     = (item.findtext("link")  or "").strip()
+        pub_date = (item.findtext("pubDate") or "").strip()
+        src_el   = item.find("source")
+        source   = src_el.text.strip() if src_el is not None else "Google News"
 
-# ── Source 3: yfinance .news (fallback, works when Yahoo not throttled) ──────
-def _fetch_yfinance_news(symbol: str, company_name: str | None = None) -> list[dict]:
+        if not title or not _is_relevant(title, symbol, company_name):
+            continue
+
+        pub_dt       = _parse_rfc_date(pub_date)
+        published_iso = pub_dt.isoformat() if pub_dt else pub_date
+
+        if pub_dt and pub_dt < datetime.now(timezone.utc) - timedelta(days=_MAX_AGE_DAYS):
+            continue
+
+        articles.append({
+            "title":       title,
+            "description": "",
+            "content":     "",
+            "link":        link,
+            "published":   published_iso,
+            "source":      "google_news_rss",
+            "source_name": source,
+            "sentiment":   "",
+        })
+
+    return _sort_by_date(articles)[:_MAX_NEWS]
+
+
+# ── Enrichment ───────────────────────────────────��──────────────────────────���─
+
+def _enrich(
+    articles: list[dict[str, Any]],
+    symbol: str,
+    company_name: str,
+) -> list[dict[str, Any]]:
     """
-    yfinance .news property — may 429, use only as fallback.
-    Uses browser session to reduce rate limiting.
+    Add key_sentence, stock_impact, and signal_class to each article dict.
+
+    Args:
+        articles:     List of normalised article dicts.
+        symbol:       NSE ticker for key sentence scoring.
+        company_name: Company name for key sentence scoring.
+
+    Returns:
+        Same list with key_sentence, stock_impact, signal_class added in-place.
     """
-    import requests as req
-    import yfinance as yf
+    for art in articles:
+        combined_text = " ".join(filter(None, [
+            art.get("description", ""),
+            art.get("content", ""),
+        ]))
 
-    session = req.Session()
-    session.headers.update({"User-Agent": _HEADERS["User-Agent"]})
+        key_sentence = extract_key_sentence(combined_text, symbol, company_name)
+        signal_class = _classify_signal_class(art.get("title", ""))
+        stock_impact = derive_stock_impact(signal_class, key_sentence)
 
-    items = []
-    for suffix in [".NS", ".BO"]:
+        art["key_sentence"]  = key_sentence
+        art["stock_impact"]  = stock_impact
+        art["signal_class"]  = signal_class
+
+    return articles
+
+
+# ── Helpers ──────────────────────────────────────────────────────��────────────
+
+def _classify_signal_class(title: str) -> str:
+    """
+    Classify a headline into one of the signal class keys.
+
+    Args:
+        title: News headline string.
+
+    Returns:
+        Signal class key string (e.g. "major_contract", "generic_positive").
+    """
+    low = title.lower()
+    for cls, keywords in _CLASS_KEYWORDS:
+        if any(kw in low for kw in keywords):
+            return cls
+
+    pos_words = frozenset(["profit", "growth", "record", "strong", "beat", "surge",
+                            "rally", "rise", "gain", "win", "expansion", "upgrade"])
+    neg_words = frozenset(["loss", "decline", "fall", "miss", "concern", "drop",
+                            "cut", "penalty", "fraud", "downgrade", "plunge"])
+    words = set(re.findall(r"\b\w+\b", low))
+    if len(words & pos_words) > len(words & neg_words):
+        return "generic_positive"
+    if len(words & neg_words) > len(words & pos_words):
+        return "generic_negative"
+    return "generic_positive"
+
+
+_NAME_STOPWORDS: frozenset[str] = frozenset([
+    "limited", "ltd", "india", "group", "co", "company", "plc",
+    "bank", "finance", "financial", "services", "technologies", "tech",
+    "industries", "industry", "enterprises", "holdings", "ventures",
+    "corp", "corporation", "international", "global",
+])
+
+
+def _is_relevant(title: str, symbol: str, company_name: str) -> bool:
+    """
+    Return True if the headline is clearly about the target stock.
+
+    Matching rules (in order):
+    1. Exact whole-word ticker match (e.g. "RELIANCE" in title)
+    2. Company's distinctive core words (≥4 chars, non-generic) appear in title
+
+    Args:
+        title:        News headline.
+        symbol:       NSE ticker.
+        company_name: Full company name.
+
+    Returns:
+        True if title mentions the stock.
+    """
+    low = title.lower()
+    sym = symbol.lower()
+
+    if re.search(r"\b" + re.escape(sym) + r"\b", low):
+        return True
+
+    if company_name:
+        # Keep only distinctive words: ≥4 chars, not in stopword list
+        core_words = [
+            w for w in company_name.lower().split()
+            if len(w) >= 4 and w not in _NAME_STOPWORDS
+        ]
+        if not core_words:
+            return False
+        # All core words (up to 2) must appear — avoids "bank" matching ICICI for HDFC
+        check = core_words[:2]
+        return all(re.search(r"\b" + re.escape(w) + r"\b", low) for w in check)
+
+    return False
+
+
+def _parse_rfc_date(raw: str) -> datetime | None:
+    """Parse RFC-2822 date string (RSS pubDate) to UTC datetime."""
+    if not raw:
+        return None
+    try:
+        from email.utils import parsedate_to_datetime
+        dt = parsedate_to_datetime(raw)
+        return dt.astimezone(timezone.utc)
+    except Exception:
+        return None
+
+
+def _sort_by_date(articles: list[dict]) -> list[dict]:
+    """Sort articles newest-first by 'published' ISO string."""
+    def _key(a: dict) -> datetime:
+        raw = a.get("published", "")
         try:
-            ticker = yf.Ticker(f"{symbol}{suffix}", session=session)
-            news   = ticker.news or []
-            if not news:
-                continue
-            cutoff_ts = (datetime.now(timezone.utc) - timedelta(days=_NEWS_MAX_AGE_DAYS)).timestamp()
-            for n in news[:_MAX_NEWS]:
-                pub_ts = n.get("providerPublishTime", 0)
-                if pub_ts and float(pub_ts) < cutoff_ts:
-                    continue  # skip old articles
-                pub_iso = ""
-                if pub_ts:
-                    try:
-                        pub_iso = datetime.fromtimestamp(float(pub_ts), tz=timezone.utc).isoformat() + "Z"
-                    except Exception:
-                        pub_iso = str(pub_ts)
-                title = n.get("title", "").strip()
-                if not _is_relevant_news_title(title, symbol, company_name):
-                    continue
-                items.append({
-                    "title":     title,
-                    "link":      n.get("link", ""),
-                    "published": pub_iso,
-                    "source":    n.get("publisher", "Yahoo Finance"),
-                })
-            items = _sort_news_articles(items)
-            logger.info(f"yfinance news: {len(items)} recent articles for {symbol}{suffix}")
-            return items
-        except Exception as e:
-            logger.debug(f"yfinance news failed for {symbol}{suffix}: {e}")
-    return []
-
-
-# ── Main function ─────────────────────────────────────────────────────────────
-def _get_news_sync(symbol: str, company_name: str | None = None) -> list[dict]:
-    """
-    Sync — runs in thread pool.
-    1. Try ScanX stock-news (primary)
-    2. Try Google News RSS (fallback)
-    3. Try yfinance .news (fallback)
-    4. Return [] — never raises
-    """
-    symbol = symbol.upper().strip()
-
-    articles = _fetch_scanx_news(symbol, company_name)
-    if articles:
-        return _sort_news_articles(articles)
-
-    logger.warning(f"ScanX empty for {symbol}, trying Google News RSS...")
-    articles = _fetch_google_news(symbol, company_name)
-    if articles:
-        return _sort_news_articles(articles)
-
-    logger.warning(f"Google News empty for {symbol}, trying yfinance...")
-    articles = _fetch_yfinance_news(symbol, company_name)
-    if articles:
-        return _sort_news_articles(articles)
-
-    logger.warning(f"No news found for {symbol} from any source")
-    return []
-
-
-async def get_news(symbol: str, company_name: str | None = None) -> list[dict]:
-    """
-    Async entry point.
-    Returns list of news dicts: [{title, link, published, source}, ...]
-    Never raises — returns [] on complete failure.
-    """
-    loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(None, _get_news_sync, symbol, company_name)
+            s = raw
+            if s.endswith("Z"):
+                s = s[:-1] + "+00:00"
+            dt = datetime.fromisoformat(s)
+            return dt.astimezone(timezone.utc) if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+        except Exception:
+            return datetime.min.replace(tzinfo=timezone.utc)
+    return sorted(articles, key=_key, reverse=True)

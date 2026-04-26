@@ -8,27 +8,40 @@ Responsibilities:
   - Load env vars via pydantic-settings (fail fast on missing required keys)
 """
 
+import sys
+from pathlib import Path
+
+# Ensure both repo root and backend/ are on path so all import styles resolve
+_BACKEND_DIR = Path(__file__).resolve().parent
+_REPO_ROOT   = _BACKEND_DIR.parent
+for _p in (_REPO_ROOT, _BACKEND_DIR):
+    _s = str(_p)
+    if _s not in sys.path:
+        sys.path.insert(0, _s)
+
 from contextlib import asynccontextmanager
+
+import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import stock, analysis, search
+from routers import stock, analysis, search, v2_analysis
 from config import settings
-from cache.redis_client import redis_client
+from cache.redis_client import ping as redis_ping
+
+logger = logging.getLogger(__name__)
 
 
 # ── Lifespan: runs once at startup and once at shutdown ────────────────────────
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Verify Redis is reachable on startup so we know immediately if .env is wrong
-    from cache.redis_client import redis_client
-    try:
-        await redis_client.ping()
-        print("✅ Redis connected")
-    except Exception as e:
+    if await redis_ping():
+        logger.info("Redis connected")
+    else:
         # Non-fatal: app still serves traffic, just without caching
-        print(f"⚠️  Redis unavailable on startup: {e}")
+        logger.warning("Redis unavailable on startup — caching disabled")
     yield
     # Nothing to close — redis-py manages its own connection pool
 
@@ -57,18 +70,14 @@ app.add_middleware(
 app.include_router(stock.router)
 app.include_router(analysis.router)
 app.include_router(search.router)
+app.include_router(v2_analysis.router)
 
 
 # ── Health check ───────────────────────────────────────────────────────────────
 @app.get("/health", tags=["Health"])
 async def health():
     """Lightweight liveness probe that also reports Redis reachability."""
-    redis_status = "disconnected"
-    try:
-        await redis_client.ping()
-        redis_status = "connected"
-    except Exception:
-        pass
+    redis_status = "connected" if await redis_ping() else "disconnected"
 
     return {"status": "ok", "version": "1.0.0", "redis": redis_status}
 

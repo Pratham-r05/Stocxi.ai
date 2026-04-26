@@ -1,0 +1,247 @@
+# sources.yaml — Approved data sources, priority order, rate limits, TTLs
+#
+# RULE: Never fetch from a domain not listed here.
+# Attempting to do so must raise UnapprovedSourceError (backend/fetchers/http_client.py).
+# To add a new source: update this file + ARCHITECTURE.md §2 + bump arch_version.
+#
+# Source IDs used in waterfall chains:
+#   technical:   nse_library (P1) → yfinance (P2) → yfinance_alt (P3)
+#   fundamental: bse_library (P1) → screener_in (P2) → yfinance_fundamentals (P3)
+#   news:        moneycontrol / economic_times / business_standard / livemint (P1) → reuters_india / bq_prime (P2) → google_news_rss (P3)
+#   announcement: bse_announcements (P1) + nse_announcements (P1)
+
+# ── Technicals ────────────────────────────────────────────────────────────────
+technical:
+  - id: nse_library
+    type: library
+    package: "nse"         # BennyThadikaran/NseIndiaApi — wraps NSE India public APIs
+    description: "Primary OHLCV (248 rows/year), live price, shareholding, announcements, board meetings, annual reports"
+    ttl_seconds: 86400     # 24h — daily candles refreshed EOD IST
+    priority: 1
+    ohlcv_columns:         # exact column names returned by fetch_equity_historical_data
+      open:   "chOpeningPrice"
+      high:   "chTradeHighPrice"
+      low:    "chTradeLowPrice"
+      close:  "chClosingPrice"
+      volume: "chTotTradedQty"
+    rate_limit:
+      requests_per_minute: 60
+      sleep_between_calls_ms: 500
+      backoff_base_seconds: 2
+      backoff_max_seconds: 30
+    capabilities:
+      - ohlcv_history          # fetch_equity_historical_data — 1y daily, confirmed 100%
+      - live_quote             # equityQuote — flat keys: close/open/high/low/volume
+      - shareholding           # shareholding(symbol) — confirmed 80%
+      - announcements          # announcements() — market-wide, filter by symbol
+      - board_meetings         # boardMeetings(symbol=symbol)
+      - annual_reports         # annual_reports(symbol)
+
+  - id: yfinance
+    type: library
+    package: "yfinance"
+    description: "OHLCV fallback (.NS → .BO suffix) when NSE library is unavailable"
+    suffixes: [".NS", ".BO"]
+    ttl_seconds: 86400
+    priority: 2            # fallback only — never use for fundamentals
+
+  - id: yfinance_alt
+    type: library
+    package: "yfinance"
+    description: "yfinance with alternative tickers for renamed/BSE-only stocks — see config/alt_tickers.yaml"
+    suffixes: [".NS", ".BO"]
+    alt_tickers_config: "config/alt_tickers.yaml"
+    ttl_seconds: 86400
+    priority: 3            # last-resort fallback for OHLCV only
+
+# ── Fundamentals ──────────────────────────────────────────────────────────────
+fundamental:
+  - id: bse_library
+    type: library
+    package: "bse"         # BennyThadikaran/BseIndiaApi — wraps BSE India public APIs
+    description: "Primary fundamentals: PE, EPS, ROE, PB, OPM, NPM, Book Value, 52W high/low, market cap, dividends. 96% coverage."
+    ttl_seconds: 86400     # 24h — ratios update daily with price
+    priority: 1
+    fields:
+      pe_ratio:    "PE or ConPE (consolidated preferred)"
+      eps:         "ConEPS or EPS"
+      roe:         "ConROE or ROE"
+      pb_ratio:    "PB"
+      opm:         "OPM (null for banks/NBFCs — expected)"
+      npm:         "NPM (null for banks/NBFCs — expected)"
+      book_value:  "price / PB (requires price from price waterfall)"
+    bse_codes_fallback: "config/bse_codes.yaml"
+    rate_limit:
+      requests_per_minute: 30
+      sleep_between_calls_ms: 800
+      backoff_base_seconds: 2
+      backoff_max_seconds: 60
+
+  - id: screener_in
+    type: scraper
+    base_url: "https://www.screener.in/company"
+    description: "Financial statements (quarterly/annual P&L, balance sheet, cash flow), ROCE, top-ratios. 90% coverage. Recency-pick between consolidated and standalone."
+    slug_resolver: "GET /api/company/search/?q={symbol}&v=3&fts=1"
+    robots_txt: "https://www.screener.in/robots.txt"
+    ttl_seconds: 604800    # 7 days — statements update only at quarterly results
+    priority: 2
+    rate_limit:
+      requests_per_minute: 10
+      max_concurrent: 2
+      sleep_between_calls_ms: 2000
+      backoff_base_seconds: 5
+      backoff_max_seconds: 120
+
+  - id: yfinance_fundamentals
+    type: library
+    package: "yfinance"
+    description: "Market cap, basic ratios — fallback when BSE library and Screener are both unavailable"
+    ttl_seconds: 86400
+    priority: 3            # fallback only
+
+# Source priority per field — when two sources carry the same field, higher priority
+# (lower number) wins. Conflicts are logged to audit. Source IDs must match entries above.
+fundamental_field_priority:
+  shareholding_promoter:   ["bse_library", "screener_in"]
+  shareholding_fii:        ["bse_library", "screener_in"]
+  shareholding_dii:        ["bse_library", "screener_in"]
+  shareholding_mf:         ["screener_in"]
+  quarterly_results:       ["screener_in", "bse_library"]
+  annual_results:          ["screener_in"]
+  ratios:                  ["bse_library", "screener_in", "yfinance_fundamentals"]
+  market_cap:              ["bse_library", "yfinance_fundamentals", "screener_in"]
+
+# ── News ──────────────────────────────────────────────────────────────────────
+news:
+  ttl_seconds: 14400       # 4h — news refreshed every few hours
+  max_age_days_short_term: 30
+  max_age_days_long_term: 90
+  max_items_per_analysis: 10   # top 10 most crucial articles
+
+  # Primary structured source: newsdata.io REST API
+  newsdata_io:
+    id: newsdata_io
+    type: rest_api
+    base_url: "https://newsdata.io/api/1/news"
+    priority: 1
+    confidence: 0.80
+    rate_limit:
+      requests_per_day: 200
+      requests_per_minute: 10
+      max_concurrent: 1
+      backoff_base_seconds: 5
+      backoff_max_seconds: 120
+
+  approved_domains:
+    - id: moneycontrol
+      domain: "moneycontrol.com"
+      rss_url: "https://www.moneycontrol.com/rss/buzzingstocks.xml"
+      priority: 1
+      rate_limit:
+        requests_per_minute: 15
+        max_concurrent: 2
+        backoff_base_seconds: 3
+        backoff_max_seconds: 90
+
+    - id: economic_times
+      domain: "economictimes.indiatimes.com"
+      rss_url: "https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms"
+      priority: 1
+      rate_limit:
+        requests_per_minute: 15
+        max_concurrent: 2
+        backoff_base_seconds: 3
+        backoff_max_seconds: 90
+
+    - id: business_standard
+      domain: "business-standard.com"
+      rss_url: "https://www.business-standard.com/rss/markets-106.rss"
+      priority: 1
+      rate_limit:
+        requests_per_minute: 15
+        max_concurrent: 2
+        backoff_base_seconds: 3
+        backoff_max_seconds: 90
+
+    - id: livemint
+      domain: "livemint.com"
+      rss_url: "https://www.livemint.com/rss/markets"
+      priority: 1
+      rate_limit:
+        requests_per_minute: 15
+        max_concurrent: 2
+        backoff_base_seconds: 3
+        backoff_max_seconds: 90
+
+    - id: reuters_india
+      domain: "reuters.com"
+      rss_url: "https://feeds.reuters.com/reuters/INbusinessNews"
+      priority: 2
+      rate_limit:
+        requests_per_minute: 15
+        max_concurrent: 2
+        backoff_base_seconds: 3
+        backoff_max_seconds: 90
+
+    - id: bq_prime
+      domain: "bqprime.com"
+      rss_url: "https://www.bqprime.com/rss"
+      priority: 2
+      rate_limit:
+        requests_per_minute: 10
+        max_concurrent: 2
+        backoff_base_seconds: 3
+        backoff_max_seconds: 90
+
+    - id: google_news_rss
+      domain: "news.google.com"
+      description: "Google News RSS — fallback when all approved domain feeds are unavailable"
+      search_url: "https://news.google.com/rss/search"
+      priority: 3          # last-resort fallback only
+      rate_limit:
+        requests_per_minute: 15
+        max_concurrent: 2
+        backoff_base_seconds: 2
+        backoff_max_seconds: 60
+
+  # Domains that are NEVER allowed regardless of context.
+  forbidden_domains:
+    - "twitter.com"
+    - "x.com"
+    - "reddit.com"
+    - "t.me"
+    - "youtube.com"
+    - "whatsapp.com"
+    - "telegram.org"
+    - "tradingview.com"  # community posts, not verified news
+    - "investopedia.com" # US-focused, not India-specific
+
+# ── Announcements ─────────────────────────────────────────────────────────────
+announcement:
+  ttl_seconds: 3600        # 1h — official filings checked frequently
+
+  sources:
+    - id: nse_announcements
+      type: library
+      package: "nse"
+      description: "NSE corporate announcements, board meetings, AGM/EGM, results calendar"
+      priority: 1
+      rate_limit:
+        requests_per_minute: 20
+        max_concurrent: 2
+        backoff_base_seconds: 5
+        backoff_max_seconds: 60
+
+    - id: bse_announcements
+      type: library
+      package: "bse"
+      description: "BSE corporate filings, board meeting results, dividend/split actions, result calendar"
+      priority: 1
+      rate_limit:
+        requests_per_minute: 30
+        max_concurrent: 3
+        backoff_base_seconds: 2
+        backoff_max_seconds: 60
+
+# ── Canary stocks — used by daily health check and golden-file tests ──────────
+canary_stocks: ["RELIANCE", "TCS", "HDFCBANK", "INFY", "ITC"]

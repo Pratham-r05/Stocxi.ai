@@ -24,7 +24,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import JSONResponse, Response
 
-from cache.redis_client import cache_get, cache_set, TTL_ANALYSIS
+from cache.redis_client import cache_get, cache_set, TTL_ANALYSIS_RESULT as TTL_ANALYSIS
 from services.yfinance_service import get_price_and_fundamentals, get_history
 from services.screener_service import get_financials
 from services.technicals_service import calculate_technicals

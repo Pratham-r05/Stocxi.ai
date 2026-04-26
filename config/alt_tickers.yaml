@@ -1,0 +1,23 @@
+# alt_tickers.yaml — yfinance alternative ticker map
+#
+# Used when the default {SYMBOL}.NS ticker fails on Yahoo Finance
+# (stock delisted, renamed, or ticker changed).
+# Format:
+#   NSE_SYMBOL:
+#     ns: "ALTERNATE.NS"   ← try this if {SYMBOL}.NS returns empty
+#     bo: "ALTERNATE.BO"   ← BSE ticker fallback
+#
+# Sources: verified from Yahoo Finance and NSE announcements.
+# Update whenever a stock renames or Yahoo ticker changes.
+
+ZOMATO:
+  ns: "ETERNAL.NS"          # Rebranded to Eternal Ltd, NSE ticker updated
+  bo: "ETERNAL.BO"
+
+TATAMOTORS:
+  ns: "TATAMOTORS.NS"       # Occasionally delisted on Yahoo — retry with .BO
+  bo: "500570.BO"           # BSE code as ticker works when symbol fails
+
+TATAMTRDVR:
+  ns: "TATAMTRDVR.NS"
+  bo: "570001.BO"
