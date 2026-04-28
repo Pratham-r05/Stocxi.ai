@@ -48,6 +48,7 @@ node_id: {{ n.node_id }}
   signal:     {{ n.signal.value }}
   confidence: {{ "%.2f"|format(n.confidence) }}
   weight:     {{ "%.4f"|format(n.weight) }}
+  context:    {{ n.context }}
 {% endfor %}
 {% else %}
 ── TECHNICAL INDICATORS: none supplied ──
@@ -62,6 +63,7 @@ node_id: {{ n.node_id }}
   signal:     {{ n.signal.value }}
   confidence: {{ "%.2f"|format(n.confidence) }}
   weight:     {{ "%.4f"|format(n.weight) }}
+  context:    {{ n.context }}
 {% endfor %}
 {% else %}
 ── FUNDAMENTAL DATA: none supplied ──
@@ -76,6 +78,7 @@ node_id: {{ n.node_id }}
   signal:     {{ n.signal.value }}
   confidence: {{ "%.2f"|format(n.confidence) }}
   weight:     {{ "%.4f"|format(n.weight) }}
+  context:    {{ n.context }}
 {% endfor %}
 {% else %}
 ── NEWS: none supplied ──
@@ -90,6 +93,7 @@ node_id: {{ n.node_id }}
   signal:     {{ n.signal.value }}
   confidence: {{ "%.2f"|format(n.confidence) }}
   weight:     {{ "%.4f"|format(n.weight) }}
+  context:    {{ n.context }}
 {% endfor %}
 {% else %}
 ── ANNOUNCEMENTS: none supplied ──
@@ -105,6 +109,19 @@ node_id: {{ n.node_id }}
 {% endfor %}
 {% else %}
 ── CONTEXT: none supplied ──
+{% endif %}
+
+{% if kg_serialization %}
+══════════════════════════════════════════════════════════════
+KNOWLEDGE GRAPH — Node Relationships & Effective Weights
+══════════════════════════════════════════════════════════════
+{{ kg_serialization }}
+
+Use this graph information to:
+- Prioritize nodes with higher effective_weight in your analysis
+- Understand relationships (CONFIRMS, AMPLIFIES, CONTRADICTS, DAMPENS) between indicators
+- Resolve contradictions using the hierarchy in Step 9
+- Note that nodes below the weight threshold are less relevant for this horizon
 {% endif %}
 
 ══════════════════════════════════════════════════════════════

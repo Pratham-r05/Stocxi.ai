@@ -12,10 +12,11 @@ from __future__ import annotations
 
 import logging
 from datetime import date
+from pathlib import Path
 from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException, Query
-from fastapi.responses import Response
+from fastapi.responses import FileResponse, Response
 
 from agents.orchestrator import run as orch_run, InsufficientDataError
 from agents.agent_report import build_report
@@ -24,6 +25,8 @@ from schemas.messages import FetchRequest, UserProfile, Horizon, Risk
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v2/analysis", tags=["AI Analysis v2"])
+
+_GRAPH_DIR = Path(__file__).parents[2] / "graphify-out" / "stocks"
 
 # Risk param → PDF risk_level string
 _RISK_TO_LEVEL = {
@@ -144,4 +147,30 @@ async def download_analysis_report_v2(
         headers={
             "Content-Disposition": f'attachment; filename="{safe_symbol}_{tier}_v2.pdf"',
         },
+    )
+
+
+@router.get("/{symbol}/graph")
+async def get_knowledge_graph(
+    symbol: str,
+    as_of_date: str = Query(
+        default="",
+        description="ISO date string (YYYY-MM-DD). Defaults to today.",
+    ),
+):
+    """Serve the 3D knowledge graph HTML for visualization in browser."""
+    graph_date = as_of_date if as_of_date else str(date.today())
+    graph_path = _GRAPH_DIR / symbol.upper() / f"{graph_date}.html"
+    if not graph_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                f"Knowledge graph not found for {symbol.upper()} on {graph_date}. "
+                f"Run analysis first via GET /api/v2/analysis/{symbol}"
+            ),
+        )
+    return FileResponse(
+        path=str(graph_path),
+        media_type="text/html",
+        filename=f"{symbol.upper()}_{graph_date}_graph.html",
     )

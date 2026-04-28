@@ -29,6 +29,7 @@ import yaml
 
 from backend.schemas.messages import FetchDomain, FetchFailure, FetchRequest
 from backend.schemas.node import HorizonRelevance, Node, NodeCategory, NodeSignal
+from backend.services.context_generator import apply_news_context
 from backend.services.news_service import get_news
 from backend.util.ist_calendar import now_ist
 from backend.util.sanitizer import strip_html, strip_imperative_sentences
@@ -45,7 +46,7 @@ _WEIGHT_VER    = yaml.safe_load((_CONFIG_DIR / "versions.yaml").read_text())["we
 
 _NEWS_ITEM_BASE_WEIGHT: float = 0.10  # fallback; overridden per profile horizon
 _MAX_ARTICLES: int = 10               # top 10 most crucial articles only
-_FETCH_TIMEOUT: float = 25.0          # newsdata.io + enrichment needs a bit more time
+_FETCH_TIMEOUT: float = 45.0          # newsdata.io + enrichment needs a bit more time
 
 # ── Signal classification helpers ─────────────────────────────────────────────
 # Ordered by priority — first match wins.
@@ -63,9 +64,20 @@ _CLASS_KEYWORDS: list[tuple[str, list[str]]] = [
         "downgrade", "upgrade", "crisil", "icra", "care ratings",
         "fitch", "moody", "credit rating", "rating action",
     ]),
+    ("earnings_result", [
+        "quarterly results", "q4 results", "q3 results", "q2 results", "q1 results",
+        "fy26", "fy25", "fy24", "annual results", "net profit", "pat rises",
+        "pat falls", "revenue rises", "revenue falls", "earnings",
+        "quarterly profit", "annual profit",
+    ]),
     ("leadership_change", [
         "ceo", "chief executive", "cfo", "chief financial", "managing director",
         "chairman", "resignation", "quits", "appoints", "board change",
+    ]),
+    ("analyst_action", [
+        "analyst", "target price", "brokerage", "upgrades", "downgrades",
+        "buy rating", "sell rating", "hold rating", "price target",
+        "recommendation",
     ]),
     ("ma_event", [
         "merger", "acquisition", "takeover", "demerger",
@@ -98,6 +110,7 @@ _NEGATIVE_WORDS = frozenset([
 # ── Source → confidence map ────────────────────────────────────────────────────
 
 _SOURCE_CONFIDENCE: dict[str, float] = {
+    "gnews":             0.65,   # Google News via gnews lib, free, no API key
     "newsdata_io":       0.80,   # structured REST API, verified publishers
     "moneycontrol":      0.70,
     "economic_times":    0.70,
@@ -107,7 +120,8 @@ _SOURCE_CONFIDENCE: dict[str, float] = {
 }
 
 _SOURCE_SLUG_MAP: list[tuple[str, str]] = [
-    ("newsdata_io",       "newsdata_io"),    # newsdata.io REST API
+    ("gnews",             "gnews"),           # gnews Python library (Google News)
+    ("newsdata_io",       "newsdata_io"),      # newsdata.io REST API
     ("newsdata",          "newsdata_io"),
     ("moneycontrol",      "moneycontrol"),
     ("economic times",    "economic_times"),
@@ -144,8 +158,23 @@ def _classify(title: str) -> tuple[str, NodeSignal]:
                        else NodeSignal.positive if "upgrade" in low
                        else NodeSignal.neutral)
                 return cls, sig
+            if cls == "earnings_result":
+                # Direction depends on whether results are positive or negative
+                neg_words = {"falls", "falls", "drop", "decline", "miss", "weak", "dip", "slips"}
+                pos_words = {"rises", "beats", "jump", "surge", "strong", "growth", "record"}
+                words = set(re.findall(r"\b\w+\b", low))
+                if words & neg_words:
+                    return cls, NodeSignal.negative
+                if words & pos_words:
+                    return cls, NodeSignal.positive
+                return cls, NodeSignal.neutral
             if cls == "leadership_change":
                 return cls, NodeSignal.neutral
+            if cls == "analyst_action":
+                sig = (NodeSignal.positive if any(w in low for w in ["upgrade", "buy", "outperform"])
+                       else NodeSignal.negative if any(w in low for w in ["downgrade", "sell", "underperform"])
+                       else NodeSignal.neutral)
+                return cls, sig
             if cls == "ma_event":
                 return cls, NodeSignal.neutral
             if cls == "major_contract":
@@ -164,20 +193,43 @@ def _classify(title: str) -> tuple[str, NodeSignal]:
     return "generic_positive", NodeSignal.neutral
 
 
-def _news_weight(signal_class: str, horizon: str) -> float:
+def _news_weight(
+    signal_class: str,
+    horizon: str,
+    relevance_score: float = 0.5,
+    article_horizon: str = "both",
+) -> float:
     """
-    Compute per-node weight as (category_budget / max_articles) × class_multiplier.
+    Compute per-node weight incorporating category budget, signal class,
+    LLM relevance score, and horizon alignment.
+
+    Formula:
+        weight = (category_budget / max_articles) × class_multiplier × relevance × horizon_match
+
+    horizon_match:
+        1.0 if article_horizon == "both" or matches user horizon
+        0.6 if article_horizon != user horizon (less relevant for this investor)
 
     Args:
-        signal_class: Key into news_signal_classes in weights.yaml.
-        horizon:      Investor horizon string ("short" or "long").
+        signal_class:     Key into news_signal_classes in weights.yaml.
+        horizon:          User's investor horizon ("short" or "long").
+        relevance_score:  LLM-assessed relevance 0.0-1.0 (default 0.5).
+        article_horizon:  LLM-assessed horizon relevance ("short", "long", "both").
 
     Returns:
         Rounded float weight for this node.
     """
     base = _PROFILES["category_mix"].get(horizon, {}).get("news", _NEWS_ITEM_BASE_WEIGHT)
     mult = _NEWS_CLASSES.get(signal_class, {}).get("weight_multiplier", 0.8)
-    return round((base / _MAX_ARTICLES) * mult, 4)
+
+    # Horizon alignment: boost if article matches user's horizon, reduce if not
+    if article_horizon == "both" or article_horizon == horizon:
+        horizon_match = 1.0
+    else:
+        horizon_match = 0.6  # still include, but lower weight
+
+    weight = (base / _MAX_ARTICLES) * mult * relevance_score * horizon_match
+    return round(max(weight, 0.001), 4)
 
 
 def _resolve_source(raw_source: str) -> tuple[str, float]:
@@ -225,11 +277,12 @@ def _article_to_node(
     """
     Convert a single raw article dict to a Node.
 
-    Applies strip_html + strip_imperative_sentences to title and summary,
-    classifies signal, resolves source slug, and builds the Node.
+    Prefers LLM-generated summary + classification when available,
+    falls back to heuristic key_sentence + signal classifier.
 
     Args:
         article:    Raw article dict from news_service.get_news.
+                    May contain llm_summary, llm_relevance, llm_signal_class, llm_horizon.
         index:      Zero-based article index (used for node name).
         request:    Original FetchRequest.
         horizon:    Investor horizon ("short" or "long").
@@ -242,7 +295,12 @@ def _article_to_node(
     raw_summary  = article.get("description") or article.get("summary") or ""
     key_sentence = article.get("key_sentence") or ""
     stock_impact = article.get("stock_impact") or ""
-    signal_class = article.get("signal_class") or ""
+
+    # LLM fields (may be absent if LLM enrichment failed)
+    llm_summary      = article.get("llm_summary") or ""
+    llm_relevance    = article.get("llm_relevance", None)
+    llm_signal_class = article.get("llm_signal_class") or ""
+    llm_horizon      = article.get("llm_horizon") or "both"
 
     title   = strip_imperative_sentences(strip_html(raw_title)).strip()[:300]
     snippet = strip_imperative_sentences(strip_html(raw_summary)).strip()[:200]
@@ -251,25 +309,93 @@ def _article_to_node(
     if not title:
         return None
 
-    # Derive signal class from pre-computed field or fall back to classifier
-    if signal_class:
-        _, sig = _classify(title)  # signal direction from title keywords
-    else:
-        signal_class, sig = _classify(title)
+    # ── Signal classification: prefer LLM, fallback to heuristic ─────────
+    signal_class_to_use: str
+    sig: NodeSignal
 
-    # Node value: headline + key insight sentence (most informative for LLM)
-    if key_s and key_s.lower() not in title.lower():
-        value = f"{title} | Key insight: {key_s}"
+    if llm_signal_class:
+        signal_class_to_use = llm_signal_class
+        # Derive signal direction from LLM class + title keywords
+        _, sig = _classify(title)
+    else:
+        signal_class_to_use, sig = _classify(title)
+
+    # ── Compute relevance + horizon before building value ──────────────
+    relevance_score = llm_relevance if llm_relevance is not None else 0.5
+    article_horizon = llm_horizon if llm_horizon in ("short", "long", "both") else "both"
+
+    # ── Node value: structured format for model + user readability ─────────
+    # Format: [class] headline — analysis: summary | Impact: dir | Relevance: X/1.0 | For: horizon
+    if llm_summary:
+        # Clean headline: strip source suffix like " - Business Standard"
+        clean_title = re.sub(r'\s*[-–—|]\s*(The |Business Standard|Moneycontrol|Economic Times|Mint|CNBC|Reuters|Times of India|Markets Mojo|MarketWatch|Investing\.com).*$',
+                            '', title, flags=re.IGNORECASE).strip()
+        if not clean_title:
+            clean_title = title[:120]
+
+        # Impact direction from signal
+        if sig == NodeSignal.positive:
+            impact_dir = "Positive"
+        elif sig == NodeSignal.negative:
+            impact_dir = "Negative"
+        else:
+            impact_dir = "Neutral"
+
+        # Format summary: ensure it fits within 500 total chars
+        # Budget: ~120 title + ~50 class/format + ~50 metadata = ~220 overhead
+        # Remaining for summary: ~280 chars
+        summary_parts = llm_summary.replace('\n', ' ').strip()
+        summary_capped = summary_parts[:400]
+
+        value = (
+            f"[{signal_class_to_use}] {clean_title[:120]}\n"
+            f"Analysis: {summary_capped}\n"
+            f"Impact: {impact_dir} | Relevance: {relevance_score}/1.0 | For: {article_horizon}-term"
+        )
+    elif key_s and key_s.lower() not in title.lower():
+        # Clean title for fallback too
+        clean_title = re.sub(r'\s*[-–—|]\s*(The |Business Standard|Moneycontrol|Economic Times|Mint|CNBC|Reuters|Times of India|Markets Mojo|MarketWatch|Investing\.com).*$',
+                            '', title, flags=re.IGNORECASE).strip()
+        if not clean_title:
+            clean_title = title[:120]
+        value = f"[{signal_class_to_use}] {clean_title[:120]}\nKey insight: {key_s[:250]}"
     elif snippet:
-        value = f"{title} — {snippet}"
+        clean_title = re.sub(r'\s*[-–—|]\s*(The |Business Standard|Moneycontrol|Economic Times|Mint|CNBC|Reuters|Times of India|Markets Mojo|MarketWatch|Investing\.com).*$',
+                            '', title, flags=re.IGNORECASE).strip()
+        if not clean_title:
+            clean_title = title[:120]
+        value = f"[{signal_class_to_use}] {clean_title[:120]}\n{snippet[:250]}"
     else:
-        value = title
+        clean_title = re.sub(r'\s*[-–—|]\s*(The |Business Standard|Moneycontrol|Economic Times|Mint|CNBC|Reuters|Times of India|Markets Mojo|MarketWatch|Investing\.com).*$',
+                            '', title, flags=re.IGNORECASE).strip()
+        if not clean_title:
+            clean_title = title[:150]
+        value = f"[{signal_class_to_use}] {clean_title}"
 
+    # Cap value at 800 chars (structured format with LLM summary needs more space)
+    value = value[:800]
+
+    # ── Weight: horizon-aware with LLM relevance ─────────────────────────
     source_slug, conf = _resolve_source(str(article.get("source", "")))
-    weight            = _news_weight(signal_class, horizon)
-    as_of             = _parse_as_of_date(
+    weight = _news_weight(
+        signal_class_to_use,
+        horizon,
+        relevance_score=relevance_score,
+        article_horizon=article_horizon,
+    )
+    as_of = _parse_as_of_date(
         str(article.get("published", "")), request.as_of_date
     )
+
+    # ── Horizon relevance for the node ───────────────────────────────────
+    if article_horizon == "both":
+        node_horizon = HorizonRelevance.both
+    elif article_horizon == "short":
+        node_horizon = HorizonRelevance.short
+    elif article_horizon == "long":
+        node_horizon = HorizonRelevance.long
+    else:
+        node_horizon = HorizonRelevance.both
 
     return Node(
         stock=request.stock.upper(),
@@ -277,15 +403,19 @@ def _article_to_node(
         name=f"News_Item_{index}",
         value=value,
         value_raw={
-            "title":        raw_title,
-            "description":  raw_summary,
-            "key_sentence": key_sentence,
-            "stock_impact": stock_impact,
-            "link":         article.get("link", ""),
-            "published":    article.get("published", ""),
-            "source":       article.get("source", ""),
-            "source_name":  article.get("source_name", ""),
-            "signal_class": signal_class,
+            "title":            raw_title,
+            "description":      raw_summary,
+            "key_sentence":     key_sentence,
+            "stock_impact":     stock_impact,
+            "llm_summary":      llm_summary,
+            "llm_relevance":    relevance_score,
+            "llm_signal_class": llm_signal_class,
+            "llm_horizon":      llm_horizon,
+            "link":             article.get("link", ""),
+            "published":        article.get("published", ""),
+            "source":           article.get("source", ""),
+            "source_name":      article.get("source_name", ""),
+            "signal_class":     signal_class_to_use,
         },
         signal=sig,
         confidence=conf,
@@ -293,7 +423,7 @@ def _article_to_node(
         source_url=article.get("link", ""),
         as_of_date=as_of,
         fetched_at_ist=fetched_at,
-        horizon_relevance=HorizonRelevance.both,
+        horizon_relevance=node_horizon,
         weight=weight,
         weight_version=_WEIGHT_VER,
         schema_version=1,
@@ -372,6 +502,10 @@ class NewsAgent:
 
         logger.info("agent_news: %s — %d nodes built from %d articles",
                     request.stock, len(nodes), len(articles[:_MAX_ARTICLES]))
+
+        # Promote llm_summary from value_raw into node.context (no extra LLM call)
+        nodes = apply_news_context(nodes)
+
         return nodes
 
     async def validate(self, nodes: list[Node]) -> list[Node]:

@@ -5,7 +5,7 @@
 # Every production analysis logs the versions used at run time.
 
 # ── Architecture ──────────────────────────────────────────────────────────────
-arch_version: "2026.04.a"
+arch_version: "2026.04.b"
 
 # ── LLM (Google Gemini only) ──────────────────────────────────────────────────
 # Only Google Gemini is supported. Remove all other providers.
@@ -20,7 +20,7 @@ llm:
 # ── Prompt ────────────────────────────────────────────────────────────────────
 # Bump this whenever the prompt template changes.
 # Bumping invalidates the analysis cache automatically.
-prompt_version: "2026.04.a"
+prompt_version: "2026.04.b"
 
 # ── Signal Weights ────────────────────────────────────────────────────────────
 # v1 = hand-picked bootstrap weights (ARCHITECTURE.md §7)

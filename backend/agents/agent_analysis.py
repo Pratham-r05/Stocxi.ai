@@ -114,7 +114,7 @@ def _split_by_category(nodes: list[Node]) -> dict[str, list[Node]]:
     return buckets
 
 
-def _render_prompt(nodes: list[Node], request: FetchRequest) -> str:
+def _render_prompt(nodes: list[Node], request: FetchRequest, kg_serialization: str = "") -> str:
     horizon = request.profile.horizon.value
     risk    = request.profile.risk.value
     cats    = _split_by_category(nodes)
@@ -135,6 +135,7 @@ def _render_prompt(nodes: list[Node], request: FetchRequest) -> str:
         news_nodes=cats["news"],
         announcement_nodes=cats["announcement"],
         context_nodes=cats["context"],
+        kg_serialization=kg_serialization,
     )
 
 
@@ -340,7 +341,7 @@ def _parse_draft(raw: dict) -> AnalysisDraft:
 # ── Public entry point ─────────────────────────────────────────────────────────
 
 async def run(
-    nodes: list[Node], request: FetchRequest
+    nodes: list[Node], request: FetchRequest, kg_serialization: str = ""
 ) -> tuple[AnalysisDraft, str, str]:
     """
     Render prompt, call LLM, parse response into AnalysisDraft.
@@ -365,7 +366,7 @@ async def run(
             f"first: {unsanitized[0]}"
         )
 
-    prompt = _render_prompt(nodes, request)
+    prompt = _render_prompt(nodes, request, kg_serialization)
     logger.info(
         "agent_analysis: %s — prompt %d chars, %d nodes, model=%s",
         request.stock, len(prompt), len(nodes), _MODEL_ID,

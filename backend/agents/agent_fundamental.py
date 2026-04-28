@@ -19,13 +19,17 @@ from datetime import date
 
 from backend.schemas.messages import FetchDomain, FetchFailure, FetchRequest
 from backend.schemas.node import Node
+from backend.services.context_generator import (
+    generate_financial_context,
+    generate_fundamental_context,
+)
 from backend.services.financials_service import get_financials
 from backend.services.ratios_service import get_ratios
 from backend.services.shareholding_service import get_shareholding
 
 logger = logging.getLogger(__name__)
 
-_AGENT_TIMEOUT: float = 20.0  # hard wall-clock limit in seconds
+_AGENT_TIMEOUT: float = 45.0  # hard wall-clock limit in seconds
 _DOMAIN = FetchDomain.fundamental
 
 
@@ -121,7 +125,7 @@ class FundamentalAgent:
         try:
             results = await asyncio.wait_for(_gather(), timeout=_AGENT_TIMEOUT)
         except asyncio.TimeoutError:
-            log.error("agent_fundamental: 20s timeout exceeded for %s", request.stock)
+            log.error("agent_fundamental: 45s timeout exceeded for %s", request.stock)
             return FetchFailure(
                 domain=_DOMAIN,
                 source="fundamental_agent",
@@ -173,6 +177,32 @@ class FundamentalAgent:
             "agent_fundamental: %s — %d nodes returned (%d raw, %d after dedup)",
             request.stock, len(validated), len(all_nodes), len(deduped),
         )
+
+        # Generate horizon-aware context for ratio and financial nodes
+        if validated:
+            horizon = (
+                request.profile.horizon.value
+                if hasattr(request.profile.horizon, "value")
+                else str(request.profile.horizon)
+            )
+            loop = asyncio.get_event_loop()
+            try:
+                # Fundamental ratio context
+                validated = await loop.run_in_executor(
+                    None, generate_fundamental_context, validated, horizon, "STOCK_A"
+                )
+                # Financial statement context (QoQ/YoY comparison)
+                validated = await loop.run_in_executor(
+                    None, generate_financial_context, validated, horizon, "STOCK_A"
+                )
+                log.info(
+                    "agent_fundamental: context generation complete for %s", request.stock
+                )
+            except Exception as exc:  # noqa: BLE001
+                log.warning(
+                    "agent_fundamental: context generation failed (non-fatal): %s", exc
+                )
+
         return validated
 
     async def validate(self, nodes: list[Node]) -> list[Node]:

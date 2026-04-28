@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Stocxi — MARUTI | 2024-06-28</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0d1117; color: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; overflow: hidden; }
+  #graph { width: 100vw; height: 100vh; }
+  #ui {
+    position: fixed; top: 16px; right: 16px; z-index: 100;
+    background: rgba(13,17,23,0.96); border: 1px solid #30363d;
+    border-radius: 12px; padding: 16px 18px; min-width: 260px; max-width: 300px;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  #title-bar {
+    font-size: 12px; color: #f0f6fc; margin-bottom: 12px;
+    letter-spacing: .8px; text-transform: uppercase; font-weight: 700;
+    border-bottom: 1px solid #30363d; padding-bottom: 8px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #search {
+    width: 100%; background: #0d1117; border: 2px solid #30363d;
+    border-radius: 8px; color: #e6edf3; padding: 8px 12px;
+    font-size: 13px; outline: none; margin-bottom: 10px; transition: all .2s;
+  }
+  #search:focus { border-color: #00e676; box-shadow: 0 0 0 3px rgba(0,230,118,.12); background: #161b22; }
+  #node-info {
+    font-size: 12px; color: #8b949e; min-height: 60px; margin-bottom: 10px;
+    padding: 10px; background: rgba(255,255,255,.03);
+    border-radius: 8px; border: 1px solid rgba(48,54,61,.6); line-height: 1.5;
+  }
+  #node-info strong { color: #e6edf3; display: block; margin-bottom: 4px; font-size: 13px; }
+  #controls { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+  button {
+    background: #21262d; border: 1px solid #30363d; color: #e6edf3;
+    padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;
+    transition: all .15s; font-weight: 500;
+  }
+  button:hover { background: #30363d; border-color: #484f58; }
+  button.active { background: #1f6feb; border-color: #388bfd; color: #fff; }
+  #legend { max-height: 220px; overflow-y: auto; }
+  #legend::-webkit-scrollbar { width: 3px; }
+  #legend::-webkit-scrollbar-thumb { background: #30363d; border-radius: 2px; }
+  .legend-item {
+    display: flex; align-items: center; gap: 8px; padding: 7px 6px;
+    font-size: 12px; cursor: pointer; border-radius: 6px;
+    transition: all .2s; margin-bottom: 2px;
+  }
+  .legend-item:hover { background: rgba(255,255,255,.08); transform: translateX(2px); }
+  .legend-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(255,255,255,.15); }
+  .legend-count { margin-left: auto; color: #484f58; font-size: 11px; }
+  #stats { font-size: 11px; color: #6e7681; margin-top: 10px; padding-top: 8px; border-top: 1px solid #21262d; }
+  #edge-legend { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+  .edge-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #8b949e; }
+  .edge-line { width: 22px; height: 2px; border-radius: 2px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div id="graph"></div>
+<div id="ui">
+  <div id="title-bar">Stocxi — MARUTI | 2024-06-28</div>
+  <input id="search" placeholder="&#128269; Search indicators..." type="text">
+  <div id="node-info">Click any node to inspect</div>
+  <div id="controls">
+    <button id="btn-rotate" class="active" onclick="toggleRotate()">&#9654; Rotate</button>
+    <button onclick="resetCamera()">Reset</button>
+    <button id="btn-labels" onclick="toggleLabels()">Labels</button>
+    <button id="btn-layout" onclick="cycleLayout()">Layout: 3D</button>
+    <button id="btn-edges" class="active" onclick="toggleEdges()">Edges</button>
+  </div>
+  <div id="legend"></div>
+  <div id="edge-legend">
+    <div class="edge-item"><div class="edge-line" style="background:#00e676"></div> Agreement</div>
+    <div class="edge-item"><div class="edge-line" style="background:#ff5252"></div> Contradiction</div>
+    <div class="edge-item"><div class="edge-line" style="background:#ffab40"></div> Verdict support</div>
+  </div>
+  <div id="stats"></div>
+</div>
+
+<script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
+<script src="https://unpkg.com/3d-force-graph@1.73.2/dist/3d-force-graph.min.js"></script>
+<script>
+const GRAPH_DATA = {"nodes": [{"id": "MARUTI|technical|RSI_14|2024-06-28", "label": "MARUTI|technical|RSI_14|2024-06-28", "community": 0, "signal": "neutral", "value_text": "RSI: 59.4", "weight": 0.08, "color": "#4FC3F7", "val": 2, "degree": 3, "source_file": "technical · neutral"}, {"id": "MARUTI|technical|ATR_14|2024-06-28", "label": "MARUTI|technical|ATR_14|2024-06-28", "community": 0, "signal": "neutral", "value_text": "ATR: 332.01 (2.7%)", "weight": 0.05, "color": "#4FC3F7", "val": 2, "degree": 4, "source_file": "technical · neutral"}, {"id": "MARUTI|technical|Bollinger_Bands|2024-06-28", "label": "MARUTI|technical|Bollinger_Bands|2024-06-28", "community": 0, "signal": "neutral", "value_text": "BB: 12286.9 | 12648.6 | 13010.4 | P: 12399.3", "weight": 0.06, "color": "#4FC3F7", "val": 2, "degree": 5, "source_file": "technical · neutral"}, {"id": "MARUTI|technical|EMA|2024-06-28", "label": "MARUTI|technical|EMA|2024-06-28", "community": 0, "signal": "positive", "value_text": "EMA20: 12302.7 | EMA50: 12011.1 | EMA200: 12011.1", "weight": 0.06, "color": "#00e676", "val": 2, "degree": 9, "source_file": "technical · positive"}, {"id": "MARUTI|technical|SMA|2024-06-28", "label": "MARUTI|technical|SMA|2024-06-28", "community": 0, "signal": "positive", "value_text": "SMA20: 12648.6 | SMA50: 12038.4 | SMA200: 12038.4", "weight": 0.05, "color": "#00e676", "val": 2, "degree": 8, "source_file": "technical · positive"}, {"id": "MARUTI|technical|Ichimoku|2024-06-28", "label": "MARUTI|technical|Ichimoku|2024-06-28", "community": 0, "signal": "positive", "value_text": "Cloud: 11137.3–11928.6 | Price: 12399.3", "weight": 0.05, "color": "#00e676", "val": 2, "degree": 7, "source_file": "technical · positive"}, {"id": "MARUTI|technical|Parabolic_SAR|2024-06-28", "label": "MARUTI|technical|Parabolic_SAR|2024-06-28", "community": 0, "signal": "positive", "value_text": "PSAR: 11584.65, Price: 12399.30", "weight": 0.04, "color": "#00e676", "val": 2, "degree": 6, "source_file": "technical · positive"}, {"id": "MARUTI|technical|Stochastic|2024-06-28", "label": "MARUTI|technical|Stochastic|2024-06-28", "community": 0, "signal": "positive", "value_text": "Stoch %K: 13.1, %D: 38.9", "weight": 0.05, "color": "#00e676", "val": 2, "degree": 6, "source_file": "technical · positive"}, {"id": "MARUTI|technical|Williams_R|2024-06-28", "label": "MARUTI|technical|Williams_R|2024-06-28", "community": 0, "signal": "positive", "value_text": "Williams %R: -86.9", "weight": 0.04, "color": "#00e676", "val": 2, "degree": 6, "source_file": "technical · positive"}, {"id": "MARUTI|technical|ROC|2024-06-28", "label": "MARUTI|technical|ROC|2024-06-28", "community": 0, "signal": "negative", "value_text": "ROC: -2.88%", "weight": 0.04, "color": "#ff5252", "val": 2, "degree": 7, "source_file": "technical · negative"}, {"id": "MARUTI|technical|OBV|2024-06-28", "label": "MARUTI|technical|OBV|2024-06-28", "community": 0, "signal": "negative", "value_text": "OBV: -3.3M, Trend: Bearish Confirmation", "weight": 0.06, "color": "#ff5252", "val": 2, "degree": 9, "source_file": "technical · negative"}, {"id": "MARUTI|technical|VWAP|2024-06-28", "label": "MARUTI|technical|VWAP|2024-06-28", "community": 0, "signal": "negative", "value_text": "VWAP: 12672.76, Price: 12399.30", "weight": 0.06, "color": "#ff5252", "val": 2, "degree": 8, "source_file": "technical · negative"}, {"id": "MARUTI|technical|CMF|2024-06-28", "label": "MARUTI|technical|CMF|2024-06-28", "community": 0, "signal": "neutral", "value_text": "CMF: 0.070", "weight": 0.05, "color": "#4FC3F7", "val": 2, "degree": 5, "source_file": "technical · neutral"}, {"id": "MARUTI|technical|MFI|2024-06-28", "label": "MARUTI|technical|MFI|2024-06-28", "community": 0, "signal": "neutral", "value_text": "MFI: 28.5", "weight": 0.05, "color": "#4FC3F7", "val": 2, "degree": 4, "source_file": "technical · neutral"}, {"id": "MARUTI|technical|52W_HL_Ratio|2024-06-28", "label": "MARUTI|technical|52W_HL_Ratio|2024-06-28", "community": 0, "signal": "negative", "value_text": "52W: 9216–13058, CMP: 12399 (83%)", "weight": 0.04, "color": "#ff5252", "val": 2, "degree": 3, "source_file": "technical · negative"}, {"id": "MARUTI|fundamental|PE_Ratio|2024-06-28", "label": "MARUTI|fundamental|PE_Ratio|2024-06-28", "community": 1, "signal": "neutral", "value_text": "PE: 28.3", "weight": 0.06, "color": "#81C784", "val": 2, "degree": 4, "source_file": "fundamental · neutral"}, {"id": "MARUTI|fundamental|PB_Ratio|2024-06-28", "label": "MARUTI|fundamental|PB_Ratio|2024-06-28", "community": 1, "signal": "neutral", "value_text": "PB: 4.70", "weight": 0.06, "color": "#81C784", "val": 2, "degree": 4, "source_file": "fundamental · neutral"}, {"id": "MARUTI|fundamental|ROE|2024-06-28", "label": "MARUTI|fundamental|ROE|2024-06-28", "community": 1, "signal": "positive", "value_text": "ROE: 16.6%", "weight": 0.04, "color": "#00e676", "val": 2, "degree": 7, "source_file": "fundamental · positive"}, {"id": "MARUTI|fundamental|EPS|2024-06-28", "label": "MARUTI|fundamental|EPS|2024-06-28", "community": 1, "signal": "neutral", "value_text": "EPS: ₹461.51", "weight": 0.06, "color": "#81C784", "val": 2, "degree": 6, "source_file": "fundamental · neutral"}, {"id": "MARUTI|fundamental|OPM|2024-06-28", "label": "MARUTI|fundamental|OPM|2024-06-28", "community": 1, "signal": "neutral", "value_text": "OPM: 13.3%", "weight": 0.06, "color": "#81C784", "val": 2, "degree": 6, "source_file": "fundamental · neutral"}, {"id": "MARUTI|fundamental|NPM|2024-06-28", "label": "MARUTI|fundamental|NPM|2024-06-28", "community": 1, "signal": "neutral", "value_text": "NPM: 7.6%", "weight": 0.06, "color": "#81C784", "val": 2, "degree": 6, "source_file": "fundamental · neutral"}, {"id": "MARUTI|fundamental|Revenue_Quarterly|2024-06-28", "label": "MARUTI|fundamental|Revenue_Quarterly|2024-06-28", "community": 1, "signal": "positive", "value_text": "Q Revenue: ₹49,904 Cr (latest period: Dec 2025)", "weight": 0.08, "color": "#00e676", "val": 2, "degree": 7, "source_file": "fundamental · positive"}, {"id": "MARUTI|fundamental|Net_Profit_Quarterly|2024-06-28", "label": "MARUTI|fundamental|Net_Profit_Quarterly|2024-06-28", "community": 1, "signal": "positive", "value_text": "Q PAT: ₹3,879 Cr (latest period: Dec 2025)", "weight": 0.08, "color": "#00e676", "val": 2, "degree": 8, "source_file": "fundamental · positive"}, {"id": "MARUTI|fundamental|Revenue_Annual|2024-06-28", "label": "MARUTI|fundamental|Revenue_Annual|2024-06-28", "community": 1, "signal": "neutral", "value_text": "FY Revenue: ₹171,774 Cr (TTM)", "weight": 0.08, "color": "#81C784", "val": 2, "degree": 6, "source_file": "fundamental · neutral"}, {"id": "MARUTI|fundamental|Net_Profit_Annual|2024-06-28", "label": "MARUTI|fundamental|Net_Profit_Annual|2024-06-28", "community": 1, "signal": "neutral", "value_text": "FY PAT: ₹14,932 Cr (TTM)", "weight": 0.08, "color": "#81C784", "val": 2, "degree": 6, "source_file": "fundamental · neutral"}, {"id": "MARUTI|fundamental|Debt_To_Equity|2024-06-28", "label": "MARUTI|fundamental|Debt_To_Equity|2024-06-28", "community": 1, "signal": "neutral", "value_text": "D/E: 0.64", "weight": 0.05, "color": "#81C784", "val": 2, "degree": 7, "source_file": "fundamental · neutral"}, {"id": "MARUTI|fundamental|Operating_Cash_Flow|2024-06-28", "label": "MARUTI|fundamental|Operating_Cash_Flow|2024-06-28", "community": 1, "signal": "positive", "value_text": "OCF: ₹16,136 Cr (Mar 2025)", "weight": 0.04, "color": "#00e676", "val": 2, "degree": 5, "source_file": "fundamental · positive"}, {"id": "MARUTI|fundamental|Promoter_Holding|2024-06-28", "label": "MARUTI|fundamental|Promoter_Holding|2024-06-28", "community": 1, "signal": "positive", "value_text": "Promoter: 58.5%", "weight": 0.05, "color": "#00e676", "val": 2, "degree": 5, "source_file": "fundamental · positive"}, {"id": "MARUTI|fundamental|Public_Retail_Holding|2024-06-28", "label": "MARUTI|fundamental|Public_Retail_Holding|2024-06-28", "community": 1, "signal": "neutral", "value_text": "Public/Retail: 41.5%", "weight": 0.05, "color": "#81C784", "val": 2, "degree": 3, "source_file": "fundamental · neutral"}, {"id": "MARUTI|news|News_Item_0|2026-04-26", "label": "MARUTI|news|News_Item_0|2026-04-26", "community": 2, "signal": "neutral", "value_text": "3 Upcoming Maruti Cars Spied On Test - Gaadiwaadi.com | Key insight: 3 Upcoming Maruti Cars Spied On Test Gaadiwaadi.com", "weight": 0.024, "color": "#FFB74D", "val": 2, "degree": 4, "source_file": "news · neutral"}, {"id": "MARUTI|news|News_Item_1|2026-04-25", "label": "MARUTI|news|News_Item_1|2026-04-25", "community": 2, "signal": "neutral", "value_text": "Maruti Suzuki Hustler- What To Expect? - MotorOctane — Maruti Suzuki Hustler- What To Expect? MotorOctane", "weight": 0.024, "color": "#FFB74D", "val": 2, "degree": 4, "source_file": "news · neutral"}, {"id": "MARUTI|news|News_Item_2|2026-04-25", "label": "MARUTI|news|News_Item_2|2026-04-25", "community": 2, "signal": "neutral", "value_text": "Q4 Results Next Week: From Coal India to Maruti Suzuki - Here are the major companies to declare quarterly earnings | Ke", "weight": 0.024, "color": "#FFB74D", "val": 2, "degree": 4, "source_file": "news · neutral"}, {"id": "MARUTI|news|News_Item_3|2026-04-25", "label": "MARUTI|news|News_Item_3|2026-04-25", "community": 2, "signal": "neutral", "value_text": "Q4 Results Next Week: Adani, CIL, Vedanta, HUL, Bajaj Finance, Maruti Suzuki Among 208 Companies To Declare Q4 | Key ins", "weight": 0.024, "color": "#FFB74D", "val": 2, "degree": 4, "source_file": "news · neutral"}, {"id": "MARUTI|announcement|Board_Meeting|2024-06-28", "label": "MARUTI|announcement|Board_Meeting|2024-06-28", "community": 3, "signal": "neutral", "value_text": "Board meeting: Board Meeting Intimation on 2026-04-28", "weight": 0.14, "color": "#F06292", "val": 2, "degree": 34, "source_file": "announcement · neutral"}, {"id": "MARUTI|announcement|Dividend_Declared|2024-06-28", "label": "MARUTI|announcement|Dividend_Declared|2024-06-28", "community": 3, "signal": "positive", "value_text": "Dividend declared, ex-date 2026-04-28", "weight": 0.55, "color": "#00e676", "val": 2.2, "degree": 16, "source_file": "announcement · positive"}, {"id": "MARUTI|announcement|Board_Meeting|2024-06-28", "label": "MARUTI|announcement|Board_Meeting|2024-06-28", "community": 3, "signal": "neutral", "value_text": "Board meeting: Board Meeting Intimation on 2026-01-28", "weight": 0.14, "color": "#F06292", "val": 2, "degree": 34, "source_file": "announcement · neutral"}, {"id": "MARUTI|announcement|Board_Meeting|2024-06-28", "label": "MARUTI|announcement|Board_Meeting|2024-06-28", "community": 3, "signal": "neutral", "value_text": "Board meeting: Financial Results on 2026-01-28", "weight": 0.4, "color": "#F06292", "val": 2, "degree": 34, "source_file": "announcement · neutral"}, {"id": "MARUTI|announcement|Board_Meeting|2024-06-28", "label": "MARUTI|announcement|Board_Meeting|2024-06-28", "community": 3, "signal": "neutral", "value_text": "Board meeting: Board Meeting Intimation on 2025-10-31", "weight": 0.14, "color": "#F06292", "val": 2, "degree": 34, "source_file": "announcement · neutral"}, {"id": "MARUTI|announcement|Board_Meeting|2024-06-28", "label": "MARUTI|announcement|Board_Meeting|2024-06-28", "community": 3, "signal": "neutral", "value_text": "Board meeting: Financial Results on 2025-10-31", "weight": 0.4, "color": "#F06292", "val": 2, "degree": 34, "source_file": "announcement · neutral"}, {"id": "MARUTI|announcement|Dividend_Declared|2024-06-28", "label": "MARUTI|announcement|Dividend_Declared|2024-06-28", "community": 3, "signal": "positive", "value_text": "Dividend: ₹5.0/share, ex-date 2025-08-01", "weight": 0.55, "color": "#00e676", "val": 2.2, "degree": 16, "source_file": "announcement · positive"}, {"id": "MARUTI|announcement|Dividend_Declared|2024-06-28", "label": "MARUTI|announcement|Dividend_Declared|2024-06-28", "community": 3, "signal": "positive", "value_text": "Dividend declared, ex-date 2025-08-01", "weight": 0.55, "color": "#00e676", "val": 2.2, "degree": 16, "source_file": "announcement · positive"}, {"id": "MARUTI|announcement|Board_Meeting|2024-06-28", "label": "MARUTI|announcement|Board_Meeting|2024-06-28", "community": 3, "signal": "neutral", "value_text": "Board meeting: Board Meeting Intimation on 2025-07-31", "weight": 0.14, "color": "#F06292", "val": 2, "degree": 34, "source_file": "announcement · neutral"}, {"id": "MARUTI|announcement|Board_Meeting|2024-06-28", "label": "MARUTI|announcement|Board_Meeting|2024-06-28", "community": 3, "signal": "neutral", "value_text": "Board meeting: Financial Results on 2025-07-31", "weight": 0.4, "color": "#F06292", "val": 2, "degree": 34, "source_file": "announcement · neutral"}, {"id": "MARUTI|context|Market_Regime|2024-06-28", "label": "MARUTI|context|Market_Regime|2024-06-28", "community": 4, "signal": "neutral", "value_text": "Unknown", "weight": 0.1, "color": "#CE93D8", "val": 2, "degree": 3, "source_file": "context · neutral"}, {"id": "MARUTI|context|Sector_Trend|2024-06-28", "label": "MARUTI|context|Sector_Trend|2024-06-28", "community": 4, "signal": "neutral", "value_text": "Data unavailable", "weight": 0.1, "color": "#CE93D8", "val": 2, "degree": 3, "source_file": "context · neutral"}, {"id": "MARUTI|context|Peer_Snapshot|2024-06-28", "label": "MARUTI|context|Peer_Snapshot|2024-06-28", "community": 4, "signal": "neutral", "value_text": "Peer data not yet implemented", "weight": 0.1, "color": "#CE93D8", "val": 2, "degree": 3, "source_file": "context · neutral"}, {"id": "MARUTI|context|Data_Completeness|2024-06-28", "label": "MARUTI|context|Data_Completeness|2024-06-28", "community": 4, "signal": "neutral", "value_text": "Computed by orchestrator", "weight": 0.1, "color": "#CE93D8", "val": 2, "degree": 3, "source_file": "context · neutral"}, {"id": "verdict::technical", "label": "TECHNICAL verdict", "community": 5, "signal": "mixed", "value_text": "mixed", "weight": 2.5, "color": "#ffd740", "val": 10, "degree": 6, "source_file": "verdict · technical"}, {"id": "verdict::fundamental", "label": "FUNDAMENTAL verdict", "community": 5, "signal": "mixed", "value_text": "mixed", "weight": 2.5, "color": "#ffd740", "val": 10, "degree": 6, "source_file": "verdict · fundamental"}, {"id": "verdict::news", "label": "NEWS verdict", "community": 5, "signal": "neutral", "value_text": "neutral", "weight": 2.5, "color": "#FF7043", "val": 10, "degree": 4, "source_file": "verdict · news"}, {"id": "verdict::announcement", "label": "ANNOUNCEMENT verdict", "community": 5, "signal": "neutral", "value_text": "neutral", "weight": 2.5, "color": "#FF7043", "val": 10, "degree": 2, "source_file": "verdict · announcement"}], "links": [{"source": "MARUTI|technical|RSI_14|2024-06-28", "target": "MARUTI|technical|ATR_14|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|RSI_14|2024-06-28", "target": "MARUTI|technical|Bollinger_Bands|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|RSI_14|2024-06-28", "target": "MARUTI|technical|EMA|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|ATR_14|2024-06-28", "target": "MARUTI|technical|Bollinger_Bands|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|ATR_14|2024-06-28", "target": "MARUTI|technical|EMA|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|ATR_14|2024-06-28", "target": "MARUTI|technical|SMA|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|Bollinger_Bands|2024-06-28", "target": "MARUTI|technical|EMA|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|Bollinger_Bands|2024-06-28", "target": "MARUTI|technical|SMA|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|Bollinger_Bands|2024-06-28", "target": "MARUTI|technical|Ichimoku|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|EMA|2024-06-28", "target": "MARUTI|technical|SMA|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|EMA|2024-06-28", "target": "MARUTI|technical|Ichimoku|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|EMA|2024-06-28", "target": "MARUTI|technical|Parabolic_SAR|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|SMA|2024-06-28", "target": "MARUTI|technical|Ichimoku|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|SMA|2024-06-28", "target": "MARUTI|technical|Parabolic_SAR|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|SMA|2024-06-28", "target": "MARUTI|technical|Stochastic|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|Ichimoku|2024-06-28", "target": "MARUTI|technical|Parabolic_SAR|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|Ichimoku|2024-06-28", "target": "MARUTI|technical|Stochastic|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|Ichimoku|2024-06-28", "target": "MARUTI|technical|Williams_R|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|Parabolic_SAR|2024-06-28", "target": "MARUTI|technical|Stochastic|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|Parabolic_SAR|2024-06-28", "target": "MARUTI|technical|Williams_R|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|Parabolic_SAR|2024-06-28", "target": "MARUTI|technical|ROC|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|Stochastic|2024-06-28", "target": "MARUTI|technical|Williams_R|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|Stochastic|2024-06-28", "target": "MARUTI|technical|ROC|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|Stochastic|2024-06-28", "target": "MARUTI|technical|OBV|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|Williams_R|2024-06-28", "target": "MARUTI|technical|ROC|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|Williams_R|2024-06-28", "target": "MARUTI|technical|OBV|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|Williams_R|2024-06-28", "target": "MARUTI|technical|VWAP|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|ROC|2024-06-28", "target": "MARUTI|technical|OBV|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|ROC|2024-06-28", "target": "MARUTI|technical|VWAP|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|ROC|2024-06-28", "target": "MARUTI|technical|CMF|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|OBV|2024-06-28", "target": "MARUTI|technical|VWAP|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|OBV|2024-06-28", "target": "MARUTI|technical|CMF|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|OBV|2024-06-28", "target": "MARUTI|technical|MFI|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|VWAP|2024-06-28", "target": "MARUTI|technical|CMF|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|VWAP|2024-06-28", "target": "MARUTI|technical|MFI|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|VWAP|2024-06-28", "target": "MARUTI|technical|52W_HL_Ratio|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|CMF|2024-06-28", "target": "MARUTI|technical|MFI|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|CMF|2024-06-28", "target": "MARUTI|technical|52W_HL_Ratio|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|MFI|2024-06-28", "target": "MARUTI|technical|52W_HL_Ratio|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|PE_Ratio|2024-06-28", "target": "MARUTI|fundamental|PB_Ratio|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|PE_Ratio|2024-06-28", "target": "MARUTI|fundamental|ROE|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|PE_Ratio|2024-06-28", "target": "MARUTI|fundamental|EPS|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|PB_Ratio|2024-06-28", "target": "MARUTI|fundamental|ROE|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|PB_Ratio|2024-06-28", "target": "MARUTI|fundamental|EPS|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|PB_Ratio|2024-06-28", "target": "MARUTI|fundamental|OPM|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|ROE|2024-06-28", "target": "MARUTI|fundamental|EPS|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|ROE|2024-06-28", "target": "MARUTI|fundamental|OPM|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|ROE|2024-06-28", "target": "MARUTI|fundamental|NPM|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|EPS|2024-06-28", "target": "MARUTI|fundamental|OPM|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|EPS|2024-06-28", "target": "MARUTI|fundamental|NPM|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|EPS|2024-06-28", "target": "MARUTI|fundamental|Revenue_Quarterly|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|OPM|2024-06-28", "target": "MARUTI|fundamental|NPM|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|OPM|2024-06-28", "target": "MARUTI|fundamental|Revenue_Quarterly|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|OPM|2024-06-28", "target": "MARUTI|fundamental|Net_Profit_Quarterly|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|NPM|2024-06-28", "target": "MARUTI|fundamental|Revenue_Quarterly|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|NPM|2024-06-28", "target": "MARUTI|fundamental|Net_Profit_Quarterly|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|NPM|2024-06-28", "target": "MARUTI|fundamental|Revenue_Annual|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|Revenue_Quarterly|2024-06-28", "target": "MARUTI|fundamental|Net_Profit_Quarterly|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|Revenue_Quarterly|2024-06-28", "target": "MARUTI|fundamental|Revenue_Annual|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|Revenue_Quarterly|2024-06-28", "target": "MARUTI|fundamental|Net_Profit_Annual|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|Net_Profit_Quarterly|2024-06-28", "target": "MARUTI|fundamental|Revenue_Annual|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|Net_Profit_Quarterly|2024-06-28", "target": "MARUTI|fundamental|Net_Profit_Annual|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|Net_Profit_Quarterly|2024-06-28", "target": "MARUTI|fundamental|Debt_To_Equity|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|Revenue_Annual|2024-06-28", "target": "MARUTI|fundamental|Net_Profit_Annual|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|Revenue_Annual|2024-06-28", "target": "MARUTI|fundamental|Debt_To_Equity|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|Revenue_Annual|2024-06-28", "target": "MARUTI|fundamental|Operating_Cash_Flow|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|Net_Profit_Annual|2024-06-28", "target": "MARUTI|fundamental|Debt_To_Equity|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|Net_Profit_Annual|2024-06-28", "target": "MARUTI|fundamental|Operating_Cash_Flow|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|Net_Profit_Annual|2024-06-28", "target": "MARUTI|fundamental|Promoter_Holding|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|Debt_To_Equity|2024-06-28", "target": "MARUTI|fundamental|Operating_Cash_Flow|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|Debt_To_Equity|2024-06-28", "target": "MARUTI|fundamental|Promoter_Holding|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|Debt_To_Equity|2024-06-28", "target": "MARUTI|fundamental|Public_Retail_Holding|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|Operating_Cash_Flow|2024-06-28", "target": "MARUTI|fundamental|Promoter_Holding|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|Operating_Cash_Flow|2024-06-28", "target": "MARUTI|fundamental|Public_Retail_Holding|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|fundamental|Promoter_Holding|2024-06-28", "target": "MARUTI|fundamental|Public_Retail_Holding|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|news|News_Item_0|2026-04-26", "target": "MARUTI|news|News_Item_1|2026-04-25", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|news|News_Item_0|2026-04-26", "target": "MARUTI|news|News_Item_2|2026-04-25", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|news|News_Item_0|2026-04-26", "target": "MARUTI|news|News_Item_3|2026-04-25", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|news|News_Item_1|2026-04-25", "target": "MARUTI|news|News_Item_2|2026-04-25", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|news|News_Item_1|2026-04-25", "target": "MARUTI|news|News_Item_3|2026-04-25", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|news|News_Item_2|2026-04-25", "target": "MARUTI|news|News_Item_3|2026-04-25", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Board_Meeting|2024-06-28", "target": "MARUTI|announcement|Dividend_Declared|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Board_Meeting|2024-06-28", "target": "MARUTI|announcement|Board_Meeting|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Board_Meeting|2024-06-28", "target": "MARUTI|announcement|Board_Meeting|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Dividend_Declared|2024-06-28", "target": "MARUTI|announcement|Board_Meeting|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Dividend_Declared|2024-06-28", "target": "MARUTI|announcement|Board_Meeting|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Dividend_Declared|2024-06-28", "target": "MARUTI|announcement|Board_Meeting|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Board_Meeting|2024-06-28", "target": "MARUTI|announcement|Board_Meeting|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Board_Meeting|2024-06-28", "target": "MARUTI|announcement|Board_Meeting|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Board_Meeting|2024-06-28", "target": "MARUTI|announcement|Board_Meeting|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Board_Meeting|2024-06-28", "target": "MARUTI|announcement|Board_Meeting|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Board_Meeting|2024-06-28", "target": "MARUTI|announcement|Board_Meeting|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Board_Meeting|2024-06-28", "target": "MARUTI|announcement|Dividend_Declared|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Board_Meeting|2024-06-28", "target": "MARUTI|announcement|Board_Meeting|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Board_Meeting|2024-06-28", "target": "MARUTI|announcement|Dividend_Declared|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Board_Meeting|2024-06-28", "target": "MARUTI|announcement|Dividend_Declared|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Board_Meeting|2024-06-28", "target": "MARUTI|announcement|Dividend_Declared|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Board_Meeting|2024-06-28", "target": "MARUTI|announcement|Dividend_Declared|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Board_Meeting|2024-06-28", "target": "MARUTI|announcement|Board_Meeting|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Dividend_Declared|2024-06-28", "target": "MARUTI|announcement|Dividend_Declared|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Dividend_Declared|2024-06-28", "target": "MARUTI|announcement|Board_Meeting|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Dividend_Declared|2024-06-28", "target": "MARUTI|announcement|Board_Meeting|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Dividend_Declared|2024-06-28", "target": "MARUTI|announcement|Board_Meeting|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Dividend_Declared|2024-06-28", "target": "MARUTI|announcement|Board_Meeting|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|announcement|Board_Meeting|2024-06-28", "target": "MARUTI|announcement|Board_Meeting|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|context|Market_Regime|2024-06-28", "target": "MARUTI|context|Sector_Trend|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|context|Market_Regime|2024-06-28", "target": "MARUTI|context|Peer_Snapshot|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|context|Market_Regime|2024-06-28", "target": "MARUTI|context|Data_Completeness|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|context|Sector_Trend|2024-06-28", "target": "MARUTI|context|Peer_Snapshot|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|context|Sector_Trend|2024-06-28", "target": "MARUTI|context|Data_Completeness|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|context|Peer_Snapshot|2024-06-28", "target": "MARUTI|context|Data_Completeness|2024-06-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "MARUTI|technical|EMA|2024-06-28", "target": "MARUTI|technical|SMA|2024-06-28", "type": "agreement", "color": "rgba(0,230,118,0.7)"}, {"source": "MARUTI|technical|OBV|2024-06-28", "target": "MARUTI|technical|VWAP|2024-06-28", "type": "agreement", "color": "rgba(0,230,118,0.7)"}, {"source": "MARUTI|fundamental|ROE|2024-06-28", "target": "MARUTI|fundamental|Net_Profit_Quarterly|2024-06-28", "type": "agreement", "color": "rgba(0,230,118,0.7)"}, {"source": "MARUTI|technical|EMA|2024-06-28", "target": "MARUTI|technical|OBV|2024-06-28", "type": "contradiction", "color": "rgba(255,82,82,0.7)"}, {"source": "MARUTI|technical|EMA|2024-06-28", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "MARUTI|technical|SMA|2024-06-28", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "MARUTI|technical|Ichimoku|2024-06-28", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "MARUTI|technical|ROC|2024-06-28", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "MARUTI|technical|OBV|2024-06-28", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "MARUTI|technical|VWAP|2024-06-28", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "MARUTI|fundamental|Revenue_Quarterly|2024-06-28", "target": "verdict::fundamental", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "MARUTI|fundamental|Net_Profit_Quarterly|2024-06-28", "target": "verdict::fundamental", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "MARUTI|fundamental|ROE|2024-06-28", "target": "verdict::fundamental", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "MARUTI|fundamental|Promoter_Holding|2024-06-28", "target": "verdict::fundamental", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "MARUTI|fundamental|PE_Ratio|2024-06-28", "target": "verdict::fundamental", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "MARUTI|fundamental|Debt_To_Equity|2024-06-28", "target": "verdict::fundamental", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "MARUTI|news|News_Item_0|2026-04-26", "target": "verdict::news", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "MARUTI|news|News_Item_1|2026-04-25", "target": "verdict::news", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "MARUTI|news|News_Item_2|2026-04-25", "target": "verdict::news", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "MARUTI|news|News_Item_3|2026-04-25", "target": "verdict::news", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "MARUTI|announcement|Dividend_Declared|2024-06-28", "target": "verdict::announcement", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "MARUTI|announcement|Board_Meeting|2024-06-28", "target": "verdict::announcement", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}], "communities": [{"id": 0, "key": "technical", "name": "Technical", "color": "#4FC3F7"}, {"id": 1, "key": "fundamental", "name": "Fundamental", "color": "#81C784"}, {"id": 2, "key": "news", "name": "News", "color": "#FFB74D"}, {"id": 3, "key": "announcement", "name": "Announcement", "color": "#F06292"}, {"id": 4, "key": "context", "name": "Context", "color": "#CE93D8"}, {"id": 5, "key": "verdict", "name": "Verdict", "color": "#FF7043"}], "meta": {"node_count": 51, "edge_count": 133}};
+
+let rotating    = true;
+let showLabels  = false;
+let edgesVisible= true;
+let layoutMode  = 0;
+const layouts   = ['3D Force', 'Sphere', 'Clusters'];
+
+const highlightNodes = new Set();
+const highlightLinks = new Set();
+
+// ── Colour helpers ─────────────────────────────────────────────────────────
+function nodeColor(node) {
+  if (!highlightNodes.size) return node.color;
+  return highlightNodes.has(node.id) ? node.color : node.color + '18';
+}
+function linkColor(link) {
+  if (!highlightLinks.size) return edgesVisible ? (link.color || 'rgba(255,255,255,0.12)') : 'rgba(255,255,255,0)';
+  return highlightLinks.has(link)
+    ? (link.color || 'rgba(100,200,255,0.8)')
+    : 'rgba(255,255,255,0.03)';
+}
+function linkWidth(link) {
+  if (!edgesVisible) return 0;
+  if (highlightLinks.has(link)) return 2.5;
+  if (link.type === 'same_category') return 0.3;
+  return 1.0;
+}
+
+// ── Build graph ────────────────────────────────────────────────────────────
+const Graph = ForceGraph3D()(document.getElementById('graph'))
+  .graphData(GRAPH_DATA)
+  .nodeId('id')
+  .nodeLabel(n => `<div style="background:rgba(13,17,23,.92);border:1px solid #30363d;border-radius:8px;padding:8px 12px;font-size:12px;color:#e6edf3;max-width:260px">
+    <strong style="color:${n.color}">${n.label}</strong><br>
+    <span style="color:#8b949e">${n.source_file}</span><br>
+    <span style="font-size:11px;color:#6e7681">${n.value_text}</span>
+  </div>`)
+  .nodeColor(nodeColor)
+  .nodeVal('val')
+  .nodeOpacity(0.92)
+  .linkSource('source')
+  .linkTarget('target')
+  .linkColor(linkColor)
+  .linkWidth(linkWidth)
+  .linkOpacity(0.85)
+  .linkDirectionalParticles(l => (l.type === 'agreement' || l.type === 'contradiction') ? 2 : 0)
+  .linkDirectionalParticleSpeed(0.004)
+  .linkDirectionalParticleColor(l => l.color || '#fff')
+  .backgroundColor('#0d1117')
+  .onNodeClick(node => {
+    highlightNodes.clear(); highlightLinks.clear();
+    if (node) {
+      highlightNodes.add(node.id);
+      GRAPH_DATA.links.forEach(l => {
+        const s = typeof l.source === 'object' ? l.source.id : l.source;
+        const t = typeof l.target === 'object' ? l.target.id : l.target;
+        if (s === node.id || t === node.id) {
+          highlightLinks.add(l); highlightNodes.add(s); highlightNodes.add(t);
+        }
+      });
+    }
+    Graph.nodeColor(nodeColor).linkColor(linkColor).linkWidth(linkWidth);
+    if (node) {
+      const comm = GRAPH_DATA.communities.find(c => c.id === node.community);
+      document.getElementById('node-info').innerHTML = `
+        <strong style="color:${node.color}">${node.label}</strong>
+        <span style="color:#58a6ff">${node.source_file}</span><br>
+        <span style="color:#8b949e;font-size:11px">${node.value_text || ''}</span><br>
+        <span style="color:#484f58;font-size:11px">Weight: ${node.weight} &nbsp;|&nbsp; ${highlightNodes.size - 1} connections</span>
+      `;
+      const dist = 100;
+      const r = 1 + dist / Math.hypot(node.x || 1, node.y || 1, node.z || 1);
+      Graph.cameraPosition({x: node.x*r, y: node.y*r, z: node.z*r}, node, 800);
+    }
+  })
+  .onBackgroundClick(() => {
+    highlightNodes.clear(); highlightLinks.clear();
+    Graph.nodeColor(nodeColor).linkColor(linkColor).linkWidth(linkWidth);
+    document.getElementById('node-info').textContent = 'Click any node to inspect';
+  });
+
+// ── Auto-rotate ────────────────────────────────────────────────────────────
+Graph.onEngineStop(() => {
+  const c = Graph.controls();
+  if (c) { c.autoRotate = rotating; c.autoRotateSpeed = 1.2; }
+});
+setTimeout(() => {
+  const c = Graph.controls();
+  if (c) { c.autoRotate = true; c.autoRotateSpeed = 1.2; }
+}, 600);
+
+// ── Legend ─────────────────────────────────────────────────────────────────
+const legendEl = document.getElementById('legend');
+const nodeCounts = {};
+GRAPH_DATA.nodes.forEach(n => { nodeCounts[n.community] = (nodeCounts[n.community] || 0) + 1; });
+
+GRAPH_DATA.communities.forEach(comm => {
+  if (!nodeCounts[comm.id]) return;
+  const div = document.createElement('div');
+  div.className = 'legend-item';
+  div.innerHTML = `<div class="legend-dot" style="background:${comm.color}"></div>
+    <span>${comm.name}</span><span class="legend-count">${nodeCounts[comm.id]}</span>`;
+  div.onclick = () => filterCommunity(comm.id);
+  legendEl.appendChild(div);
+});
+
+// ── Stats ──────────────────────────────────────────────────────────────────
+document.getElementById('stats').innerHTML =
+  `${GRAPH_DATA.meta.node_count} nodes &nbsp;|&nbsp; ${GRAPH_DATA.meta.edge_count} edges`;
+
+// ── Controls ───────────────────────────────────────────────────────────────
+function toggleRotate() {
+  rotating = !rotating;
+  document.getElementById('btn-rotate').classList.toggle('active', rotating);
+  const c = Graph.controls(); if (c) c.autoRotate = rotating;
+}
+function resetCamera() {
+  Graph.cameraPosition({x:0, y:0, z:600}, {x:0,y:0,z:0}, 800);
+  highlightNodes.clear(); highlightLinks.clear();
+  Graph.nodeColor(nodeColor).linkColor(linkColor).linkWidth(linkWidth);
+  document.getElementById('node-info').textContent = 'Click any node to inspect';
+}
+function toggleLabels() {
+  showLabels = !showLabels;
+  document.getElementById('btn-labels').classList.toggle('active', showLabels);
+  if (showLabels) {
+    Graph.nodeThreeObjectExtend(true).nodeThreeObject(node => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512; canvas.height = 72;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = 'rgba(13,17,23,0.88)';
+      ctx.beginPath(); ctx.roundRect(4, 8, 504, 56, 8); ctx.fill();
+      ctx.strokeStyle = node.color; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.roundRect(4, 8, 504, 56, 8); ctx.stroke();
+      const txt = node.label.length > 24 ? node.label.slice(0,22)+'…' : node.label;
+      ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle'; ctx.fillStyle = node.color;
+      ctx.fillText(txt, 256, 36);
+      const tex = new THREE.CanvasTexture(canvas);
+      const mat = new THREE.SpriteMaterial({map:tex, depthWrite:false, transparent:true});
+      const sprite = new THREE.Sprite(mat);
+      sprite.scale.set(42, 8, 1); sprite.position.set(0, 9, 0);
+      return sprite;
+    });
+  } else {
+    Graph.nodeThreeObjectExtend(false).nodeThreeObject(null);
+  }
+}
+function toggleEdges() {
+  edgesVisible = !edgesVisible;
+  document.getElementById('btn-edges').classList.toggle('active', edgesVisible);
+  Graph.linkColor(linkColor).linkWidth(linkWidth).linkOpacity(edgesVisible ? 0.85 : 0);
+}
+function cycleLayout() {
+  layoutMode = (layoutMode + 1) % 3;
+  document.getElementById('btn-layout').textContent = 'Layout: ' + layouts[layoutMode];
+  if (layoutMode === 1) {
+    const N = GRAPH_DATA.nodes.length;
+    GRAPH_DATA.nodes.forEach((n, i) => {
+      const phi = Math.acos(-1 + (2*i)/N), theta = Math.sqrt(N*Math.PI)*phi, R = 220;
+      n.fx = R*Math.cos(theta)*Math.sin(phi); n.fy = R*Math.sin(theta)*Math.sin(phi); n.fz = R*Math.cos(phi);
+    });
+    Graph.cameraPosition({x:0,y:0,z:600},{x:0,y:0,z:0},800);
+  } else if (layoutMode === 2) {
+    const comms = {};
+    GRAPH_DATA.nodes.forEach(n => { (comms[n.community] = comms[n.community]||[]).push(n); });
+    Object.keys(comms).forEach((cid, ci, keys) => {
+      const theta = (ci/keys.length)*2*Math.PI, R=280;
+      comms[cid].forEach((n,ni) => {
+        const r=60, a=(ni/comms[cid].length)*2*Math.PI;
+        n.fx = R*Math.cos(theta)+r*Math.cos(a); n.fy = R*Math.sin(theta)+r*Math.sin(a); n.fz=(Math.random()-.5)*80;
+      });
+    });
+  } else {
+    GRAPH_DATA.nodes.forEach(n => { delete n.fx; delete n.fy; delete n.fz; });
+    Graph.cameraPosition({x:0,y:0,z:600},{x:0,y:0,z:0},800);
+  }
+  Graph.graphData(GRAPH_DATA);
+}
+function filterCommunity(cid) {
+  highlightNodes.clear(); highlightLinks.clear();
+  const comm = GRAPH_DATA.communities.find(c => c.id === cid);
+  GRAPH_DATA.nodes.forEach(n => { if (n.community === cid) highlightNodes.add(n.id); });
+  GRAPH_DATA.links.forEach(l => {
+    const s = typeof l.source==='object'?l.source.id:l.source;
+    const t = typeof l.target==='object'?l.target.id:l.target;
+    if (highlightNodes.has(s) && highlightNodes.has(t)) highlightLinks.add(l);
+  });
+  Graph.nodeColor(node => highlightNodes.has(node.id) ? node.color : node.color+'18')
+       .linkColor(link => highlightLinks.has(link) ? (link.color||'rgba(100,200,255,0.7)') : 'rgba(255,255,255,0.02)')
+       .linkWidth(link => highlightLinks.has(link) ? 2.0 : 0.1);
+  document.getElementById('node-info').innerHTML =
+    `<strong style="color:${comm.color}">${comm.name}</strong><br>
+     <span style="color:#8b949e">${highlightNodes.size} nodes &nbsp;|&nbsp; ${highlightLinks.size} connections</span>`;
+}
+
+// ── Search ────────────────────────────────────────────────────────────────
+document.getElementById('search').addEventListener('input', e => {
+  const q = e.target.value.toLowerCase().trim();
+  if (!q) {
+    highlightNodes.clear(); highlightLinks.clear();
+    Graph.nodeColor(nodeColor).linkColor(linkColor).linkWidth(linkWidth);
+    document.getElementById('node-info').textContent = 'Click any node to inspect';
+    return;
+  }
+  highlightNodes.clear(); highlightLinks.clear();
+  const matched = GRAPH_DATA.nodes.filter(n =>
+    n.label.toLowerCase().includes(q) || n.source_file.toLowerCase().includes(q) || n.value_text.toLowerCase().includes(q)
+  );
+  matched.forEach(n => highlightNodes.add(n.id));
+  GRAPH_DATA.links.forEach(l => {
+    const s = typeof l.source==='object'?l.source.id:l.source;
+    const t = typeof l.target==='object'?l.target.id:l.target;
+    if (highlightNodes.has(s)||highlightNodes.has(t)) {
+      highlightLinks.add(l); highlightNodes.add(s); highlightNodes.add(t);
+    }
+  });
+  const G = '#00e676';
+  Graph.nodeColor(n => matched.some(m=>m.id===n.id) ? G : highlightNodes.has(n.id) ? G+'66' : n.color+'10')
+       .linkColor(l => highlightLinks.has(l) ? 'rgba(0,230,118,0.7)' : 'rgba(255,255,255,0.02)')
+       .linkWidth(l => highlightLinks.has(l) ? 3.0 : 0.05);
+  document.getElementById('node-info').innerHTML = matched.length === 1
+    ? `<strong style="color:${G}">${matched[0].label}</strong><br>
+       <span style="color:#8b949e">${matched[0].source_file}</span><br>
+       <span style="font-size:11px;color:#6e7681">${matched[0].value_text}</span>`
+    : `<strong style="color:${G}">${matched.length} matches found</strong><br>
+       <span style="color:#8b949e">${highlightNodes.size - matched.length} connected nodes</span>`;
+});
+</script>
+</body>
+</html>

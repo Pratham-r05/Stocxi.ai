@@ -17,11 +17,12 @@ from datetime import date
 from backend.schemas.messages import FetchDomain, FetchFailure, FetchRequest
 from backend.schemas.node import Node
 from backend.services.announcements_service import get_announcements
+from backend.services.context_generator import apply_announcement_context
 from backend.util.ist_calendar import now_ist
 
 logger = logging.getLogger(__name__)
 
-_TIMEOUT_SECONDS: float = 20.0
+_TIMEOUT_SECONDS: float = 45.0
 _ANNOUNCEMENT_SOURCE: str = "nse_announcements"
 
 
@@ -98,6 +99,9 @@ class AnnouncementAgent:
         # Mark all nodes sanitized — exchange-sourced structured data.
         for node in nodes:
             node.sanitized = True
+
+        # Promote llm_summary from value_raw into node.context (no extra LLM call)
+        nodes = apply_announcement_context(nodes)
 
         log.info("announcement_agent: %s — %d nodes fetched", symbol, len(nodes))
         return nodes

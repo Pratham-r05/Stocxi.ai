@@ -1,0 +1,3675 @@
+{
+  "nodes": [
+    {
+      "_id": "HEAD::technical",
+      "_labels": [
+        "technical"
+      ],
+      "label": "Technical Indicators",
+      "signal": "neutral",
+      "community": 0,
+      "weight": 3.0,
+      "effective_weight": null,
+      "value_text": "",
+      "context": "Technical indicators analyzing price trends, momentum, volume, and volatility patterns",
+      "color": "#FFFFFF",
+      "node_type": "head"
+    },
+    {
+      "_id": "HEAD::fundamental",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Fundamentals",
+      "signal": "neutral",
+      "community": 0,
+      "weight": 3.0,
+      "effective_weight": null,
+      "value_text": "",
+      "context": "Valuation ratios and company quality metrics measuring profitability and market positioning",
+      "color": "#FFFFFF",
+      "node_type": "head"
+    },
+    {
+      "_id": "HEAD::announcement",
+      "_labels": [
+        "announcement"
+      ],
+      "label": "Announcements",
+      "signal": "neutral",
+      "community": 0,
+      "weight": 3.0,
+      "effective_weight": null,
+      "value_text": "",
+      "context": "Exchange filings: quarterly results, board meetings, dividends, and corporate actions",
+      "color": "#FFFFFF",
+      "node_type": "head"
+    },
+    {
+      "_id": "HEAD::news",
+      "_labels": [
+        "news"
+      ],
+      "label": "News",
+      "signal": "neutral",
+      "community": 0,
+      "weight": 3.0,
+      "effective_weight": null,
+      "value_text": "",
+      "context": "Recent news coverage and sentiment from verified financial news sources",
+      "color": "#FFFFFF",
+      "node_type": "head"
+    },
+    {
+      "_id": "HEAD::financial",
+      "_labels": [
+        "financial"
+      ],
+      "label": "Financial Statements",
+      "signal": "neutral",
+      "community": 0,
+      "weight": 3.0,
+      "effective_weight": null,
+      "value_text": "",
+      "context": "Financial statements — balance sheet, P&L, cash flow, shareholding, and results",
+      "color": "#FFFFFF",
+      "node_type": "head"
+    },
+    {
+      "_id": "GROUP::financial::Balance Sheet",
+      "_labels": [
+        "financial"
+      ],
+      "label": "Balance Sheet",
+      "signal": "neutral",
+      "community": 3,
+      "weight": 2.0,
+      "effective_weight": null,
+      "value_text": "",
+      "context": "Assets, liabilities, and equity — leverage and solvency metrics",
+      "color": "#3B82F6",
+      "node_type": "group"
+    },
+    {
+      "_id": "GROUP::financial::P&L",
+      "_labels": [
+        "financial"
+      ],
+      "label": "P&L",
+      "signal": "neutral",
+      "community": 3,
+      "weight": 2.0,
+      "effective_weight": null,
+      "value_text": "",
+      "context": "Profitability — revenue, margins, earnings, and growth trends",
+      "color": "#3B82F6",
+      "node_type": "group"
+    },
+    {
+      "_id": "GROUP::financial::Cash Flow",
+      "_labels": [
+        "financial"
+      ],
+      "label": "Cash Flow",
+      "signal": "neutral",
+      "community": 3,
+      "weight": 2.0,
+      "effective_weight": null,
+      "value_text": "",
+      "context": "Operating, investing, and free cash flow analysis",
+      "color": "#3B82F6",
+      "node_type": "group"
+    },
+    {
+      "_id": "GROUP::financial::Share Holding",
+      "_labels": [
+        "financial"
+      ],
+      "label": "Share Holding",
+      "signal": "neutral",
+      "community": 3,
+      "weight": 2.0,
+      "effective_weight": null,
+      "value_text": "",
+      "context": "Promoter, institutional, and public ownership patterns",
+      "color": "#3B82F6",
+      "node_type": "group"
+    },
+    {
+      "_id": "GROUP::financial::Quarterly Result",
+      "_labels": [
+        "financial"
+      ],
+      "label": "Quarterly Result",
+      "signal": "neutral",
+      "community": 3,
+      "weight": 2.0,
+      "effective_weight": null,
+      "value_text": "",
+      "context": "Quarterly revenue, profit, and margin trends",
+      "color": "#3B82F6",
+      "node_type": "group"
+    },
+    {
+      "_id": "GROUP::financial::Annual Result",
+      "_labels": [
+        "financial"
+      ],
+      "label": "Annual Result",
+      "signal": "neutral",
+      "community": 3,
+      "weight": 2.0,
+      "effective_weight": null,
+      "value_text": "",
+      "context": "Annual financial performance and trajectory",
+      "color": "#3B82F6",
+      "node_type": "group"
+    },
+    {
+      "_id": "ASIANPAINT|technical|RSI_14|2026-04-29",
+      "_labels": [
+        "technical"
+      ],
+      "label": "RSI 14",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.08,
+      "effective_weight": 0.4408,
+      "value_text": "RSI: 58.2",
+      "context": "RSI at 58.2 shows balanced momentum, giving the stock room to rise before being considered overbought by short-term traders.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|technical|MACD|2026-04-29",
+      "_labels": [
+        "technical"
+      ],
+      "label": "MACD",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.08,
+      "effective_weight": 1.0,
+      "value_text": "MACD: 59.89, Signal: 45.50",
+      "context": "The MACD line crossing above its signal line is a bullish signal, suggesting strengthening upward momentum for the short term.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|technical|ADX_14|2026-04-29",
+      "_labels": [
+        "technical"
+      ],
+      "label": "ADX 14",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.06,
+      "effective_weight": 0.6677,
+      "value_text": "ADX: 32.1 (Trend)",
+      "context": "An ADX of 32.1 indicates a strong, established trend, giving short-term traders confidence in the current price direction.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|technical|ATR_14|2026-04-29",
+      "_labels": [
+        "technical"
+      ],
+      "label": "ATR 14",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.05,
+      "effective_weight": 0.4825,
+      "value_text": "ATR: 65.18 (2.6%)",
+      "context": "ATR at 2.6% shows moderate daily volatility, helping short-term traders set effective stop-losses and price targets.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29",
+      "_labels": [
+        "technical"
+      ],
+      "label": "Bollinger Bands",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.06,
+      "effective_weight": 0.5876,
+      "value_text": "BB: 2090.1 | 2365.4 | 2640.7 | P: 2462.6",
+      "context": "The price is in the upper half of the Bollinger Bands, confirming short-term bullish bias with the upper band as a target.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|technical|EMA|2026-04-29",
+      "_labels": [
+        "technical"
+      ],
+      "label": "EMA",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.06,
+      "effective_weight": 0.6968,
+      "value_text": "EMA20: 2407.4 | EMA50: 2391.2 | EMA200: 2470.3",
+      "context": "The short-term EMA crossover is bullish, but the price faces key resistance at the 200-day EMA (2470.3), a major hurdle.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|technical|SMA|2026-04-29",
+      "_labels": [
+        "technical"
+      ],
+      "label": "SMA",
+      "signal": "negative",
+      "community": 1,
+      "weight": 0.05,
+      "effective_weight": 0.6968,
+      "value_text": "SMA20: 2365.4 | SMA50: 2332.4 | SMA200: 2522.0",
+      "context": "A short-term \"Golden Cross\" (20>50 SMA) is bullish, but the price below the 200 SMA (2522) signals major overhead resistance.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|technical|Ichimoku|2026-04-29",
+      "_labels": [
+        "technical"
+      ],
+      "label": "Ichimoku",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.05,
+      "effective_weight": 0.7404,
+      "value_text": "Cloud: 2348.5–2422.7 | Price: 2462.6",
+      "context": "The price above the Ichimoku Cloud is a strong bullish signal, with the cloud itself now acting as a key support zone.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|technical|Parabolic_SAR|2026-04-29",
+      "_labels": [
+        "technical"
+      ],
+      "label": "Parabolic SAR",
+      "signal": "negative",
+      "community": 1,
+      "weight": 0.04,
+      "effective_weight": 0.784,
+      "value_text": "PSAR: 2582.00, Price: 2462.60",
+      "context": "Parabolic SAR is above the price, giving a bearish signal that suggests a potential short-term trend reversal or pullback.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|technical|Stochastic|2026-04-29",
+      "_labels": [
+        "technical"
+      ],
+      "label": "Stochastic",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.05,
+      "effective_weight": 0.4725,
+      "value_text": "Stoch %K: 64.5, %D: 73.4",
+      "context": "The Stochastic's bearish crossover (%K below %D) warns of fading upward momentum, a risk for short-term bullish positions.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|technical|Williams_R|2026-04-29",
+      "_labels": [
+        "technical"
+      ],
+      "label": "Williams R",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.04,
+      "effective_weight": 0.5093,
+      "value_text": "Williams %R: -35.5",
+      "context": "Williams %R at -35.5 is in neutral territory, indicating the stock is not overbought and has room to move higher.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|technical|ROC|2026-04-29",
+      "_labels": [
+        "technical"
+      ],
+      "label": "ROC",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.04,
+      "effective_weight": 0.8274,
+      "value_text": "ROC: 8.50%",
+      "context": "A strong 8.50% Rate of Change confirms powerful recent buying momentum, supporting a continued bullish view for the short term.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|technical|OBV|2026-04-29",
+      "_labels": [
+        "technical"
+      ],
+      "label": "OBV",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.06,
+      "effective_weight": 0.8396,
+      "value_text": "OBV: 30.1M, Trend: Bullish Confirmation",
+      "context": "The rising OBV confirms the price uptrend with strong buying volume, suggesting continued upward momentum for short-term traders.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|technical|VWAP|2026-04-29",
+      "_labels": [
+        "technical"
+      ],
+      "label": "VWAP",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.06,
+      "effective_weight": 0.7867,
+      "value_text": "VWAP: 2402.50, Price: 2462.60",
+      "context": "The price trading above VWAP indicates strong intraday buying pressure, confirming the bullish sentiment for short-term positions.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|technical|CMF|2026-04-29",
+      "_labels": [
+        "technical"
+      ],
+      "label": "CMF",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.05,
+      "effective_weight": 0.833,
+      "value_text": "CMF: 0.229",
+      "context": "The positive CMF value of 0.229 shows strong buying pressure, confirming accumulation and supporting a bullish short-term outlook.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|technical|MFI|2026-04-29",
+      "_labels": [
+        "technical"
+      ],
+      "label": "MFI",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.05,
+      "effective_weight": 0.502,
+      "value_text": "MFI: 62.4",
+      "context": "MFI at 62.4 shows healthy buying momentum without being overbought, suggesting the current uptrend has room to continue short-term.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|technical|52W_HL_Ratio|2026-04-29",
+      "_labels": [
+        "technical"
+      ],
+      "label": "52W HL Ratio",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.04,
+      "effective_weight": 0.4825,
+      "value_text": "52W: 2115–2986, CMP: 2463 (40%)",
+      "context": "Trading at 40% of its 52-week range is neutral for short-term momentum, showing the stock is not near a major price ceiling.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|PE_Ratio|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "PE Ratio",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.06,
+      "effective_weight": 0.0696,
+      "value_text": "PE: 62.6",
+      "context": "The high PE ratio of 62.6 suggests the market has high growth expectations, making the stock's valuation neutral without a clear sector comparison.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|PB_Ratio|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "PB Ratio",
+      "signal": "negative",
+      "community": 1,
+      "weight": 0.06,
+      "effective_weight": 0.1028,
+      "value_text": "PB: 13.31",
+      "context": "A very high PB ratio of 13.31 indicates the stock is expensive relative to its book value, posing a negative short-term risk of price correction.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|ROE|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "ROE",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.04,
+      "effective_weight": 0.1924,
+      "value_text": "ROE: 21.3%",
+      "context": "The strong ROE of 21.3% shows efficient use of shareholder funds to generate profits, a positive indicator for underlying business strength.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|EPS|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "EPS",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.06,
+      "effective_weight": 0.0717,
+      "value_text": "EPS: ₹39.35",
+      "context": "The TTM EPS of ₹39.35 provides a baseline for valuation, but its trend is needed to assess momentum, making it a neutral short-term signal.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|OPM|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "OPM",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.06,
+      "effective_weight": 0.1301,
+      "value_text": "OPM: 22.5%",
+      "context": "A healthy operating margin of 22.5% reflects strong pricing power and operational efficiency, which is a positive sign for profitability.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|NPM|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "NPM",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.06,
+      "effective_weight": 0.1301,
+      "value_text": "NPM: 13.4%",
+      "context": "The solid net profit margin of 13.4% indicates strong overall profitability after all expenses, a positive signal for financial health.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Revenue_Quarterly|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Revenue Quarterly",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.08,
+      "effective_weight": 0.0478,
+      "value_text": "Q Revenue: ₹8,867 Cr (latest period: Dec 2025)",
+      "context": "The latest quarterly revenue of ₹8,867 Cr is a key performance metric; its stable trend provides a neutral outlook without signs of acceleration.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Net_Profit_Quarterly|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Net Profit Quarterly",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.08,
+      "effective_weight": 0.0478,
+      "value_text": "Q PAT: ₹1,074 Cr (latest period: Dec 2025)",
+      "context": "The latest quarterly net profit of ₹1,074 Cr shows consistent earnings, but its stable trend is neutral for short-term price momentum.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Revenue_Annual|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Revenue Annual",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.08,
+      "effective_weight": 0.0423,
+      "value_text": "FY Revenue: ₹34,696 Cr (TTM)",
+      "context": "The TTM revenue of ₹34,696 Cr confirms the company's large scale, but its annual nature makes it a neutral indicator for short-term trading.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Net_Profit_Annual|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Net Profit Annual",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.08,
+      "effective_weight": 0.0369,
+      "value_text": "FY PAT: ₹3,910 Cr (TTM)",
+      "context": "The TTM net profit of ₹3,910 Cr reflects solid annual profitability, but it is a lagging indicator and thus neutral for short-term price action.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Debt To Equity",
+      "signal": "negative",
+      "community": 1,
+      "weight": 0.05,
+      "effective_weight": 0.0816,
+      "value_text": "D/E: 37.05",
+      "context": "An exceptionally high D/E ratio of 37.05 indicates extreme financial leverage and risk, a significant negative for the company's stability.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Operating Cash Flow",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.04,
+      "effective_weight": 0.0527,
+      "value_text": "OCF: ₹4,424 Cr (Mar 2025)",
+      "context": "Strong annual operating cash flow of ₹4,424 Cr, exceeding net profit, indicates high-quality earnings and robust liquidity, a clear positive.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Revenue_TTM|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Revenue TTM",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.08,
+      "effective_weight": 0.0717,
+      "value_text": "Rev TTM: ₹34,696 Cr (+1.2% YoY)",
+      "context": "TTM revenue shows minimal YoY growth, indicating a stable but stagnating top-line, which is neutral for short-term momentum.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Revenue_Growth_YoY|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Revenue Growth YoY",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.08,
+      "effective_weight": 0.0717,
+      "value_text": "Revenue YoY: +1.2%",
+      "context": "The slow 1.2% YoY revenue growth signals a decelerating top-line, offering a neutral outlook for immediate price action.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|PAT_TTM|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "PAT TTM",
+      "signal": "negative",
+      "community": 1,
+      "weight": 0.08,
+      "effective_weight": 0.1219,
+      "value_text": "PAT TTM: ₹3,910 Cr (-8.7% YoY)",
+      "context": "Declining TTM profits despite flat revenue points to margin erosion, a negative signal for short-term investor sentiment.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|PAT_Growth_YoY|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "PAT Growth YoY",
+      "signal": "negative",
+      "community": 1,
+      "weight": 0.08,
+      "effective_weight": 0.1219,
+      "value_text": "PAT YoY: -8.7%",
+      "context": "The 8.7% YoY decline in profit is a clear negative, suggesting rising costs or pricing pressure that could weigh on the stock.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|EBITDA_TTM|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "EBITDA TTM",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.08,
+      "effective_weight": 0.0717,
+      "value_text": "EBITDA TTM: ₹6,345 Cr (+1.3% YoY)",
+      "context": "Stagnant TTM EBITDA growth reflects that operational performance is flat, providing a neutral signal for near-term momentum.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|EBITDA_Margin|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "EBITDA Margin",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.06,
+      "effective_weight": 0.0717,
+      "value_text": "EBITDA Margin: 20.0%",
+      "context": "The stable 20% EBITDA margin is healthy but expected given flat growth, making it a neutral factor for short-term price direction.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Free_Cashflow|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Free Cashflow",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.04,
+      "effective_weight": 0.1219,
+      "value_text": "FCF: ₹2,604 Cr (Mar 2025)",
+      "context": "Strong free cash flow generation indicates robust operational health and financial flexibility, a positive for investor confidence.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Interest_Coverage|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Interest Coverage",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.05,
+      "effective_weight": 0.1219,
+      "value_text": "Interest Coverage: 33.6x",
+      "context": "An extremely high interest coverage ratio of 33.6x signals a very strong balance sheet and low financial risk, a clear positive.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Market_Cap|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Market Cap",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.06,
+      "effective_weight": 0.1301,
+      "value_text": "Mkt Cap: ₹236,241 Cr",
+      "context": "The large market cap indicates high liquidity and institutional interest, which is positive for stable, short-term trading.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Total_Assets|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Total Assets",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.05,
+      "effective_weight": 0.0798,
+      "value_text": "Total Assets: ₹31,349 Cr (Sep 2025)",
+      "context": "The absolute value of total assets provides a snapshot of company size but is neutral for short-term direction without a growth trend.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Total_Liabilities|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Total Liabilities",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.05,
+      "effective_weight": 0.0717,
+      "value_text": "Total Liabilities: ₹31,349 Cr (Sep 2025)",
+      "context": "This balance sheet figure is neutral for short-term analysis without historical context or breakdown of debt vs. other liabilities.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Reserves|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Reserves",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.05,
+      "effective_weight": 0.0635,
+      "value_text": "Reserves: ₹19,483 Cr (Sep 2025)",
+      "context": "A healthy reserve base indicates long-term financial stability but is a neutral factor for short-term price momentum.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Borrowings|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Borrowings",
+      "signal": "negative",
+      "community": 1,
+      "weight": 0.05,
+      "effective_weight": 0.1137,
+      "value_text": "Borrowings: ₹3,557 Cr (Sep 2025) (YoY: +55.3%)",
+      "context": "Sharply accelerating YoY borrowings increase financial risk and interest burden, which is a negative signal for short-term sentiment.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Expenses_Quarterly|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Expenses Quarterly",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.08,
+      "effective_weight": 0.0635,
+      "value_text": "Q Expenses: ₹7,086 Cr (Dec 2025)",
+      "context": "Quarterly expenses represent costs to generate revenue; their impact is neutral until compared with sales growth and profitability trends.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Operating_Profit_Quarterly|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Operating Profit Quarterly",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.08,
+      "effective_weight": 0.1219,
+      "value_text": "Q OP: ₹1,781 Cr (Dec 2025)",
+      "context": "Strong quarterly operating profit shows robust core business performance, a positive driver for short-term momentum and investor confidence.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|OPM_Quarterly|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "OPM Quarterly",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.06,
+      "effective_weight": 0.0478,
+      "value_text": "Q OPM: 20.0%",
+      "context": "A 20% quarterly OPM indicates operational efficiency; its short-term impact is neutral pending comparison with sector averages and historical trends.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Expenses_Annual|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Expenses Annual",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.08,
+      "effective_weight": 0.0635,
+      "value_text": "FY Expenses: ₹28,350 Cr (TTM)",
+      "context": "Annual TTM expenses reflect the full-year cost structure; this is a neutral data point without context on revenue growth or margin trends.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Operating_Profit_Annual|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Operating Profit Annual",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.08,
+      "effective_weight": 0.0635,
+      "value_text": "FY OP: ₹6,346 Cr (TTM)",
+      "context": "The TTM operating profit shows full-year core earnings power, but its trend is key for momentum, making the absolute number a neutral signal.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|OPM_Annual|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "OPM Annual",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.06,
+      "effective_weight": 0.0553,
+      "value_text": "FY OPM: 18.0%",
+      "context": "The 18% TTM OPM reflects annual operational profitability; this is neutral until assessed against sector peers and its own historical performance.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|EPS_Annual|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "EPS Annual",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.06,
+      "effective_weight": 0.0553,
+      "value_text": "FY EPS: ₹40.10 (TTM)",
+      "context": "TTM EPS of ₹40.10 is a key valuation input, but its trend and comparison to price (P/E ratio) are needed, making it a neutral signal alone.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Cash_From_Investing|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Cash From Investing",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.04,
+      "effective_weight": 0.0553,
+      "value_text": "CFI: ₹-941 Cr (Mar 2025)",
+      "context": "Negative CFI indicates investment in assets (CapEx) for future growth, a neutral signal for short-term traders focused on immediate profitability.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Cash_From_Financing|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Cash From Financing",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.04,
+      "effective_weight": 0.0553,
+      "value_text": "CFF: ₹-3,753 Cr (Mar 2025)",
+      "context": "A large negative CFF suggests significant debt repayment or shareholder payouts, a neutral signal as it reflects past obligations or capital returns.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Promoter_Holding|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Promoter Holding",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.05,
+      "effective_weight": 0.1137,
+      "value_text": "Promoter: 52.6%",
+      "context": "A high promoter holding of 52.6% signals strong management conviction and aligns their interests with shareholders, which is a positive for stability.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|fundamental|Public_Retail_Holding|2026-04-29",
+      "_labels": [
+        "fundamental"
+      ],
+      "label": "Public Retail Holding",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.05,
+      "effective_weight": 0.0635,
+      "value_text": "Public/Retail: 47.3%",
+      "context": "A high public/retail holding of 47.3% ensures liquidity but can also lead to higher volatility, making it a neutral factor for price direction.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|news|News_Item_0|2026-04-27",
+      "_labels": [
+        "news"
+      ],
+      "label": "News Item 0",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.007,
+      "effective_weight": 0.1731,
+      "value_text": "[analyst_action] Asian Paints Ltd. Technical Momentum Shifts Amid Mixed Market Signals\nAnalysis: This article provides technical analysis on Asian Paints, noting a shift in momentum. However, the market signals are described as mixed, indicating uncertainty in the stock's short-term price direction.",
+      "context": "This article provides technical analysis on Asian Paints, noting a shift in momentum. However, the market signals are described as mixed, indicating uncertainty in the stock's short-term price directi",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|news|News_Item_1|2026-04-26",
+      "_labels": [
+        "news"
+      ],
+      "label": "News Item 1",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.014,
+      "effective_weight": 0.3704,
+      "value_text": "[analyst_action] Titan, Asian Paints, Britannia, DMart, Pidilite among consumer stocks to watch ahead of Q4 results | Check PL Capital's \nAnalysis: Asian Paints is highlighted as a consumer stock to watch ahead of its upcoming Q4 results. The article references a list from brokerage PL Capital, indi",
+      "context": "Asian Paints is highlighted as a consumer stock to watch ahead of its upcoming Q4 results. The article references a list from brokerage PL Capital, indicating analyst focus on the company's performanc",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|news|News_Item_2|2026-04-25",
+      "_labels": [
+        "news"
+      ],
+      "label": "News Item 2",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.019,
+      "effective_weight": 0.765,
+      "value_text": "[generic_positive] Asian Paints shares surge in trade after 6-8% price hike announcement - MSN\nAnalysis: Asian Paints announced a significant price hike of 6-8%, leading to a surge in its share price. This move is a direct response to rising input costs and is aimed at protecting profit margins. The",
+      "context": "Asian Paints announced a significant price hike of 6-8%, leading to a surge in its share price. This move is a direct response to rising input costs and is aimed at protecting profit margins. The mark",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|news|News_Item_3|2026-04-25",
+      "_labels": [
+        "news"
+      ],
+      "label": "News Item 3",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.011,
+      "effective_weight": 0.4292,
+      "value_text": "[analyst_action] Stock picks today: Apollo Hospitals, Power Grid, ITC, Asian Paints, IndiGo and more on brokerages' radar - MSN\nAnalysis: Asian Paints is mentioned as being on the radar of several brokerages. This indicates positive sentiment from the analyst community, likely due to recent positive",
+      "context": "Asian Paints is mentioned as being on the radar of several brokerages. This indicates positive sentiment from the analyst community, likely due to recent positive developments like the announced price",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|news|News_Item_4|2026-04-25",
+      "_labels": [
+        "news"
+      ],
+      "label": "News Item 4",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.002,
+      "effective_weight": 0.2683,
+      "value_text": "[generic_positive] From Asian Paints to PNB Housing Finance, Stocks in Focus on D-Street | Stock Market | BSE | NSE - Zee Business\nAnalysis: This is a generic market update article that lists Asian Paints as a \"Stock in Focus\". This mention is likely due to recent news and increased trading activity",
+      "context": "This is a generic market update article that lists Asian Paints as a \"Stock in Focus\". This mention is likely due to recent news and increased trading activity. It serves to highlight that the stock i",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|news|News_Item_5|2026-04-24",
+      "_labels": [
+        "news"
+      ],
+      "label": "News Item 5",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.018,
+      "effective_weight": 0.5781,
+      "value_text": "[analyst_action] Asian Paints Ltd. Sees Significant Open Interest Surge Amid Mixed Market Signals\nAnalysis: A significant surge in Open Interest (OI) was observed for Asian Paints derivatives. This indicates a large increase in trader activity and new positions being built. Such a surge often preced",
+      "context": "A significant surge in Open Interest (OI) was observed for Asian Paints derivatives. This indicates a large increase in trader activity and new positions being built. Such a surge often precedes highe",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|news|News_Item_6|2026-04-24",
+      "_labels": [
+        "news"
+      ],
+      "label": "News Item 6",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.007,
+      "effective_weight": 0.2821,
+      "value_text": "[analyst_action] ASIANPAINT Outlook for the Week (April 27, 2026 – May 01, 2026) - Equitypandit\nAnalysis: This article provides a weekly technical outlook for Asian Paints. It is aimed at short-term traders, offering analysis on potential price movements and key levels for the upcoming week. It is b",
+      "context": "This article provides a weekly technical outlook for Asian Paints. It is aimed at short-term traders, offering analysis on potential price movements and key levels for the upcoming week. It is based p",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|news|News_Item_7|2026-04-22",
+      "_labels": [
+        "news"
+      ],
+      "label": "News Item 7",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.007,
+      "effective_weight": 0.27,
+      "value_text": "[analyst_action] Asian Paints Ltd. Technical Momentum Shifts to Sideways Amid Mixed Indicator Signals\nAnalysis: This technical analysis piece notes that Asian Paints' momentum has shifted to \"sideways\". This suggests a period of price consolidation and indecision among traders, according to technica",
+      "context": "This technical analysis piece notes that Asian Paints' momentum has shifted to \"sideways\". This suggests a period of price consolidation and indecision among traders, according to technical indicators",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|news|News_Item_8|2026-04-22",
+      "_labels": [
+        "news"
+      ],
+      "label": "News Item 8",
+      "signal": "negative",
+      "community": 1,
+      "weight": 0.017,
+      "effective_weight": 0.7148,
+      "value_text": "[generic_negative] HPCL, IndiGo, Asian Paints, other crude sensitive shares decline as Brent crude rises 4%\nAnalysis: Asian Paints' stock declined as Brent crude prices surged by 4%. As crude oil derivatives are a key raw material for the paint industry, this price rise directly increases the compan",
+      "context": "Asian Paints' stock declined as Brent crude prices surged by 4%. As crude oil derivatives are a key raw material for the paint industry, this price rise directly increases the company's input costs. T",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|news|News_Item_9|2026-04-21",
+      "_labels": [
+        "news"
+      ],
+      "label": "News Item 9",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.019,
+      "effective_weight": 0.8255,
+      "value_text": "[generic_negative] Asian Paints Ltd. Falls to 52-Week Low of Rs 2151 Amid Sector Downturn\nAnalysis: Asian Paints' stock price fell to a new 52-week low of Rs 2151. This significant negative price milestone occurred amid a broader downturn affecting the sector. Hitting a 52-week low is a strong beari",
+      "context": "Asian Paints' stock price fell to a new 52-week low of Rs 2151. This significant negative price milestone occurred amid a broader downturn affecting the sector. Hitting a 52-week low is a strong beari",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|announcement|Board_Meeting|2026-04-29",
+      "_labels": [
+        "announcement"
+      ],
+      "label": "Board Meeting",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.14,
+      "effective_weight": 0.3675,
+      "value_text": "Asian Paints scheduled a board meeting for Jan 27, 2026, to approve results, a routine update with a neutral market impact.",
+      "context": "Asian Paints scheduled a board meeting for Jan 27, 2026, to approve results, a routine update with a neutral market impact.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|announcement|Board_Meeting|2026-04-29",
+      "_labels": [
+        "announcement"
+      ],
+      "label": "Board Meeting",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.4,
+      "effective_weight": 0.3675,
+      "value_text": "The board approved and released financial results on Jan 27, 2026. Market reaction will depend on performance versus expectations.",
+      "context": "The board approved and released financial results on Jan 27, 2026. Market reaction will depend on performance versus expectations.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29",
+      "_labels": [
+        "announcement"
+      ],
+      "label": "Dividend Declared",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.55,
+      "effective_weight": 0.7374,
+      "value_text": "The company declared an interim dividend of ₹4.50 per share, a positive signal for shareholders indicating healthy cash flow.",
+      "context": "The company declared an interim dividend of ₹4.50 per share, a positive signal for shareholders indicating healthy cash flow.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29",
+      "_labels": [
+        "announcement"
+      ],
+      "label": "Dividend Declared",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.55,
+      "effective_weight": 0.7374,
+      "value_text": "An interim dividend of ₹4.50 per share was confirmed, reinforcing shareholder returns and confidence in the company's financial health.",
+      "context": "An interim dividend of ₹4.50 per share was confirmed, reinforcing shareholder returns and confidence in the company's financial health.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|announcement|Board_Meeting|2026-04-29",
+      "_labels": [
+        "announcement"
+      ],
+      "label": "Board Meeting",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.14,
+      "effective_weight": 0.3675,
+      "value_text": "A board meeting was scheduled for Nov 12, 2025, to consider financial results and a dividend, a standard procedural announcement.",
+      "context": "A board meeting was scheduled for Nov 12, 2025, to consider financial results and a dividend, a standard procedural announcement.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29",
+      "_labels": [
+        "announcement"
+      ],
+      "label": "Dividend Declared",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.55,
+      "effective_weight": 0.7374,
+      "value_text": "The board approved quarterly results and an interim dividend on Nov 12, 2025, setting positive expectations for an upcoming shareholder payout.",
+      "context": "The board approved quarterly results and an interim dividend on Nov 12, 2025, setting positive expectations for an upcoming shareholder payout.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|announcement|Board_Meeting|2026-04-29",
+      "_labels": [
+        "announcement"
+      ],
+      "label": "Board Meeting",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.14,
+      "effective_weight": 0.3675,
+      "value_text": "The company announced a board meeting for July 29, 2025, likely to approve Q1 results. This is a routine update with neutral impact.",
+      "context": "The company announced a board meeting for July 29, 2025, likely to approve Q1 results. This is a routine update with neutral impact.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|announcement|Board_Meeting|2026-04-29",
+      "_labels": [
+        "announcement"
+      ],
+      "label": "Board Meeting",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.14,
+      "effective_weight": 0.3675,
+      "value_text": "The board meeting on July 29, 2025, also included 'other business matters,' a standard agenda item with no specific market impact.",
+      "context": "The board meeting on July 29, 2025, also included 'other business matters,' a standard agenda item with no specific market impact.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29",
+      "_labels": [
+        "announcement"
+      ],
+      "label": "Dividend Declared",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.55,
+      "effective_weight": 0.7374,
+      "value_text": "A substantial final dividend of ₹20.55 per share was declared, a highly positive move for investors reflecting strong annual performance.",
+      "context": "A substantial final dividend of ₹20.55 per share was declared, a highly positive move for investors reflecting strong annual performance.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29",
+      "_labels": [
+        "announcement"
+      ],
+      "label": "Dividend Declared",
+      "signal": "positive",
+      "community": 1,
+      "weight": 0.55,
+      "effective_weight": 0.7374,
+      "value_text": "The company confirmed a final dividend of ₹20.55 per share, rewarding shareholders and signaling confidence in its long-term financial stability.",
+      "context": "The company confirmed a final dividend of ₹20.55 per share, rewarding shareholders and signaling confidence in its long-term financial stability.",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|context|Market_Regime|2026-04-29",
+      "_labels": [
+        "context"
+      ],
+      "label": "Market Regime",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.1,
+      "effective_weight": 0.1558,
+      "value_text": "Unknown",
+      "context": "",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|context|Sector_Trend|2026-04-29",
+      "_labels": [
+        "context"
+      ],
+      "label": "Sector Trend",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.1,
+      "effective_weight": 0.1776,
+      "value_text": "Data unavailable",
+      "context": "",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|context|Peer_Snapshot|2026-04-29",
+      "_labels": [
+        "context"
+      ],
+      "label": "Peer Snapshot",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.1,
+      "effective_weight": 0.1994,
+      "value_text": "Peer data not yet implemented",
+      "context": "",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "ASIANPAINT|context|Data_Completeness|2026-04-29",
+      "_labels": [
+        "context"
+      ],
+      "label": "Data Completeness",
+      "signal": "neutral",
+      "community": 1,
+      "weight": 0.1,
+      "effective_weight": 0.2212,
+      "value_text": "Computed by orchestrator",
+      "context": "",
+      "color": "#374151",
+      "node_type": "child"
+    },
+    {
+      "_id": "VERDICT::technical",
+      "_labels": [
+        "verdict"
+      ],
+      "label": "Verdict: Technical",
+      "signal": "mixed",
+      "community": 2,
+      "weight": 2.5,
+      "effective_weight": null,
+      "value_text": "MIXED",
+      "context": "",
+      "color": "#8B5CF6",
+      "node_type": "verdict"
+    },
+    {
+      "_id": "VERDICT::fundamental",
+      "_labels": [
+        "verdict"
+      ],
+      "label": "Verdict: Fundamental",
+      "signal": "mixed",
+      "community": 2,
+      "weight": 2.5,
+      "effective_weight": null,
+      "value_text": "MIXED",
+      "context": "",
+      "color": "#8B5CF6",
+      "node_type": "verdict"
+    },
+    {
+      "_id": "VERDICT::news",
+      "_labels": [
+        "verdict"
+      ],
+      "label": "Verdict: News",
+      "signal": "mixed",
+      "community": 2,
+      "weight": 2.5,
+      "effective_weight": null,
+      "value_text": "MIXED",
+      "context": "",
+      "color": "#8B5CF6",
+      "node_type": "verdict"
+    },
+    {
+      "_id": "VERDICT::announcement",
+      "_labels": [
+        "verdict"
+      ],
+      "label": "Verdict: Announcement",
+      "signal": "bullish",
+      "community": 2,
+      "weight": 2.5,
+      "effective_weight": null,
+      "value_text": "BULLISH",
+      "context": "",
+      "color": "#8B5CF6",
+      "node_type": "verdict"
+    }
+  ],
+  "edges": [
+    {
+      "_from": "GROUP::financial::Balance Sheet",
+      "_to": "HEAD::financial",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.25)"
+    },
+    {
+      "_from": "GROUP::financial::P&L",
+      "_to": "HEAD::financial",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.25)"
+    },
+    {
+      "_from": "GROUP::financial::Cash Flow",
+      "_to": "HEAD::financial",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.25)"
+    },
+    {
+      "_from": "GROUP::financial::Share Holding",
+      "_to": "HEAD::financial",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.25)"
+    },
+    {
+      "_from": "GROUP::financial::Quarterly Result",
+      "_to": "HEAD::financial",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.25)"
+    },
+    {
+      "_from": "GROUP::financial::Annual Result",
+      "_to": "HEAD::financial",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.25)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|RSI_14|2026-04-29",
+      "_to": "HEAD::technical",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|MACD|2026-04-29",
+      "_to": "HEAD::technical",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|ADX_14|2026-04-29",
+      "_to": "HEAD::technical",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|ATR_14|2026-04-29",
+      "_to": "HEAD::technical",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29",
+      "_to": "HEAD::technical",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|EMA|2026-04-29",
+      "_to": "HEAD::technical",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|SMA|2026-04-29",
+      "_to": "HEAD::technical",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|Ichimoku|2026-04-29",
+      "_to": "HEAD::technical",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|Parabolic_SAR|2026-04-29",
+      "_to": "HEAD::technical",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|Stochastic|2026-04-29",
+      "_to": "HEAD::technical",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|Williams_R|2026-04-29",
+      "_to": "HEAD::technical",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|ROC|2026-04-29",
+      "_to": "HEAD::technical",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|OBV|2026-04-29",
+      "_to": "HEAD::technical",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|VWAP|2026-04-29",
+      "_to": "HEAD::technical",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|CMF|2026-04-29",
+      "_to": "HEAD::technical",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|MFI|2026-04-29",
+      "_to": "HEAD::technical",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|52W_HL_Ratio|2026-04-29",
+      "_to": "HEAD::technical",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|PE_Ratio|2026-04-29",
+      "_to": "HEAD::fundamental",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|PB_Ratio|2026-04-29",
+      "_to": "HEAD::fundamental",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|ROE|2026-04-29",
+      "_to": "HEAD::fundamental",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|EPS|2026-04-29",
+      "_to": "HEAD::fundamental",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|OPM|2026-04-29",
+      "_to": "HEAD::fundamental",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|NPM|2026-04-29",
+      "_to": "HEAD::fundamental",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Revenue_Quarterly|2026-04-29",
+      "_to": "GROUP::financial::Quarterly Result",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Net_Profit_Quarterly|2026-04-29",
+      "_to": "GROUP::financial::Quarterly Result",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Revenue_Annual|2026-04-29",
+      "_to": "GROUP::financial::Annual Result",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Net_Profit_Annual|2026-04-29",
+      "_to": "GROUP::financial::Annual Result",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29",
+      "_to": "GROUP::financial::Balance Sheet",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29",
+      "_to": "GROUP::financial::Cash Flow",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Revenue_TTM|2026-04-29",
+      "_to": "GROUP::financial::P&L",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Revenue_Growth_YoY|2026-04-29",
+      "_to": "GROUP::financial::P&L",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|PAT_TTM|2026-04-29",
+      "_to": "GROUP::financial::P&L",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|PAT_Growth_YoY|2026-04-29",
+      "_to": "GROUP::financial::P&L",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|EBITDA_TTM|2026-04-29",
+      "_to": "GROUP::financial::P&L",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|EBITDA_Margin|2026-04-29",
+      "_to": "GROUP::financial::P&L",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Free_Cashflow|2026-04-29",
+      "_to": "GROUP::financial::Cash Flow",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Interest_Coverage|2026-04-29",
+      "_to": "GROUP::financial::P&L",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Market_Cap|2026-04-29",
+      "_to": "GROUP::financial::P&L",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Total_Assets|2026-04-29",
+      "_to": "GROUP::financial::Balance Sheet",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Total_Liabilities|2026-04-29",
+      "_to": "GROUP::financial::Balance Sheet",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Reserves|2026-04-29",
+      "_to": "GROUP::financial::Balance Sheet",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Borrowings|2026-04-29",
+      "_to": "GROUP::financial::Balance Sheet",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Expenses_Quarterly|2026-04-29",
+      "_to": "GROUP::financial::Quarterly Result",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Operating_Profit_Quarterly|2026-04-29",
+      "_to": "GROUP::financial::Quarterly Result",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|OPM_Quarterly|2026-04-29",
+      "_to": "GROUP::financial::Quarterly Result",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Expenses_Annual|2026-04-29",
+      "_to": "GROUP::financial::Annual Result",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Operating_Profit_Annual|2026-04-29",
+      "_to": "GROUP::financial::Annual Result",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|OPM_Annual|2026-04-29",
+      "_to": "GROUP::financial::Annual Result",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|EPS_Annual|2026-04-29",
+      "_to": "GROUP::financial::Annual Result",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Cash_From_Investing|2026-04-29",
+      "_to": "GROUP::financial::Cash Flow",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Cash_From_Financing|2026-04-29",
+      "_to": "GROUP::financial::Cash Flow",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Promoter_Holding|2026-04-29",
+      "_to": "GROUP::financial::Share Holding",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Public_Retail_Holding|2026-04-29",
+      "_to": "GROUP::financial::Share Holding",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_0|2026-04-27",
+      "_to": "HEAD::news",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_1|2026-04-26",
+      "_to": "HEAD::news",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_2|2026-04-25",
+      "_to": "HEAD::news",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_3|2026-04-25",
+      "_to": "HEAD::news",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_4|2026-04-25",
+      "_to": "HEAD::news",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_5|2026-04-24",
+      "_to": "HEAD::news",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_6|2026-04-24",
+      "_to": "HEAD::news",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_7|2026-04-22",
+      "_to": "HEAD::news",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_8|2026-04-22",
+      "_to": "HEAD::news",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_9|2026-04-21",
+      "_to": "HEAD::news",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|announcement|Board_Meeting|2026-04-29",
+      "_to": "HEAD::announcement",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|announcement|Board_Meeting|2026-04-29",
+      "_to": "HEAD::announcement",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29",
+      "_to": "HEAD::announcement",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29",
+      "_to": "HEAD::announcement",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|announcement|Board_Meeting|2026-04-29",
+      "_to": "HEAD::announcement",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29",
+      "_to": "HEAD::announcement",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|announcement|Board_Meeting|2026-04-29",
+      "_to": "HEAD::announcement",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|announcement|Board_Meeting|2026-04-29",
+      "_to": "HEAD::announcement",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29",
+      "_to": "HEAD::announcement",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29",
+      "_to": "HEAD::announcement",
+      "_label": "belongs_to",
+      "edgeType": "belongs_to",
+      "color": "rgba(255,255,255,0.18)"
+    },
+    {
+      "_from": "HEAD::technical",
+      "_to": "VERDICT::technical",
+      "_label": "informs",
+      "edgeType": "informs",
+      "color": "rgba(255,255,255,0.30)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|MACD|2026-04-29",
+      "_to": "VERDICT::technical",
+      "_label": "informs",
+      "edgeType": "informs",
+      "color": "rgba(255,255,255,0.20)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|ROC|2026-04-29",
+      "_to": "VERDICT::technical",
+      "_label": "informs",
+      "edgeType": "informs",
+      "color": "rgba(255,255,255,0.20)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|OBV|2026-04-29",
+      "_to": "VERDICT::technical",
+      "_label": "informs",
+      "edgeType": "informs",
+      "color": "rgba(255,255,255,0.20)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|CMF|2026-04-29",
+      "_to": "VERDICT::technical",
+      "_label": "informs",
+      "edgeType": "informs",
+      "color": "rgba(255,255,255,0.20)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|SMA|2026-04-29",
+      "_to": "VERDICT::technical",
+      "_label": "informs",
+      "edgeType": "informs",
+      "color": "rgba(255,255,255,0.20)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|Parabolic_SAR|2026-04-29",
+      "_to": "VERDICT::technical",
+      "_label": "informs",
+      "edgeType": "informs",
+      "color": "rgba(255,255,255,0.20)"
+    },
+    {
+      "_from": "HEAD::fundamental",
+      "_to": "VERDICT::fundamental",
+      "_label": "informs",
+      "edgeType": "informs",
+      "color": "rgba(255,255,255,0.30)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|OPM|2026-04-29",
+      "_to": "VERDICT::fundamental",
+      "_label": "informs",
+      "edgeType": "informs",
+      "color": "rgba(255,255,255,0.20)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29",
+      "_to": "VERDICT::fundamental",
+      "_label": "informs",
+      "edgeType": "informs",
+      "color": "rgba(255,255,255,0.20)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|PAT_Growth_YoY|2026-04-29",
+      "_to": "VERDICT::fundamental",
+      "_label": "informs",
+      "edgeType": "informs",
+      "color": "rgba(255,255,255,0.20)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Revenue_Growth_YoY|2026-04-29",
+      "_to": "VERDICT::fundamental",
+      "_label": "informs",
+      "edgeType": "informs",
+      "color": "rgba(255,255,255,0.20)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Borrowings|2026-04-29",
+      "_to": "VERDICT::fundamental",
+      "_label": "informs",
+      "edgeType": "informs",
+      "color": "rgba(255,255,255,0.20)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|PB_Ratio|2026-04-29",
+      "_to": "VERDICT::fundamental",
+      "_label": "informs",
+      "edgeType": "informs",
+      "color": "rgba(255,255,255,0.20)"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29",
+      "_to": "VERDICT::fundamental",
+      "_label": "informs",
+      "edgeType": "informs",
+      "color": "rgba(255,255,255,0.20)"
+    },
+    {
+      "_from": "HEAD::news",
+      "_to": "VERDICT::news",
+      "_label": "informs",
+      "edgeType": "informs",
+      "color": "rgba(255,255,255,0.30)"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_2|2026-04-25",
+      "_to": "VERDICT::news",
+      "_label": "informs",
+      "edgeType": "informs",
+      "color": "rgba(255,255,255,0.20)"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_8|2026-04-22",
+      "_to": "VERDICT::news",
+      "_label": "informs",
+      "edgeType": "informs",
+      "color": "rgba(255,255,255,0.20)"
+    },
+    {
+      "_from": "HEAD::announcement",
+      "_to": "VERDICT::announcement",
+      "_label": "informs",
+      "edgeType": "informs",
+      "color": "rgba(255,255,255,0.30)"
+    },
+    {
+      "_from": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29",
+      "_to": "VERDICT::announcement",
+      "_label": "informs",
+      "edgeType": "informs",
+      "color": "rgba(255,255,255,0.20)"
+    },
+    {
+      "_from": "ASIANPAINT|technical|RSI_14|2026-04-29",
+      "_to": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|technical|RSI_14|2026-04-29",
+      "_to": "ASIANPAINT|technical|OBV|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|technical|ADX_14|2026-04-29",
+      "_to": "ASIANPAINT|technical|MACD|2026-04-29",
+      "_label": "AMPLIFIES",
+      "edgeType": "AMPLIFIES",
+      "color": "#00FFCC"
+    },
+    {
+      "_from": "ASIANPAINT|technical|ADX_14|2026-04-29",
+      "_to": "ASIANPAINT|technical|RSI_14|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|technical|MFI|2026-04-29",
+      "_to": "ASIANPAINT|technical|OBV|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|technical|ATR_14|2026-04-29",
+      "_to": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|announcement|Board_Meeting|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Net_Profit_Quarterly|2026-04-29",
+      "_label": "TRIGGERS",
+      "edgeType": "TRIGGERS",
+      "color": "#AA55FF"
+    },
+    {
+      "_from": "ASIANPAINT|announcement|Board_Meeting|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|OPM_Quarterly|2026-04-29",
+      "_label": "TRIGGERS",
+      "edgeType": "TRIGGERS",
+      "color": "#AA55FF"
+    },
+    {
+      "_from": "ASIANPAINT|announcement|Board_Meeting|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Revenue_Quarterly|2026-04-29",
+      "_label": "TRIGGERS",
+      "edgeType": "TRIGGERS",
+      "color": "#AA55FF"
+    },
+    {
+      "_from": "ASIANPAINT|announcement|Board_Meeting|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|ROE|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|PE_Ratio|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29",
+      "_label": "DAMPENS",
+      "edgeType": "DAMPENS",
+      "color": "#FF8844"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|ROE|2026-04-29",
+      "_label": "AMPLIFIES",
+      "edgeType": "AMPLIFIES",
+      "color": "#00FFCC"
+    },
+    {
+      "_from": "ASIANPAINT|context|Sector_Trend|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|PE_Ratio|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|context|Market_Regime|2026-04-29",
+      "_to": "ASIANPAINT|technical|RSI_14|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|context|Market_Regime|2026-04-29",
+      "_to": "ASIANPAINT|technical|MACD|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|context|Market_Regime|2026-04-29",
+      "_to": "ASIANPAINT|technical|ADX_14|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|context|Market_Regime|2026-04-29",
+      "_to": "ASIANPAINT|technical|ATR_14|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|context|Market_Regime|2026-04-29",
+      "_to": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|context|Market_Regime|2026-04-29",
+      "_to": "ASIANPAINT|technical|EMA|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|context|Market_Regime|2026-04-29",
+      "_to": "ASIANPAINT|technical|SMA|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|context|Market_Regime|2026-04-29",
+      "_to": "ASIANPAINT|technical|Ichimoku|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|context|Market_Regime|2026-04-29",
+      "_to": "ASIANPAINT|technical|Parabolic_SAR|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|context|Market_Regime|2026-04-29",
+      "_to": "ASIANPAINT|technical|Stochastic|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|context|Market_Regime|2026-04-29",
+      "_to": "ASIANPAINT|technical|Williams_R|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|context|Market_Regime|2026-04-29",
+      "_to": "ASIANPAINT|technical|ROC|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|context|Market_Regime|2026-04-29",
+      "_to": "ASIANPAINT|technical|OBV|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|context|Market_Regime|2026-04-29",
+      "_to": "ASIANPAINT|technical|VWAP|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|context|Market_Regime|2026-04-29",
+      "_to": "ASIANPAINT|technical|CMF|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|context|Market_Regime|2026-04-29",
+      "_to": "ASIANPAINT|technical|MFI|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|context|Market_Regime|2026-04-29",
+      "_to": "ASIANPAINT|technical|52W_HL_Ratio|2026-04-29",
+      "_label": "CONTEXTUALIZES",
+      "edgeType": "CONTEXTUALIZES",
+      "color": "#6688AA"
+    },
+    {
+      "_from": "ASIANPAINT|technical|RSI_14|2026-04-29",
+      "_to": "ASIANPAINT|technical|MACD|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|RSI_14|2026-04-29",
+      "_to": "ASIANPAINT|technical|ADX_14|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|RSI_14|2026-04-29",
+      "_to": "ASIANPAINT|technical|ATR_14|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|MACD|2026-04-29",
+      "_to": "ASIANPAINT|technical|ADX_14|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|MACD|2026-04-29",
+      "_to": "ASIANPAINT|technical|ATR_14|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|MACD|2026-04-29",
+      "_to": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|ADX_14|2026-04-29",
+      "_to": "ASIANPAINT|technical|ATR_14|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|ADX_14|2026-04-29",
+      "_to": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|ADX_14|2026-04-29",
+      "_to": "ASIANPAINT|technical|EMA|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|ATR_14|2026-04-29",
+      "_to": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|ATR_14|2026-04-29",
+      "_to": "ASIANPAINT|technical|EMA|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|ATR_14|2026-04-29",
+      "_to": "ASIANPAINT|technical|SMA|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29",
+      "_to": "ASIANPAINT|technical|EMA|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29",
+      "_to": "ASIANPAINT|technical|SMA|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29",
+      "_to": "ASIANPAINT|technical|Ichimoku|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|EMA|2026-04-29",
+      "_to": "ASIANPAINT|technical|SMA|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|EMA|2026-04-29",
+      "_to": "ASIANPAINT|technical|Ichimoku|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|EMA|2026-04-29",
+      "_to": "ASIANPAINT|technical|Parabolic_SAR|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|SMA|2026-04-29",
+      "_to": "ASIANPAINT|technical|Ichimoku|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|SMA|2026-04-29",
+      "_to": "ASIANPAINT|technical|Parabolic_SAR|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|SMA|2026-04-29",
+      "_to": "ASIANPAINT|technical|Stochastic|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|Ichimoku|2026-04-29",
+      "_to": "ASIANPAINT|technical|Parabolic_SAR|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|Ichimoku|2026-04-29",
+      "_to": "ASIANPAINT|technical|Stochastic|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|Ichimoku|2026-04-29",
+      "_to": "ASIANPAINT|technical|Williams_R|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|Parabolic_SAR|2026-04-29",
+      "_to": "ASIANPAINT|technical|Stochastic|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|Parabolic_SAR|2026-04-29",
+      "_to": "ASIANPAINT|technical|Williams_R|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|Parabolic_SAR|2026-04-29",
+      "_to": "ASIANPAINT|technical|ROC|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|Stochastic|2026-04-29",
+      "_to": "ASIANPAINT|technical|Williams_R|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|Stochastic|2026-04-29",
+      "_to": "ASIANPAINT|technical|ROC|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|Stochastic|2026-04-29",
+      "_to": "ASIANPAINT|technical|OBV|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|Williams_R|2026-04-29",
+      "_to": "ASIANPAINT|technical|ROC|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|Williams_R|2026-04-29",
+      "_to": "ASIANPAINT|technical|OBV|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|Williams_R|2026-04-29",
+      "_to": "ASIANPAINT|technical|VWAP|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|ROC|2026-04-29",
+      "_to": "ASIANPAINT|technical|OBV|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|ROC|2026-04-29",
+      "_to": "ASIANPAINT|technical|VWAP|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|ROC|2026-04-29",
+      "_to": "ASIANPAINT|technical|CMF|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|OBV|2026-04-29",
+      "_to": "ASIANPAINT|technical|VWAP|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|OBV|2026-04-29",
+      "_to": "ASIANPAINT|technical|CMF|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|OBV|2026-04-29",
+      "_to": "ASIANPAINT|technical|MFI|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|VWAP|2026-04-29",
+      "_to": "ASIANPAINT|technical|CMF|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|VWAP|2026-04-29",
+      "_to": "ASIANPAINT|technical|MFI|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|VWAP|2026-04-29",
+      "_to": "ASIANPAINT|technical|52W_HL_Ratio|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|CMF|2026-04-29",
+      "_to": "ASIANPAINT|technical|MFI|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|CMF|2026-04-29",
+      "_to": "ASIANPAINT|technical|52W_HL_Ratio|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|technical|MFI|2026-04-29",
+      "_to": "ASIANPAINT|technical|52W_HL_Ratio|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|PE_Ratio|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|PB_Ratio|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|PE_Ratio|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|ROE|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|PE_Ratio|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|EPS|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|PB_Ratio|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|ROE|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|PB_Ratio|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|EPS|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|PB_Ratio|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|OPM|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|ROE|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|EPS|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|ROE|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|OPM|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|ROE|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|NPM|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|EPS|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|OPM|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|EPS|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|NPM|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|EPS|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Revenue_Quarterly|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|OPM|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|NPM|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|OPM|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Revenue_Quarterly|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|OPM|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Net_Profit_Quarterly|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|NPM|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Revenue_Quarterly|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|NPM|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Net_Profit_Quarterly|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|NPM|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Revenue_Annual|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Revenue_Quarterly|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Net_Profit_Quarterly|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Revenue_Quarterly|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Revenue_Annual|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Revenue_Quarterly|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Net_Profit_Annual|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Net_Profit_Quarterly|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Revenue_Annual|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Net_Profit_Quarterly|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Net_Profit_Annual|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Net_Profit_Quarterly|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Revenue_Annual|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Net_Profit_Annual|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Revenue_Annual|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Revenue_Annual|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Net_Profit_Annual|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Net_Profit_Annual|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Net_Profit_Annual|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Revenue_TTM|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Revenue_TTM|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Revenue_Growth_YoY|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Revenue_TTM|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Revenue_Growth_YoY|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|PAT_TTM|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Revenue_TTM|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Revenue_Growth_YoY|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Revenue_TTM|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|PAT_TTM|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Revenue_TTM|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|PAT_Growth_YoY|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Revenue_Growth_YoY|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|PAT_TTM|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Revenue_Growth_YoY|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|PAT_Growth_YoY|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Revenue_Growth_YoY|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|EBITDA_TTM|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|PAT_TTM|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|PAT_Growth_YoY|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|PAT_TTM|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|EBITDA_TTM|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|PAT_TTM|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|EBITDA_Margin|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|PAT_Growth_YoY|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|EBITDA_TTM|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|PAT_Growth_YoY|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|EBITDA_Margin|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|PAT_Growth_YoY|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Free_Cashflow|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|EBITDA_TTM|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|EBITDA_Margin|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|EBITDA_TTM|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Free_Cashflow|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|EBITDA_TTM|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Interest_Coverage|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|EBITDA_Margin|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Free_Cashflow|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|EBITDA_Margin|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Interest_Coverage|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|EBITDA_Margin|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Market_Cap|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Free_Cashflow|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Interest_Coverage|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Free_Cashflow|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Market_Cap|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Free_Cashflow|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Total_Assets|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Interest_Coverage|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Market_Cap|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Interest_Coverage|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Total_Assets|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Interest_Coverage|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Total_Liabilities|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Market_Cap|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Total_Assets|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Market_Cap|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Total_Liabilities|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Market_Cap|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Reserves|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Total_Assets|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Total_Liabilities|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Total_Assets|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Reserves|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Total_Assets|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Borrowings|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Total_Liabilities|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Reserves|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Total_Liabilities|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Borrowings|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Total_Liabilities|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Expenses_Quarterly|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Reserves|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Borrowings|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Reserves|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Expenses_Quarterly|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Reserves|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Operating_Profit_Quarterly|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Borrowings|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Expenses_Quarterly|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Borrowings|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Operating_Profit_Quarterly|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Borrowings|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|OPM_Quarterly|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Expenses_Quarterly|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Operating_Profit_Quarterly|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Expenses_Quarterly|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|OPM_Quarterly|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Expenses_Quarterly|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Expenses_Annual|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Operating_Profit_Quarterly|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|OPM_Quarterly|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Operating_Profit_Quarterly|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Expenses_Annual|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Operating_Profit_Quarterly|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Operating_Profit_Annual|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|OPM_Quarterly|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Expenses_Annual|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|OPM_Quarterly|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Operating_Profit_Annual|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|OPM_Quarterly|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|OPM_Annual|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Expenses_Annual|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Operating_Profit_Annual|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Expenses_Annual|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|OPM_Annual|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Expenses_Annual|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|EPS_Annual|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Operating_Profit_Annual|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|OPM_Annual|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Operating_Profit_Annual|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|EPS_Annual|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Operating_Profit_Annual|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Cash_From_Investing|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|OPM_Annual|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|EPS_Annual|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|OPM_Annual|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Cash_From_Investing|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|OPM_Annual|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Cash_From_Financing|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|EPS_Annual|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Cash_From_Investing|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|EPS_Annual|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Cash_From_Financing|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|EPS_Annual|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Promoter_Holding|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Cash_From_Investing|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Cash_From_Financing|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Cash_From_Investing|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Promoter_Holding|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Cash_From_Investing|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Public_Retail_Holding|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Cash_From_Financing|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Promoter_Holding|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Cash_From_Financing|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Public_Retail_Holding|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|fundamental|Promoter_Holding|2026-04-29",
+      "_to": "ASIANPAINT|fundamental|Public_Retail_Holding|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_0|2026-04-27",
+      "_to": "ASIANPAINT|news|News_Item_1|2026-04-26",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_0|2026-04-27",
+      "_to": "ASIANPAINT|news|News_Item_2|2026-04-25",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_0|2026-04-27",
+      "_to": "ASIANPAINT|news|News_Item_3|2026-04-25",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_1|2026-04-26",
+      "_to": "ASIANPAINT|news|News_Item_2|2026-04-25",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_1|2026-04-26",
+      "_to": "ASIANPAINT|news|News_Item_3|2026-04-25",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_1|2026-04-26",
+      "_to": "ASIANPAINT|news|News_Item_4|2026-04-25",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_2|2026-04-25",
+      "_to": "ASIANPAINT|news|News_Item_3|2026-04-25",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_2|2026-04-25",
+      "_to": "ASIANPAINT|news|News_Item_4|2026-04-25",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_2|2026-04-25",
+      "_to": "ASIANPAINT|news|News_Item_5|2026-04-24",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_3|2026-04-25",
+      "_to": "ASIANPAINT|news|News_Item_4|2026-04-25",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_3|2026-04-25",
+      "_to": "ASIANPAINT|news|News_Item_5|2026-04-24",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_3|2026-04-25",
+      "_to": "ASIANPAINT|news|News_Item_6|2026-04-24",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_4|2026-04-25",
+      "_to": "ASIANPAINT|news|News_Item_5|2026-04-24",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_4|2026-04-25",
+      "_to": "ASIANPAINT|news|News_Item_6|2026-04-24",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_4|2026-04-25",
+      "_to": "ASIANPAINT|news|News_Item_7|2026-04-22",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_5|2026-04-24",
+      "_to": "ASIANPAINT|news|News_Item_6|2026-04-24",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_5|2026-04-24",
+      "_to": "ASIANPAINT|news|News_Item_7|2026-04-22",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_5|2026-04-24",
+      "_to": "ASIANPAINT|news|News_Item_8|2026-04-22",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_6|2026-04-24",
+      "_to": "ASIANPAINT|news|News_Item_7|2026-04-22",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_6|2026-04-24",
+      "_to": "ASIANPAINT|news|News_Item_8|2026-04-22",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_6|2026-04-24",
+      "_to": "ASIANPAINT|news|News_Item_9|2026-04-21",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_7|2026-04-22",
+      "_to": "ASIANPAINT|news|News_Item_8|2026-04-22",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_7|2026-04-22",
+      "_to": "ASIANPAINT|news|News_Item_9|2026-04-21",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|news|News_Item_8|2026-04-22",
+      "_to": "ASIANPAINT|news|News_Item_9|2026-04-21",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|announcement|Board_Meeting|2026-04-29",
+      "_to": "ASIANPAINT|announcement|Board_Meeting|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|announcement|Board_Meeting|2026-04-29",
+      "_to": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29",
+      "_to": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29",
+      "_to": "ASIANPAINT|announcement|Board_Meeting|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|context|Market_Regime|2026-04-29",
+      "_to": "ASIANPAINT|context|Sector_Trend|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|context|Market_Regime|2026-04-29",
+      "_to": "ASIANPAINT|context|Peer_Snapshot|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|context|Market_Regime|2026-04-29",
+      "_to": "ASIANPAINT|context|Data_Completeness|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|context|Sector_Trend|2026-04-29",
+      "_to": "ASIANPAINT|context|Peer_Snapshot|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|context|Sector_Trend|2026-04-29",
+      "_to": "ASIANPAINT|context|Data_Completeness|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "ASIANPAINT|context|Peer_Snapshot|2026-04-29",
+      "_to": "ASIANPAINT|context|Data_Completeness|2026-04-29",
+      "_label": "CORRELATES",
+      "edgeType": "CORRELATES",
+      "color": "#556677"
+    },
+    {
+      "_from": "HEAD::technical",
+      "_to": "HEAD::fundamental",
+      "_label": "cross_category",
+      "edgeType": "cross_category",
+      "color": "rgba(255,255,255,0.10)"
+    },
+    {
+      "_from": "HEAD::technical",
+      "_to": "HEAD::announcement",
+      "_label": "cross_category",
+      "edgeType": "cross_category",
+      "color": "rgba(255,255,255,0.10)"
+    },
+    {
+      "_from": "HEAD::technical",
+      "_to": "HEAD::news",
+      "_label": "cross_category",
+      "edgeType": "cross_category",
+      "color": "rgba(255,255,255,0.10)"
+    },
+    {
+      "_from": "HEAD::technical",
+      "_to": "HEAD::financial",
+      "_label": "cross_category",
+      "edgeType": "cross_category",
+      "color": "rgba(255,255,255,0.10)"
+    },
+    {
+      "_from": "HEAD::fundamental",
+      "_to": "HEAD::announcement",
+      "_label": "cross_category",
+      "edgeType": "cross_category",
+      "color": "rgba(255,255,255,0.10)"
+    },
+    {
+      "_from": "HEAD::fundamental",
+      "_to": "HEAD::news",
+      "_label": "cross_category",
+      "edgeType": "cross_category",
+      "color": "rgba(255,255,255,0.10)"
+    },
+    {
+      "_from": "HEAD::fundamental",
+      "_to": "HEAD::financial",
+      "_label": "cross_category",
+      "edgeType": "cross_category",
+      "color": "rgba(255,255,255,0.10)"
+    },
+    {
+      "_from": "HEAD::announcement",
+      "_to": "HEAD::news",
+      "_label": "cross_category",
+      "edgeType": "cross_category",
+      "color": "rgba(255,255,255,0.10)"
+    },
+    {
+      "_from": "HEAD::announcement",
+      "_to": "HEAD::financial",
+      "_label": "cross_category",
+      "edgeType": "cross_category",
+      "color": "rgba(255,255,255,0.10)"
+    },
+    {
+      "_from": "HEAD::news",
+      "_to": "HEAD::financial",
+      "_label": "cross_category",
+      "edgeType": "cross_category",
+      "color": "rgba(255,255,255,0.10)"
+    },
+    {
+      "_from": "VERDICT::technical",
+      "_to": "VERDICT::fundamental",
+      "_label": "cross_category",
+      "edgeType": "cross_category",
+      "color": "rgba(255,255,255,0.10)"
+    },
+    {
+      "_from": "VERDICT::technical",
+      "_to": "VERDICT::news",
+      "_label": "cross_category",
+      "edgeType": "cross_category",
+      "color": "rgba(255,255,255,0.10)"
+    },
+    {
+      "_from": "VERDICT::technical",
+      "_to": "VERDICT::announcement",
+      "_label": "cross_category",
+      "edgeType": "cross_category",
+      "color": "rgba(255,255,255,0.10)"
+    },
+    {
+      "_from": "VERDICT::fundamental",
+      "_to": "VERDICT::news",
+      "_label": "cross_category",
+      "edgeType": "cross_category",
+      "color": "rgba(255,255,255,0.10)"
+    },
+    {
+      "_from": "VERDICT::fundamental",
+      "_to": "VERDICT::announcement",
+      "_label": "cross_category",
+      "edgeType": "cross_category",
+      "color": "rgba(255,255,255,0.10)"
+    },
+    {
+      "_from": "VERDICT::news",
+      "_to": "VERDICT::announcement",
+      "_label": "cross_category",
+      "edgeType": "cross_category",
+      "color": "rgba(255,255,255,0.10)"
+    }
+  ]
+}

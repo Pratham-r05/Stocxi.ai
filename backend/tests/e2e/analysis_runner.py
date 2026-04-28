@@ -29,7 +29,7 @@ import json
 import logging
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -58,7 +58,8 @@ from services.yfinance_service import get_price_and_fundamentals, get_history  #
 from services.screener_service import get_financials                            # noqa: E402
 from services.technicals_service import calculate_technicals                    # noqa: E402
 from services.news_service import get_news                                      # noqa: E402
-from fetchers.nse_client import fetch_announcements as _nse_fetch_announcements # noqa: E402
+from services.announcements_service import get_announcements as _svc_get_announcements # noqa: E402
+from schemas.messages import UserProfile                                       # noqa: E402
 from services.ai_service import _get_vertex_client                             # noqa: E402
 from config import settings                                                     # noqa: E402
 from graph.knowledge_graph import render_3d_html                               # noqa: E402
@@ -95,7 +96,12 @@ async def _collect(symbol: str) -> dict[str, Any]:
         get_financials(symbol),
         calculate_technicals(symbol),
         get_news(symbol, company_name),
-        _nse_fetch_announcements(symbol, limit=8),
+        _svc_get_announcements(
+            symbol=symbol,
+            as_of_date=date.today(),
+            profile=UserProfile(horizon="short", risk="moderate"),
+            request_id=f"e2e_{symbol}",
+        ),
         *[get_history(symbol, p) for p in _HISTORY_PERIODS],
         return_exceptions=True,
     )
@@ -110,9 +116,19 @@ async def _collect(symbol: str) -> dict[str, Any]:
     technicals    = _safe(technicals_result, {})
     news          = _safe(news_result, [])
 
-    # nse_client.fetch_announcements returns {"items": [...]} — normalise to flat list
-    ann_raw   = _safe(announcements_raw_result, {})
-    announcements: list[dict] = ann_raw.get("items", []) if isinstance(ann_raw, dict) else []
+    # announcements_service.get_announcements returns list[Node] — convert to dicts
+    raw_nodes = _safe(announcements_raw_result, [])
+    announcements: list[dict] = []
+    if isinstance(raw_nodes, list):
+        for node in raw_nodes:
+            vr = node.value_raw if hasattr(node, "value_raw") else {}
+            announcements.append({
+                "subject": vr.get("purpose", ""),
+                "category": vr.get("classification", ""),
+                "date": vr.get("date", ""),
+                "source": vr.get("_source", ""),
+                "llm_summary": vr.get("llm_summary", ""),
+            })
 
     history_map: dict[str, dict] = {}
     for period, result in zip(_HISTORY_PERIODS, history_results):

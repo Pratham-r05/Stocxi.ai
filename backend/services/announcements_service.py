@@ -20,11 +20,17 @@ Signal logic:
   Dividend declaration → positive (income signal)
   Bonus/split → positive (confidence signal)
   Regulatory filing → neutral (informational)
+
+LLM Summarization:
+  After PDF enrichment, all items are batch-summarized via Gemini 2.5 Pro.
+  Each announcement gets a 1-2 line summary stored in node.value.
+  Falls back to text truncation on LLM failure.
 """
 
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 from datetime import date, datetime
 from typing import Any
@@ -32,7 +38,7 @@ from typing import Any
 from backend.fetchers import bse_client, nse_client
 from backend.schemas.node import Node, NodeCategory, NodeSignal, HorizonRelevance
 from backend.schemas.messages import UserProfile
-from backend.config import yaml_cfg
+from backend.config import yaml_cfg, settings
 from backend.util.ist_calendar import now_ist
 
 logger = logging.getLogger(__name__)
@@ -70,6 +76,116 @@ def _normalise_date(raw: str) -> str:
     return raw
 
 
+async def _summarize_announcements(items: list[dict], symbol: str) -> list[dict]:
+    """
+    Batch-summarize announcements using Gemini 2.5 Pro.
+
+    Takes enriched announcement items (with purpose + pdf_text) and generates
+    a 1-2 line summary for each. Attaches ``llm_summary`` to each item dict.
+
+    Falls back gracefully — on any failure, items are returned unchanged
+    (node builder will use text truncation).
+
+    Args:
+        items:  Announcement dicts with ``purpose`` and optional ``pdf_text``.
+        symbol: NSE ticker for context.
+
+    Returns:
+        Same list with ``llm_summary`` key added where possible.
+    """
+    if not items:
+        return items
+
+    # Build compact input: index + purpose + date + truncated pdf_text
+    numbered: list[str] = []
+    for i, item in enumerate(items):
+        purpose = str(item.get("purpose") or item.get("subject") or "")[:200]
+        iso_date = _normalise_date(str(item.get("date") or item.get("ex_date") or ""))
+        pdf_text = str(item.get("pdf_text") or "")[:300]
+        cls = _classify(purpose, item.get("_type", "corporate_action"))
+        chunk = f"[{i}] type={cls} date={iso_date}\n{purpose}"
+        if pdf_text:
+            chunk += f"\nFiling excerpt: {pdf_text}"
+        numbered.append(chunk)
+
+    prompt = (
+        f"You are a SEBI-aware Indian equity analyst. Summarize each corporate "
+        f"announcement for {symbol} in 1-2 concise sentences (max 150 chars each). "
+        f"Focus on what happened and its likely market impact.\n\n"
+        f"Announcements:\n\n" + "\n---\n".join(numbered) +
+        f"\n\nReturn ONLY a JSON array of strings, one summary per announcement, "
+        f"in the same order. Example: [\"Board approved Q3 results showing 12% PAT growth.\", ...]"
+    )
+
+    try:
+        import google.auth
+        import google.auth.transport.requests
+        from openai import OpenAI
+
+        credentials, _ = google.auth.default(
+            scopes=["https://www.googleapis.com/auth/cloud-platform"]
+        )
+        credentials.refresh(google.auth.transport.requests.Request())
+        client = OpenAI(
+            api_key=credentials.token,
+            base_url=settings.google_base_url,
+        )
+
+        model_id = yaml_cfg.versions.get("llm", {}).get("active", "google/gemini-2.5-pro")
+
+        response = client.chat.completions.create(
+            model=model_id,
+            messages=[
+                {"role": "system", "content": "Output ONLY a valid JSON array of strings. No markdown, no backticks, no explanation."},
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0,
+            max_tokens=4096,
+        )
+
+        raw = (response.choices[0].message.content or "").strip()
+        # Strip markdown fences if present
+        if raw.startswith("```"):
+            raw = "\n".join(raw.split("\n")[1:]).strip()
+            if raw.endswith("```"):
+                raw = raw[:-3].strip()
+
+        summaries: list[str] = []
+        try:
+            parsed = json.loads(raw)
+            if isinstance(parsed, list):
+                summaries = [str(s) for s in parsed]
+        except json.JSONDecodeError:
+            # Try to fix truncated JSON: find last complete string entry
+            # e.g. '["summary1", "summary2", "summary3'  →  '["summary1", "summary2"]'
+            try:
+                # Find all complete quoted strings in the array
+                import re
+                strings = re.findall(r'"([^"]*)"', raw)
+                if strings:
+                    summaries = strings
+                    logger.warning("_summarize_announcements: recovered %d summaries from truncated JSON", len(summaries))
+            except Exception:
+                pass
+
+        if not summaries:
+            raise ValueError("No summaries recovered from LLM response")
+
+        # Attach summaries to items
+        for i, item in enumerate(items):
+            if i < len(summaries) and summaries[i].strip():
+                item["llm_summary"] = summaries[i].strip()[:150]
+
+        logger.info("_summarize_announcements: %s — %d/%d summaries generated",
+                    symbol, sum(1 for i in items if "llm_summary" in i), len(items))
+
+    except Exception as exc:
+        logger.warning("_summarize_announcements: LLM call failed for %s — falling back to truncation: %s",
+                       symbol, exc)
+
+    return items
+
+
 async def get_announcements(
     symbol: str,
     as_of_date: date,
@@ -78,6 +194,14 @@ async def get_announcements(
 ) -> list[Node]:
     """
     Fetch corporate announcements from NSE and BSE in parallel and merge.
+
+    Pipeline:
+      1. Fetch from NSE (boardMeetings + actions) and BSE (actions) in parallel
+      2. Sort by date descending, deduplicate by (date, purpose)
+      3. Keep top 10
+      4. Enrich with PDF text (best-effort)
+      5. Batch-summarize via Gemini 2.5 Pro (LLM)
+      6. Build one Node per announcement with summary as value
 
     Args:
         symbol:     NSE ticker in uppercase.
@@ -139,6 +263,9 @@ async def get_announcements(
 
     # Enrich with PDF text (best-effort, failures silently skipped)
     enriched = await _enrich_with_pdf_text(unique)
+
+    # Batch-summarize via Gemini 2.5 Pro (LLM) — attaches llm_summary to each item
+    enriched = await _summarize_announcements(enriched, symbol)
 
     return _build_nodes(enriched, symbol, as_of_date, profile, now_ist())
 
@@ -399,39 +526,43 @@ def _item_to_node(
         if "resignation" in p_low or "cessation" in p_low:
             signal = NodeSignal.negative   # exits are a flag
 
-    # ── Value string — include PDF snippet if available ───────────────────────
-    pdf_snippet = f" | Filing: {pdf_text[:120].strip()}" if pdf_text else ""
-    amount = _to_float(item.get("facevalue"))
-
-    if cls == "dividend_declared":
-        base = (f"Dividend: ₹{amount}/share, ex-date {iso_date}"
-                if amount else f"Dividend declared, ex-date {iso_date}")
-    elif cls == "buyback":
-        base = f"Buyback: {purpose[:100]}"
-    elif cls in ("board_meeting_results", "board_meeting_generic"):
-        base = f"Board meeting: {purpose[:80]} on {iso_date}"
-    elif cls == "sebi_action":
-        base = f"SEBI/Regulatory action: {purpose[:100]}"
-    elif cls == "fraud_allegation":
-        base = f"Fraud/audit flag: {purpose[:100]}"
-    elif cls == "leadership_change":
-        base = f"Leadership: {purpose[:100]}"
-    elif cls == "ma_event":
-        base = f"M&A/Restructuring: {purpose[:100]}"
-    elif cls == "promoter_trade":
-        base = f"Promoter activity: {purpose[:100]}"
-    elif cls == "credit_rating":
-        base = f"Credit rating: {purpose[:100]}"
-    elif cls == "rights_issue":
-        base = f"Rights issue: {purpose[:100]}"
-    elif cls == "agm_egm":
-        base = f"General meeting: {purpose[:100]}"
-    elif cls == "bonus_split":
-        base = f"{purpose[:100]}, date: {iso_date}"
+    # ── Value string — prefer LLM summary, fallback to truncated text ────────
+    llm_summary = item.get("llm_summary", "").strip()
+    if llm_summary:
+        value = llm_summary[:150]
     else:
-        base = purpose[:120]
+        pdf_snippet = f" | Filing: {pdf_text[:120].strip()}" if pdf_text else ""
+        amount = _to_float(item.get("facevalue"))
 
-    value = (base + pdf_snippet)[:150]   # cap at Node.value max 150 chars
+        if cls == "dividend_declared":
+            base = (f"Dividend: ₹{amount}/share, ex-date {iso_date}"
+                    if amount else f"Dividend declared, ex-date {iso_date}")
+        elif cls == "buyback":
+            base = f"Buyback: {purpose[:100]}"
+        elif cls in ("board_meeting_results", "board_meeting_generic"):
+            base = f"Board meeting: {purpose[:80]} on {iso_date}"
+        elif cls == "sebi_action":
+            base = f"SEBI/Regulatory action: {purpose[:100]}"
+        elif cls == "fraud_allegation":
+            base = f"Fraud/audit flag: {purpose[:100]}"
+        elif cls == "leadership_change":
+            base = f"Leadership: {purpose[:100]}"
+        elif cls == "ma_event":
+            base = f"M&A/Restructuring: {purpose[:100]}"
+        elif cls == "promoter_trade":
+            base = f"Promoter activity: {purpose[:100]}"
+        elif cls == "credit_rating":
+            base = f"Credit rating: {purpose[:100]}"
+        elif cls == "rights_issue":
+            base = f"Rights issue: {purpose[:100]}"
+        elif cls == "agm_egm":
+            base = f"General meeting: {purpose[:100]}"
+        elif cls == "bonus_split":
+            base = f"{purpose[:100]}, date: {iso_date}"
+        else:
+            base = purpose[:120]
+
+        value = (base + pdf_snippet)[:150]   # cap at Node.value max 150 chars
 
     return Node(
         stock=symbol,
@@ -444,6 +575,7 @@ def _item_to_node(
             "date":           iso_date,
             "attachment_url": item.get("pdf_url") or "",
             "pdf_text":       pdf_text,
+            "llm_summary":    llm_summary,
             "filing_type":    item_type,
             "facevalue":      item.get("facevalue"),
             "ex_date":        _normalise_date(str(item.get("ex_date") or "")),

@@ -22,12 +22,13 @@ from typing import Literal
 from backend.config import yaml_cfg
 from backend.schemas.messages import FetchDomain, FetchFailure, FetchRequest
 from backend.schemas.node import HorizonRelevance, Node, NodeCategory, NodeSignal
+from backend.services.context_generator import generate_context_category_context
 from backend.services.ohlcv_service import get_ohlcv
 from backend.util.ist_calendar import now_ist
 
 logger = logging.getLogger(__name__)
 
-_AGENT_TIMEOUT: float = 20.0
+_AGENT_TIMEOUT: float = 45.0
 _DOMAIN = FetchDomain.context
 
 # NSE sector index tickers keyed by lowercase sector label fragment
@@ -317,6 +318,18 @@ class ContextAgent:
                 _peer_snapshot_node(request, fetched_at),
                 _data_completeness_node(request, fetched_at),
             ]
+
+            # Generate horizon-aware context for context nodes that have real values
+            horizon = (
+                request.profile.horizon.value
+                if hasattr(request.profile.horizon, "value")
+                else str(request.profile.horizon)
+            )
+            try:
+                nodes = generate_context_category_context(nodes, horizon, "STOCK_A")
+            except Exception as exc:
+                logger.warning("agent_context: context generation failed (non-fatal): %s", exc)
+
             logger.info(
                 "agent_context: %s — 4 context nodes built (regime=%s sector=%s)",
                 request.stock, regime_node.value, sector_node.value,

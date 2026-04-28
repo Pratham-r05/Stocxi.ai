@@ -2,7 +2,7 @@
 
 > Every AI coding agent MUST read this file first, every session, before any other action.
 > If anything in this file conflicts with a user request, STOP and ask.
-
+## hello world i want to say that the 
 ---
 
 ## 0. Python Environment (NON-NEGOTIABLE)

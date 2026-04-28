@@ -16,11 +16,12 @@ from typing import Literal
 
 from backend.schemas.messages import FetchDomain, FetchFailure, FetchRequest
 from backend.schemas.node import Node
+from backend.services.context_generator import generate_technical_context
 from backend.services.technicals_service import get_technicals
 
 logger = logging.getLogger(__name__)
 
-_FETCH_TIMEOUT_SECONDS: int = 20
+_FETCH_TIMEOUT_SECONDS: int = 45
 
 
 class TechnicalAgent:
@@ -86,6 +87,25 @@ class TechnicalAgent:
             "[%s] TechnicalAgent.fetch — %d nodes returned (%d after validation)",
             rid, len(nodes), len(validated),
         )
+
+        # Generate horizon-aware context for each technical node (async → thread pool)
+        if validated:
+            horizon = request.profile.horizon.value if hasattr(request.profile.horizon, "value") else str(request.profile.horizon)
+            try:
+                validated = await asyncio.get_event_loop().run_in_executor(
+                    None,
+                    generate_technical_context,
+                    validated,
+                    horizon,
+                    "STOCK_A",  # never send real ticker to LLM
+                )
+                logger.info("[%s] TechnicalAgent — context generation complete", rid)
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(
+                    "[%s] TechnicalAgent — context generation failed (non-fatal): %s",
+                    rid, exc,
+                )
+
         return validated
 
     async def validate(self, nodes: list[Node]) -> list[Node]:

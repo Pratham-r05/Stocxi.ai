@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Stocxi — SBIN | 2024-03-28</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0d1117; color: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; overflow: hidden; }
+  #graph { width: 100vw; height: 100vh; }
+  #ui {
+    position: fixed; top: 16px; right: 16px; z-index: 100;
+    background: rgba(13,17,23,0.96); border: 1px solid #30363d;
+    border-radius: 12px; padding: 16px 18px; min-width: 260px; max-width: 300px;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  #title-bar {
+    font-size: 12px; color: #f0f6fc; margin-bottom: 12px;
+    letter-spacing: .8px; text-transform: uppercase; font-weight: 700;
+    border-bottom: 1px solid #30363d; padding-bottom: 8px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #search {
+    width: 100%; background: #0d1117; border: 2px solid #30363d;
+    border-radius: 8px; color: #e6edf3; padding: 8px 12px;
+    font-size: 13px; outline: none; margin-bottom: 10px; transition: all .2s;
+  }
+  #search:focus { border-color: #00e676; box-shadow: 0 0 0 3px rgba(0,230,118,.12); background: #161b22; }
+  #node-info {
+    font-size: 12px; color: #8b949e; min-height: 60px; margin-bottom: 10px;
+    padding: 10px; background: rgba(255,255,255,.03);
+    border-radius: 8px; border: 1px solid rgba(48,54,61,.6); line-height: 1.5;
+  }
+  #node-info strong { color: #e6edf3; display: block; margin-bottom: 4px; font-size: 13px; }
+  #controls { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+  button {
+    background: #21262d; border: 1px solid #30363d; color: #e6edf3;
+    padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;
+    transition: all .15s; font-weight: 500;
+  }
+  button:hover { background: #30363d; border-color: #484f58; }
+  button.active { background: #1f6feb; border-color: #388bfd; color: #fff; }
+  #legend { max-height: 220px; overflow-y: auto; }
+  #legend::-webkit-scrollbar { width: 3px; }
+  #legend::-webkit-scrollbar-thumb { background: #30363d; border-radius: 2px; }
+  .legend-item {
+    display: flex; align-items: center; gap: 8px; padding: 7px 6px;
+    font-size: 12px; cursor: pointer; border-radius: 6px;
+    transition: all .2s; margin-bottom: 2px;
+  }
+  .legend-item:hover { background: rgba(255,255,255,.08); transform: translateX(2px); }
+  .legend-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(255,255,255,.15); }
+  .legend-count { margin-left: auto; color: #484f58; font-size: 11px; }
+  #stats { font-size: 11px; color: #6e7681; margin-top: 10px; padding-top: 8px; border-top: 1px solid #21262d; }
+  #edge-legend { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+  .edge-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #8b949e; }
+  .edge-line { width: 22px; height: 2px; border-radius: 2px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div id="graph"></div>
+<div id="ui">
+  <div id="title-bar">Stocxi — SBIN | 2024-03-28</div>
+  <input id="search" placeholder="&#128269; Search indicators..." type="text">
+  <div id="node-info">Click any node to inspect</div>
+  <div id="controls">
+    <button id="btn-rotate" class="active" onclick="toggleRotate()">&#9654; Rotate</button>
+    <button onclick="resetCamera()">Reset</button>
+    <button id="btn-labels" onclick="toggleLabels()">Labels</button>
+    <button id="btn-layout" onclick="cycleLayout()">Layout: 3D</button>
+    <button id="btn-edges" class="active" onclick="toggleEdges()">Edges</button>
+  </div>
+  <div id="legend"></div>
+  <div id="edge-legend">
+    <div class="edge-item"><div class="edge-line" style="background:#00e676"></div> Agreement</div>
+    <div class="edge-item"><div class="edge-line" style="background:#ff5252"></div> Contradiction</div>
+    <div class="edge-item"><div class="edge-line" style="background:#ffab40"></div> Verdict support</div>
+  </div>
+  <div id="stats"></div>
+</div>
+
+<script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
+<script src="https://unpkg.com/3d-force-graph@1.73.2/dist/3d-force-graph.min.js"></script>
+<script>
+const GRAPH_DATA = {"nodes": [{"id": "SBIN|technical|RSI_14|2024-03-28", "label": "SBIN|technical|RSI_14|2024-03-28", "community": 0, "signal": "neutral", "value_text": "RSI: 55.3", "weight": 0.08, "color": "#4FC3F7", "val": 2, "degree": 4, "source_file": "technical · neutral"}, {"id": "SBIN|technical|MACD|2024-03-28", "label": "SBIN|technical|MACD|2024-03-28", "community": 0, "signal": "negative", "value_text": "MACD: 3.51, Signal: 7.57", "weight": 0.08, "color": "#ff5252", "val": 2, "degree": 5, "source_file": "technical · negative"}, {"id": "SBIN|technical|ADX_14|2024-03-28", "label": "SBIN|technical|ADX_14|2024-03-28", "community": 0, "signal": "neutral", "value_text": "ADX: 23.9 (Weak Trend)", "weight": 0.06, "color": "#4FC3F7", "val": 2, "degree": 6, "source_file": "technical · neutral"}, {"id": "SBIN|technical|ATR_14|2024-03-28", "label": "SBIN|technical|ATR_14|2024-03-28", "community": 0, "signal": "neutral", "value_text": "ATR: 16.88 (2.2%)", "weight": 0.05, "color": "#4FC3F7", "val": 2, "degree": 6, "source_file": "technical · neutral"}, {"id": "SBIN|technical|Bollinger_Bands|2024-03-28", "label": "SBIN|technical|Bollinger_Bands|2024-03-28", "community": 0, "signal": "neutral", "value_text": "BB: 715.1 | 754.0 | 792.9 | P: 752.4", "weight": 0.06, "color": "#4FC3F7", "val": 2, "degree": 6, "source_file": "technical · neutral"}, {"id": "SBIN|technical|EMA|2024-03-28", "label": "SBIN|technical|EMA|2024-03-28", "community": 0, "signal": "positive", "value_text": "EMA20: 744.4 | EMA50: 719.2 | EMA200: 638.0", "weight": 0.06, "color": "#00e676", "val": 2, "degree": 9, "source_file": "technical · positive"}, {"id": "SBIN|technical|SMA|2024-03-28", "label": "SBIN|technical|SMA|2024-03-28", "community": 0, "signal": "positive", "value_text": "SMA20: 754.0 | SMA50: 715.2 | SMA200: 622.0", "weight": 0.05, "color": "#00e676", "val": 2, "degree": 8, "source_file": "technical · positive"}, {"id": "SBIN|technical|Ichimoku|2024-03-28", "label": "SBIN|technical|Ichimoku|2024-03-28", "community": 0, "signal": "positive", "value_text": "Cloud: 697.0–748.1 | Price: 752.4", "weight": 0.05, "color": "#00e676", "val": 2, "degree": 7, "source_file": "technical · positive"}, {"id": "SBIN|technical|Parabolic_SAR|2024-03-28", "label": "SBIN|technical|Parabolic_SAR|2024-03-28", "community": 0, "signal": "positive", "value_text": "PSAR: 719.80, Price: 752.35", "weight": 0.04, "color": "#00e676", "val": 2, "degree": 8, "source_file": "technical · positive"}, {"id": "SBIN|technical|Stochastic|2024-03-28", "label": "SBIN|technical|Stochastic|2024-03-28", "community": 0, "signal": "neutral", "value_text": "Stoch %K: 44.2, %D: 30.0", "weight": 0.05, "color": "#4FC3F7", "val": 2, "degree": 6, "source_file": "technical · neutral"}, {"id": "SBIN|technical|Williams_R|2024-03-28", "label": "SBIN|technical|Williams_R|2024-03-28", "community": 0, "signal": "neutral", "value_text": "Williams %R: -55.8", "weight": 0.04, "color": "#4FC3F7", "val": 2, "degree": 6, "source_file": "technical · neutral"}, {"id": "SBIN|technical|ROC|2024-03-28", "label": "SBIN|technical|ROC|2024-03-28", "community": 0, "signal": "negative", "value_text": "ROC: -2.76%", "weight": 0.04, "color": "#ff5252", "val": 2, "degree": 7, "source_file": "technical · negative"}, {"id": "SBIN|technical|OBV|2024-03-28", "label": "SBIN|technical|OBV|2024-03-28", "community": 0, "signal": "negative", "value_text": "OBV: 629.4M, Trend: Bearish Divergence", "weight": 0.06, "color": "#ff5252", "val": 2, "degree": 8, "source_file": "technical · negative"}, {"id": "SBIN|technical|VWAP|2024-03-28", "label": "SBIN|technical|VWAP|2024-03-28", "community": 0, "signal": "positive", "value_text": "VWAP: 746.31, Price: 752.35", "weight": 0.06, "color": "#00e676", "val": 2, "degree": 7, "source_file": "technical · positive"}, {"id": "SBIN|technical|CMF|2024-03-28", "label": "SBIN|technical|CMF|2024-03-28", "community": 0, "signal": "neutral", "value_text": "CMF: -0.070", "weight": 0.05, "color": "#4FC3F7", "val": 2, "degree": 5, "source_file": "technical · neutral"}, {"id": "SBIN|technical|MFI|2024-03-28", "label": "SBIN|technical|MFI|2024-03-28", "community": 0, "signal": "neutral", "value_text": "MFI: 32.6", "weight": 0.05, "color": "#4FC3F7", "val": 2, "degree": 4, "source_file": "technical · neutral"}, {"id": "SBIN|technical|52W_HL_Ratio|2024-03-28", "label": "SBIN|technical|52W_HL_Ratio|2024-03-28", "community": 0, "signal": "negative", "value_text": "52W: 502–793, CMP: 752 (86%)", "weight": 0.04, "color": "#ff5252", "val": 2, "degree": 4, "source_file": "technical · negative"}, {"id": "SBIN|fundamental|PE_Ratio|2024-03-28", "label": "SBIN|fundamental|PE_Ratio|2024-03-28", "community": 1, "signal": "neutral", "value_text": "PE: 12.9", "weight": 0.06, "color": "#81C784", "val": 2, "degree": 4, "source_file": "fundamental · neutral"}, {"id": "SBIN|fundamental|PB_Ratio|2024-03-28", "label": "SBIN|fundamental|PB_Ratio|2024-03-28", "community": 1, "signal": "neutral", "value_text": "PB: 2.42", "weight": 0.06, "color": "#81C784", "val": 2, "degree": 5, "source_file": "fundamental · neutral"}, {"id": "SBIN|fundamental|ROE|2024-03-28", "label": "SBIN|fundamental|ROE|2024-03-28", "community": 1, "signal": "positive", "value_text": "ROE: 18.8%", "weight": 0.04, "color": "#00e676", "val": 2, "degree": 7, "source_file": "fundamental · positive"}, {"id": "SBIN|fundamental|EPS|2024-03-28", "label": "SBIN|fundamental|EPS|2024-03-28", "community": 1, "signal": "neutral", "value_text": "EPS: ₹85.57", "weight": 0.06, "color": "#81C784", "val": 2, "degree": 6, "source_file": "fundamental · neutral"}, {"id": "SBIN|fundamental|NPM|2024-03-28", "label": "SBIN|fundamental|NPM|2024-03-28", "community": 1, "signal": "positive", "value_text": "NPM: 17.2%", "weight": 0.06, "color": "#00e676", "val": 2, "degree": 8, "source_file": "fundamental · positive"}, {"id": "SBIN|fundamental|Revenue_Quarterly|2024-03-28", "label": "SBIN|fundamental|Revenue_Quarterly|2024-03-28", "community": 1, "signal": "neutral", "value_text": "Q Revenue: ₹130,590 Cr (latest period: Dec 2025)", "weight": 0.08, "color": "#81C784", "val": 2, "degree": 6, "source_file": "fundamental · neutral"}, {"id": "SBIN|fundamental|Net_Profit_Quarterly|2024-03-28", "label": "SBIN|fundamental|Net_Profit_Quarterly|2024-03-28", "community": 1, "signal": "neutral", "value_text": "Q PAT: ₹22,176 Cr (latest period: Dec 2025)", "weight": 0.08, "color": "#81C784", "val": 2, "degree": 6, "source_file": "fundamental · neutral"}, {"id": "SBIN|fundamental|Revenue_Annual|2024-03-28", "label": "SBIN|fundamental|Revenue_Annual|2024-03-28", "community": 1, "signal": "neutral", "value_text": "FY Revenue: ₹511,356 Cr (TTM)", "weight": 0.08, "color": "#81C784", "val": 2, "degree": 6, "source_file": "fundamental · neutral"}, {"id": "SBIN|fundamental|Net_Profit_Annual|2024-03-28", "label": "SBIN|fundamental|Net_Profit_Annual|2024-03-28", "community": 1, "signal": "neutral", "value_text": "FY PAT: ₹86,537 Cr (TTM)", "weight": 0.08, "color": "#81C784", "val": 2, "degree": 7, "source_file": "fundamental · neutral"}, {"id": "SBIN|fundamental|Operating_Cash_Flow|2024-03-28", "label": "SBIN|fundamental|Operating_Cash_Flow|2024-03-28", "community": 1, "signal": "positive", "value_text": "OCF: ₹48,486 Cr (Mar 2025)", "weight": 0.04, "color": "#00e676", "val": 2, "degree": 7, "source_file": "fundamental · positive"}, {"id": "SBIN|fundamental|Promoter_Holding|2024-03-28", "label": "SBIN|fundamental|Promoter_Holding|2024-03-28", "community": 1, "signal": "positive", "value_text": "Promoter: 55.5%", "weight": 0.05, "color": "#00e676", "val": 2, "degree": 5, "source_file": "fundamental · positive"}, {"id": "SBIN|fundamental|Public_Retail_Holding|2024-03-28", "label": "SBIN|fundamental|Public_Retail_Holding|2024-03-28", "community": 1, "signal": "neutral", "value_text": "Public/Retail: 44.5%", "weight": 0.05, "color": "#81C784", "val": 2, "degree": 3, "source_file": "fundamental · neutral"}, {"id": "SBIN|news|News_Item_0|2026-04-26", "label": "SBIN|news|News_Item_0|2026-04-26", "community": 2, "signal": "neutral", "value_text": "SBIN - Long | Key insight: The 2-hour chart of SBI shows a strong recovery after a prior downtrend, forming a rounded bo", "weight": 0.024, "color": "#FFB74D", "val": 2, "degree": 1, "source_file": "news · neutral"}, {"id": "SBIN|announcement|Board_Meeting|2024-03-28", "label": "SBIN|announcement|Board_Meeting|2024-03-28", "community": 3, "signal": "neutral", "value_text": "Board meeting: Board Meeting Intimation on 2026-02-07", "weight": 0.14, "color": "#F06292", "val": 2, "degree": 49, "source_file": "announcement · neutral"}, {"id": "SBIN|announcement|Board_Meeting|2024-03-28", "label": "SBIN|announcement|Board_Meeting|2024-03-28", "community": 3, "signal": "neutral", "value_text": "Board meeting: Financial Results on 2026-02-07", "weight": 0.4, "color": "#F06292", "val": 2, "degree": 49, "source_file": "announcement · neutral"}, {"id": "SBIN|announcement|Board_Meeting|2024-03-28", "label": "SBIN|announcement|Board_Meeting|2024-03-28", "community": 3, "signal": "neutral", "value_text": "Board meeting: Board Meeting Intimation on 2025-11-04", "weight": 0.14, "color": "#F06292", "val": 2, "degree": 49, "source_file": "announcement · neutral"}, {"id": "SBIN|announcement|Board_Meeting|2024-03-28", "label": "SBIN|announcement|Board_Meeting|2024-03-28", "community": 3, "signal": "neutral", "value_text": "Board meeting: Financial Results on 2025-11-04", "weight": 0.4, "color": "#F06292", "val": 2, "degree": 49, "source_file": "announcement · neutral"}, {"id": "SBIN|announcement|Board_Meeting|2024-03-28", "label": "SBIN|announcement|Board_Meeting|2024-03-28", "community": 3, "signal": "neutral", "value_text": "Board meeting: Board Meeting Intimation on 2025-08-08", "weight": 0.14, "color": "#F06292", "val": 2, "degree": 49, "source_file": "announcement · neutral"}, {"id": "SBIN|announcement|Board_Meeting|2024-03-28", "label": "SBIN|announcement|Board_Meeting|2024-03-28", "community": 3, "signal": "neutral", "value_text": "Board meeting: Financial Results on 2025-08-08", "weight": 0.4, "color": "#F06292", "val": 2, "degree": 49, "source_file": "announcement · neutral"}, {"id": "SBIN|announcement|Board_Meeting|2024-03-28", "label": "SBIN|announcement|Board_Meeting|2024-03-28", "community": 3, "signal": "neutral", "value_text": "Board meeting: Board Meeting Intimation on 2025-07-16", "weight": 0.14, "color": "#F06292", "val": 2, "degree": 49, "source_file": "announcement · neutral"}, {"id": "SBIN|announcement|Board_Meeting|2024-03-28", "label": "SBIN|announcement|Board_Meeting|2024-03-28", "community": 3, "signal": "neutral", "value_text": "Board meeting: Fund Raising on 2025-07-16", "weight": 0.14, "color": "#F06292", "val": 2, "degree": 49, "source_file": "announcement · neutral"}, {"id": "SBIN|announcement|Board_Meeting|2024-03-28", "label": "SBIN|announcement|Board_Meeting|2024-03-28", "community": 3, "signal": "neutral", "value_text": "Board meeting: Board Meeting Intimation on 2025-05-20", "weight": 0.14, "color": "#F06292", "val": 2, "degree": 49, "source_file": "announcement · neutral"}, {"id": "SBIN|announcement|Board_Meeting|2024-03-28", "label": "SBIN|announcement|Board_Meeting|2024-03-28", "community": 3, "signal": "neutral", "value_text": "Board meeting: Fund Raising on 2025-05-20", "weight": 0.14, "color": "#F06292", "val": 2, "degree": 49, "source_file": "announcement · neutral"}, {"id": "SBIN|context|Market_Regime|2024-03-28", "label": "SBIN|context|Market_Regime|2024-03-28", "community": 4, "signal": "neutral", "value_text": "Unknown", "weight": 0.1, "color": "#CE93D8", "val": 2, "degree": 3, "source_file": "context · neutral"}, {"id": "SBIN|context|Sector_Trend|2024-03-28", "label": "SBIN|context|Sector_Trend|2024-03-28", "community": 4, "signal": "neutral", "value_text": "Data unavailable", "weight": 0.1, "color": "#CE93D8", "val": 2, "degree": 3, "source_file": "context · neutral"}, {"id": "SBIN|context|Peer_Snapshot|2024-03-28", "label": "SBIN|context|Peer_Snapshot|2024-03-28", "community": 4, "signal": "neutral", "value_text": "Peer data not yet implemented", "weight": 0.1, "color": "#CE93D8", "val": 2, "degree": 3, "source_file": "context · neutral"}, {"id": "SBIN|context|Data_Completeness|2024-03-28", "label": "SBIN|context|Data_Completeness|2024-03-28", "community": 4, "signal": "neutral", "value_text": "Computed by orchestrator", "weight": 0.1, "color": "#CE93D8", "val": 2, "degree": 3, "source_file": "context · neutral"}, {"id": "verdict::technical", "label": "TECHNICAL verdict", "community": 5, "signal": "mixed", "value_text": "mixed", "weight": 2.5, "color": "#ffd740", "val": 10, "degree": 11, "source_file": "verdict · technical"}, {"id": "verdict::fundamental", "label": "FUNDAMENTAL verdict", "community": 5, "signal": "bullish", "value_text": "bullish", "weight": 2.5, "color": "#00e676", "val": 10, "degree": 7, "source_file": "verdict · fundamental"}, {"id": "verdict::news", "label": "NEWS verdict", "community": 5, "signal": "neutral", "value_text": "neutral", "weight": 2.5, "color": "#FF7043", "val": 10, "degree": 1, "source_file": "verdict · news"}, {"id": "verdict::announcement", "label": "ANNOUNCEMENT verdict", "community": 5, "signal": "neutral", "value_text": "neutral", "weight": 2.5, "color": "#FF7043", "val": 10, "degree": 1, "source_file": "verdict · announcement"}], "links": [{"source": "SBIN|technical|RSI_14|2024-03-28", "target": "SBIN|technical|MACD|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|RSI_14|2024-03-28", "target": "SBIN|technical|ADX_14|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|RSI_14|2024-03-28", "target": "SBIN|technical|ATR_14|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|MACD|2024-03-28", "target": "SBIN|technical|ADX_14|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|MACD|2024-03-28", "target": "SBIN|technical|ATR_14|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|MACD|2024-03-28", "target": "SBIN|technical|Bollinger_Bands|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|ADX_14|2024-03-28", "target": "SBIN|technical|ATR_14|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|ADX_14|2024-03-28", "target": "SBIN|technical|Bollinger_Bands|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|ADX_14|2024-03-28", "target": "SBIN|technical|EMA|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|ATR_14|2024-03-28", "target": "SBIN|technical|Bollinger_Bands|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|ATR_14|2024-03-28", "target": "SBIN|technical|EMA|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|ATR_14|2024-03-28", "target": "SBIN|technical|SMA|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|Bollinger_Bands|2024-03-28", "target": "SBIN|technical|EMA|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|Bollinger_Bands|2024-03-28", "target": "SBIN|technical|SMA|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|Bollinger_Bands|2024-03-28", "target": "SBIN|technical|Ichimoku|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|EMA|2024-03-28", "target": "SBIN|technical|SMA|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|EMA|2024-03-28", "target": "SBIN|technical|Ichimoku|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|EMA|2024-03-28", "target": "SBIN|technical|Parabolic_SAR|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|SMA|2024-03-28", "target": "SBIN|technical|Ichimoku|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|SMA|2024-03-28", "target": "SBIN|technical|Parabolic_SAR|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|SMA|2024-03-28", "target": "SBIN|technical|Stochastic|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|Ichimoku|2024-03-28", "target": "SBIN|technical|Parabolic_SAR|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|Ichimoku|2024-03-28", "target": "SBIN|technical|Stochastic|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|Ichimoku|2024-03-28", "target": "SBIN|technical|Williams_R|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|Parabolic_SAR|2024-03-28", "target": "SBIN|technical|Stochastic|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|Parabolic_SAR|2024-03-28", "target": "SBIN|technical|Williams_R|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|Parabolic_SAR|2024-03-28", "target": "SBIN|technical|ROC|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|Stochastic|2024-03-28", "target": "SBIN|technical|Williams_R|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|Stochastic|2024-03-28", "target": "SBIN|technical|ROC|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|Stochastic|2024-03-28", "target": "SBIN|technical|OBV|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|Williams_R|2024-03-28", "target": "SBIN|technical|ROC|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|Williams_R|2024-03-28", "target": "SBIN|technical|OBV|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|Williams_R|2024-03-28", "target": "SBIN|technical|VWAP|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|ROC|2024-03-28", "target": "SBIN|technical|OBV|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|ROC|2024-03-28", "target": "SBIN|technical|VWAP|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|ROC|2024-03-28", "target": "SBIN|technical|CMF|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|OBV|2024-03-28", "target": "SBIN|technical|VWAP|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|OBV|2024-03-28", "target": "SBIN|technical|CMF|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|OBV|2024-03-28", "target": "SBIN|technical|MFI|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|VWAP|2024-03-28", "target": "SBIN|technical|CMF|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|VWAP|2024-03-28", "target": "SBIN|technical|MFI|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|VWAP|2024-03-28", "target": "SBIN|technical|52W_HL_Ratio|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|CMF|2024-03-28", "target": "SBIN|technical|MFI|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|CMF|2024-03-28", "target": "SBIN|technical|52W_HL_Ratio|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|MFI|2024-03-28", "target": "SBIN|technical|52W_HL_Ratio|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|PE_Ratio|2024-03-28", "target": "SBIN|fundamental|PB_Ratio|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|PE_Ratio|2024-03-28", "target": "SBIN|fundamental|ROE|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|PE_Ratio|2024-03-28", "target": "SBIN|fundamental|EPS|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|PB_Ratio|2024-03-28", "target": "SBIN|fundamental|ROE|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|PB_Ratio|2024-03-28", "target": "SBIN|fundamental|EPS|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|PB_Ratio|2024-03-28", "target": "SBIN|fundamental|NPM|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|ROE|2024-03-28", "target": "SBIN|fundamental|EPS|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|ROE|2024-03-28", "target": "SBIN|fundamental|NPM|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|ROE|2024-03-28", "target": "SBIN|fundamental|Revenue_Quarterly|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|EPS|2024-03-28", "target": "SBIN|fundamental|NPM|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|EPS|2024-03-28", "target": "SBIN|fundamental|Revenue_Quarterly|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|EPS|2024-03-28", "target": "SBIN|fundamental|Net_Profit_Quarterly|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|NPM|2024-03-28", "target": "SBIN|fundamental|Revenue_Quarterly|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|NPM|2024-03-28", "target": "SBIN|fundamental|Net_Profit_Quarterly|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|NPM|2024-03-28", "target": "SBIN|fundamental|Revenue_Annual|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|Revenue_Quarterly|2024-03-28", "target": "SBIN|fundamental|Net_Profit_Quarterly|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|Revenue_Quarterly|2024-03-28", "target": "SBIN|fundamental|Revenue_Annual|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|Revenue_Quarterly|2024-03-28", "target": "SBIN|fundamental|Net_Profit_Annual|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|Net_Profit_Quarterly|2024-03-28", "target": "SBIN|fundamental|Revenue_Annual|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|Net_Profit_Quarterly|2024-03-28", "target": "SBIN|fundamental|Net_Profit_Annual|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|Net_Profit_Quarterly|2024-03-28", "target": "SBIN|fundamental|Operating_Cash_Flow|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|Revenue_Annual|2024-03-28", "target": "SBIN|fundamental|Net_Profit_Annual|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|Revenue_Annual|2024-03-28", "target": "SBIN|fundamental|Operating_Cash_Flow|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|Revenue_Annual|2024-03-28", "target": "SBIN|fundamental|Promoter_Holding|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|Net_Profit_Annual|2024-03-28", "target": "SBIN|fundamental|Operating_Cash_Flow|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|Net_Profit_Annual|2024-03-28", "target": "SBIN|fundamental|Promoter_Holding|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|Net_Profit_Annual|2024-03-28", "target": "SBIN|fundamental|Public_Retail_Holding|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|Operating_Cash_Flow|2024-03-28", "target": "SBIN|fundamental|Promoter_Holding|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|Operating_Cash_Flow|2024-03-28", "target": "SBIN|fundamental|Public_Retail_Holding|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|fundamental|Promoter_Holding|2024-03-28", "target": "SBIN|fundamental|Public_Retail_Holding|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "SBIN|announcement|Board_Meeting|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|context|Market_Regime|2024-03-28", "target": "SBIN|context|Sector_Trend|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|context|Market_Regime|2024-03-28", "target": "SBIN|context|Peer_Snapshot|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|context|Market_Regime|2024-03-28", "target": "SBIN|context|Data_Completeness|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|context|Sector_Trend|2024-03-28", "target": "SBIN|context|Peer_Snapshot|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|context|Sector_Trend|2024-03-28", "target": "SBIN|context|Data_Completeness|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|context|Peer_Snapshot|2024-03-28", "target": "SBIN|context|Data_Completeness|2024-03-28", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "SBIN|technical|EMA|2024-03-28", "target": "SBIN|fundamental|ROE|2024-03-28", "type": "agreement", "color": "rgba(0,230,118,0.7)"}, {"source": "SBIN|technical|SMA|2024-03-28", "target": "SBIN|fundamental|NPM|2024-03-28", "type": "agreement", "color": "rgba(0,230,118,0.7)"}, {"source": "SBIN|technical|Parabolic_SAR|2024-03-28", "target": "SBIN|fundamental|Operating_Cash_Flow|2024-03-28", "type": "agreement", "color": "rgba(0,230,118,0.7)"}, {"source": "SBIN|technical|EMA|2024-03-28", "target": "SBIN|technical|OBV|2024-03-28", "type": "contradiction", "color": "rgba(255,82,82,0.7)"}, {"source": "SBIN|technical|EMA|2024-03-28", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "SBIN|technical|Ichimoku|2024-03-28", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "SBIN|technical|MACD|2024-03-28", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "SBIN|technical|OBV|2024-03-28", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "SBIN|technical|ADX_14|2024-03-28", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "SBIN|technical|SMA|2024-03-28", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "SBIN|technical|Parabolic_SAR|2024-03-28", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "SBIN|technical|VWAP|2024-03-28", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "SBIN|technical|ROC|2024-03-28", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "SBIN|technical|52W_HL_Ratio|2024-03-28", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "SBIN|technical|RSI_14|2024-03-28", "target": "verdict::technical", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "SBIN|fundamental|ROE|2024-03-28", "target": "verdict::fundamental", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "SBIN|fundamental|NPM|2024-03-28", "target": "verdict::fundamental", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "SBIN|fundamental|Net_Profit_Annual|2024-03-28", "target": "verdict::fundamental", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "SBIN|fundamental|Operating_Cash_Flow|2024-03-28", "target": "verdict::fundamental", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "SBIN|fundamental|Promoter_Holding|2024-03-28", "target": "verdict::fundamental", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "SBIN|fundamental|PE_Ratio|2024-03-28", "target": "verdict::fundamental", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "SBIN|fundamental|PB_Ratio|2024-03-28", "target": "verdict::fundamental", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "SBIN|news|News_Item_0|2026-04-26", "target": "verdict::news", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "SBIN|announcement|Board_Meeting|2024-03-28", "target": "verdict::announcement", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}], "communities": [{"id": 0, "key": "technical", "name": "Technical", "color": "#4FC3F7"}, {"id": 1, "key": "fundamental", "name": "Fundamental", "color": "#81C784"}, {"id": 2, "key": "news", "name": "News", "color": "#FFB74D"}, {"id": 3, "key": "announcement", "name": "Announcement", "color": "#F06292"}, {"id": 4, "key": "context", "name": "Context", "color": "#CE93D8"}, {"id": 5, "key": "verdict", "name": "Verdict", "color": "#FF7043"}], "meta": {"node_count": 48, "edge_count": 129}};
+
+let rotating    = true;
+let showLabels  = false;
+let edgesVisible= true;
+let layoutMode  = 0;
+const layouts   = ['3D Force', 'Sphere', 'Clusters'];
+
+const highlightNodes = new Set();
+const highlightLinks = new Set();
+
+// ── Colour helpers ─────────────────────────────────────────────────────────
+function nodeColor(node) {
+  if (!highlightNodes.size) return node.color;
+  return highlightNodes.has(node.id) ? node.color : node.color + '18';
+}
+function linkColor(link) {
+  if (!highlightLinks.size) return edgesVisible ? (link.color || 'rgba(255,255,255,0.12)') : 'rgba(255,255,255,0)';
+  return highlightLinks.has(link)
+    ? (link.color || 'rgba(100,200,255,0.8)')
+    : 'rgba(255,255,255,0.03)';
+}
+function linkWidth(link) {
+  if (!edgesVisible) return 0;
+  if (highlightLinks.has(link)) return 2.5;
+  if (link.type === 'same_category') return 0.3;
+  return 1.0;
+}
+
+// ── Build graph ────────────────────────────────────────────────────────────
+const Graph = ForceGraph3D()(document.getElementById('graph'))
+  .graphData(GRAPH_DATA)
+  .nodeId('id')
+  .nodeLabel(n => `<div style="background:rgba(13,17,23,.92);border:1px solid #30363d;border-radius:8px;padding:8px 12px;font-size:12px;color:#e6edf3;max-width:260px">
+    <strong style="color:${n.color}">${n.label}</strong><br>
+    <span style="color:#8b949e">${n.source_file}</span><br>
+    <span style="font-size:11px;color:#6e7681">${n.value_text}</span>
+  </div>`)
+  .nodeColor(nodeColor)
+  .nodeVal('val')
+  .nodeOpacity(0.92)
+  .linkSource('source')
+  .linkTarget('target')
+  .linkColor(linkColor)
+  .linkWidth(linkWidth)
+  .linkOpacity(0.85)
+  .linkDirectionalParticles(l => (l.type === 'agreement' || l.type === 'contradiction') ? 2 : 0)
+  .linkDirectionalParticleSpeed(0.004)
+  .linkDirectionalParticleColor(l => l.color || '#fff')
+  .backgroundColor('#0d1117')
+  .onNodeClick(node => {
+    highlightNodes.clear(); highlightLinks.clear();
+    if (node) {
+      highlightNodes.add(node.id);
+      GRAPH_DATA.links.forEach(l => {
+        const s = typeof l.source === 'object' ? l.source.id : l.source;
+        const t = typeof l.target === 'object' ? l.target.id : l.target;
+        if (s === node.id || t === node.id) {
+          highlightLinks.add(l); highlightNodes.add(s); highlightNodes.add(t);
+        }
+      });
+    }
+    Graph.nodeColor(nodeColor).linkColor(linkColor).linkWidth(linkWidth);
+    if (node) {
+      const comm = GRAPH_DATA.communities.find(c => c.id === node.community);
+      document.getElementById('node-info').innerHTML = `
+        <strong style="color:${node.color}">${node.label}</strong>
+        <span style="color:#58a6ff">${node.source_file}</span><br>
+        <span style="color:#8b949e;font-size:11px">${node.value_text || ''}</span><br>
+        <span style="color:#484f58;font-size:11px">Weight: ${node.weight} &nbsp;|&nbsp; ${highlightNodes.size - 1} connections</span>
+      `;
+      const dist = 100;
+      const r = 1 + dist / Math.hypot(node.x || 1, node.y || 1, node.z || 1);
+      Graph.cameraPosition({x: node.x*r, y: node.y*r, z: node.z*r}, node, 800);
+    }
+  })
+  .onBackgroundClick(() => {
+    highlightNodes.clear(); highlightLinks.clear();
+    Graph.nodeColor(nodeColor).linkColor(linkColor).linkWidth(linkWidth);
+    document.getElementById('node-info').textContent = 'Click any node to inspect';
+  });
+
+// ── Auto-rotate ────────────────────────────────────────────────────────────
+Graph.onEngineStop(() => {
+  const c = Graph.controls();
+  if (c) { c.autoRotate = rotating; c.autoRotateSpeed = 1.2; }
+});
+setTimeout(() => {
+  const c = Graph.controls();
+  if (c) { c.autoRotate = true; c.autoRotateSpeed = 1.2; }
+}, 600);
+
+// ── Legend ─────────────────────────────────────────────────────────────────
+const legendEl = document.getElementById('legend');
+const nodeCounts = {};
+GRAPH_DATA.nodes.forEach(n => { nodeCounts[n.community] = (nodeCounts[n.community] || 0) + 1; });
+
+GRAPH_DATA.communities.forEach(comm => {
+  if (!nodeCounts[comm.id]) return;
+  const div = document.createElement('div');
+  div.className = 'legend-item';
+  div.innerHTML = `<div class="legend-dot" style="background:${comm.color}"></div>
+    <span>${comm.name}</span><span class="legend-count">${nodeCounts[comm.id]}</span>`;
+  div.onclick = () => filterCommunity(comm.id);
+  legendEl.appendChild(div);
+});
+
+// ── Stats ──────────────────────────────────────────────────────────────────
+document.getElementById('stats').innerHTML =
+  `${GRAPH_DATA.meta.node_count} nodes &nbsp;|&nbsp; ${GRAPH_DATA.meta.edge_count} edges`;
+
+// ── Controls ───────────────────────────────────────────────────────────────
+function toggleRotate() {
+  rotating = !rotating;
+  document.getElementById('btn-rotate').classList.toggle('active', rotating);
+  const c = Graph.controls(); if (c) c.autoRotate = rotating;
+}
+function resetCamera() {
+  Graph.cameraPosition({x:0, y:0, z:600}, {x:0,y:0,z:0}, 800);
+  highlightNodes.clear(); highlightLinks.clear();
+  Graph.nodeColor(nodeColor).linkColor(linkColor).linkWidth(linkWidth);
+  document.getElementById('node-info').textContent = 'Click any node to inspect';
+}
+function toggleLabels() {
+  showLabels = !showLabels;
+  document.getElementById('btn-labels').classList.toggle('active', showLabels);
+  if (showLabels) {
+    Graph.nodeThreeObjectExtend(true).nodeThreeObject(node => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512; canvas.height = 72;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = 'rgba(13,17,23,0.88)';
+      ctx.beginPath(); ctx.roundRect(4, 8, 504, 56, 8); ctx.fill();
+      ctx.strokeStyle = node.color; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.roundRect(4, 8, 504, 56, 8); ctx.stroke();
+      const txt = node.label.length > 24 ? node.label.slice(0,22)+'…' : node.label;
+      ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle'; ctx.fillStyle = node.color;
+      ctx.fillText(txt, 256, 36);
+      const tex = new THREE.CanvasTexture(canvas);
+      const mat = new THREE.SpriteMaterial({map:tex, depthWrite:false, transparent:true});
+      const sprite = new THREE.Sprite(mat);
+      sprite.scale.set(42, 8, 1); sprite.position.set(0, 9, 0);
+      return sprite;
+    });
+  } else {
+    Graph.nodeThreeObjectExtend(false).nodeThreeObject(null);
+  }
+}
+function toggleEdges() {
+  edgesVisible = !edgesVisible;
+  document.getElementById('btn-edges').classList.toggle('active', edgesVisible);
+  Graph.linkColor(linkColor).linkWidth(linkWidth).linkOpacity(edgesVisible ? 0.85 : 0);
+}
+function cycleLayout() {
+  layoutMode = (layoutMode + 1) % 3;
+  document.getElementById('btn-layout').textContent = 'Layout: ' + layouts[layoutMode];
+  if (layoutMode === 1) {
+    const N = GRAPH_DATA.nodes.length;
+    GRAPH_DATA.nodes.forEach((n, i) => {
+      const phi = Math.acos(-1 + (2*i)/N), theta = Math.sqrt(N*Math.PI)*phi, R = 220;
+      n.fx = R*Math.cos(theta)*Math.sin(phi); n.fy = R*Math.sin(theta)*Math.sin(phi); n.fz = R*Math.cos(phi);
+    });
+    Graph.cameraPosition({x:0,y:0,z:600},{x:0,y:0,z:0},800);
+  } else if (layoutMode === 2) {
+    const comms = {};
+    GRAPH_DATA.nodes.forEach(n => { (comms[n.community] = comms[n.community]||[]).push(n); });
+    Object.keys(comms).forEach((cid, ci, keys) => {
+      const theta = (ci/keys.length)*2*Math.PI, R=280;
+      comms[cid].forEach((n,ni) => {
+        const r=60, a=(ni/comms[cid].length)*2*Math.PI;
+        n.fx = R*Math.cos(theta)+r*Math.cos(a); n.fy = R*Math.sin(theta)+r*Math.sin(a); n.fz=(Math.random()-.5)*80;
+      });
+    });
+  } else {
+    GRAPH_DATA.nodes.forEach(n => { delete n.fx; delete n.fy; delete n.fz; });
+    Graph.cameraPosition({x:0,y:0,z:600},{x:0,y:0,z:0},800);
+  }
+  Graph.graphData(GRAPH_DATA);
+}
+function filterCommunity(cid) {
+  highlightNodes.clear(); highlightLinks.clear();
+  const comm = GRAPH_DATA.communities.find(c => c.id === cid);
+  GRAPH_DATA.nodes.forEach(n => { if (n.community === cid) highlightNodes.add(n.id); });
+  GRAPH_DATA.links.forEach(l => {
+    const s = typeof l.source==='object'?l.source.id:l.source;
+    const t = typeof l.target==='object'?l.target.id:l.target;
+    if (highlightNodes.has(s) && highlightNodes.has(t)) highlightLinks.add(l);
+  });
+  Graph.nodeColor(node => highlightNodes.has(node.id) ? node.color : node.color+'18')
+       .linkColor(link => highlightLinks.has(link) ? (link.color||'rgba(100,200,255,0.7)') : 'rgba(255,255,255,0.02)')
+       .linkWidth(link => highlightLinks.has(link) ? 2.0 : 0.1);
+  document.getElementById('node-info').innerHTML =
+    `<strong style="color:${comm.color}">${comm.name}</strong><br>
+     <span style="color:#8b949e">${highlightNodes.size} nodes &nbsp;|&nbsp; ${highlightLinks.size} connections</span>`;
+}
+
+// ── Search ────────────────────────────────────────────────────────────────
+document.getElementById('search').addEventListener('input', e => {
+  const q = e.target.value.toLowerCase().trim();
+  if (!q) {
+    highlightNodes.clear(); highlightLinks.clear();
+    Graph.nodeColor(nodeColor).linkColor(linkColor).linkWidth(linkWidth);
+    document.getElementById('node-info').textContent = 'Click any node to inspect';
+    return;
+  }
+  highlightNodes.clear(); highlightLinks.clear();
+  const matched = GRAPH_DATA.nodes.filter(n =>
+    n.label.toLowerCase().includes(q) || n.source_file.toLowerCase().includes(q) || n.value_text.toLowerCase().includes(q)
+  );
+  matched.forEach(n => highlightNodes.add(n.id));
+  GRAPH_DATA.links.forEach(l => {
+    const s = typeof l.source==='object'?l.source.id:l.source;
+    const t = typeof l.target==='object'?l.target.id:l.target;
+    if (highlightNodes.has(s)||highlightNodes.has(t)) {
+      highlightLinks.add(l); highlightNodes.add(s); highlightNodes.add(t);
+    }
+  });
+  const G = '#00e676';
+  Graph.nodeColor(n => matched.some(m=>m.id===n.id) ? G : highlightNodes.has(n.id) ? G+'66' : n.color+'10')
+       .linkColor(l => highlightLinks.has(l) ? 'rgba(0,230,118,0.7)' : 'rgba(255,255,255,0.02)')
+       .linkWidth(l => highlightLinks.has(l) ? 3.0 : 0.05);
+  document.getElementById('node-info').innerHTML = matched.length === 1
+    ? `<strong style="color:${G}">${matched[0].label}</strong><br>
+       <span style="color:#8b949e">${matched[0].source_file}</span><br>
+       <span style="font-size:11px;color:#6e7681">${matched[0].value_text}</span>`
+    : `<strong style="color:${G}">${matched.length} matches found</strong><br>
+       <span style="color:#8b949e">${highlightNodes.size - matched.length} connected nodes</span>`;
+});
+</script>
+</body>
+</html>

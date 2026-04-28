@@ -27,6 +27,8 @@ async def main():
     import agents.agent_technical as agent_technical
     import agents.agent_fundamental as agent_fundamental
     import agents.agent_news as agent_news
+    import agents.agent_announcement as agent_announcement
+    import agents.agent_context as agent_context
     from graph.knowledge_graph import build_graph, render_3d_html
     import uuid
 
@@ -43,7 +45,7 @@ async def main():
     admin_view: dict = {"agreements": [], "contradictions": [], "verdicts": []}
 
     # ── Technical agent ────────────────────────────────────────────────────────
-    print(f"[1/3] Running technical agent for {SYMBOL}...")
+    print(f"[1/5] Running technical agent for {SYMBOL}...")
     t0 = datetime.now()
     try:
         tech_nodes = await agent_technical.run(req)
@@ -55,14 +57,14 @@ async def main():
         bear = [n.node_id for n in tech_nodes if str(getattr(n.signal, 'value', n.signal)) in ("bearish","negative")]
         for i in range(len(bull)):
             for j in range(i+1, min(i+4, len(bull))):
-                admin_view["agreements"].append({"node_a": bull[i], "node_b": bull[j]})
+                admin_view["agreements"].append({"node_id_a": bull[i], "node_id_b": bull[j]})
         for i in range(len(bear)):
             for j in range(i+1, min(i+4, len(bear))):
-                admin_view["agreements"].append({"node_a": bear[i], "node_b": bear[j]})
+                admin_view["agreements"].append({"node_id_a": bear[i], "node_id_b": bear[j]})
         # Bull-bear cross-contradictions (first 5 of each)
         for b in bull[:5]:
             for r in bear[:5]:
-                admin_view["contradictions"].append({"node_a": b, "node_b": r})
+                admin_view["contradictions"].append({"node_id_positive": b, "node_id_negative": r})
 
         # Verdict node support: nodes with weight >= 1.2 support a technical verdict
         hi_wt = [n.node_id for n in tech_nodes if n.weight >= 1.2]
@@ -79,7 +81,7 @@ async def main():
         print(f"      FAIL — {e}")
 
     # ── Fundamental agent ──────────────────────────────────────────────────────
-    print(f"[2/3] Running fundamental agent for {SYMBOL}...")
+    print(f"[2/5] Running fundamental agent for {SYMBOL}...")
     t0 = datetime.now()
     try:
         fund_nodes = await agent_fundamental.run(req)
@@ -93,10 +95,10 @@ async def main():
 
         for fb in fund_bull[:4]:
             for tb in bull[:4]:
-                admin_view["agreements"].append({"node_a": fb, "node_b": tb})
+                admin_view["agreements"].append({"node_id_a": fb, "node_id_b": tb})
         for fr in fund_bear[:4]:
             for tb in bull[:3]:
-                admin_view["contradictions"].append({"node_a": fr, "node_b": tb})
+                admin_view["contradictions"].append({"node_id_positive": fr, "node_id_negative": tb})
 
         fund_signal = "bullish" if len(fund_bull) > len(fund_bear) else ("bearish" if len(fund_bear) > len(fund_bull) else "neutral")
         admin_view["verdicts"].append({
@@ -109,7 +111,7 @@ async def main():
         print(f"      FAIL — {e}")
 
     # ── News agent ─────────────────────────────────────────────────────────────
-    print(f"[3/3] Running news agent for {SYMBOL}...")
+    print(f"[3/5] Running news agent for {SYMBOL}...")
     t0 = datetime.now()
     try:
         news_nodes = await agent_news.run(req)
@@ -125,6 +127,26 @@ async def main():
             "supporting_node_ids": news_bull[:4] + news_bear[:2],
         })
 
+    except Exception as e:
+        print(f"      FAIL — {e}")
+
+    # ── Announcement agent ─────────────────────────────────────────────────────
+    print(f"[4/5] Running announcement agent for {SYMBOL}...")
+    t0 = datetime.now()
+    try:
+        ann_nodes = await agent_announcement.run(req)
+        all_nodes.extend(ann_nodes)
+        print(f"      OK — {len(ann_nodes)} nodes ({(datetime.now()-t0).seconds}s)")
+    except Exception as e:
+        print(f"      FAIL — {e}")
+
+    # ── Context agent ──────────────────────────────────────────────────────────
+    print(f"[5/5] Running context agent for {SYMBOL}...")
+    t0 = datetime.now()
+    try:
+        ctx_nodes = await agent_context.run(req)
+        all_nodes.extend(ctx_nodes)
+        print(f"      OK — {len(ctx_nodes)} nodes ({(datetime.now()-t0).seconds}s)")
     except Exception as e:
         print(f"      FAIL — {e}")
 

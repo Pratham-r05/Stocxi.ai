@@ -21,9 +21,23 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "backend"))
 
 SYMBOL = sys.argv[1].upper() if len(sys.argv) > 1 else "RELIANCE"
-HORIZON = "short"
+HORIZON = sys.argv[2].lower() if len(sys.argv) > 2 else "long"
 RISK    = "moderate"
-SECTOR  = "energy"   # override per stock if needed
+
+# Sector map for common stocks — used for peer comparison and anonymization
+_SECTOR_MAP = {
+    "POWERGRID": "utilities", "NTPC": "utilities", "TATAPOWER": "utilities",
+    "RELIANCE": "energy", "ONGC": "energy", "IOC": "energy",
+    "TCS": "technology", "INFY": "technology", "WIPRO": "technology", "HCLTECH": "technology",
+    "HDFCBANK": "banking", "ICICIBANK": "banking", "AXISBANK": "banking", "KOTAKBANK": "banking",
+    "ASIANPAINT": "paints", "BERGERPAINTS": "paints",
+    "MARUTI": "automobiles", "TATAMOTORS": "automobiles", "BAJAJ-AUTO": "automobiles",
+    "SUNPHARMA": "pharma", "DRREDDY": "pharma", "CIPLA": "pharma",
+    "ITC": "fmcg", "HINDUNILVR": "fmcg", "NESTLEIND": "fmcg",
+    "LT": "infrastructure", "ADANIPORTS": "infrastructure",
+    "SBIN": "banking", "BAJFINANCE": "nbfc", "BAJAJFINSV": "nbfc",
+}
+SECTOR = _SECTOR_MAP.get(SYMBOL, "diversified")
 
 print(f"\n{'='*60}")
 print(f"  STOCXI — Full E2E Analysis")
@@ -65,7 +79,7 @@ print(f"      bucket     : {profile.bucket}")
 print("  [OK] FetchRequest built\n")
 
 # ── 3. Data agents — parallel fan-out ─────────────────────────────────────────
-print("[3/8] Running data agents (parallel fan-out, 20s timeout each)...")
+print("[3/8] Running data agents (parallel fan-out, 120s timeout each)...")
 import importlib
 
 agent_mods = [
@@ -80,7 +94,7 @@ async def run_agent_safe(name: str, mod_path: str, req: FetchRequest):
     try:
         mod   = importlib.import_module(mod_path)
         t0    = time.monotonic()
-        nodes = await asyncio.wait_for(mod.run(req), timeout=30.0)
+        nodes = await asyncio.wait_for(mod.run(req), timeout=120.0)
         ms    = int((time.monotonic() - t0) * 1000)
         print(f"      [{name:12s}] {len(nodes):>3} nodes  {ms:>5}ms  [OK]")
         return name, nodes
@@ -218,42 +232,63 @@ print(f"      calibrated_confidence: {result.calibrated_confidence:.2f}")
 print(f"      total latency        : {latency_ms/1000:.1f}s")
 print("  [OK] AnalysisResult ready\n")
 
-# ── Knowledge graph ────────────────────────────────────────────────────────────
-print("[BONUS] Building 3D knowledge graph...")
+# ── Knowledge graph (HFBP) ────────────────────────────────────────────────────
+print("[BONUS] Building 3D knowledge graph with HFBP edges...")
 graph_link = "N/A"
 try:
-    from backend.graph import build_graph, render_3d_html
+    from backend.graph import StocxiKnowledgeGraph, build_graph, render_3d_html, to_graphxr_data
 
-    # Adapt admin_view keys to what build_graph expects
+    # Build graph + run HFBP forward pass
+    kg = StocxiKnowledgeGraph(ticker=SYMBOL, horizon=HORIZON)
+    kg.build(all_nodes, analysis_id=analysis_id)
+    effective_weights = kg.forward_propagate()
+
+    # Serialize for LLM (HFBP-aware format)
+    kg_llm_text = kg.serialize_for_llm()
+
+    # Build graph data with effective_weights for sizing
     graph_admin = {
         "agreements": [
-            {"node_a": ag["node_id_a"], "node_b": ag["node_id_b"]}
+            {"node_id_a": ag["node_id_a"], "node_id_b": ag["node_id_b"]}
             for ag in admin_view.get("agreements", [])
         ],
         "contradictions": [
-            {"node_a": ct["node_id_positive"], "node_b": ct["node_id_negative"]}
+            {"node_id_positive": ct["node_id_positive"], "node_id_negative": ct["node_id_negative"]}
             for ct in admin_view.get("contradictions", [])
         ],
         "verdicts": [
             {
                 "category": cat,
-                "signal": v["direction"],
+                "direction": v["direction"],
                 "supporting_node_ids": v.get("supporting_node_ids", []),
             }
             for cat, v in admin_view.get("verdicts", {}).items()
         ],
     }
-    graph_data  = build_graph(all_nodes, graph_admin)
-    graph_dir   = ROOT / "graphify-out" / "stocks" / SYMBOL
+    graph_data = build_graph(all_nodes, graph_admin, edges=kg._edges, effective_weights=effective_weights, horizon=HORIZON)
+
+    # Render 3D HTML
+    graph_dir  = ROOT / "graphify-out" / "stocks" / SYMBOL
     graph_dir.mkdir(parents=True, exist_ok=True)
-    graph_path  = graph_dir / f"{datetime.date.today()}.html"
-    render_3d_html(graph_data, title=f"{SYMBOL} Knowledge Graph", output_path=str(graph_path))
-    graph_link  = f"file://{graph_path.resolve()}"
+    graph_path = graph_dir / f"{datetime.date.today()}.html"
+    render_3d_html(graph_data, title=f"Stocxi — {SYMBOL}", stock_name=SYMBOL, horizon=HORIZON, output_path=str(graph_path))
+    graph_link = f"file://{graph_path.resolve()}"
     print(f"      Graph saved: {graph_path}")
-    print(f"      Nodes: {graph_data['meta']['node_count']} | Edges: {graph_data['meta']['edge_count']}")
+    print(f"      Nodes: {graph_data['meta']['node_count']} | Edges: {graph_data['meta']['edge_count']} | HFBP edges: {len(kg._edges)}")
+    print(f"      Top activated node weight: {max(effective_weights.values(), default=0.0):.3f}")
+    print(f"      LLM serialization: {len(kg_llm_text)} chars")
+
+    # Export GraphXR-compatible JSON
+    graphxr_data = to_graphxr_data(graph_data)
+    graphxr_path = graph_dir / f"{datetime.date.today()}_graphxr.json"
+    graphxr_path.write_text(json.dumps(graphxr_data, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"      GraphXR export: {graphxr_path}")
     print("  [OK] Knowledge graph built\n")
 except Exception as e:
-    print(f"  [WARN] Graph skipped: {e}\n")
+    import traceback
+    print(f"  [WARN] Graph skipped: {e}")
+    traceback.print_exc()
+    print()
 
 # ── Write report .md ───────────────────────────────────────────────────────────
 print("Writing report to reports/ ...")

@@ -7,7 +7,7 @@
 # Source IDs used in waterfall chains:
 #   technical:   nse_library (P1) → yfinance (P2) → yfinance_alt (P3)
 #   fundamental: bse_library (P1) → screener_in (P2) → yfinance_fundamentals (P3)
-#   news:        moneycontrol / economic_times / business_standard / livemint (P1) → reuters_india / bq_prime (P2) → google_news_rss (P3)
+#   news:        gnews (P1) → newsdata_io (P2) → google_news_rss (P3)
 #   announcement: bse_announcements (P1) + nse_announcements (P1)
 
 # ── Technicals ────────────────────────────────────────────────────────────────
@@ -118,7 +118,17 @@ news:
   max_age_days_long_term: 90
   max_items_per_analysis: 10   # top 10 most crucial articles
 
-  # Primary structured source: newsdata.io REST API
+  # L1: gnews (Google News Python library) — free, no API key
+  gnews:
+    id: gnews
+    type: python_library
+    description: "Google News via gnews Python library. Free, no API key. India-filtered."
+    priority: 1
+    confidence: 0.65
+    max_results: 10
+    period: "7d"
+
+  # L2: newsdata.io REST API (rate-limited on free tier)
   newsdata_io:
     id: newsdata_io
     type: rest_api

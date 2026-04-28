@@ -216,6 +216,285 @@ def _build_nodes(
                           for p, v in zip(ocf["periods"][:3], ocf["values"][:3])]},
              sig, "cash_flow_ops", HorizonRelevance.long)
 
+    # ── TTM metrics + EBITDA + FCF + Interest Coverage + Market Cap ─────────────
+
+    # Revenue TTM (sum last 4 quarters)
+    if len(qr["values"]) >= 4:
+        ttm_rev = sum(qr["values"][:4])
+        prev_ttm = sum(qr["values"][4:8]) if len(qr["values"]) >= 8 else None
+        yoy_g = _growth_pct(ttm_rev, prev_ttm)
+        _add("Revenue_TTM",
+             f"Rev TTM: ₹{ttm_rev:,.0f} Cr" + (f" ({yoy_g:+.1f}% YoY)" if yoy_g else ""),
+             {"ttm_cr": ttm_rev, "yoy_growth_pct": yoy_g},
+             _growth_signal(yoy_g), "revenue_growth_yoy", HorizonRelevance.both)
+
+    # Revenue_Growth_YoY — separate directional node
+    if len(qr["values"]) >= 8:
+        ttm_now  = sum(qr["values"][:4])
+        ttm_prev = sum(qr["values"][4:8])
+        yoy_g    = _growth_pct(ttm_now, ttm_prev)
+        if yoy_g is not None:
+            _add("Revenue_Growth_YoY",
+                 f"Revenue YoY: {yoy_g:+.1f}%",
+                 {"yoy_growth_pct": yoy_g},
+                 _growth_signal(yoy_g), "revenue_growth_yoy", HorizonRelevance.long)
+
+    # PAT TTM
+    if len(qp["values"]) >= 4:
+        ttm_pat  = sum(qp["values"][:4])
+        prev_ttm = sum(qp["values"][4:8]) if len(qp["values"]) >= 8 else None
+        yoy_g    = _growth_pct(ttm_pat, prev_ttm)
+        _add("PAT_TTM",
+             f"PAT TTM: ₹{ttm_pat:,.0f} Cr" + (f" ({yoy_g:+.1f}% YoY)" if yoy_g else ""),
+             {"ttm_cr": ttm_pat, "yoy_growth_pct": yoy_g},
+             _growth_signal(yoy_g), "profit_growth_yoy", HorizonRelevance.both)
+
+    # PAT_Growth_YoY — separate directional node
+    if len(qp["values"]) >= 8:
+        ttm_now  = sum(qp["values"][:4])
+        ttm_prev = sum(qp["values"][4:8])
+        yoy_g    = _growth_pct(ttm_now, ttm_prev)
+        if yoy_g is not None:
+            _add("PAT_Growth_YoY",
+                 f"PAT YoY: {yoy_g:+.1f}%",
+                 {"yoy_growth_pct": yoy_g},
+                 _growth_signal(yoy_g), "profit_growth_yoy", HorizonRelevance.long)
+
+    # EBITDA TTM (quarterly Operating Profit, sum of last 4 quarters)
+    qop = _extract_series(raw.get("quarterly_results", {}), "operating profit", "ebitda")
+    if len(qop["values"]) >= 4:
+        ttm_ebitda = sum(qop["values"][:4])
+        prev_ttm   = sum(qop["values"][4:8]) if len(qop["values"]) >= 8 else None
+        yoy_g      = _growth_pct(ttm_ebitda, prev_ttm)
+        _add("EBITDA_TTM",
+             f"EBITDA TTM: ₹{ttm_ebitda:,.0f} Cr" + (f" ({yoy_g:+.1f}% YoY)" if yoy_g else ""),
+             {"ttm_cr": ttm_ebitda, "yoy_growth_pct": yoy_g},
+             _growth_signal(yoy_g), "profit_growth_yoy", HorizonRelevance.long)
+
+    # EBITDA Margin (latest OPM %)
+    qopm = _extract_series(raw.get("quarterly_results", {}), "opm %", "opm%", "operating margin")
+    if qopm["values"]:
+        opm_latest = qopm["values"][0]
+        sig = (NodeSignal.positive if opm_latest > 20
+               else NodeSignal.negative if opm_latest < 5
+               else NodeSignal.neutral)
+        _add("EBITDA_Margin",
+             f"EBITDA Margin: {opm_latest:.1f}%",
+             {"opm_pct": opm_latest, "period": qopm["periods"][0] if qopm["periods"] else ""},
+             sig, "valuation", HorizonRelevance.long)
+
+    # Free Cash Flow (annual)
+    fcf = _extract_series(raw.get("cash_flow", {}), "free cash flow", "fcf")
+    if fcf["values"]:
+        fcf_cr = fcf["values"][0]
+        sig = NodeSignal.positive if fcf_cr > 0 else NodeSignal.negative
+        _add("Free_Cashflow",
+             f"FCF: ₹{fcf_cr:,.0f} Cr ({fcf['periods'][0] if fcf['periods'] else 'latest'})",
+             {"periods": [{"period": p, "value_cr": v}
+                          for p, v in zip(fcf["periods"][:3], fcf["values"][:3])]},
+             sig, "cash_flow_ops", HorizonRelevance.long)
+
+    # Interest Coverage (Operating Profit / Interest — annual)
+    op_annual  = _extract_series(raw.get("annual_results", {}), "operating profit", "ebitda")
+    int_annual = _extract_series(raw.get("annual_results", {}), "interest")
+    if (op_annual["values"] and int_annual["values"]
+            and int_annual["values"][0] is not None and int_annual["values"][0] > 0):
+        ic  = round(op_annual["values"][0] / int_annual["values"][0], 1)
+        sig = (NodeSignal.positive if ic > 3
+               else NodeSignal.negative if ic < 1.5
+               else NodeSignal.neutral)
+        _add("Interest_Coverage",
+             f"Interest Coverage: {ic:.1f}x",
+             {"ratio": ic, "ebit_cr": op_annual["values"][0],
+              "interest_cr": int_annual["values"][0]},
+             sig, "debt_equity", HorizonRelevance.long)
+
+    # Market Cap (from Screener ratios)
+    mc_raw = _to_float((raw.get("ratios") or {}).get("market_cap"))
+    if mc_raw is not None and mc_raw > 0:
+        mc_cr = round(mc_raw / 1e7, 0)   # rupees → crores
+        sig   = (NodeSignal.positive if mc_cr >= 20_000
+                 else NodeSignal.neutral  if mc_cr >= 500
+                 else NodeSignal.negative)
+        _add("Market_Cap",
+             f"Mkt Cap: ₹{mc_cr:,.0f} Cr",
+             {"market_cap_cr": mc_cr},
+             sig, "valuation", HorizonRelevance.both)
+
+    # ── Additional Balance Sheet nodes ─────────────────────────────────────────
+    ta = _extract_series(raw.get("balance_sheet", {}), "total assets")
+    if len(ta["values"]) >= 2:
+        growth = _growth_pct(ta["values"][0], ta["values"][1])
+        sig = _growth_signal(growth)
+        _add("Total_Assets",
+             f"Total Assets: ₹{ta['values'][0]:,.0f} Cr ({ta['periods'][0]})",
+             {"periods": [{"period": p, "value_cr": v}
+                          for p, v in zip(ta["periods"][:5], ta["values"][:5])],
+              "yoy_growth_pct": growth},
+             sig, "debt_equity", HorizonRelevance.long)
+
+    tl = _extract_series(raw.get("balance_sheet", {}), "total liabilities")
+    if len(tl["values"]) >= 2:
+        growth = _growth_pct(tl["values"][0], tl["values"][1])
+        sig = (NodeSignal.negative if growth and growth > 15
+               else NodeSignal.positive if growth and growth < 0
+               else NodeSignal.neutral)
+        _add("Total_Liabilities",
+             f"Total Liabilities: ₹{tl['values'][0]:,.0f} Cr ({tl['periods'][0]})",
+             {"periods": [{"period": p, "value_cr": v}
+                          for p, v in zip(tl["periods"][:5], tl["values"][:5])],
+              "yoy_growth_pct": growth},
+             sig, "debt_equity", HorizonRelevance.long)
+
+    se = _extract_series(raw.get("balance_sheet", {}), "shareholders' equity", "total equity")
+    if len(se["values"]) >= 2:
+        growth = _growth_pct(se["values"][0], se["values"][1])
+        sig = _growth_signal(growth)
+        _add("Shareholders_Equity",
+             f"Equity: ₹{se['values'][0]:,.0f} Cr ({se['periods'][0]})",
+             {"periods": [{"period": p, "value_cr": v}
+                          for p, v in zip(se["periods"][:5], se["values"][:5])],
+              "yoy_growth_pct": growth},
+             sig, "debt_equity", HorizonRelevance.long)
+
+    res_bs = _extract_series(raw.get("balance_sheet", {}), "reserves and surplus", "reserves")
+    if len(res_bs["values"]) >= 2:
+        growth = _growth_pct(res_bs["values"][0], res_bs["values"][1])
+        sig = _growth_signal(growth)
+        _add("Reserves",
+             f"Reserves: ₹{res_bs['values'][0]:,.0f} Cr ({res_bs['periods'][0]})",
+             {"periods": [{"period": p, "value_cr": v}
+                          for p, v in zip(res_bs["periods"][:5], res_bs["values"][:5])],
+              "yoy_growth_pct": growth},
+             sig, "debt_equity", HorizonRelevance.long)
+
+    bor = _extract_series(raw.get("balance_sheet", {}), "borrowings", "total debt")
+    if len(bor["values"]) >= 2:
+        growth = _growth_pct(bor["values"][0], bor["values"][1])
+        sig = (NodeSignal.negative if growth and growth > 15
+               else NodeSignal.positive if growth and growth < 0
+               else NodeSignal.neutral)
+        _add("Borrowings",
+             f"Borrowings: ₹{bor['values'][0]:,.0f} Cr ({bor['periods'][0]}) (YoY: {growth:+.1f}%)",
+             {"periods": [{"period": p, "value_cr": v}
+                          for p, v in zip(bor["periods"][:5], bor["values"][:5])],
+              "yoy_growth_pct": growth},
+             sig, "debt_equity", HorizonRelevance.long)
+    elif bor["values"]:
+        _add("Borrowings",
+             f"Borrowings: ₹{bor['values'][0]:,.0f} Cr ({bor['periods'][0] if bor['periods'] else 'latest'})",
+             {"periods": [{"period": p, "value_cr": v}
+                          for p, v in zip(bor["periods"][:5], bor["values"][:5])]},
+             NodeSignal.neutral, "debt_equity", HorizonRelevance.long)
+
+    # ── Additional Quarterly Result nodes ──────────────────────────────────────
+    qexp = _extract_series(raw.get("quarterly_results", {}), "expenses", "total expenditure")
+    if len(qexp["values"]) >= 2:
+        growth = _growth_pct(qexp["values"][0], qexp["values"][1])
+        sig = (NodeSignal.negative if growth and growth > 15
+               else NodeSignal.positive if growth and growth < 0
+               else NodeSignal.neutral)
+        _add("Expenses_Quarterly",
+             f"Q Expenses: ₹{qexp['values'][0]:,.0f} Cr ({qexp['periods'][0]})",
+             {"periods": [{"period": p, "value_cr": v}
+                          for p, v in zip(qexp["periods"][:8], qexp["values"][:8])],
+              "yoy_growth_pct": _yoy_growth(qexp["values"])},
+             sig, "revenue_growth_yoy", HorizonRelevance.both)
+
+    qop2 = _extract_series(raw.get("quarterly_results", {}), "operating profit")
+    if len(qop2["values"]) >= 2:
+        growth = _growth_pct(qop2["values"][0], qop2["values"][1])
+        sig = _growth_signal(growth)
+        _add("Operating_Profit_Quarterly",
+             f"Q OP: ₹{qop2['values'][0]:,.0f} Cr ({qop2['periods'][0]})",
+             {"periods": [{"period": p, "value_cr": v}
+                          for p, v in zip(qop2["periods"][:8], qop2["values"][:8])],
+              "yoy_growth_pct": _yoy_growth(qop2["values"])},
+             sig, "profit_growth_yoy", HorizonRelevance.both)
+
+    qopm2 = _extract_series(raw.get("quarterly_results", {}), "opm %", "opm%", "operating margin")
+    if qopm2["values"]:
+        opm_latest = qopm2["values"][0]
+        sig = (NodeSignal.positive if opm_latest > 20
+               else NodeSignal.negative if opm_latest < 5
+               else NodeSignal.neutral)
+        _add("OPM_Quarterly",
+             f"Q OPM: {opm_latest:.1f}%",
+             {"opm_pct": opm_latest, "period": qopm2["periods"][0] if qopm2["periods"] else "",
+              "periods": [{"period": p, "value_pct": v}
+                          for p, v in zip(qopm2["periods"][:8], qopm2["values"][:8])]},
+             sig, "valuation", HorizonRelevance.both)
+
+    # ── Additional Annual Result nodes ─────────────────────────────────────────
+    aexp = _extract_series(raw.get("annual_results", {}), "expenses", "total expenditure")
+    if len(aexp["values"]) >= 2:
+        growth = _growth_pct(aexp["values"][0], aexp["values"][1])
+        sig = (NodeSignal.negative if growth and growth > 15
+               else NodeSignal.positive if growth and growth < 0
+               else NodeSignal.neutral)
+        _add("Expenses_Annual",
+             f"FY Expenses: ₹{aexp['values'][0]:,.0f} Cr ({aexp['periods'][0]})",
+             {"periods": [{"period": p, "value_cr": v}
+                          for p, v in zip(aexp["periods"][:5], aexp["values"][:5])],
+              "yoy_growth_pct": growth},
+             sig, "revenue_growth_yoy", HorizonRelevance.long)
+
+    aop = _extract_series(raw.get("annual_results", {}), "operating profit")
+    if len(aop["values"]) >= 2:
+        growth = _growth_pct(aop["values"][0], aop["values"][1])
+        sig = _growth_signal(growth)
+        _add("Operating_Profit_Annual",
+             f"FY OP: ₹{aop['values'][0]:,.0f} Cr ({aop['periods'][0]})",
+             {"periods": [{"period": p, "value_cr": v}
+                          for p, v in zip(aop["periods"][:5], aop["values"][:5])],
+              "yoy_growth_pct": growth},
+             sig, "profit_growth_yoy", HorizonRelevance.long)
+
+    aopm2 = _extract_series(raw.get("annual_results", {}), "opm %", "opm%", "operating margin")
+    if aopm2["values"]:
+        opm_latest = aopm2["values"][0]
+        sig = (NodeSignal.positive if opm_latest > 20
+               else NodeSignal.negative if opm_latest < 5
+               else NodeSignal.neutral)
+        _add("OPM_Annual",
+             f"FY OPM: {opm_latest:.1f}%",
+             {"opm_pct": opm_latest, "period": aopm2["periods"][0] if aopm2["periods"] else "",
+              "periods": [{"period": p, "value_pct": v}
+                          for p, v in zip(aopm2["periods"][:5], aopm2["values"][:5])]},
+             sig, "valuation", HorizonRelevance.long)
+
+    aeps = _extract_series(raw.get("annual_results", {}), "eps", "earnings per share")
+    if len(aeps["values"]) >= 2:
+        growth = _growth_pct(aeps["values"][0], aeps["values"][1])
+        sig = _growth_signal(growth)
+        _add("EPS_Annual",
+             f"FY EPS: ₹{aeps['values'][0]:.2f} ({aeps['periods'][0]})",
+             {"periods": [{"period": p, "value_inr": v}
+                          for p, v in zip(aeps["periods"][:5], aeps["values"][:5])],
+              "yoy_growth_pct": growth},
+             sig, "valuation", HorizonRelevance.long)
+
+    # ── Additional Cash Flow nodes ──────────────────────────────────────────────
+    cfi = _extract_series(raw.get("cash_flow", {}), "cash from investing", "investing activities")
+    if cfi["values"]:
+        cfi_cr = cfi["values"][0]
+        sig = NodeSignal.neutral
+        _add("Cash_From_Investing",
+             f"CFI: ₹{cfi_cr:,.0f} Cr ({cfi['periods'][0] if cfi['periods'] else 'latest'})",
+             {"periods": [{"period": p, "value_cr": v}
+                          for p, v in zip(cfi["periods"][:3], cfi["values"][:3])]},
+             sig, "cash_flow_ops", HorizonRelevance.long)
+
+    cff = _extract_series(raw.get("cash_flow", {}), "cash from financing", "financing activities")
+    if cff["values"]:
+        cff_cr = cff["values"][0]
+        sig = NodeSignal.neutral
+        _add("Cash_From_Financing",
+             f"CFF: ₹{cff_cr:,.0f} Cr ({cff['periods'][0] if cff['periods'] else 'latest'})",
+             {"periods": [{"period": p, "value_cr": v}
+                          for p, v in zip(cff["periods"][:3], cff["values"][:3])]},
+             sig, "cash_flow_ops", HorizonRelevance.long)
+
     return nodes
 
 

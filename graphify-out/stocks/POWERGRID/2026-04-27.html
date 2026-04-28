@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>POWERGRID Knowledge Graph | 2026-04-27</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0d1117; color: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; overflow: hidden; }
+  #graph { width: 100vw; height: 100vh; }
+  #ui {
+    position: fixed; top: 16px; right: 16px; z-index: 100;
+    background: rgba(13,17,23,0.96); border: 1px solid #30363d;
+    border-radius: 12px; padding: 16px 18px; min-width: 260px; max-width: 300px;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  #title-bar {
+    font-size: 12px; color: #f0f6fc; margin-bottom: 12px;
+    letter-spacing: .8px; text-transform: uppercase; font-weight: 700;
+    border-bottom: 1px solid #30363d; padding-bottom: 8px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #search {
+    width: 100%; background: #0d1117; border: 2px solid #30363d;
+    border-radius: 8px; color: #e6edf3; padding: 8px 12px;
+    font-size: 13px; outline: none; margin-bottom: 10px; transition: all .2s;
+  }
+  #search:focus { border-color: #00e676; box-shadow: 0 0 0 3px rgba(0,230,118,.12); background: #161b22; }
+  #node-info {
+    font-size: 12px; color: #8b949e; min-height: 60px; margin-bottom: 10px;
+    padding: 10px; background: rgba(255,255,255,.03);
+    border-radius: 8px; border: 1px solid rgba(48,54,61,.6); line-height: 1.5;
+  }
+  #node-info strong { color: #e6edf3; display: block; margin-bottom: 4px; font-size: 13px; }
+  #controls { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+  button {
+    background: #21262d; border: 1px solid #30363d; color: #e6edf3;
+    padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;
+    transition: all .15s; font-weight: 500;
+  }
+  button:hover { background: #30363d; border-color: #484f58; }
+  button.active { background: #1f6feb; border-color: #388bfd; color: #fff; }
+  #legend { max-height: 220px; overflow-y: auto; }
+  #legend::-webkit-scrollbar { width: 3px; }
+  #legend::-webkit-scrollbar-thumb { background: #30363d; border-radius: 2px; }
+  .legend-item {
+    display: flex; align-items: center; gap: 8px; padding: 7px 6px;
+    font-size: 12px; cursor: pointer; border-radius: 6px;
+    transition: all .2s; margin-bottom: 2px;
+  }
+  .legend-item:hover { background: rgba(255,255,255,.08); transform: translateX(2px); }
+  .legend-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(255,255,255,.15); }
+  .legend-count { margin-left: auto; color: #484f58; font-size: 11px; }
+  #stats { font-size: 11px; color: #6e7681; margin-top: 10px; padding-top: 8px; border-top: 1px solid #21262d; }
+  #edge-legend { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+  .edge-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #8b949e; }
+  .edge-line { width: 22px; height: 2px; border-radius: 2px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div id="graph"></div>
+<div id="ui">
+  <div id="title-bar">POWERGRID Knowledge Graph | 2026-04-27</div>
+  <input id="search" placeholder="&#128269; Search indicators..." type="text">
+  <div id="node-info">Click any node to inspect</div>
+  <div id="controls">
+    <button id="btn-rotate" class="active" onclick="toggleRotate()">&#9654; Rotate</button>
+    <button onclick="resetCamera()">Reset</button>
+    <button id="btn-labels" onclick="toggleLabels()">Labels</button>
+    <button id="btn-layout" onclick="cycleLayout()">Layout: 3D</button>
+    <button id="btn-edges" class="active" onclick="toggleEdges()">Edges</button>
+  </div>
+  <div id="legend"></div>
+  <div id="edge-legend">
+    <div class="edge-item"><div class="edge-line" style="background:#22c55e"></div> CONFIRMS (solid)</div>
+    <div class="edge-item"><div class="edge-line" style="background:#84cc16;height:3px"></div> AMPLIFIES (thick)</div>
+    <div class="edge-item"><div class="edge-line" style="background:#ef4444;border-top:2px dashed #ef4444;height:0"></div> CONTRADICTS (dashed)</div>
+    <div class="edge-item"><div class="edge-line" style="background:#f97316"></div> DAMPENS</div>
+    <div class="edge-item"><div class="edge-line" style="background:#eab308"></div> CAUSES</div>
+    <div class="edge-item"><div class="edge-line" style="background:#fbbf24;height:3px"></div> TRIGGERS (burst)</div>
+    <div class="edge-item"><div class="edge-line" style="background:#60a5fa"></div> CONTEXTUALIZES</div>
+    <div class="edge-item"><div class="edge-line" style="background:#94a3b8"></div> CORRELATES (weak)</div>
+  </div>
+  <div id="stats"></div>
+</div>
+
+<script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
+<script src="https://unpkg.com/3d-force-graph@1.73.2/dist/3d-force-graph.min.js"></script>
+<script>
+const GRAPH_DATA = {"nodes": [{"id": "POWERGRID|announcement|Board_Meeting|2026-04-27", "label": "POWERGRID|announcement|Board_Meeting|2026-04-27", "community": 3, "signal": "neutral", "value_text": "POWERGRID informed exchanges of a board meeting on March 9, 2026, a standard compliance measure preceding major decision", "weight": 0.1, "color": "#F06292", "val": 2, "degree": 31, "source_file": "announcement · neutral"}, {"id": "POWERGRID|announcement|Board_Meeting|2026-04-27", "label": "POWERGRID|announcement|Board_Meeting|2026-04-27", "community": 3, "signal": "neutral", "value_text": "The board will consider fundraising on March 9, 2026, signaling potential capex which is a long-term positive for growth", "weight": 0.1, "color": "#F06292", "val": 2, "degree": 31, "source_file": "announcement · neutral"}, {"id": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "label": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "community": 3, "signal": "positive", "value_text": "An interim dividend of ₹3.25 per share was declared, a positive for shareholders that supports the stock's high-yield ap", "weight": 0.42, "color": "#00e676", "val": 2, "degree": 33, "source_file": "announcement · positive"}, {"id": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "label": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "community": 3, "signal": "positive", "value_text": "The company confirmed an interim dividend payout of ₹3.25 per share, reinforcing its commitment to rewarding shareholder", "weight": 0.42, "color": "#00e676", "val": 2, "degree": 33, "source_file": "announcement · positive"}, {"id": "POWERGRID|announcement|Board_Meeting|2026-04-27", "label": "POWERGRID|announcement|Board_Meeting|2026-04-27", "community": 3, "signal": "neutral", "value_text": "A board meeting was scheduled for Jan 30, 2026, a routine intimation that sets market expectations for upcoming results.", "weight": 0.1, "color": "#F06292", "val": 2, "degree": 31, "source_file": "announcement · neutral"}, {"id": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "label": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "community": 3, "signal": "positive", "value_text": "The board will approve financial results and consider a dividend on Jan 30, 2026, a key event for performance assessment", "weight": 0.42, "color": "#00e676", "val": 2, "degree": 33, "source_file": "announcement · positive"}, {"id": "POWERGRID|announcement|Board_Meeting|2026-04-27", "label": "POWERGRID|announcement|Board_Meeting|2026-04-27", "community": 3, "signal": "neutral", "value_text": "POWERGRID announced a board meeting for Nov 17, 2025, a procedural step before key corporate actions are discussed.", "weight": 0.1, "color": "#F06292", "val": 2, "degree": 31, "source_file": "announcement · neutral"}, {"id": "POWERGRID|announcement|Board_Meeting|2026-04-27", "label": "POWERGRID|announcement|Board_Meeting|2026-04-27", "community": 3, "signal": "neutral", "value_text": "The board will meet on Nov 17, 2025, to discuss fundraising, indicating potential expansion plans which could drive futu", "weight": 0.1, "color": "#F06292", "val": 2, "degree": 31, "source_file": "announcement · neutral"}, {"id": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "label": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "community": 3, "signal": "positive", "value_text": "Declared a strong interim dividend of ₹4.50 per share, a significant positive for shareholder returns and stock sentimen", "weight": 0.42, "color": "#00e676", "val": 2, "degree": 33, "source_file": "announcement · positive"}, {"id": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "label": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "community": 3, "signal": "positive", "value_text": "The company approved a substantial interim dividend of ₹4.50 per share, boosting investor confidence and the stock's att", "weight": 0.42, "color": "#00e676", "val": 2, "degree": 33, "source_file": "announcement · positive"}, {"id": "POWERGRID|context|Market_Regime|2026-04-27", "label": "POWERGRID|context|Market_Regime|2026-04-27", "community": 4, "signal": "neutral", "value_text": "Unknown", "weight": 0.1, "color": "#CE93D8", "val": 2, "degree": 6, "source_file": "context · neutral"}, {"id": "POWERGRID|context|Sector_Trend|2026-04-27", "label": "POWERGRID|context|Sector_Trend|2026-04-27", "community": 4, "signal": "neutral", "value_text": "Data unavailable", "weight": 0.1, "color": "#CE93D8", "val": 2, "degree": 6, "source_file": "context · neutral"}, {"id": "POWERGRID|context|Peer_Snapshot|2026-04-27", "label": "POWERGRID|context|Peer_Snapshot|2026-04-27", "community": 4, "signal": "neutral", "value_text": "Peer data not yet implemented", "weight": 0.1, "color": "#CE93D8", "val": 2, "degree": 6, "source_file": "context · neutral"}, {"id": "POWERGRID|context|Data_Completeness|2026-04-27", "label": "POWERGRID|context|Data_Completeness|2026-04-27", "community": 4, "signal": "neutral", "value_text": "Computed by orchestrator", "weight": 0.1, "color": "#CE93D8", "val": 2, "degree": 6, "source_file": "context · neutral"}, {"id": "verdict::technical", "label": "TECHNICAL verdict", "community": 5, "signal": "neutral", "value_text": "neutral", "weight": 2.5, "color": "#FF7043", "val": 10, "degree": 0, "source_file": "verdict · technical"}, {"id": "verdict::fundamental", "label": "FUNDAMENTAL verdict", "community": 5, "signal": "neutral", "value_text": "neutral", "weight": 2.5, "color": "#FF7043", "val": 10, "degree": 0, "source_file": "verdict · fundamental"}, {"id": "verdict::news", "label": "NEWS verdict", "community": 5, "signal": "neutral", "value_text": "neutral", "weight": 2.5, "color": "#FF7043", "val": 10, "degree": 0, "source_file": "verdict · news"}, {"id": "verdict::announcement", "label": "ANNOUNCEMENT verdict", "community": 5, "signal": "bullish", "value_text": "bullish", "weight": 2.5, "color": "#00e676", "val": 10, "degree": 2, "source_file": "verdict · announcement"}], "links": [{"source": "POWERGRID|announcement|Board_Meeting|2026-04-27", "target": "POWERGRID|announcement|Board_Meeting|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Board_Meeting|2026-04-27", "target": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Board_Meeting|2026-04-27", "target": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Board_Meeting|2026-04-27", "target": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Board_Meeting|2026-04-27", "target": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Board_Meeting|2026-04-27", "target": "POWERGRID|announcement|Board_Meeting|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "target": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "target": "POWERGRID|announcement|Board_Meeting|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "target": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "target": "POWERGRID|announcement|Board_Meeting|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "target": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "target": "POWERGRID|announcement|Board_Meeting|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Board_Meeting|2026-04-27", "target": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Board_Meeting|2026-04-27", "target": "POWERGRID|announcement|Board_Meeting|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Board_Meeting|2026-04-27", "target": "POWERGRID|announcement|Board_Meeting|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "target": "POWERGRID|announcement|Board_Meeting|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "target": "POWERGRID|announcement|Board_Meeting|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "target": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Board_Meeting|2026-04-27", "target": "POWERGRID|announcement|Board_Meeting|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Board_Meeting|2026-04-27", "target": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Board_Meeting|2026-04-27", "target": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Board_Meeting|2026-04-27", "target": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Board_Meeting|2026-04-27", "target": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "target": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|context|Market_Regime|2026-04-27", "target": "POWERGRID|context|Sector_Trend|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|context|Market_Regime|2026-04-27", "target": "POWERGRID|context|Peer_Snapshot|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|context|Market_Regime|2026-04-27", "target": "POWERGRID|context|Data_Completeness|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|context|Sector_Trend|2026-04-27", "target": "POWERGRID|context|Peer_Snapshot|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|context|Sector_Trend|2026-04-27", "target": "POWERGRID|context|Data_Completeness|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|context|Peer_Snapshot|2026-04-27", "target": "POWERGRID|context|Data_Completeness|2026-04-27", "type": "same_category", "color": "rgba(255,255,255,0.08)"}, {"source": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "target": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "type": "agreement", "color": "rgba(0,230,118,0.7)"}, {"source": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "target": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "type": "agreement", "color": "rgba(0,230,118,0.7)"}, {"source": "POWERGRID|announcement|Board_Meeting|2026-04-27", "target": "POWERGRID|announcement|Board_Meeting|2026-04-27", "type": "agreement", "color": "rgba(0,230,118,0.7)"}, {"source": "POWERGRID|announcement|Board_Meeting|2026-04-27", "target": "POWERGRID|announcement|Board_Meeting|2026-04-27", "type": "CORRELATES", "color": "rgba(148,163,184,0.40)"}, {"source": "POWERGRID|announcement|Board_Meeting|2026-04-27", "target": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "type": "CORRELATES", "color": "rgba(148,163,184,0.40)"}, {"source": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "target": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "type": "CORRELATES", "color": "rgba(148,163,184,0.40)"}, {"source": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "target": "POWERGRID|announcement|Board_Meeting|2026-04-27", "type": "CORRELATES", "color": "rgba(148,163,184,0.40)"}, {"source": "POWERGRID|context|Market_Regime|2026-04-27", "target": "POWERGRID|context|Sector_Trend|2026-04-27", "type": "CORRELATES", "color": "rgba(148,163,184,0.40)"}, {"source": "POWERGRID|context|Market_Regime|2026-04-27", "target": "POWERGRID|context|Peer_Snapshot|2026-04-27", "type": "CORRELATES", "color": "rgba(148,163,184,0.40)"}, {"source": "POWERGRID|context|Market_Regime|2026-04-27", "target": "POWERGRID|context|Data_Completeness|2026-04-27", "type": "CORRELATES", "color": "rgba(148,163,184,0.40)"}, {"source": "POWERGRID|context|Sector_Trend|2026-04-27", "target": "POWERGRID|context|Peer_Snapshot|2026-04-27", "type": "CORRELATES", "color": "rgba(148,163,184,0.40)"}, {"source": "POWERGRID|context|Sector_Trend|2026-04-27", "target": "POWERGRID|context|Data_Completeness|2026-04-27", "type": "CORRELATES", "color": "rgba(148,163,184,0.40)"}, {"source": "POWERGRID|context|Peer_Snapshot|2026-04-27", "target": "POWERGRID|context|Data_Completeness|2026-04-27", "type": "CORRELATES", "color": "rgba(148,163,184,0.40)"}, {"source": "POWERGRID|announcement|Dividend_Declared|2026-04-27", "target": "verdict::announcement", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}, {"source": "POWERGRID|announcement|Board_Meeting|2026-04-27", "target": "verdict::announcement", "type": "verdict_support", "color": "rgba(255,171,64,0.7)"}], "communities": [{"id": 0, "key": "technical", "name": "Technical", "color": "#4FC3F7"}, {"id": 1, "key": "fundamental", "name": "Fundamental", "color": "#81C784"}, {"id": 2, "key": "news", "name": "News", "color": "#FFB74D"}, {"id": 3, "key": "announcement", "name": "Announcement", "color": "#F06292"}, {"id": 4, "key": "context", "name": "Context", "color": "#CE93D8"}, {"id": 5, "key": "verdict", "name": "Verdict", "color": "#FF7043"}], "meta": {"node_count": 18, "edge_count": 45}};
+
+let rotating    = true;
+let showLabels  = false;
+let edgesVisible= true;
+let layoutMode  = 0;
+const layouts   = ['3D Force', 'Sphere', 'Clusters'];
+
+const highlightNodes = new Set();
+const highlightLinks = new Set();
+
+// ── Colour helpers ─────────────────────────────────────────────────────────
+function nodeColor(node) {
+  if (!highlightNodes.size) return node.color;
+  return highlightNodes.has(node.id) ? node.color : node.color + '18';
+}
+function linkColor(link) {
+  if (!highlightLinks.size) return edgesVisible ? (link.color || 'rgba(255,255,255,0.12)') : 'rgba(255,255,255,0)';
+  return highlightLinks.has(link)
+    ? (link.color || 'rgba(100,200,255,0.8)')
+    : 'rgba(255,255,255,0.03)';
+}
+function linkWidth(link) {
+  if (!edgesVisible) return 0;
+  if (highlightLinks.has(link)) return 2.5;
+  if (link.type === 'same_category') return 0.3;
+  return 1.0;
+}
+
+// ── Build graph ────────────────────────────────────────────────────────────
+const Graph = ForceGraph3D()(document.getElementById('graph'))
+  .graphData(GRAPH_DATA)
+  .nodeId('id')
+  .nodeLabel(n => `<div style="background:rgba(13,17,23,.92);border:1px solid #30363d;border-radius:8px;padding:8px 12px;font-size:12px;color:#e6edf3;max-width:260px">
+    <strong style="color:${n.color}">${n.label}</strong><br>
+    <span style="color:#8b949e">${n.source_file}</span><br>
+    <span style="font-size:11px;color:#6e7681">${n.value_text}</span>
+  </div>`)
+  .nodeColor(nodeColor)
+  .nodeVal('val')
+  .nodeOpacity(0.92)
+  .linkSource('source')
+  .linkTarget('target')
+  .linkColor(linkColor)
+  .linkWidth(linkWidth)
+  .linkOpacity(0.85)
+  .linkDirectionalParticles(l => {
+    const highFlow = ['agreement','contradiction','supports','caused_by','verdict_support',
+                      'CONFIRMS','AMPLIFIES','CONTRADICTS','CAUSES','TRIGGERS'];
+    return highFlow.includes(l.type) ? 3 : 0;
+  })
+  .linkDirectionalParticleSpeed(l => {
+    if (l.type === 'AMPLIFIES' || l.type === 'TRIGGERS') return 0.008;
+    if (l.type === 'CORRELATES' || l.type === 'CONTEXTUALIZES') return 0.002;
+    return 0.004;
+  })
+  .linkDirectionalParticleColor(l => l.color || '#fff')
+  .backgroundColor('#0d1117')
+  .onNodeClick(node => {
+    highlightNodes.clear(); highlightLinks.clear();
+    if (node) {
+      highlightNodes.add(node.id);
+      GRAPH_DATA.links.forEach(l => {
+        const s = typeof l.source === 'object' ? l.source.id : l.source;
+        const t = typeof l.target === 'object' ? l.target.id : l.target;
+        if (s === node.id || t === node.id) {
+          highlightLinks.add(l); highlightNodes.add(s); highlightNodes.add(t);
+        }
+      });
+    }
+    Graph.nodeColor(nodeColor).linkColor(linkColor).linkWidth(linkWidth);
+    if (node) {
+      const comm = GRAPH_DATA.communities.find(c => c.id === node.community);
+      document.getElementById('node-info').innerHTML = `
+        <strong style="color:${node.color}">${node.label}</strong>
+        <span style="color:#58a6ff">${node.source_file}</span><br>
+        <span style="color:#8b949e;font-size:11px">${node.value_text || ''}</span><br>
+        <span style="color:#484f58;font-size:11px">Weight: ${node.weight} &nbsp;|&nbsp; ${highlightNodes.size - 1} connections</span>
+      `;
+      const dist = 100;
+      const r = 1 + dist / Math.hypot(node.x || 1, node.y || 1, node.z || 1);
+      Graph.cameraPosition({x: node.x*r, y: node.y*r, z: node.z*r}, node, 800);
+    }
+  })
+  .onBackgroundClick(() => {
+    highlightNodes.clear(); highlightLinks.clear();
+    Graph.nodeColor(nodeColor).linkColor(linkColor).linkWidth(linkWidth);
+    document.getElementById('node-info').textContent = 'Click any node to inspect';
+  });
+
+// ── Auto-rotate ────────────────────────────────────────────────────────────
+Graph.onEngineStop(() => {
+  const c = Graph.controls();
+  if (c) { c.autoRotate = rotating; c.autoRotateSpeed = 1.2; }
+});
+setTimeout(() => {
+  const c = Graph.controls();
+  if (c) { c.autoRotate = true; c.autoRotateSpeed = 1.2; }
+}, 600);
+
+// ── Legend ─────────────────────────────────────────────────────────────────
+const legendEl = document.getElementById('legend');
+const nodeCounts = {};
+GRAPH_DATA.nodes.forEach(n => { nodeCounts[n.community] = (nodeCounts[n.community] || 0) + 1; });
+
+GRAPH_DATA.communities.forEach(comm => {
+  if (!nodeCounts[comm.id]) return;
+  const div = document.createElement('div');
+  div.className = 'legend-item';
+  div.innerHTML = `<div class="legend-dot" style="background:${comm.color}"></div>
+    <span>${comm.name}</span><span class="legend-count">${nodeCounts[comm.id]}</span>`;
+  div.onclick = () => filterCommunity(comm.id);
+  legendEl.appendChild(div);
+});
+
+// ── Stats ──────────────────────────────────────────────────────────────────
+document.getElementById('stats').innerHTML =
+  `${GRAPH_DATA.meta.node_count} nodes &nbsp;|&nbsp; ${GRAPH_DATA.meta.edge_count} edges`;
+
+// ── Controls ───────────────────────────────────────────────────────────────
+function toggleRotate() {
+  rotating = !rotating;
+  document.getElementById('btn-rotate').classList.toggle('active', rotating);
+  const c = Graph.controls(); if (c) c.autoRotate = rotating;
+}
+function resetCamera() {
+  Graph.cameraPosition({x:0, y:0, z:600}, {x:0,y:0,z:0}, 800);
+  highlightNodes.clear(); highlightLinks.clear();
+  Graph.nodeColor(nodeColor).linkColor(linkColor).linkWidth(linkWidth);
+  document.getElementById('node-info').textContent = 'Click any node to inspect';
+}
+function toggleLabels() {
+  showLabels = !showLabels;
+  document.getElementById('btn-labels').classList.toggle('active', showLabels);
+  if (showLabels) {
+    Graph.nodeThreeObjectExtend(true).nodeThreeObject(node => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512; canvas.height = 72;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = 'rgba(13,17,23,0.88)';
+      ctx.beginPath(); ctx.roundRect(4, 8, 504, 56, 8); ctx.fill();
+      ctx.strokeStyle = node.color; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.roundRect(4, 8, 504, 56, 8); ctx.stroke();
+      const txt = node.label.length > 24 ? node.label.slice(0,22)+'…' : node.label;
+      ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle'; ctx.fillStyle = node.color;
+      ctx.fillText(txt, 256, 36);
+      const tex = new THREE.CanvasTexture(canvas);
+      const mat = new THREE.SpriteMaterial({map:tex, depthWrite:false, transparent:true});
+      const sprite = new THREE.Sprite(mat);
+      sprite.scale.set(42, 8, 1); sprite.position.set(0, 9, 0);
+      return sprite;
+    });
+  } else {
+    Graph.nodeThreeObjectExtend(false).nodeThreeObject(null);
+  }
+}
+function toggleEdges() {
+  edgesVisible = !edgesVisible;
+  document.getElementById('btn-edges').classList.toggle('active', edgesVisible);
+  Graph.linkColor(linkColor).linkWidth(linkWidth).linkOpacity(edgesVisible ? 0.85 : 0);
+}
+function cycleLayout() {
+  layoutMode = (layoutMode + 1) % 3;
+  document.getElementById('btn-layout').textContent = 'Layout: ' + layouts[layoutMode];
+  if (layoutMode === 1) {
+    const N = GRAPH_DATA.nodes.length;
+    GRAPH_DATA.nodes.forEach((n, i) => {
+      const phi = Math.acos(-1 + (2*i)/N), theta = Math.sqrt(N*Math.PI)*phi, R = 220;
+      n.fx = R*Math.cos(theta)*Math.sin(phi); n.fy = R*Math.sin(theta)*Math.sin(phi); n.fz = R*Math.cos(phi);
+    });
+    Graph.cameraPosition({x:0,y:0,z:600},{x:0,y:0,z:0},800);
+  } else if (layoutMode === 2) {
+    const comms = {};
+    GRAPH_DATA.nodes.forEach(n => { (comms[n.community] = comms[n.community]||[]).push(n); });
+    Object.keys(comms).forEach((cid, ci, keys) => {
+      const theta = (ci/keys.length)*2*Math.PI, R=280;
+      comms[cid].forEach((n,ni) => {
+        const r=60, a=(ni/comms[cid].length)*2*Math.PI;
+        n.fx = R*Math.cos(theta)+r*Math.cos(a); n.fy = R*Math.sin(theta)+r*Math.sin(a); n.fz=(Math.random()-.5)*80;
+      });
+    });
+  } else {
+    GRAPH_DATA.nodes.forEach(n => { delete n.fx; delete n.fy; delete n.fz; });
+    Graph.cameraPosition({x:0,y:0,z:600},{x:0,y:0,z:0},800);
+  }
+  Graph.graphData(GRAPH_DATA);
+}
+function filterCommunity(cid) {
+  highlightNodes.clear(); highlightLinks.clear();
+  const comm = GRAPH_DATA.communities.find(c => c.id === cid);
+  GRAPH_DATA.nodes.forEach(n => { if (n.community === cid) highlightNodes.add(n.id); });
+  GRAPH_DATA.links.forEach(l => {
+    const s = typeof l.source==='object'?l.source.id:l.source;
+    const t = typeof l.target==='object'?l.target.id:l.target;
+    if (highlightNodes.has(s) && highlightNodes.has(t)) highlightLinks.add(l);
+  });
+  Graph.nodeColor(node => highlightNodes.has(node.id) ? node.color : node.color+'18')
+       .linkColor(link => highlightLinks.has(link) ? (link.color||'rgba(100,200,255,0.7)') : 'rgba(255,255,255,0.02)')
+       .linkWidth(link => highlightLinks.has(link) ? 2.0 : 0.1);
+  document.getElementById('node-info').innerHTML =
+    `<strong style="color:${comm.color}">${comm.name}</strong><br>
+     <span style="color:#8b949e">${highlightNodes.size} nodes &nbsp;|&nbsp; ${highlightLinks.size} connections</span>`;
+}
+
+// ── Search ────────────────────────────────────────────────────────────────
+document.getElementById('search').addEventListener('input', e => {
+  const q = e.target.value.toLowerCase().trim();
+  if (!q) {
+    highlightNodes.clear(); highlightLinks.clear();
+    Graph.nodeColor(nodeColor).linkColor(linkColor).linkWidth(linkWidth);
+    document.getElementById('node-info').textContent = 'Click any node to inspect';
+    return;
+  }
+  highlightNodes.clear(); highlightLinks.clear();
+  const matched = GRAPH_DATA.nodes.filter(n =>
+    n.label.toLowerCase().includes(q) || n.source_file.toLowerCase().includes(q) || n.value_text.toLowerCase().includes(q)
+  );
+  matched.forEach(n => highlightNodes.add(n.id));
+  GRAPH_DATA.links.forEach(l => {
+    const s = typeof l.source==='object'?l.source.id:l.source;
+    const t = typeof l.target==='object'?l.target.id:l.target;
+    if (highlightNodes.has(s)||highlightNodes.has(t)) {
+      highlightLinks.add(l); highlightNodes.add(s); highlightNodes.add(t);
+    }
+  });
+  const G = '#00e676';
+  Graph.nodeColor(n => matched.some(m=>m.id===n.id) ? G : highlightNodes.has(n.id) ? G+'66' : n.color+'10')
+       .linkColor(l => highlightLinks.has(l) ? 'rgba(0,230,118,0.7)' : 'rgba(255,255,255,0.02)')
+       .linkWidth(l => highlightLinks.has(l) ? 3.0 : 0.05);
+  document.getElementById('node-info').innerHTML = matched.length === 1
+    ? `<strong style="color:${G}">${matched[0].label}</strong><br>
+       <span style="color:#8b949e">${matched[0].source_file}</span><br>
+       <span style="font-size:11px;color:#6e7681">${matched[0].value_text}</span>`
+    : `<strong style="color:${G}">${matched.length} matches found</strong><br>
+       <span style="color:#8b949e">${highlightNodes.size - matched.length} connected nodes</span>`;
+});
+</script>
+</body>
+</html>

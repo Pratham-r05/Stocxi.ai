@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stocxi — ASIANPAINT</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#050508;--surface:#111116;--surface-2:#1a1a22;--surface-hover:#252530;
+  --border:rgba(255,255,255,0.08);--border-focus:rgba(139,92,246,0.6);
+  --text:#FFFFFF;--text-sec:#C0C8D4;--text-muted:#6B7280;
+  --accent:#8B5CF6;--accent2:#7C3AED;
+  --positive:#00FF88;--negative:#FF3355;--neutral:#B0BEC5;--mixed:#FFB800;
+  --confirms:#00FF88;--amplifies:#00FFCC;--contradicts:#FF3355;--dampens:#FF8844;
+  --causes:#4499FF;--triggers:#AA55FF;--contextualizes:#6688AA;--correlates:#556677;
+  --radius:8px;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);
+  font-family:-apple-system,'SF Pro Text','SF Pro Display',BlinkMacSystemFont,system-ui,sans-serif;}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:4px}
+#graph{width:100vw;height:100vh;position:fixed;top:0;left:0;z-index:1}
+
+#header{
+  position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:100;
+  padding:10px 22px;text-align:center;pointer-events:none;
+  background:rgba(17,17,22,0.8);border:1px solid var(--border);border-radius:10px;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
+#header-title{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-0.2px}
+#header-sub{font-size:11px;color:var(--text-muted);margin-top:1px;letter-spacing:0.3px}
+
+#panel{
+  position:fixed;top:14px;left:14px;z-index:100;
+  background:rgba(17,17,22,0.92);border:1px solid var(--border);border-radius:12px;
+  padding:0;width:220px;max-height:calc(100vh - 28px);overflow-y:auto;
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+}
+.p-section{padding:10px 12px;border-bottom:1px solid var(--border)}
+.p-section:last-child{border-bottom:none}
+.p-title{font-size:8px;text-transform:uppercase;letter-spacing:2.5px;color:#FFFFFF;
+  margin-bottom:8px;font-weight:700;display:flex;align-items:center;gap:6px}
+.p-title svg{width:10px;height:10px;opacity:0.5}
+.p-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;align-items:center}
+.p-row:last-child{margin-bottom:0}
+.p-row-center{justify-content:center}
+
+.btn{
+  background:rgba(255,255,255,0.05);border:1px solid var(--border);color:#FFFFFF;
+  padding:5px 9px;border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;
+  transition:all .15s;font-family:inherit;letter-spacing:0.2px;white-space:nowrap;
+}
+.btn:hover{background:rgba(139,92,246,0.12);border-color:rgba(139,92,246,0.4);color:#C4B5FD}
+.btn.active{background:rgba(139,92,246,0.2);border-color:rgba(139,92,246,0.5);color:#A78BFA;
+  box-shadow:0 0 8px rgba(139,92,246,0.15)}
+.btn-icon{padding:5px 7px;display:flex;align-items:center;justify-content:center}
+
+.sel{
+  background:rgba(255,255,255,0.05);border:1px solid var(--border);color:#FFFFFF;
+  padding:6px 8px;border-radius:6px;font-size:10px;font-family:inherit;cursor:pointer;
+  width:100%;appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%238B5CF6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 8px center;padding-right:24px;
+}
+.sel option{background:#1a1a22;color:#FFFFFF}
+.sel:focus{border-color:var(--border-focus);outline:none}
+
+.slider-wrap{width:100%;display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.slider-wrap label{font-size:9px;color:var(--text-muted);min-width:60px;letter-spacing:0.3px;text-transform:uppercase}
+.slider-wrap input[type=range]{flex:1;height:3px;-webkit-appearance:none;appearance:none;
+  background:rgba(255,255,255,0.12);border-radius:2px;outline:none}
+.slider-wrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;
+  border-radius:50%;background:#8B5CF6;cursor:pointer;border:2px solid #1a1a22}
+.slider-wrap .sv{font-size:9px;color:#A78BFA;min-width:24px;text-align:right;font-weight:600}
+
+.edge-legend{display:flex;flex-wrap:wrap;gap:3px 8px}
+.edge-legend-item{display:flex;align-items:center;gap:4px;font-size:8px;color:var(--text-muted);letter-spacing:0.3px}
+.edge-legend-dot{width:10px;height:2px;border-radius:1px}
+
+#tooltip{
+  position:fixed;z-index:200;display:none;pointer-events:none;
+  background:rgba(17,17,22,0.97);border:1px solid rgba(255,255,255,0.15);border-radius:10px;
+  padding:14px 16px;max-width:340px;min-width:200px;
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  box-shadow:0 8px 40px rgba(0,0,0,0.6);
+}
+.tt-label{font-size:14px;font-weight:700;color:#FFFFFF;line-height:1.3;margin-bottom:2px}
+.tt-cat{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:#6B7280;
+  margin-top:2px;margin-bottom:8px}
+.tt-divider{height:1px;background:rgba(255,255,255,0.08);margin:8px 0}
+.tt-section{margin-bottom:6px}
+.tt-section-title{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#6B7280;margin-bottom:2px}
+.tt-value{font-size:12px;color:#FFFFFF;line-height:1.5;font-weight:500}
+.tt-children{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.tt-child-tag{font-size:9px;padding:2px 6px;border-radius:4px;
+  background:rgba(255,255,255,0.06);color:#D1D5DB;border:1px solid rgba(255,255,255,0.08)}
+.tt-row{display:flex;justify-content:space-between;font-size:11px;line-height:1.6;color:#6B7280}
+.tt-row span:last-child{color:#FFFFFF;font-weight:600}
+.tt-signal{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+
+#stats{
+  position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:100;
+  background:rgba(17,17,22,0.88);border:1px solid var(--border);border-radius:20px;
+  padding:6px 18px;font-size:11px;color:var(--text-muted);
+  display:flex;gap:10px;align-items:center;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+}
+#stats strong{color:#A78BFA;font-weight:700}
+
+#shape-btn-wrap{position:relative}
+#shape-dropdown{
+  display:none;position:absolute;left:0;top:100%;margin-top:4px;z-index:120;
+  background:rgba(26,26,34,0.98);border:1px solid var(--border);border-radius:8px;
+  padding:4px;min-width:140px;
+  backdrop-filter:blur(20px);box-shadow:0 4px 20px rgba(0,0,0,0.5);
+}
+#shape-dropdown.show{display:block}
+.sd-item{
+  display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;
+  cursor:pointer;font-size:10px;color:#C0C8D4;transition:all .12s;font-weight:500;
+}
+.sd-item:hover{background:rgba(139,92,246,0.15);color:#FFFFFF}
+.sd-item.active{color:#A78BFA;font-weight:700}
+.sd-shape{width:18px;height:18px;display:flex;align-items:center;justify-content:center}
+</style>
+</head>
+<body>
+<div id="graph"></div>
+
+<div id="header">
+  <div id="header-title">Knowledge Graph</div>
+  <div id="header-sub">ASIANPAINT · Short-term</div>
+</div>
+
+<div id="panel">
+  <div class="p-section">
+    <div class="p-title">Layout</div>
+    <div class="p-row">
+      <button onclick="setLayout('force')" class="btn active" id="btn-force">Force</button>
+      <button onclick="setLayout('radial')" class="btn" id="btn-radial">Radial</button>
+      <button onclick="setLayout('hierarchy')" class="btn" id="btn-hierarchy">Tree</button>
+    </div>
+  </div>
+
+  <div class="p-section">
+    <div class="p-title">Node Shape</div>
+    <div id="shape-btn-wrap">
+      <button onclick="toggleShapeDropdown()" class="btn" id="btn-shape" style="width:100%">
+        <span id="shape-label">Sphere</span> <span style="opacity:0.4">▼</span>
+      </button>
+      <div id="shape-dropdown">
+        <div class="sd-item active" onclick="setShape('sphere')"><span class="sd-shape">●</span> Sphere</div>
+        <div class="sd-item" onclick="setShape('box')"><span class="sd-shape">■</span> Box</div>
+        <div class="sd-item" onclick="setShape('diamond')"><span class="sd-shape">◆</span> Diamond</div>
+        <div class="sd-item" onclick="setShape('cone')"><span class="sd-shape">▲</span> Cone</div>
+        <div class="sd-item" onclick="setShape('torus')"><span class="sd-shape">◎</span> Torus</div>
+        <div class="sd-item" onclick="setShape('octahedron')"><span class="sd-shape">⬡</span> Octahedron</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="p-section">
+    <div class="p-title">Display</div>
+    <div class="p-row">
+      <button id="btn-edges" class="btn active" onclick="toggleEdges()">Edges</button>
+      <button id="btn-labels" class="btn" onclick="toggleLabels()">Labels</button>
+      <button id="btn-rotate" class="btn active" onclick="toggleRotation()">Spin</button>
+    </div>
+    <div class="p-row" style="margin-top:6px">
+      <select onchange="filterCategory(this.value)" id="cat-filter" class="sel">
+        <option value="all">All Categories</option>
+        <option value="technical">Technical</option>
+        <option value="fundamental">Fundamental</option>
+        <option value="financial">Financial</option>
+        <option value="news">News</option>
+        <option value="announcement">Announcements</option>
+      </select>
+    </div>
+    <div class="p-row" style="margin-top:6px">
+      <select onchange="filterSignal(this.value)" id="sig-filter" class="sel">
+        <option value="all">All Signals</option>
+        <option value="bullish">Bullish</option>
+        <option value="positive">Positive</option>
+        <option value="bearish">Bearish</option>
+        <option value="negative">Negative</option>
+        <option value="neutral">Neutral</option>
+        <option value="mixed">Mixed</option>
+      </select>
+    </div>
+    <div class="p-row" style="margin-top:6px">
+      <select onchange="filterNodeType(this.value)" id="type-filter" class="sel">
+        <option value="all">All Node Types</option>
+        <option value="head">Head</option>
+        <option value="group">Group</option>
+        <option value="child">Child</option>
+        <option value="verdict">Verdict</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="p-section">
+    <div class="p-title">Physics</div>
+    <div class="slider-wrap">
+      <label>Charge</label>
+      <input type="range" min="-600" max="-20" value="-250" id="sl-charge" oninput="setCharge(this.value)">
+      <span class="sv" id="sv-charge">-250</span>
+    </div>
+    <div class="slider-wrap">
+      <label>Dist</label>
+      <input type="range" min="30" max="300" value="120" id="sl-dist" oninput="setLinkDist(this.value)">
+      <span class="sv" id="sv-dist">120</span>
+    </div>
+    <div class="slider-wrap">
+      <label>Curvature</label>
+      <input type="range" min="0" max="50" value="8" id="sl-curve" oninput="setCurvature(this.value)">
+      <span class="sv" id="sv-curve">0.08</span>
+    </div>
+  </div>
+
+  <div class="p-section">
+    <div class="p-title">Appearance</div>
+    <div class="slider-wrap">
+      <label>Opacity</label>
+      <input type="range" min="10" max="100" value="100" id="sl-opacity" oninput="setGlobalOpacity(this.value)">
+      <span class="sv" id="sv-opacity">100%</span>
+    </div>
+    <div class="slider-wrap">
+      <label>Node Scale</label>
+      <input type="range" min="50" max="200" value="100" id="sl-scale" oninput="setNodeScale(this.value)">
+      <span class="sv" id="sv-scale">1.0x</span>
+    </div>
+    <div class="slider-wrap">
+      <label>Edge Width</label>
+      <input type="range" min="0" max="100" value="50" id="sl-ewidth" oninput="setEdgeWidthMult(this.value)">
+      <span class="sv" id="sv-ewidth">1.0x</span>
+    </div>
+  </div>
+
+  <div class="p-section">
+    <div class="p-title">Edge Legend</div>
+    <div class="edge-legend">
+      <div class="edge-legend-item"><span class="edge-legend-dot" style="background:#00FF88"></span>Confirms</div>
+      <div class="edge-legend-item"><span class="edge-legend-dot" style="background:#00FFCC"></span>Amplifies</div>
+      <div class="edge-legend-item"><span class="edge-legend-dot" style="background:#FF3355"></span>Contradicts</div>
+      <div class="edge-legend-item"><span class="edge-legend-dot" style="background:#FF8844"></span>Dampens</div>
+      <div class="edge-legend-item"><span class="edge-legend-dot" style="background:#4499FF"></span>Causes</div>
+      <div class="edge-legend-item"><span class="edge-legend-dot" style="background:#AA55FF"></span>Triggers</div>
+      <div class="edge-legend-item"><span class="edge-legend-dot" style="background:#6688AA"></span>Context</div>
+      <div class="edge-legend-item"><span class="edge-legend-dot" style="background:#556677"></span>Correlates</div>
+    </div>
+    <div class="p-row" style="margin-top:6px">
+      <select onchange="filterEdgeType(this.value)" id="edge-filter" class="sel">
+        <option value="all">All Edge Types</option>
+        <option value="CONFIRMS">Confirms</option>
+        <option value="AMPLIFIES">Amplifies</option>
+        <option value="CONTRADICTS">Contradicts</option>
+        <option value="DAMPENS">Dampens</option>
+        <option value="CAUSES">Causes</option>
+        <option value="TRIGGERS">Triggers</option>
+        <option value="CONTEXTUALIZES">Contextualizes</option>
+        <option value="CORRELATES">Correlates</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="p-section">
+    <div class="p-title">Actions</div>
+    <div class="p-row p-row-center">
+      <button class="btn" onclick="resetCamera()">Reset View</button>
+      <button class="btn" onclick="highlightNeighbors()">Neighbors</button>
+      <button class="btn" onclick="clearHighlight()">Clear</button>
+    </div>
+  </div>
+</div>
+
+<div id="tooltip">
+  <div class="tt-label" id="tt-label"></div>
+  <div class="tt-cat" id="tt-cat"></div>
+  <div class="tt-divider" id="tt-divider-1"></div>
+  <div class="tt-section" id="tt-desc-section">
+    <div class="tt-value" id="tt-desc"></div>
+  </div>
+  <div class="tt-divider" id="tt-divider-2"></div>
+  <div class="tt-section" id="tt-val-section">
+    <div class="tt-section-title">Value</div>
+    <div class="tt-value" id="tt-val"></div>
+  </div>
+  <div class="tt-section" id="tt-sig-section">
+    <div class="tt-section-title">Performance</div>
+    <div class="tt-value" id="tt-sig"></div>
+  </div>
+  <div class="tt-section" id="tt-ctx-section">
+    <div class="tt-section-title">Context</div>
+    <div class="tt-value" id="tt-ctx"></div>
+  </div>
+  <div class="tt-children" id="tt-children"></div>
+  <div class="tt-row" id="tt-wt-row" style="margin-top:4px"><span>Weight</span><span id="tt-wt"></span></div>
+</div>
+
+<div id="stats">
+  <span><strong id="sn">0</strong> Nodes</span>
+  <span>·</span>
+  <span><strong id="se">0</strong> Edges</span>
+  <span>·</span>
+  <span><strong id="sc">0</strong> Groups</span>
+</div>
+
+<script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
+<script src="https://unpkg.com/3d-force-graph@1.73.2/dist/3d-force-graph.min.js"></script>
+<script>
+const D={"nodes": [{"id": "HEAD::technical", "label": "Technical Indicators", "community": 0, "signal": "neutral", "value_text": "", "context": "Technical indicators analyzing price trends, momentum, volume, and volatility patterns", "weight": 3.0, "effective_weight": null, "color": "#FFFFFF", "val": 12, "degree": 22, "source_file": "technical · head", "node_type": "head"}, {"id": "HEAD::fundamental", "label": "Fundamentals", "community": 0, "signal": "neutral", "value_text": "", "context": "Valuation ratios and company quality metrics measuring profitability and market positioning", "weight": 3.0, "effective_weight": null, "color": "#FFFFFF", "val": 12, "degree": 11, "source_file": "fundamental · head", "node_type": "head"}, {"id": "HEAD::announcement", "label": "Announcements", "community": 0, "signal": "neutral", "value_text": "", "context": "Exchange filings: quarterly results, board meetings, dividends, and corporate actions", "weight": 3.0, "effective_weight": null, "color": "#FFFFFF", "val": 12, "degree": 15, "source_file": "announcement · head", "node_type": "head"}, {"id": "HEAD::news", "label": "News", "community": 0, "signal": "neutral", "value_text": "", "context": "Recent news coverage and sentiment from verified financial news sources", "weight": 3.0, "effective_weight": null, "color": "#FFFFFF", "val": 12, "degree": 15, "source_file": "news · head", "node_type": "head"}, {"id": "HEAD::financial", "label": "Financial Statements", "community": 0, "signal": "neutral", "value_text": "", "context": "Financial statements — balance sheet, P&L, cash flow, shareholding, and results", "weight": 3.0, "effective_weight": null, "color": "#FFFFFF", "val": 12, "degree": 10, "source_file": "financial · head", "node_type": "head"}, {"id": "GROUP::financial::Balance Sheet", "label": "Balance Sheet", "community": 3, "signal": "neutral", "value_text": "", "context": "Assets, liabilities, and equity — leverage and solvency metrics", "weight": 2.0, "effective_weight": null, "color": "#3B82F6", "border_color": "#60A5FA", "val": 7, "degree": 6, "source_file": "financial · group", "node_type": "group", "parent": "HEAD::financial"}, {"id": "GROUP::financial::P&L", "label": "P&L", "community": 3, "signal": "neutral", "value_text": "", "context": "Profitability — revenue, margins, earnings, and growth trends", "weight": 2.0, "effective_weight": null, "color": "#3B82F6", "border_color": "#60A5FA", "val": 7, "degree": 9, "source_file": "financial · group", "node_type": "group", "parent": "HEAD::financial"}, {"id": "GROUP::financial::Cash Flow", "label": "Cash Flow", "community": 3, "signal": "neutral", "value_text": "", "context": "Operating, investing, and free cash flow analysis", "weight": 2.0, "effective_weight": null, "color": "#3B82F6", "border_color": "#60A5FA", "val": 7, "degree": 5, "source_file": "financial · group", "node_type": "group", "parent": "HEAD::financial"}, {"id": "GROUP::financial::Share Holding", "label": "Share Holding", "community": 3, "signal": "neutral", "value_text": "", "context": "Promoter, institutional, and public ownership patterns", "weight": 2.0, "effective_weight": null, "color": "#3B82F6", "border_color": "#60A5FA", "val": 7, "degree": 3, "source_file": "financial · group", "node_type": "group", "parent": "HEAD::financial"}, {"id": "GROUP::financial::Quarterly Result", "label": "Quarterly Result", "community": 3, "signal": "neutral", "value_text": "", "context": "Quarterly revenue, profit, and margin trends", "weight": 2.0, "effective_weight": null, "color": "#3B82F6", "border_color": "#60A5FA", "val": 7, "degree": 6, "source_file": "financial · group", "node_type": "group", "parent": "HEAD::financial"}, {"id": "GROUP::financial::Annual Result", "label": "Annual Result", "community": 3, "signal": "neutral", "value_text": "", "context": "Annual financial performance and trajectory", "weight": 2.0, "effective_weight": null, "color": "#3B82F6", "border_color": "#60A5FA", "val": 7, "degree": 7, "source_file": "financial · group", "node_type": "group", "parent": "HEAD::financial"}, {"id": "ASIANPAINT|technical|RSI_14|2026-04-29", "label": "RSI 14", "community": 1, "signal": "neutral", "value_text": "RSI: 58.2", "context": "RSI at 58.2 shows balanced momentum, giving the stock room to rise before being considered overbought by short-term traders.", "weight": 0.08, "effective_weight": 0.4408, "color": "#374151", "border_color": "#B8C4D0", "val": 6.65, "degree": 8, "source_file": "technical · neutral", "node_type": "child", "parent": "HEAD::technical"}, {"id": "ASIANPAINT|technical|MACD|2026-04-29", "label": "MACD", "community": 1, "signal": "positive", "value_text": "MACD: 59.89, Signal: 45.50", "context": "The MACD line crossing above its signal line is a bullish signal, suggesting strengthening upward momentum for the short term.", "weight": 0.08, "effective_weight": 1.0, "color": "#374151", "border_color": "#00FF88", "val": 8, "degree": 8, "source_file": "technical · positive", "node_type": "child", "parent": "HEAD::technical"}, {"id": "ASIANPAINT|technical|ADX_14|2026-04-29", "label": "ADX 14", "community": 1, "signal": "positive", "value_text": "ADX: 32.1 (Trend)", "context": "An ADX of 32.1 indicates a strong, established trend, giving short-term traders confidence in the current price direction.", "weight": 0.06, "effective_weight": 0.6677, "color": "#374151", "border_color": "#00FF88", "val": 8, "degree": 9, "source_file": "technical · positive", "node_type": "child", "parent": "HEAD::technical"}, {"id": "ASIANPAINT|technical|ATR_14|2026-04-29", "label": "ATR 14", "community": 1, "signal": "neutral", "value_text": "ATR: 65.18 (2.6%)", "context": "ATR at 2.6% shows moderate daily volatility, helping short-term traders set effective stop-losses and price targets.", "weight": 0.05, "effective_weight": 0.4825, "color": "#374151", "border_color": "#B8C4D0", "val": 6.89, "degree": 9, "source_file": "technical · neutral", "node_type": "child", "parent": "HEAD::technical"}, {"id": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29", "label": "Bollinger Bands", "community": 1, "signal": "neutral", "value_text": "BB: 2090.1 | 2365.4 | 2640.7 | P: 2462.6", "context": "The price is in the upper half of the Bollinger Bands, confirming short-term bullish bias with the upper band as a target.", "weight": 0.06, "effective_weight": 0.5876, "color": "#374151", "border_color": "#B8C4D0", "val": 7.53, "degree": 10, "source_file": "technical · neutral", "node_type": "child", "parent": "HEAD::technical"}, {"id": "ASIANPAINT|technical|EMA|2026-04-29", "label": "EMA", "community": 1, "signal": "positive", "value_text": "EMA20: 2407.4 | EMA50: 2391.2 | EMA200: 2470.3", "context": "The short-term EMA crossover is bullish, but the price faces key resistance at the 200-day EMA (2470.3), a major hurdle.", "weight": 0.06, "effective_weight": 0.6968, "color": "#374151", "border_color": "#00FF88", "val": 8, "degree": 8, "source_file": "technical · positive", "node_type": "child", "parent": "HEAD::technical"}, {"id": "ASIANPAINT|technical|SMA|2026-04-29", "label": "SMA", "community": 1, "signal": "negative", "value_text": "SMA20: 2365.4 | SMA50: 2332.4 | SMA200: 2522.0", "context": "A short-term \"Golden Cross\" (20>50 SMA) is bullish, but the price below the 200 SMA (2522) signals major overhead resistance.", "weight": 0.05, "effective_weight": 0.6968, "color": "#374151", "border_color": "#FF3355", "val": 8, "degree": 9, "source_file": "technical · negative", "node_type": "child", "parent": "HEAD::technical"}, {"id": "ASIANPAINT|technical|Ichimoku|2026-04-29", "label": "Ichimoku", "community": 1, "signal": "positive", "value_text": "Cloud: 2348.5–2422.7 | Price: 2462.6", "context": "The price above the Ichimoku Cloud is a strong bullish signal, with the cloud itself now acting as a key support zone.", "weight": 0.05, "effective_weight": 0.7404, "color": "#374151", "border_color": "#00FF88", "val": 8, "degree": 8, "source_file": "technical · positive", "node_type": "child", "parent": "HEAD::technical"}, {"id": "ASIANPAINT|technical|Parabolic_SAR|2026-04-29", "label": "Parabolic SAR", "community": 1, "signal": "negative", "value_text": "PSAR: 2582.00, Price: 2462.60", "context": "Parabolic SAR is above the price, giving a bearish signal that suggests a potential short-term trend reversal or pullback.", "weight": 0.04, "effective_weight": 0.784, "color": "#374151", "border_color": "#FF3355", "val": 8, "degree": 9, "source_file": "technical · negative", "node_type": "child", "parent": "HEAD::technical"}, {"id": "ASIANPAINT|technical|Stochastic|2026-04-29", "label": "Stochastic", "community": 1, "signal": "neutral", "value_text": "Stoch %K: 64.5, %D: 73.4", "context": "The Stochastic's bearish crossover (%K below %D) warns of fading upward momentum, a risk for short-term bullish positions.", "weight": 0.05, "effective_weight": 0.4725, "color": "#374151", "border_color": "#B8C4D0", "val": 6.83, "degree": 8, "source_file": "technical · neutral", "node_type": "child", "parent": "HEAD::technical"}, {"id": "ASIANPAINT|technical|Williams_R|2026-04-29", "label": "Williams R", "community": 1, "signal": "neutral", "value_text": "Williams %R: -35.5", "context": "Williams %R at -35.5 is in neutral territory, indicating the stock is not overbought and has room to move higher.", "weight": 0.04, "effective_weight": 0.5093, "color": "#374151", "border_color": "#B8C4D0", "val": 7.06, "degree": 8, "source_file": "technical · neutral", "node_type": "child", "parent": "HEAD::technical"}, {"id": "ASIANPAINT|technical|ROC|2026-04-29", "label": "ROC", "community": 1, "signal": "positive", "value_text": "ROC: 8.50%", "context": "A strong 8.50% Rate of Change confirms powerful recent buying momentum, supporting a continued bullish view for the short term.", "weight": 0.04, "effective_weight": 0.8274, "color": "#374151", "border_color": "#00FF88", "val": 8, "degree": 9, "source_file": "technical · positive", "node_type": "child", "parent": "HEAD::technical"}, {"id": "ASIANPAINT|technical|OBV|2026-04-29", "label": "OBV", "community": 1, "signal": "positive", "value_text": "OBV: 30.1M, Trend: Bullish Confirmation", "context": "The rising OBV confirms the price uptrend with strong buying volume, suggesting continued upward momentum for short-term traders.", "weight": 0.06, "effective_weight": 0.8396, "color": "#374151", "border_color": "#00FF88", "val": 8, "degree": 11, "source_file": "technical · positive", "node_type": "child", "parent": "HEAD::technical"}, {"id": "ASIANPAINT|technical|VWAP|2026-04-29", "label": "VWAP", "community": 1, "signal": "positive", "value_text": "VWAP: 2402.50, Price: 2462.60", "context": "The price trading above VWAP indicates strong intraday buying pressure, confirming the bullish sentiment for short-term positions.", "weight": 0.06, "effective_weight": 0.7867, "color": "#374151", "border_color": "#00FF88", "val": 8, "degree": 8, "source_file": "technical · positive", "node_type": "child", "parent": "HEAD::technical"}, {"id": "ASIANPAINT|technical|CMF|2026-04-29", "label": "CMF", "community": 1, "signal": "positive", "value_text": "CMF: 0.229", "context": "The positive CMF value of 0.229 shows strong buying pressure, confirming accumulation and supporting a bullish short-term outlook.", "weight": 0.05, "effective_weight": 0.833, "color": "#374151", "border_color": "#00FF88", "val": 8, "degree": 8, "source_file": "technical · positive", "node_type": "child", "parent": "HEAD::technical"}, {"id": "ASIANPAINT|technical|MFI|2026-04-29", "label": "MFI", "community": 1, "signal": "neutral", "value_text": "MFI: 62.4", "context": "MFI at 62.4 shows healthy buying momentum without being overbought, suggesting the current uptrend has room to continue short-term.", "weight": 0.05, "effective_weight": 0.502, "color": "#374151", "border_color": "#B8C4D0", "val": 7.01, "degree": 7, "source_file": "technical · neutral", "node_type": "child", "parent": "HEAD::technical"}, {"id": "ASIANPAINT|technical|52W_HL_Ratio|2026-04-29", "label": "52W HL Ratio", "community": 1, "signal": "neutral", "value_text": "52W: 2115–2986, CMP: 2463 (40%)", "context": "Trading at 40% of its 52-week range is neutral for short-term momentum, showing the stock is not near a major price ceiling.", "weight": 0.04, "effective_weight": 0.4825, "color": "#374151", "border_color": "#B8C4D0", "val": 6.89, "degree": 5, "source_file": "technical · neutral", "node_type": "child", "parent": "HEAD::technical"}, {"id": "ASIANPAINT|fundamental|PE_Ratio|2026-04-29", "label": "PE Ratio", "community": 1, "signal": "neutral", "value_text": "PE: 62.6", "context": "The high PE ratio of 62.6 suggests the market has high growth expectations, making the stock's valuation neutral without a clear sector comparison.", "weight": 0.06, "effective_weight": 0.0696, "color": "#374151", "border_color": "#B8C4D0", "val": 4.42, "degree": 6, "source_file": "fundamental · neutral", "node_type": "child", "parent": "HEAD::fundamental"}, {"id": "ASIANPAINT|fundamental|PB_Ratio|2026-04-29", "label": "PB Ratio", "community": 1, "signal": "negative", "value_text": "PB: 13.31", "context": "A very high PB ratio of 13.31 indicates the stock is expensive relative to its book value, posing a negative short-term risk of price correction.", "weight": 0.06, "effective_weight": 0.1028, "color": "#374151", "border_color": "#FF3355", "val": 4.62, "degree": 6, "source_file": "fundamental · negative", "node_type": "child", "parent": "HEAD::fundamental"}, {"id": "ASIANPAINT|fundamental|ROE|2026-04-29", "label": "ROE", "community": 1, "signal": "positive", "value_text": "ROE: 21.3%", "context": "The strong ROE of 21.3% shows efficient use of shareholder funds to generate profits, a positive indicator for underlying business strength.", "weight": 0.04, "effective_weight": 0.1924, "color": "#374151", "border_color": "#00FF88", "val": 5.15, "degree": 8, "source_file": "fundamental · positive", "node_type": "child", "parent": "HEAD::fundamental"}, {"id": "ASIANPAINT|fundamental|EPS|2026-04-29", "label": "EPS", "community": 1, "signal": "neutral", "value_text": "EPS: ₹39.35", "context": "The TTM EPS of ₹39.35 provides a baseline for valuation, but its trend is needed to assess momentum, making it a neutral short-term signal.", "weight": 0.06, "effective_weight": 0.0717, "color": "#374151", "border_color": "#B8C4D0", "val": 4.43, "degree": 7, "source_file": "fundamental · neutral", "node_type": "child", "parent": "HEAD::fundamental"}, {"id": "ASIANPAINT|fundamental|OPM|2026-04-29", "label": "OPM", "community": 1, "signal": "positive", "value_text": "OPM: 22.5%", "context": "A healthy operating margin of 22.5% reflects strong pricing power and operational efficiency, which is a positive sign for profitability.", "weight": 0.06, "effective_weight": 0.1301, "color": "#374151", "border_color": "#00FF88", "val": 4.78, "degree": 8, "source_file": "fundamental · positive", "node_type": "child", "parent": "HEAD::fundamental"}, {"id": "ASIANPAINT|fundamental|NPM|2026-04-29", "label": "NPM", "community": 1, "signal": "positive", "value_text": "NPM: 13.4%", "context": "The solid net profit margin of 13.4% indicates strong overall profitability after all expenses, a positive signal for financial health.", "weight": 0.06, "effective_weight": 0.1301, "color": "#374151", "border_color": "#00FF88", "val": 4.78, "degree": 7, "source_file": "fundamental · positive", "node_type": "child", "parent": "HEAD::fundamental"}, {"id": "ASIANPAINT|fundamental|Revenue_Quarterly|2026-04-29", "label": "Revenue Quarterly", "community": 1, "signal": "neutral", "value_text": "Q Revenue: ₹8,867 Cr (latest period: Dec 2025)", "context": "The latest quarterly revenue of ₹8,867 Cr is a key performance metric; its stable trend provides a neutral outlook without signs of acceleration.", "weight": 0.08, "effective_weight": 0.0478, "color": "#374151", "border_color": "#B8C4D0", "val": 4.29, "degree": 8, "source_file": "fundamental · neutral", "node_type": "child", "parent": "GROUP::financial::Quarterly Result"}, {"id": "ASIANPAINT|fundamental|Net_Profit_Quarterly|2026-04-29", "label": "Net Profit Quarterly", "community": 1, "signal": "neutral", "value_text": "Q PAT: ₹1,074 Cr (latest period: Dec 2025)", "context": "The latest quarterly net profit of ₹1,074 Cr shows consistent earnings, but its stable trend is neutral for short-term price momentum.", "weight": 0.08, "effective_weight": 0.0478, "color": "#374151", "border_color": "#B8C4D0", "val": 4.29, "degree": 8, "source_file": "fundamental · neutral", "node_type": "child", "parent": "GROUP::financial::Quarterly Result"}, {"id": "ASIANPAINT|fundamental|Revenue_Annual|2026-04-29", "label": "Revenue Annual", "community": 1, "signal": "neutral", "value_text": "FY Revenue: ₹34,696 Cr (TTM)", "context": "The TTM revenue of ₹34,696 Cr confirms the company's large scale, but its annual nature makes it a neutral indicator for short-term trading.", "weight": 0.08, "effective_weight": 0.0423, "color": "#374151", "border_color": "#B8C4D0", "val": 4.25, "degree": 7, "source_file": "fundamental · neutral", "node_type": "child", "parent": "GROUP::financial::Annual Result"}, {"id": "ASIANPAINT|fundamental|Net_Profit_Annual|2026-04-29", "label": "Net Profit Annual", "community": 1, "signal": "neutral", "value_text": "FY PAT: ₹3,910 Cr (TTM)", "context": "The TTM net profit of ₹3,910 Cr reflects solid annual profitability, but it is a lagging indicator and thus neutral for short-term price action.", "weight": 0.08, "effective_weight": 0.0369, "color": "#374151", "border_color": "#B8C4D0", "val": 4.22, "degree": 7, "source_file": "fundamental · neutral", "node_type": "child", "parent": "GROUP::financial::Annual Result"}, {"id": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29", "label": "Debt To Equity", "community": 1, "signal": "negative", "value_text": "D/E: 37.05", "context": "An exceptionally high D/E ratio of 37.05 indicates extreme financial leverage and risk, a significant negative for the company's stability.", "weight": 0.05, "effective_weight": 0.0816, "color": "#374151", "border_color": "#FF3355", "val": 4.49, "degree": 10, "source_file": "fundamental · negative", "node_type": "child", "parent": "GROUP::financial::Balance Sheet"}, {"id": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29", "label": "Operating Cash Flow", "community": 1, "signal": "positive", "value_text": "OCF: ₹4,424 Cr (Mar 2025)", "context": "Strong annual operating cash flow of ₹4,424 Cr, exceeding net profit, indicates high-quality earnings and robust liquidity, a clear positive.", "weight": 0.04, "effective_weight": 0.0527, "color": "#374151", "border_color": "#00FF88", "val": 4.32, "degree": 10, "source_file": "fundamental · positive", "node_type": "child", "parent": "GROUP::financial::Cash Flow"}, {"id": "ASIANPAINT|fundamental|Revenue_TTM|2026-04-29", "label": "Revenue TTM", "community": 1, "signal": "neutral", "value_text": "Rev TTM: ₹34,696 Cr (+1.2% YoY)", "context": "TTM revenue shows minimal YoY growth, indicating a stable but stagnating top-line, which is neutral for short-term momentum.", "weight": 0.08, "effective_weight": 0.0717, "color": "#374151", "border_color": "#B8C4D0", "val": 4.43, "degree": 7, "source_file": "fundamental · neutral", "node_type": "child", "parent": "GROUP::financial::P&L"}, {"id": "ASIANPAINT|fundamental|Revenue_Growth_YoY|2026-04-29", "label": "Revenue Growth YoY", "community": 1, "signal": "neutral", "value_text": "Revenue YoY: +1.2%", "context": "The slow 1.2% YoY revenue growth signals a decelerating top-line, offering a neutral outlook for immediate price action.", "weight": 0.08, "effective_weight": 0.0717, "color": "#374151", "border_color": "#B8C4D0", "val": 4.43, "degree": 8, "source_file": "fundamental · neutral", "node_type": "child", "parent": "GROUP::financial::P&L"}, {"id": "ASIANPAINT|fundamental|PAT_TTM|2026-04-29", "label": "PAT TTM", "community": 1, "signal": "negative", "value_text": "PAT TTM: ₹3,910 Cr (-8.7% YoY)", "context": "Declining TTM profits despite flat revenue points to margin erosion, a negative signal for short-term investor sentiment.", "weight": 0.08, "effective_weight": 0.1219, "color": "#374151", "border_color": "#FF3355", "val": 4.73, "degree": 7, "source_file": "fundamental · negative", "node_type": "child", "parent": "GROUP::financial::P&L"}, {"id": "ASIANPAINT|fundamental|PAT_Growth_YoY|2026-04-29", "label": "PAT Growth YoY", "community": 1, "signal": "negative", "value_text": "PAT YoY: -8.7%", "context": "The 8.7% YoY decline in profit is a clear negative, suggesting rising costs or pricing pressure that could weigh on the stock.", "weight": 0.08, "effective_weight": 0.1219, "color": "#374151", "border_color": "#FF3355", "val": 4.73, "degree": 8, "source_file": "fundamental · negative", "node_type": "child", "parent": "GROUP::financial::P&L"}, {"id": "ASIANPAINT|fundamental|EBITDA_TTM|2026-04-29", "label": "EBITDA TTM", "community": 1, "signal": "neutral", "value_text": "EBITDA TTM: ₹6,345 Cr (+1.3% YoY)", "context": "Stagnant TTM EBITDA growth reflects that operational performance is flat, providing a neutral signal for near-term momentum.", "weight": 0.08, "effective_weight": 0.0717, "color": "#374151", "border_color": "#B8C4D0", "val": 4.43, "degree": 7, "source_file": "fundamental · neutral", "node_type": "child", "parent": "GROUP::financial::P&L"}, {"id": "ASIANPAINT|fundamental|EBITDA_Margin|2026-04-29", "label": "EBITDA Margin", "community": 1, "signal": "neutral", "value_text": "EBITDA Margin: 20.0%", "context": "The stable 20% EBITDA margin is healthy but expected given flat growth, making it a neutral factor for short-term price direction.", "weight": 0.06, "effective_weight": 0.0717, "color": "#374151", "border_color": "#B8C4D0", "val": 4.43, "degree": 7, "source_file": "fundamental · neutral", "node_type": "child", "parent": "GROUP::financial::P&L"}, {"id": "ASIANPAINT|fundamental|Free_Cashflow|2026-04-29", "label": "Free Cashflow", "community": 1, "signal": "positive", "value_text": "FCF: ₹2,604 Cr (Mar 2025)", "context": "Strong free cash flow generation indicates robust operational health and financial flexibility, a positive for investor confidence.", "weight": 0.04, "effective_weight": 0.1219, "color": "#374151", "border_color": "#00FF88", "val": 4.73, "degree": 7, "source_file": "fundamental · positive", "node_type": "child", "parent": "GROUP::financial::Cash Flow"}, {"id": "ASIANPAINT|fundamental|Interest_Coverage|2026-04-29", "label": "Interest Coverage", "community": 1, "signal": "positive", "value_text": "Interest Coverage: 33.6x", "context": "An extremely high interest coverage ratio of 33.6x signals a very strong balance sheet and low financial risk, a clear positive.", "weight": 0.05, "effective_weight": 0.1219, "color": "#374151", "border_color": "#00FF88", "val": 4.73, "degree": 7, "source_file": "fundamental · positive", "node_type": "child", "parent": "GROUP::financial::P&L"}, {"id": "ASIANPAINT|fundamental|Market_Cap|2026-04-29", "label": "Market Cap", "community": 1, "signal": "positive", "value_text": "Mkt Cap: ₹236,241 Cr", "context": "The large market cap indicates high liquidity and institutional interest, which is positive for stable, short-term trading.", "weight": 0.06, "effective_weight": 0.1301, "color": "#374151", "border_color": "#00FF88", "val": 4.78, "degree": 7, "source_file": "fundamental · positive", "node_type": "child", "parent": "GROUP::financial::P&L"}, {"id": "ASIANPAINT|fundamental|Total_Assets|2026-04-29", "label": "Total Assets", "community": 1, "signal": "neutral", "value_text": "Total Assets: ₹31,349 Cr (Sep 2025)", "context": "The absolute value of total assets provides a snapshot of company size but is neutral for short-term direction without a growth trend.", "weight": 0.05, "effective_weight": 0.0798, "color": "#374151", "border_color": "#B8C4D0", "val": 4.48, "degree": 7, "source_file": "fundamental · neutral", "node_type": "child", "parent": "GROUP::financial::Balance Sheet"}, {"id": "ASIANPAINT|fundamental|Total_Liabilities|2026-04-29", "label": "Total Liabilities", "community": 1, "signal": "neutral", "value_text": "Total Liabilities: ₹31,349 Cr (Sep 2025)", "context": "This balance sheet figure is neutral for short-term analysis without historical context or breakdown of debt vs. other liabilities.", "weight": 0.05, "effective_weight": 0.0717, "color": "#374151", "border_color": "#B8C4D0", "val": 4.43, "degree": 7, "source_file": "fundamental · neutral", "node_type": "child", "parent": "GROUP::financial::Balance Sheet"}, {"id": "ASIANPAINT|fundamental|Reserves|2026-04-29", "label": "Reserves", "community": 1, "signal": "neutral", "value_text": "Reserves: ₹19,483 Cr (Sep 2025)", "context": "A healthy reserve base indicates long-term financial stability but is a neutral factor for short-term price momentum.", "weight": 0.05, "effective_weight": 0.0635, "color": "#374151", "border_color": "#B8C4D0", "val": 4.38, "degree": 7, "source_file": "fundamental · neutral", "node_type": "child", "parent": "GROUP::financial::Balance Sheet"}, {"id": "ASIANPAINT|fundamental|Borrowings|2026-04-29", "label": "Borrowings", "community": 1, "signal": "negative", "value_text": "Borrowings: ₹3,557 Cr (Sep 2025) (YoY: +55.3%)", "context": "Sharply accelerating YoY borrowings increase financial risk and interest burden, which is a negative signal for short-term sentiment.", "weight": 0.05, "effective_weight": 0.1137, "color": "#374151", "border_color": "#FF3355", "val": 4.68, "degree": 8, "source_file": "fundamental · negative", "node_type": "child", "parent": "GROUP::financial::Balance Sheet"}, {"id": "ASIANPAINT|fundamental|Expenses_Quarterly|2026-04-29", "label": "Expenses Quarterly", "community": 1, "signal": "neutral", "value_text": "Q Expenses: ₹7,086 Cr (Dec 2025)", "context": "Quarterly expenses represent costs to generate revenue; their impact is neutral until compared with sales growth and profitability trends.", "weight": 0.08, "effective_weight": 0.0635, "color": "#374151", "border_color": "#B8C4D0", "val": 4.38, "degree": 7, "source_file": "fundamental · neutral", "node_type": "child", "parent": "GROUP::financial::Quarterly Result"}, {"id": "ASIANPAINT|fundamental|Operating_Profit_Quarterly|2026-04-29", "label": "Operating Profit Quarterly", "community": 1, "signal": "positive", "value_text": "Q OP: ₹1,781 Cr (Dec 2025)", "context": "Strong quarterly operating profit shows robust core business performance, a positive driver for short-term momentum and investor confidence.", "weight": 0.08, "effective_weight": 0.1219, "color": "#374151", "border_color": "#00FF88", "val": 4.73, "degree": 7, "source_file": "fundamental · positive", "node_type": "child", "parent": "GROUP::financial::Quarterly Result"}, {"id": "ASIANPAINT|fundamental|OPM_Quarterly|2026-04-29", "label": "OPM Quarterly", "community": 1, "signal": "neutral", "value_text": "Q OPM: 20.0%", "context": "A 20% quarterly OPM indicates operational efficiency; its short-term impact is neutral pending comparison with sector averages and historical trends.", "weight": 0.06, "effective_weight": 0.0478, "color": "#374151", "border_color": "#B8C4D0", "val": 4.29, "degree": 8, "source_file": "fundamental · neutral", "node_type": "child", "parent": "GROUP::financial::Quarterly Result"}, {"id": "ASIANPAINT|fundamental|Expenses_Annual|2026-04-29", "label": "Expenses Annual", "community": 1, "signal": "neutral", "value_text": "FY Expenses: ₹28,350 Cr (TTM)", "context": "Annual TTM expenses reflect the full-year cost structure; this is a neutral data point without context on revenue growth or margin trends.", "weight": 0.08, "effective_weight": 0.0635, "color": "#374151", "border_color": "#B8C4D0", "val": 4.38, "degree": 7, "source_file": "fundamental · neutral", "node_type": "child", "parent": "GROUP::financial::Annual Result"}, {"id": "ASIANPAINT|fundamental|Operating_Profit_Annual|2026-04-29", "label": "Operating Profit Annual", "community": 1, "signal": "neutral", "value_text": "FY OP: ₹6,346 Cr (TTM)", "context": "The TTM operating profit shows full-year core earnings power, but its trend is key for momentum, making the absolute number a neutral signal.", "weight": 0.08, "effective_weight": 0.0635, "color": "#374151", "border_color": "#B8C4D0", "val": 4.38, "degree": 7, "source_file": "fundamental · neutral", "node_type": "child", "parent": "GROUP::financial::Annual Result"}, {"id": "ASIANPAINT|fundamental|OPM_Annual|2026-04-29", "label": "OPM Annual", "community": 1, "signal": "neutral", "value_text": "FY OPM: 18.0%", "context": "The 18% TTM OPM reflects annual operational profitability; this is neutral until assessed against sector peers and its own historical performance.", "weight": 0.06, "effective_weight": 0.0553, "color": "#374151", "border_color": "#B8C4D0", "val": 4.33, "degree": 7, "source_file": "fundamental · neutral", "node_type": "child", "parent": "GROUP::financial::Annual Result"}, {"id": "ASIANPAINT|fundamental|EPS_Annual|2026-04-29", "label": "EPS Annual", "community": 1, "signal": "neutral", "value_text": "FY EPS: ₹40.10 (TTM)", "context": "TTM EPS of ₹40.10 is a key valuation input, but its trend and comparison to price (P/E ratio) are needed, making it a neutral signal alone.", "weight": 0.06, "effective_weight": 0.0553, "color": "#374151", "border_color": "#B8C4D0", "val": 4.33, "degree": 7, "source_file": "fundamental · neutral", "node_type": "child", "parent": "GROUP::financial::Annual Result"}, {"id": "ASIANPAINT|fundamental|Cash_From_Investing|2026-04-29", "label": "Cash From Investing", "community": 1, "signal": "neutral", "value_text": "CFI: ₹-941 Cr (Mar 2025)", "context": "Negative CFI indicates investment in assets (CapEx) for future growth, a neutral signal for short-term traders focused on immediate profitability.", "weight": 0.04, "effective_weight": 0.0553, "color": "#374151", "border_color": "#B8C4D0", "val": 4.33, "degree": 7, "source_file": "fundamental · neutral", "node_type": "child", "parent": "GROUP::financial::Cash Flow"}, {"id": "ASIANPAINT|fundamental|Cash_From_Financing|2026-04-29", "label": "Cash From Financing", "community": 1, "signal": "neutral", "value_text": "CFF: ₹-3,753 Cr (Mar 2025)", "context": "A large negative CFF suggests significant debt repayment or shareholder payouts, a neutral signal as it reflects past obligations or capital returns.", "weight": 0.04, "effective_weight": 0.0553, "color": "#374151", "border_color": "#B8C4D0", "val": 4.33, "degree": 6, "source_file": "fundamental · neutral", "node_type": "child", "parent": "GROUP::financial::Cash Flow"}, {"id": "ASIANPAINT|fundamental|Promoter_Holding|2026-04-29", "label": "Promoter Holding", "community": 1, "signal": "positive", "value_text": "Promoter: 52.6%", "context": "A high promoter holding of 52.6% signals strong management conviction and aligns their interests with shareholders, which is a positive for stability.", "weight": 0.05, "effective_weight": 0.1137, "color": "#374151", "border_color": "#00FF88", "val": 4.68, "degree": 5, "source_file": "fundamental · positive", "node_type": "child", "parent": "GROUP::financial::Share Holding"}, {"id": "ASIANPAINT|fundamental|Public_Retail_Holding|2026-04-29", "label": "Public Retail Holding", "community": 1, "signal": "neutral", "value_text": "Public/Retail: 47.3%", "context": "A high public/retail holding of 47.3% ensures liquidity but can also lead to higher volatility, making it a neutral factor for price direction.", "weight": 0.05, "effective_weight": 0.0635, "color": "#374151", "border_color": "#B8C4D0", "val": 4.38, "degree": 4, "source_file": "fundamental · neutral", "node_type": "child", "parent": "GROUP::financial::Share Holding"}, {"id": "ASIANPAINT|news|News_Item_0|2026-04-27", "label": "News Item 0", "community": 1, "signal": "neutral", "value_text": "[analyst_action] Asian Paints Ltd. Technical Momentum Shifts Amid Mixed Market Signals\nAnalysis: This article provides technical analysis on Asian Paints, noting a shift in momentum. However, the market signals are described as mixed, indicating uncertainty in the stock's short-term price direction.", "context": "This article provides technical analysis on Asian Paints, noting a shift in momentum. However, the market signals are described as mixed, indicating uncertainty in the stock's short-term price directi", "weight": 0.007, "effective_weight": 0.1731, "color": "#374151", "border_color": "#B8C4D0", "val": 5.04, "degree": 4, "source_file": "news · neutral", "node_type": "child", "parent": "HEAD::news"}, {"id": "ASIANPAINT|news|News_Item_1|2026-04-26", "label": "News Item 1", "community": 1, "signal": "neutral", "value_text": "[analyst_action] Titan, Asian Paints, Britannia, DMart, Pidilite among consumer stocks to watch ahead of Q4 results | Check PL Capital's \nAnalysis: Asian Paints is highlighted as a consumer stock to watch ahead of its upcoming Q4 results. The article references a list from brokerage PL Capital, indi", "context": "Asian Paints is highlighted as a consumer stock to watch ahead of its upcoming Q4 results. The article references a list from brokerage PL Capital, indicating analyst focus on the company's performanc", "weight": 0.014, "effective_weight": 0.3704, "color": "#374151", "border_color": "#B8C4D0", "val": 6.22, "degree": 5, "source_file": "news · neutral", "node_type": "child", "parent": "HEAD::news"}, {"id": "ASIANPAINT|news|News_Item_2|2026-04-25", "label": "News Item 2", "community": 1, "signal": "positive", "value_text": "[generic_positive] Asian Paints shares surge in trade after 6-8% price hike announcement - MSN\nAnalysis: Asian Paints announced a significant price hike of 6-8%, leading to a surge in its share price. This move is a direct response to rising input costs and is aimed at protecting profit margins. The", "context": "Asian Paints announced a significant price hike of 6-8%, leading to a surge in its share price. This move is a direct response to rising input costs and is aimed at protecting profit margins. The mark", "weight": 0.019, "effective_weight": 0.765, "color": "#374151", "border_color": "#00FF88", "val": 8, "degree": 7, "source_file": "news · positive", "node_type": "child", "parent": "HEAD::news"}, {"id": "ASIANPAINT|news|News_Item_3|2026-04-25", "label": "News Item 3", "community": 1, "signal": "neutral", "value_text": "[analyst_action] Stock picks today: Apollo Hospitals, Power Grid, ITC, Asian Paints, IndiGo and more on brokerages' radar - MSN\nAnalysis: Asian Paints is mentioned as being on the radar of several brokerages. This indicates positive sentiment from the analyst community, likely due to recent positive", "context": "Asian Paints is mentioned as being on the radar of several brokerages. This indicates positive sentiment from the analyst community, likely due to recent positive developments like the announced price", "weight": 0.011, "effective_weight": 0.4292, "color": "#374151", "border_color": "#B8C4D0", "val": 6.58, "degree": 7, "source_file": "news · neutral", "node_type": "child", "parent": "HEAD::news"}, {"id": "ASIANPAINT|news|News_Item_4|2026-04-25", "label": "News Item 4", "community": 1, "signal": "neutral", "value_text": "[generic_positive] From Asian Paints to PNB Housing Finance, Stocks in Focus on D-Street | Stock Market | BSE | NSE - Zee Business\nAnalysis: This is a generic market update article that lists Asian Paints as a \"Stock in Focus\". This mention is likely due to recent news and increased trading activity", "context": "This is a generic market update article that lists Asian Paints as a \"Stock in Focus\". This mention is likely due to recent news and increased trading activity. It serves to highlight that the stock i", "weight": 0.002, "effective_weight": 0.2683, "color": "#374151", "border_color": "#B8C4D0", "val": 5.61, "degree": 7, "source_file": "news · neutral", "node_type": "child", "parent": "HEAD::news"}, {"id": "ASIANPAINT|news|News_Item_5|2026-04-24", "label": "News Item 5", "community": 1, "signal": "positive", "value_text": "[analyst_action] Asian Paints Ltd. Sees Significant Open Interest Surge Amid Mixed Market Signals\nAnalysis: A significant surge in Open Interest (OI) was observed for Asian Paints derivatives. This indicates a large increase in trader activity and new positions being built. Such a surge often preced", "context": "A significant surge in Open Interest (OI) was observed for Asian Paints derivatives. This indicates a large increase in trader activity and new positions being built. Such a surge often precedes highe", "weight": 0.018, "effective_weight": 0.5781, "color": "#374151", "border_color": "#00FF88", "val": 7.47, "degree": 7, "source_file": "news · positive", "node_type": "child", "parent": "HEAD::news"}, {"id": "ASIANPAINT|news|News_Item_6|2026-04-24", "label": "News Item 6", "community": 1, "signal": "neutral", "value_text": "[analyst_action] ASIANPAINT Outlook for the Week (April 27, 2026 – May 01, 2026) - Equitypandit\nAnalysis: This article provides a weekly technical outlook for Asian Paints. It is aimed at short-term traders, offering analysis on potential price movements and key levels for the upcoming week. It is b", "context": "This article provides a weekly technical outlook for Asian Paints. It is aimed at short-term traders, offering analysis on potential price movements and key levels for the upcoming week. It is based p", "weight": 0.007, "effective_weight": 0.2821, "color": "#374151", "border_color": "#B8C4D0", "val": 5.69, "degree": 7, "source_file": "news · neutral", "node_type": "child", "parent": "HEAD::news"}, {"id": "ASIANPAINT|news|News_Item_7|2026-04-22", "label": "News Item 7", "community": 1, "signal": "neutral", "value_text": "[analyst_action] Asian Paints Ltd. Technical Momentum Shifts to Sideways Amid Mixed Indicator Signals\nAnalysis: This technical analysis piece notes that Asian Paints' momentum has shifted to \"sideways\". This suggests a period of price consolidation and indecision among traders, according to technica", "context": "This technical analysis piece notes that Asian Paints' momentum has shifted to \"sideways\". This suggests a period of price consolidation and indecision among traders, according to technical indicators", "weight": 0.007, "effective_weight": 0.27, "color": "#374151", "border_color": "#B8C4D0", "val": 5.62, "degree": 6, "source_file": "news · neutral", "node_type": "child", "parent": "HEAD::news"}, {"id": "ASIANPAINT|news|News_Item_8|2026-04-22", "label": "News Item 8", "community": 1, "signal": "negative", "value_text": "[generic_negative] HPCL, IndiGo, Asian Paints, other crude sensitive shares decline as Brent crude rises 4%\nAnalysis: Asian Paints' stock declined as Brent crude prices surged by 4%. As crude oil derivatives are a key raw material for the paint industry, this price rise directly increases the compan", "context": "Asian Paints' stock declined as Brent crude prices surged by 4%. As crude oil derivatives are a key raw material for the paint industry, this price rise directly increases the company's input costs. T", "weight": 0.017, "effective_weight": 0.7148, "color": "#374151", "border_color": "#FF3355", "val": 8, "degree": 6, "source_file": "news · negative", "node_type": "child", "parent": "HEAD::news"}, {"id": "ASIANPAINT|news|News_Item_9|2026-04-21", "label": "News Item 9", "community": 1, "signal": "neutral", "value_text": "[generic_negative] Asian Paints Ltd. Falls to 52-Week Low of Rs 2151 Amid Sector Downturn\nAnalysis: Asian Paints' stock price fell to a new 52-week low of Rs 2151. This significant negative price milestone occurred amid a broader downturn affecting the sector. Hitting a 52-week low is a strong beari", "context": "Asian Paints' stock price fell to a new 52-week low of Rs 2151. This significant negative price milestone occurred amid a broader downturn affecting the sector. Hitting a 52-week low is a strong beari", "weight": 0.019, "effective_weight": 0.8255, "color": "#374151", "border_color": "#B8C4D0", "val": 8, "degree": 4, "source_file": "news · neutral", "node_type": "child", "parent": "HEAD::news"}, {"id": "ASIANPAINT|announcement|Board_Meeting|2026-04-29", "label": "Board Meeting", "community": 1, "signal": "neutral", "value_text": "Asian Paints scheduled a board meeting for Jan 27, 2026, to approve results, a routine update with a neutral market impact.", "context": "Asian Paints scheduled a board meeting for Jan 27, 2026, to approve results, a routine update with a neutral market impact.", "weight": 0.14, "effective_weight": 0.3675, "color": "#374151", "border_color": "#B8C4D0", "val": 6.2, "degree": 13, "source_file": "announcement · neutral", "node_type": "child", "parent": "HEAD::announcement"}, {"id": "ASIANPAINT|announcement|Board_Meeting|2026-04-29", "label": "Board Meeting", "community": 1, "signal": "neutral", "value_text": "The board approved and released financial results on Jan 27, 2026. Market reaction will depend on performance versus expectations.", "context": "The board approved and released financial results on Jan 27, 2026. Market reaction will depend on performance versus expectations.", "weight": 0.4, "effective_weight": 0.3675, "color": "#374151", "border_color": "#B8C4D0", "val": 6.2, "degree": 13, "source_file": "announcement · neutral", "node_type": "child", "parent": "HEAD::announcement"}, {"id": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29", "label": "Dividend Declared", "community": 1, "signal": "positive", "value_text": "The company declared an interim dividend of ₹4.50 per share, a positive signal for shareholders indicating healthy cash flow.", "context": "The company declared an interim dividend of ₹4.50 per share, a positive signal for shareholders indicating healthy cash flow.", "weight": 0.55, "effective_weight": 0.7374, "color": "#374151", "border_color": "#00FF88", "val": 8, "degree": 10, "source_file": "announcement · positive", "node_type": "child", "parent": "HEAD::announcement"}, {"id": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29", "label": "Dividend Declared", "community": 1, "signal": "positive", "value_text": "An interim dividend of ₹4.50 per share was confirmed, reinforcing shareholder returns and confidence in the company's financial health.", "context": "An interim dividend of ₹4.50 per share was confirmed, reinforcing shareholder returns and confidence in the company's financial health.", "weight": 0.55, "effective_weight": 0.7374, "color": "#374151", "border_color": "#00FF88", "val": 8, "degree": 10, "source_file": "announcement · positive", "node_type": "child", "parent": "HEAD::announcement"}, {"id": "ASIANPAINT|announcement|Board_Meeting|2026-04-29", "label": "Board Meeting", "community": 1, "signal": "neutral", "value_text": "A board meeting was scheduled for Nov 12, 2025, to consider financial results and a dividend, a standard procedural announcement.", "context": "A board meeting was scheduled for Nov 12, 2025, to consider financial results and a dividend, a standard procedural announcement.", "weight": 0.14, "effective_weight": 0.3675, "color": "#374151", "border_color": "#B8C4D0", "val": 6.2, "degree": 13, "source_file": "announcement · neutral", "node_type": "child", "parent": "HEAD::announcement"}, {"id": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29", "label": "Dividend Declared", "community": 1, "signal": "positive", "value_text": "The board approved quarterly results and an interim dividend on Nov 12, 2025, setting positive expectations for an upcoming shareholder payout.", "context": "The board approved quarterly results and an interim dividend on Nov 12, 2025, setting positive expectations for an upcoming shareholder payout.", "weight": 0.55, "effective_weight": 0.7374, "color": "#374151", "border_color": "#00FF88", "val": 8, "degree": 10, "source_file": "announcement · positive", "node_type": "child", "parent": "HEAD::announcement"}, {"id": "ASIANPAINT|announcement|Board_Meeting|2026-04-29", "label": "Board Meeting", "community": 1, "signal": "neutral", "value_text": "The company announced a board meeting for July 29, 2025, likely to approve Q1 results. This is a routine update with neutral impact.", "context": "The company announced a board meeting for July 29, 2025, likely to approve Q1 results. This is a routine update with neutral impact.", "weight": 0.14, "effective_weight": 0.3675, "color": "#374151", "border_color": "#B8C4D0", "val": 6.2, "degree": 13, "source_file": "announcement · neutral", "node_type": "child", "parent": "HEAD::announcement"}, {"id": "ASIANPAINT|announcement|Board_Meeting|2026-04-29", "label": "Board Meeting", "community": 1, "signal": "neutral", "value_text": "The board meeting on July 29, 2025, also included 'other business matters,' a standard agenda item with no specific market impact.", "context": "The board meeting on July 29, 2025, also included 'other business matters,' a standard agenda item with no specific market impact.", "weight": 0.14, "effective_weight": 0.3675, "color": "#374151", "border_color": "#B8C4D0", "val": 6.2, "degree": 13, "source_file": "announcement · neutral", "node_type": "child", "parent": "HEAD::announcement"}, {"id": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29", "label": "Dividend Declared", "community": 1, "signal": "positive", "value_text": "A substantial final dividend of ₹20.55 per share was declared, a highly positive move for investors reflecting strong annual performance.", "context": "A substantial final dividend of ₹20.55 per share was declared, a highly positive move for investors reflecting strong annual performance.", "weight": 0.55, "effective_weight": 0.7374, "color": "#374151", "border_color": "#00FF88", "val": 8, "degree": 10, "source_file": "announcement · positive", "node_type": "child", "parent": "HEAD::announcement"}, {"id": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29", "label": "Dividend Declared", "community": 1, "signal": "positive", "value_text": "The company confirmed a final dividend of ₹20.55 per share, rewarding shareholders and signaling confidence in its long-term financial stability.", "context": "The company confirmed a final dividend of ₹20.55 per share, rewarding shareholders and signaling confidence in its long-term financial stability.", "weight": 0.55, "effective_weight": 0.7374, "color": "#374151", "border_color": "#00FF88", "val": 8, "degree": 10, "source_file": "announcement · positive", "node_type": "child", "parent": "HEAD::announcement"}, {"id": "ASIANPAINT|context|Market_Regime|2026-04-29", "label": "Market Regime", "community": 1, "signal": "neutral", "value_text": "Unknown", "context": "", "weight": 0.1, "effective_weight": 0.1558, "color": "#374151", "border_color": "#B8C4D0", "val": 4.93, "degree": 20, "source_file": "context · neutral", "node_type": "child", "parent": null}, {"id": "ASIANPAINT|context|Sector_Trend|2026-04-29", "label": "Sector Trend", "community": 1, "signal": "neutral", "value_text": "Data unavailable", "context": "", "weight": 0.1, "effective_weight": 0.1776, "color": "#374151", "border_color": "#B8C4D0", "val": 5.07, "degree": 4, "source_file": "context · neutral", "node_type": "child", "parent": null}, {"id": "ASIANPAINT|context|Peer_Snapshot|2026-04-29", "label": "Peer Snapshot", "community": 1, "signal": "neutral", "value_text": "Peer data not yet implemented", "context": "", "weight": 0.1, "effective_weight": 0.1994, "color": "#374151", "border_color": "#B8C4D0", "val": 5.2, "degree": 3, "source_file": "context · neutral", "node_type": "child", "parent": null}, {"id": "ASIANPAINT|context|Data_Completeness|2026-04-29", "label": "Data Completeness", "community": 1, "signal": "neutral", "value_text": "Computed by orchestrator", "context": "", "weight": 0.1, "effective_weight": 0.2212, "color": "#374151", "border_color": "#B8C4D0", "val": 5.33, "degree": 3, "source_file": "context · neutral", "node_type": "child", "parent": null}, {"id": "VERDICT::technical", "label": "Verdict: Technical", "community": 2, "signal": "mixed", "value_text": "MIXED", "context": "", "weight": 2.5, "effective_weight": null, "color": "#8B5CF6", "val": 10, "degree": 10, "source_file": "verdict · technical", "node_type": "verdict"}, {"id": "VERDICT::fundamental", "label": "Verdict: Fundamental", "community": 2, "signal": "mixed", "value_text": "MIXED", "context": "", "weight": 2.5, "effective_weight": null, "color": "#8B5CF6", "val": 10, "degree": 11, "source_file": "verdict · fundamental", "node_type": "verdict"}, {"id": "VERDICT::news", "label": "Verdict: News", "community": 2, "signal": "mixed", "value_text": "MIXED", "context": "", "weight": 2.5, "effective_weight": null, "color": "#8B5CF6", "val": 10, "degree": 6, "source_file": "verdict · news", "node_type": "verdict"}, {"id": "VERDICT::announcement", "label": "Verdict: Announcement", "community": 2, "signal": "bullish", "value_text": "BULLISH", "context": "", "weight": 2.5, "effective_weight": null, "color": "#8B5CF6", "val": 10, "degree": 5, "source_file": "verdict · announcement", "node_type": "verdict"}], "links": [{"source": "GROUP::financial::Balance Sheet", "target": "HEAD::financial", "type": "belongs_to", "color": "rgba(255,255,255,0.25)"}, {"source": "GROUP::financial::P&L", "target": "HEAD::financial", "type": "belongs_to", "color": "rgba(255,255,255,0.25)"}, {"source": "GROUP::financial::Cash Flow", "target": "HEAD::financial", "type": "belongs_to", "color": "rgba(255,255,255,0.25)"}, {"source": "GROUP::financial::Share Holding", "target": "HEAD::financial", "type": "belongs_to", "color": "rgba(255,255,255,0.25)"}, {"source": "GROUP::financial::Quarterly Result", "target": "HEAD::financial", "type": "belongs_to", "color": "rgba(255,255,255,0.25)"}, {"source": "GROUP::financial::Annual Result", "target": "HEAD::financial", "type": "belongs_to", "color": "rgba(255,255,255,0.25)"}, {"source": "ASIANPAINT|technical|RSI_14|2026-04-29", "target": "HEAD::technical", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|technical|MACD|2026-04-29", "target": "HEAD::technical", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|technical|ADX_14|2026-04-29", "target": "HEAD::technical", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|technical|ATR_14|2026-04-29", "target": "HEAD::technical", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29", "target": "HEAD::technical", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|technical|EMA|2026-04-29", "target": "HEAD::technical", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|technical|SMA|2026-04-29", "target": "HEAD::technical", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|technical|Ichimoku|2026-04-29", "target": "HEAD::technical", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|technical|Parabolic_SAR|2026-04-29", "target": "HEAD::technical", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|technical|Stochastic|2026-04-29", "target": "HEAD::technical", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|technical|Williams_R|2026-04-29", "target": "HEAD::technical", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|technical|ROC|2026-04-29", "target": "HEAD::technical", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|technical|OBV|2026-04-29", "target": "HEAD::technical", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|technical|VWAP|2026-04-29", "target": "HEAD::technical", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|technical|CMF|2026-04-29", "target": "HEAD::technical", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|technical|MFI|2026-04-29", "target": "HEAD::technical", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|technical|52W_HL_Ratio|2026-04-29", "target": "HEAD::technical", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|PE_Ratio|2026-04-29", "target": "HEAD::fundamental", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|PB_Ratio|2026-04-29", "target": "HEAD::fundamental", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|ROE|2026-04-29", "target": "HEAD::fundamental", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|EPS|2026-04-29", "target": "HEAD::fundamental", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|OPM|2026-04-29", "target": "HEAD::fundamental", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|NPM|2026-04-29", "target": "HEAD::fundamental", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Revenue_Quarterly|2026-04-29", "target": "GROUP::financial::Quarterly Result", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Net_Profit_Quarterly|2026-04-29", "target": "GROUP::financial::Quarterly Result", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Revenue_Annual|2026-04-29", "target": "GROUP::financial::Annual Result", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Net_Profit_Annual|2026-04-29", "target": "GROUP::financial::Annual Result", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29", "target": "GROUP::financial::Balance Sheet", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29", "target": "GROUP::financial::Cash Flow", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Revenue_TTM|2026-04-29", "target": "GROUP::financial::P&L", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Revenue_Growth_YoY|2026-04-29", "target": "GROUP::financial::P&L", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|PAT_TTM|2026-04-29", "target": "GROUP::financial::P&L", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|PAT_Growth_YoY|2026-04-29", "target": "GROUP::financial::P&L", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|EBITDA_TTM|2026-04-29", "target": "GROUP::financial::P&L", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|EBITDA_Margin|2026-04-29", "target": "GROUP::financial::P&L", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Free_Cashflow|2026-04-29", "target": "GROUP::financial::Cash Flow", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Interest_Coverage|2026-04-29", "target": "GROUP::financial::P&L", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Market_Cap|2026-04-29", "target": "GROUP::financial::P&L", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Total_Assets|2026-04-29", "target": "GROUP::financial::Balance Sheet", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Total_Liabilities|2026-04-29", "target": "GROUP::financial::Balance Sheet", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Reserves|2026-04-29", "target": "GROUP::financial::Balance Sheet", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Borrowings|2026-04-29", "target": "GROUP::financial::Balance Sheet", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Expenses_Quarterly|2026-04-29", "target": "GROUP::financial::Quarterly Result", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Operating_Profit_Quarterly|2026-04-29", "target": "GROUP::financial::Quarterly Result", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|OPM_Quarterly|2026-04-29", "target": "GROUP::financial::Quarterly Result", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Expenses_Annual|2026-04-29", "target": "GROUP::financial::Annual Result", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Operating_Profit_Annual|2026-04-29", "target": "GROUP::financial::Annual Result", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|OPM_Annual|2026-04-29", "target": "GROUP::financial::Annual Result", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|EPS_Annual|2026-04-29", "target": "GROUP::financial::Annual Result", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Cash_From_Investing|2026-04-29", "target": "GROUP::financial::Cash Flow", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Cash_From_Financing|2026-04-29", "target": "GROUP::financial::Cash Flow", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Promoter_Holding|2026-04-29", "target": "GROUP::financial::Share Holding", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|fundamental|Public_Retail_Holding|2026-04-29", "target": "GROUP::financial::Share Holding", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|news|News_Item_0|2026-04-27", "target": "HEAD::news", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|news|News_Item_1|2026-04-26", "target": "HEAD::news", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|news|News_Item_2|2026-04-25", "target": "HEAD::news", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|news|News_Item_3|2026-04-25", "target": "HEAD::news", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|news|News_Item_4|2026-04-25", "target": "HEAD::news", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|news|News_Item_5|2026-04-24", "target": "HEAD::news", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|news|News_Item_6|2026-04-24", "target": "HEAD::news", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|news|News_Item_7|2026-04-22", "target": "HEAD::news", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|news|News_Item_8|2026-04-22", "target": "HEAD::news", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|news|News_Item_9|2026-04-21", "target": "HEAD::news", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|announcement|Board_Meeting|2026-04-29", "target": "HEAD::announcement", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|announcement|Board_Meeting|2026-04-29", "target": "HEAD::announcement", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29", "target": "HEAD::announcement", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29", "target": "HEAD::announcement", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|announcement|Board_Meeting|2026-04-29", "target": "HEAD::announcement", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29", "target": "HEAD::announcement", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|announcement|Board_Meeting|2026-04-29", "target": "HEAD::announcement", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|announcement|Board_Meeting|2026-04-29", "target": "HEAD::announcement", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29", "target": "HEAD::announcement", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29", "target": "HEAD::announcement", "type": "belongs_to", "color": "rgba(255,255,255,0.18)"}, {"source": "HEAD::technical", "target": "VERDICT::technical", "type": "informs", "color": "rgba(255,255,255,0.30)"}, {"source": "ASIANPAINT|technical|MACD|2026-04-29", "target": "VERDICT::technical", "type": "informs", "color": "rgba(255,255,255,0.20)"}, {"source": "ASIANPAINT|technical|ROC|2026-04-29", "target": "VERDICT::technical", "type": "informs", "color": "rgba(255,255,255,0.20)"}, {"source": "ASIANPAINT|technical|OBV|2026-04-29", "target": "VERDICT::technical", "type": "informs", "color": "rgba(255,255,255,0.20)"}, {"source": "ASIANPAINT|technical|CMF|2026-04-29", "target": "VERDICT::technical", "type": "informs", "color": "rgba(255,255,255,0.20)"}, {"source": "ASIANPAINT|technical|SMA|2026-04-29", "target": "VERDICT::technical", "type": "informs", "color": "rgba(255,255,255,0.20)"}, {"source": "ASIANPAINT|technical|Parabolic_SAR|2026-04-29", "target": "VERDICT::technical", "type": "informs", "color": "rgba(255,255,255,0.20)"}, {"source": "HEAD::fundamental", "target": "VERDICT::fundamental", "type": "informs", "color": "rgba(255,255,255,0.30)"}, {"source": "ASIANPAINT|fundamental|OPM|2026-04-29", "target": "VERDICT::fundamental", "type": "informs", "color": "rgba(255,255,255,0.20)"}, {"source": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29", "target": "VERDICT::fundamental", "type": "informs", "color": "rgba(255,255,255,0.20)"}, {"source": "ASIANPAINT|fundamental|PAT_Growth_YoY|2026-04-29", "target": "VERDICT::fundamental", "type": "informs", "color": "rgba(255,255,255,0.20)"}, {"source": "ASIANPAINT|fundamental|Revenue_Growth_YoY|2026-04-29", "target": "VERDICT::fundamental", "type": "informs", "color": "rgba(255,255,255,0.20)"}, {"source": "ASIANPAINT|fundamental|Borrowings|2026-04-29", "target": "VERDICT::fundamental", "type": "informs", "color": "rgba(255,255,255,0.20)"}, {"source": "ASIANPAINT|fundamental|PB_Ratio|2026-04-29", "target": "VERDICT::fundamental", "type": "informs", "color": "rgba(255,255,255,0.20)"}, {"source": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29", "target": "VERDICT::fundamental", "type": "informs", "color": "rgba(255,255,255,0.20)"}, {"source": "HEAD::news", "target": "VERDICT::news", "type": "informs", "color": "rgba(255,255,255,0.30)"}, {"source": "ASIANPAINT|news|News_Item_2|2026-04-25", "target": "VERDICT::news", "type": "informs", "color": "rgba(255,255,255,0.20)"}, {"source": "ASIANPAINT|news|News_Item_8|2026-04-22", "target": "VERDICT::news", "type": "informs", "color": "rgba(255,255,255,0.20)"}, {"source": "HEAD::announcement", "target": "VERDICT::announcement", "type": "informs", "color": "rgba(255,255,255,0.30)"}, {"source": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29", "target": "VERDICT::announcement", "type": "informs", "color": "rgba(255,255,255,0.20)"}, {"source": "ASIANPAINT|technical|RSI_14|2026-04-29", "target": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|technical|RSI_14|2026-04-29", "target": "ASIANPAINT|technical|OBV|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|technical|ADX_14|2026-04-29", "target": "ASIANPAINT|technical|MACD|2026-04-29", "type": "AMPLIFIES", "color": "#00FFCC", "eweight": 0.65}, {"source": "ASIANPAINT|technical|ADX_14|2026-04-29", "target": "ASIANPAINT|technical|RSI_14|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|technical|MFI|2026-04-29", "target": "ASIANPAINT|technical|OBV|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|technical|ATR_14|2026-04-29", "target": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|announcement|Board_Meeting|2026-04-29", "target": "ASIANPAINT|fundamental|Net_Profit_Quarterly|2026-04-29", "type": "TRIGGERS", "color": "#AA55FF", "eweight": 0.75}, {"source": "ASIANPAINT|announcement|Board_Meeting|2026-04-29", "target": "ASIANPAINT|fundamental|OPM_Quarterly|2026-04-29", "type": "TRIGGERS", "color": "#AA55FF", "eweight": 0.75}, {"source": "ASIANPAINT|announcement|Board_Meeting|2026-04-29", "target": "ASIANPAINT|fundamental|Revenue_Quarterly|2026-04-29", "type": "TRIGGERS", "color": "#AA55FF", "eweight": 0.75}, {"source": "ASIANPAINT|announcement|Board_Meeting|2026-04-29", "target": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|fundamental|ROE|2026-04-29", "target": "ASIANPAINT|fundamental|PE_Ratio|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29", "target": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29", "type": "DAMPENS", "color": "#FF8844", "eweight": 0.55}, {"source": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29", "target": "ASIANPAINT|fundamental|ROE|2026-04-29", "type": "AMPLIFIES", "color": "#00FFCC", "eweight": 0.65}, {"source": "ASIANPAINT|context|Sector_Trend|2026-04-29", "target": "ASIANPAINT|fundamental|PE_Ratio|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|context|Market_Regime|2026-04-29", "target": "ASIANPAINT|technical|RSI_14|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|context|Market_Regime|2026-04-29", "target": "ASIANPAINT|technical|MACD|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|context|Market_Regime|2026-04-29", "target": "ASIANPAINT|technical|ADX_14|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|context|Market_Regime|2026-04-29", "target": "ASIANPAINT|technical|ATR_14|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|context|Market_Regime|2026-04-29", "target": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|context|Market_Regime|2026-04-29", "target": "ASIANPAINT|technical|EMA|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|context|Market_Regime|2026-04-29", "target": "ASIANPAINT|technical|SMA|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|context|Market_Regime|2026-04-29", "target": "ASIANPAINT|technical|Ichimoku|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|context|Market_Regime|2026-04-29", "target": "ASIANPAINT|technical|Parabolic_SAR|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|context|Market_Regime|2026-04-29", "target": "ASIANPAINT|technical|Stochastic|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|context|Market_Regime|2026-04-29", "target": "ASIANPAINT|technical|Williams_R|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|context|Market_Regime|2026-04-29", "target": "ASIANPAINT|technical|ROC|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|context|Market_Regime|2026-04-29", "target": "ASIANPAINT|technical|OBV|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|context|Market_Regime|2026-04-29", "target": "ASIANPAINT|technical|VWAP|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|context|Market_Regime|2026-04-29", "target": "ASIANPAINT|technical|CMF|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|context|Market_Regime|2026-04-29", "target": "ASIANPAINT|technical|MFI|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|context|Market_Regime|2026-04-29", "target": "ASIANPAINT|technical|52W_HL_Ratio|2026-04-29", "type": "CONTEXTUALIZES", "color": "#6688AA", "eweight": 0.45}, {"source": "ASIANPAINT|technical|RSI_14|2026-04-29", "target": "ASIANPAINT|technical|MACD|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|RSI_14|2026-04-29", "target": "ASIANPAINT|technical|ADX_14|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|RSI_14|2026-04-29", "target": "ASIANPAINT|technical|ATR_14|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|MACD|2026-04-29", "target": "ASIANPAINT|technical|ADX_14|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|MACD|2026-04-29", "target": "ASIANPAINT|technical|ATR_14|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|MACD|2026-04-29", "target": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|ADX_14|2026-04-29", "target": "ASIANPAINT|technical|ATR_14|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|ADX_14|2026-04-29", "target": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|ADX_14|2026-04-29", "target": "ASIANPAINT|technical|EMA|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|ATR_14|2026-04-29", "target": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|ATR_14|2026-04-29", "target": "ASIANPAINT|technical|EMA|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|ATR_14|2026-04-29", "target": "ASIANPAINT|technical|SMA|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29", "target": "ASIANPAINT|technical|EMA|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29", "target": "ASIANPAINT|technical|SMA|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|Bollinger_Bands|2026-04-29", "target": "ASIANPAINT|technical|Ichimoku|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|EMA|2026-04-29", "target": "ASIANPAINT|technical|SMA|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|EMA|2026-04-29", "target": "ASIANPAINT|technical|Ichimoku|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|EMA|2026-04-29", "target": "ASIANPAINT|technical|Parabolic_SAR|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|SMA|2026-04-29", "target": "ASIANPAINT|technical|Ichimoku|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|SMA|2026-04-29", "target": "ASIANPAINT|technical|Parabolic_SAR|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|SMA|2026-04-29", "target": "ASIANPAINT|technical|Stochastic|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|Ichimoku|2026-04-29", "target": "ASIANPAINT|technical|Parabolic_SAR|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|Ichimoku|2026-04-29", "target": "ASIANPAINT|technical|Stochastic|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|Ichimoku|2026-04-29", "target": "ASIANPAINT|technical|Williams_R|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|Parabolic_SAR|2026-04-29", "target": "ASIANPAINT|technical|Stochastic|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|Parabolic_SAR|2026-04-29", "target": "ASIANPAINT|technical|Williams_R|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|Parabolic_SAR|2026-04-29", "target": "ASIANPAINT|technical|ROC|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|Stochastic|2026-04-29", "target": "ASIANPAINT|technical|Williams_R|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|Stochastic|2026-04-29", "target": "ASIANPAINT|technical|ROC|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|Stochastic|2026-04-29", "target": "ASIANPAINT|technical|OBV|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|Williams_R|2026-04-29", "target": "ASIANPAINT|technical|ROC|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|Williams_R|2026-04-29", "target": "ASIANPAINT|technical|OBV|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|Williams_R|2026-04-29", "target": "ASIANPAINT|technical|VWAP|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|ROC|2026-04-29", "target": "ASIANPAINT|technical|OBV|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|ROC|2026-04-29", "target": "ASIANPAINT|technical|VWAP|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|ROC|2026-04-29", "target": "ASIANPAINT|technical|CMF|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|OBV|2026-04-29", "target": "ASIANPAINT|technical|VWAP|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|OBV|2026-04-29", "target": "ASIANPAINT|technical|CMF|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|OBV|2026-04-29", "target": "ASIANPAINT|technical|MFI|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|VWAP|2026-04-29", "target": "ASIANPAINT|technical|CMF|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|VWAP|2026-04-29", "target": "ASIANPAINT|technical|MFI|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|VWAP|2026-04-29", "target": "ASIANPAINT|technical|52W_HL_Ratio|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|CMF|2026-04-29", "target": "ASIANPAINT|technical|MFI|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|CMF|2026-04-29", "target": "ASIANPAINT|technical|52W_HL_Ratio|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|technical|MFI|2026-04-29", "target": "ASIANPAINT|technical|52W_HL_Ratio|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|PE_Ratio|2026-04-29", "target": "ASIANPAINT|fundamental|PB_Ratio|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|PE_Ratio|2026-04-29", "target": "ASIANPAINT|fundamental|ROE|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|PE_Ratio|2026-04-29", "target": "ASIANPAINT|fundamental|EPS|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|PB_Ratio|2026-04-29", "target": "ASIANPAINT|fundamental|ROE|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|PB_Ratio|2026-04-29", "target": "ASIANPAINT|fundamental|EPS|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|PB_Ratio|2026-04-29", "target": "ASIANPAINT|fundamental|OPM|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|ROE|2026-04-29", "target": "ASIANPAINT|fundamental|EPS|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|ROE|2026-04-29", "target": "ASIANPAINT|fundamental|OPM|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|ROE|2026-04-29", "target": "ASIANPAINT|fundamental|NPM|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|EPS|2026-04-29", "target": "ASIANPAINT|fundamental|OPM|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|EPS|2026-04-29", "target": "ASIANPAINT|fundamental|NPM|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|EPS|2026-04-29", "target": "ASIANPAINT|fundamental|Revenue_Quarterly|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|OPM|2026-04-29", "target": "ASIANPAINT|fundamental|NPM|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|OPM|2026-04-29", "target": "ASIANPAINT|fundamental|Revenue_Quarterly|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|OPM|2026-04-29", "target": "ASIANPAINT|fundamental|Net_Profit_Quarterly|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|NPM|2026-04-29", "target": "ASIANPAINT|fundamental|Revenue_Quarterly|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|NPM|2026-04-29", "target": "ASIANPAINT|fundamental|Net_Profit_Quarterly|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|NPM|2026-04-29", "target": "ASIANPAINT|fundamental|Revenue_Annual|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Revenue_Quarterly|2026-04-29", "target": "ASIANPAINT|fundamental|Net_Profit_Quarterly|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Revenue_Quarterly|2026-04-29", "target": "ASIANPAINT|fundamental|Revenue_Annual|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Revenue_Quarterly|2026-04-29", "target": "ASIANPAINT|fundamental|Net_Profit_Annual|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Net_Profit_Quarterly|2026-04-29", "target": "ASIANPAINT|fundamental|Revenue_Annual|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Net_Profit_Quarterly|2026-04-29", "target": "ASIANPAINT|fundamental|Net_Profit_Annual|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Net_Profit_Quarterly|2026-04-29", "target": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Revenue_Annual|2026-04-29", "target": "ASIANPAINT|fundamental|Net_Profit_Annual|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Revenue_Annual|2026-04-29", "target": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Revenue_Annual|2026-04-29", "target": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Net_Profit_Annual|2026-04-29", "target": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Net_Profit_Annual|2026-04-29", "target": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Net_Profit_Annual|2026-04-29", "target": "ASIANPAINT|fundamental|Revenue_TTM|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29", "target": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29", "target": "ASIANPAINT|fundamental|Revenue_TTM|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Debt_To_Equity|2026-04-29", "target": "ASIANPAINT|fundamental|Revenue_Growth_YoY|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29", "target": "ASIANPAINT|fundamental|Revenue_TTM|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29", "target": "ASIANPAINT|fundamental|Revenue_Growth_YoY|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Operating_Cash_Flow|2026-04-29", "target": "ASIANPAINT|fundamental|PAT_TTM|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Revenue_TTM|2026-04-29", "target": "ASIANPAINT|fundamental|Revenue_Growth_YoY|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Revenue_TTM|2026-04-29", "target": "ASIANPAINT|fundamental|PAT_TTM|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Revenue_TTM|2026-04-29", "target": "ASIANPAINT|fundamental|PAT_Growth_YoY|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Revenue_Growth_YoY|2026-04-29", "target": "ASIANPAINT|fundamental|PAT_TTM|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Revenue_Growth_YoY|2026-04-29", "target": "ASIANPAINT|fundamental|PAT_Growth_YoY|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Revenue_Growth_YoY|2026-04-29", "target": "ASIANPAINT|fundamental|EBITDA_TTM|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|PAT_TTM|2026-04-29", "target": "ASIANPAINT|fundamental|PAT_Growth_YoY|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|PAT_TTM|2026-04-29", "target": "ASIANPAINT|fundamental|EBITDA_TTM|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|PAT_TTM|2026-04-29", "target": "ASIANPAINT|fundamental|EBITDA_Margin|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|PAT_Growth_YoY|2026-04-29", "target": "ASIANPAINT|fundamental|EBITDA_TTM|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|PAT_Growth_YoY|2026-04-29", "target": "ASIANPAINT|fundamental|EBITDA_Margin|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|PAT_Growth_YoY|2026-04-29", "target": "ASIANPAINT|fundamental|Free_Cashflow|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|EBITDA_TTM|2026-04-29", "target": "ASIANPAINT|fundamental|EBITDA_Margin|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|EBITDA_TTM|2026-04-29", "target": "ASIANPAINT|fundamental|Free_Cashflow|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|EBITDA_TTM|2026-04-29", "target": "ASIANPAINT|fundamental|Interest_Coverage|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|EBITDA_Margin|2026-04-29", "target": "ASIANPAINT|fundamental|Free_Cashflow|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|EBITDA_Margin|2026-04-29", "target": "ASIANPAINT|fundamental|Interest_Coverage|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|EBITDA_Margin|2026-04-29", "target": "ASIANPAINT|fundamental|Market_Cap|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Free_Cashflow|2026-04-29", "target": "ASIANPAINT|fundamental|Interest_Coverage|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Free_Cashflow|2026-04-29", "target": "ASIANPAINT|fundamental|Market_Cap|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Free_Cashflow|2026-04-29", "target": "ASIANPAINT|fundamental|Total_Assets|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Interest_Coverage|2026-04-29", "target": "ASIANPAINT|fundamental|Market_Cap|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Interest_Coverage|2026-04-29", "target": "ASIANPAINT|fundamental|Total_Assets|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Interest_Coverage|2026-04-29", "target": "ASIANPAINT|fundamental|Total_Liabilities|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Market_Cap|2026-04-29", "target": "ASIANPAINT|fundamental|Total_Assets|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Market_Cap|2026-04-29", "target": "ASIANPAINT|fundamental|Total_Liabilities|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Market_Cap|2026-04-29", "target": "ASIANPAINT|fundamental|Reserves|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Total_Assets|2026-04-29", "target": "ASIANPAINT|fundamental|Total_Liabilities|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Total_Assets|2026-04-29", "target": "ASIANPAINT|fundamental|Reserves|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Total_Assets|2026-04-29", "target": "ASIANPAINT|fundamental|Borrowings|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Total_Liabilities|2026-04-29", "target": "ASIANPAINT|fundamental|Reserves|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Total_Liabilities|2026-04-29", "target": "ASIANPAINT|fundamental|Borrowings|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Total_Liabilities|2026-04-29", "target": "ASIANPAINT|fundamental|Expenses_Quarterly|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Reserves|2026-04-29", "target": "ASIANPAINT|fundamental|Borrowings|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Reserves|2026-04-29", "target": "ASIANPAINT|fundamental|Expenses_Quarterly|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Reserves|2026-04-29", "target": "ASIANPAINT|fundamental|Operating_Profit_Quarterly|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Borrowings|2026-04-29", "target": "ASIANPAINT|fundamental|Expenses_Quarterly|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Borrowings|2026-04-29", "target": "ASIANPAINT|fundamental|Operating_Profit_Quarterly|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Borrowings|2026-04-29", "target": "ASIANPAINT|fundamental|OPM_Quarterly|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Expenses_Quarterly|2026-04-29", "target": "ASIANPAINT|fundamental|Operating_Profit_Quarterly|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Expenses_Quarterly|2026-04-29", "target": "ASIANPAINT|fundamental|OPM_Quarterly|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Expenses_Quarterly|2026-04-29", "target": "ASIANPAINT|fundamental|Expenses_Annual|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Operating_Profit_Quarterly|2026-04-29", "target": "ASIANPAINT|fundamental|OPM_Quarterly|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Operating_Profit_Quarterly|2026-04-29", "target": "ASIANPAINT|fundamental|Expenses_Annual|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Operating_Profit_Quarterly|2026-04-29", "target": "ASIANPAINT|fundamental|Operating_Profit_Annual|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|OPM_Quarterly|2026-04-29", "target": "ASIANPAINT|fundamental|Expenses_Annual|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|OPM_Quarterly|2026-04-29", "target": "ASIANPAINT|fundamental|Operating_Profit_Annual|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|OPM_Quarterly|2026-04-29", "target": "ASIANPAINT|fundamental|OPM_Annual|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Expenses_Annual|2026-04-29", "target": "ASIANPAINT|fundamental|Operating_Profit_Annual|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Expenses_Annual|2026-04-29", "target": "ASIANPAINT|fundamental|OPM_Annual|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Expenses_Annual|2026-04-29", "target": "ASIANPAINT|fundamental|EPS_Annual|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Operating_Profit_Annual|2026-04-29", "target": "ASIANPAINT|fundamental|OPM_Annual|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Operating_Profit_Annual|2026-04-29", "target": "ASIANPAINT|fundamental|EPS_Annual|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Operating_Profit_Annual|2026-04-29", "target": "ASIANPAINT|fundamental|Cash_From_Investing|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|OPM_Annual|2026-04-29", "target": "ASIANPAINT|fundamental|EPS_Annual|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|OPM_Annual|2026-04-29", "target": "ASIANPAINT|fundamental|Cash_From_Investing|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|OPM_Annual|2026-04-29", "target": "ASIANPAINT|fundamental|Cash_From_Financing|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|EPS_Annual|2026-04-29", "target": "ASIANPAINT|fundamental|Cash_From_Investing|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|EPS_Annual|2026-04-29", "target": "ASIANPAINT|fundamental|Cash_From_Financing|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|EPS_Annual|2026-04-29", "target": "ASIANPAINT|fundamental|Promoter_Holding|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Cash_From_Investing|2026-04-29", "target": "ASIANPAINT|fundamental|Cash_From_Financing|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Cash_From_Investing|2026-04-29", "target": "ASIANPAINT|fundamental|Promoter_Holding|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Cash_From_Investing|2026-04-29", "target": "ASIANPAINT|fundamental|Public_Retail_Holding|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Cash_From_Financing|2026-04-29", "target": "ASIANPAINT|fundamental|Promoter_Holding|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Cash_From_Financing|2026-04-29", "target": "ASIANPAINT|fundamental|Public_Retail_Holding|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|fundamental|Promoter_Holding|2026-04-29", "target": "ASIANPAINT|fundamental|Public_Retail_Holding|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_0|2026-04-27", "target": "ASIANPAINT|news|News_Item_1|2026-04-26", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_0|2026-04-27", "target": "ASIANPAINT|news|News_Item_2|2026-04-25", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_0|2026-04-27", "target": "ASIANPAINT|news|News_Item_3|2026-04-25", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_1|2026-04-26", "target": "ASIANPAINT|news|News_Item_2|2026-04-25", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_1|2026-04-26", "target": "ASIANPAINT|news|News_Item_3|2026-04-25", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_1|2026-04-26", "target": "ASIANPAINT|news|News_Item_4|2026-04-25", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_2|2026-04-25", "target": "ASIANPAINT|news|News_Item_3|2026-04-25", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_2|2026-04-25", "target": "ASIANPAINT|news|News_Item_4|2026-04-25", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_2|2026-04-25", "target": "ASIANPAINT|news|News_Item_5|2026-04-24", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_3|2026-04-25", "target": "ASIANPAINT|news|News_Item_4|2026-04-25", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_3|2026-04-25", "target": "ASIANPAINT|news|News_Item_5|2026-04-24", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_3|2026-04-25", "target": "ASIANPAINT|news|News_Item_6|2026-04-24", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_4|2026-04-25", "target": "ASIANPAINT|news|News_Item_5|2026-04-24", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_4|2026-04-25", "target": "ASIANPAINT|news|News_Item_6|2026-04-24", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_4|2026-04-25", "target": "ASIANPAINT|news|News_Item_7|2026-04-22", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_5|2026-04-24", "target": "ASIANPAINT|news|News_Item_6|2026-04-24", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_5|2026-04-24", "target": "ASIANPAINT|news|News_Item_7|2026-04-22", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_5|2026-04-24", "target": "ASIANPAINT|news|News_Item_8|2026-04-22", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_6|2026-04-24", "target": "ASIANPAINT|news|News_Item_7|2026-04-22", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_6|2026-04-24", "target": "ASIANPAINT|news|News_Item_8|2026-04-22", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_6|2026-04-24", "target": "ASIANPAINT|news|News_Item_9|2026-04-21", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_7|2026-04-22", "target": "ASIANPAINT|news|News_Item_8|2026-04-22", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_7|2026-04-22", "target": "ASIANPAINT|news|News_Item_9|2026-04-21", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|news|News_Item_8|2026-04-22", "target": "ASIANPAINT|news|News_Item_9|2026-04-21", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|announcement|Board_Meeting|2026-04-29", "target": "ASIANPAINT|announcement|Board_Meeting|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|announcement|Board_Meeting|2026-04-29", "target": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29", "target": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|announcement|Dividend_Declared|2026-04-29", "target": "ASIANPAINT|announcement|Board_Meeting|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|context|Market_Regime|2026-04-29", "target": "ASIANPAINT|context|Sector_Trend|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|context|Market_Regime|2026-04-29", "target": "ASIANPAINT|context|Peer_Snapshot|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|context|Market_Regime|2026-04-29", "target": "ASIANPAINT|context|Data_Completeness|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|context|Sector_Trend|2026-04-29", "target": "ASIANPAINT|context|Peer_Snapshot|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|context|Sector_Trend|2026-04-29", "target": "ASIANPAINT|context|Data_Completeness|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "ASIANPAINT|context|Peer_Snapshot|2026-04-29", "target": "ASIANPAINT|context|Data_Completeness|2026-04-29", "type": "CORRELATES", "color": "#556677", "eweight": 0.35}, {"source": "HEAD::technical", "target": "HEAD::fundamental", "type": "cross_category", "color": "rgba(255,255,255,0.10)"}, {"source": "HEAD::technical", "target": "HEAD::announcement", "type": "cross_category", "color": "rgba(255,255,255,0.10)"}, {"source": "HEAD::technical", "target": "HEAD::news", "type": "cross_category", "color": "rgba(255,255,255,0.10)"}, {"source": "HEAD::technical", "target": "HEAD::financial", "type": "cross_category", "color": "rgba(255,255,255,0.10)"}, {"source": "HEAD::fundamental", "target": "HEAD::announcement", "type": "cross_category", "color": "rgba(255,255,255,0.10)"}, {"source": "HEAD::fundamental", "target": "HEAD::news", "type": "cross_category", "color": "rgba(255,255,255,0.10)"}, {"source": "HEAD::fundamental", "target": "HEAD::financial", "type": "cross_category", "color": "rgba(255,255,255,0.10)"}, {"source": "HEAD::announcement", "target": "HEAD::news", "type": "cross_category", "color": "rgba(255,255,255,0.10)"}, {"source": "HEAD::announcement", "target": "HEAD::financial", "type": "cross_category", "color": "rgba(255,255,255,0.10)"}, {"source": "HEAD::news", "target": "HEAD::financial", "type": "cross_category", "color": "rgba(255,255,255,0.10)"}, {"source": "VERDICT::technical", "target": "VERDICT::fundamental", "type": "cross_category", "color": "rgba(255,255,255,0.10)"}, {"source": "VERDICT::technical", "target": "VERDICT::news", "type": "cross_category", "color": "rgba(255,255,255,0.10)"}, {"source": "VERDICT::technical", "target": "VERDICT::announcement", "type": "cross_category", "color": "rgba(255,255,255,0.10)"}, {"source": "VERDICT::fundamental", "target": "VERDICT::news", "type": "cross_category", "color": "rgba(255,255,255,0.10)"}, {"source": "VERDICT::fundamental", "target": "VERDICT::announcement", "type": "cross_category", "color": "rgba(255,255,255,0.10)"}, {"source": "VERDICT::news", "target": "VERDICT::announcement", "type": "cross_category", "color": "rgba(255,255,255,0.10)"}], "communities": [{"id": 0, "key": "head", "name": "Head Nodes", "color": "#FFFFFF"}, {"id": 1, "key": "child", "name": "Data Points", "color": "#6B7280"}, {"id": 2, "key": "verdict", "name": "Verdicts", "color": "#8B5CF6"}, {"id": 3, "key": "group", "name": "Groups", "color": "#94A3B8"}], "meta": {"node_count": 92, "edge_count": 327}};
+let rotating=true, showLabels=false, edgesVisible=true, layoutMode='force';
+let currentShape='sphere', globalOpacity=1.0, nodeScale=1.0, edgeWidthMult=1.0, linkCurvature=0.08;
+let hoveredNode=null;
+const hlNodes=new Set(), hlLinks=new Set();
+
+const SIGNAL_COLORS={
+  positive:'#00FF88',bullish:'#00FF88',negative:'#FF3355',bearish:'#FF3355',
+  neutral:'#B0BEC5',mixed:'#FFB800'
+};
+
+const EDGE_COLORS={
+  CONFIRMS:'#00FF88',AMPLIFIES:'#00FFCC',CONTRADICTS:'#FF3355',DAMPENS:'#FF8844',
+  CAUSES:'#4499FF',TRIGGERS:'#AA55FF',CONTEXTUALIZES:'#6688AA',CORRELATES:'#556677',
+  belongs_to:'rgba(255,255,255,0.22)',informs:'rgba(255,255,255,0.35)',
+  cross_category:'rgba(255,255,255,0.10)'
+};
+const EDGE_CURVES={CONFIRMS:0.05,AMPLIFIES:0.08,CONTRADICTS:0.25,DAMPENS:0.15,
+  CAUSES:0.1,TRIGGERS:0.12,CONTEXTUALIZES:0.02,CORRELATES:0.0,
+  belongs_to:0.0,informs:0.03,cross_category:0.35};
+
+const nodeMap={};
+const childrenMap={};
+D.nodes.forEach(n=>{
+  nodeMap[n.id]=n;
+  if(n.parent){
+    if(!childrenMap[n.parent])childrenMap[n.parent]=[];
+    childrenMap[n.parent].push(n);
+  }
+});
+
+let Graph, canvas;
+
+function makeGeom(r,shape){
+  if(shape==='box') return new THREE.BoxGeometry(r*1.6,r*1.6,r*1.6);
+  if(shape==='diamond') return new THREE.OctahedronGeometry(r);
+  if(shape==='cone') return new THREE.ConeGeometry(r,r*2,16);
+  if(shape==='torus') return new THREE.TorusGeometry(r,r*0.35,16,48);
+  if(shape==='octahedron') return new THREE.OctahedronGeometry(r,0);
+  return new THREE.SphereGeometry(r,24,16);
+}
+
+function makeNode(node){
+  const g=new THREE.Group();
+  const nt=node.node_type||'child';
+  let r;
+  if(nt==='head') r=12;
+  else if(nt==='group') r=8;
+  else if(nt==='verdict') r=10;
+  else r=5.5;
+  r*=nodeScale;
+
+  if(nt==='head'){
+    const core=new THREE.Mesh(makeGeom(r,currentShape),
+      new THREE.MeshPhongMaterial({color:new THREE.Color('#FFFFFF'),shininess:90,specular:new THREE.Color('#666666')}));
+    g.add(core);
+    const ring=new THREE.Mesh(
+      new THREE.TorusGeometry(r*1.4,0.3,16,64),
+      new THREE.MeshPhongMaterial({color:new THREE.Color('#FFFFFF'),shininess:30,transparent:true,opacity:0.2})
+    );
+    ring.rotation.x=Math.PI/2;
+    g.add(ring);
+  } else if(nt==='group'){
+    const fill=new THREE.Mesh(makeGeom(r,currentShape),
+      new THREE.MeshPhongMaterial({color:new THREE.Color('#3B82F6'),shininess:70,specular:new THREE.Color('#4488EE')}));
+    g.add(fill);
+    const ring=new THREE.Mesh(
+      new THREE.TorusGeometry(r*1.25,0.2,16,64),
+      new THREE.MeshPhongMaterial({color:new THREE.Color('#60A5FA'),shininess:40,specular:new THREE.Color('#3366CC'),transparent:true,opacity:0.45})
+    );
+    ring.rotation.x=Math.PI/2;
+    g.add(ring);
+  } else if(nt==='verdict'){
+    const shape=new THREE.Shape();
+    const sides=6;
+    for(let i=0;i<sides;i++){
+      const a=(i/sides)*Math.PI*2-Math.PI/2;
+      if(i===0)shape.moveTo(Math.cos(a)*r,Math.sin(a)*r);
+      else shape.lineTo(Math.cos(a)*r,Math.sin(a)*r);
+    }
+    shape.closePath();
+    const hexGeo=new THREE.ExtrudeGeometry(shape,{depth:1.5,bevelEnabled:false});
+    const hexMat=new THREE.MeshPhongMaterial({color:new THREE.Color('#8B5CF6'),shininess:90,specular:new THREE.Color('#C4B5FD')});
+    const hexMesh=new THREE.Mesh(hexGeo,hexMat);
+    hexMesh.position.z=-0.75;
+    g.add(hexMesh);
+    const sigColor=SIGNAL_COLORS[node.signal]||SIGNAL_COLORS.neutral;
+    const dot=new THREE.Mesh(new THREE.SphereGeometry(r*0.22,16,12),
+      new THREE.MeshPhongMaterial({color:new THREE.Color(sigColor),shininess:60,specular:new THREE.Color('#888888')}));
+    dot.position.set(0,-r*1.2,0);
+    g.add(dot);
+  } else {
+    const sigColor=SIGNAL_COLORS[node.signal]||SIGNAL_COLORS[node.border_color]||SIGNAL_COLORS[node.color]||'#B0BEC5';
+    const fill=new THREE.Mesh(makeGeom(r,currentShape),
+      new THREE.MeshPhongMaterial({color:new THREE.Color('#374151'),shininess:50,specular:new THREE.Color('#666666')}));
+    g.add(fill);
+    const border=new THREE.Mesh(makeGeom(r*1.18,currentShape),
+      new THREE.MeshPhongMaterial({color:new THREE.Color(sigColor),shininess:40,specular:new THREE.Color('#444444'),transparent:true,opacity:0.5}));
+    g.add(border);
+  }
+
+  g.__nodeR=r;
+  g.__nodeId=node.id;
+  g.__nodeType=nt;
+  return g;
+}
+
+function createLabelSprite(node){
+  const c=document.createElement('canvas');
+  const txt=node.label.length>22?node.label.slice(0,20)+'...':node.label;
+  const fontSize=28;
+  const font='bold '+fontSize+'px -apple-system,"SF Pro Text","SF Pro Display",BlinkMacSystemFont,system-ui,sans-serif';
+  const ctx2d=c.getContext('2d');
+  ctx2d.font=font;
+  const tw=ctx2d.measureText(txt).width;
+  c.width=Math.ceil(tw)+16;c.height=fontSize+8;
+  ctx2d.font=font;
+  ctx2d.textAlign='center';ctx2d.textBaseline='middle';
+  ctx2d.fillStyle='#FFFFFF';
+  ctx2d.fillText(txt,c.width/2,c.height/2);
+  const tex=new THREE.CanvasTexture(c);
+  const mat=new THREE.SpriteMaterial({map:tex,depthWrite:false,transparent:true,opacity:0.95});
+  const sprite=new THREE.Sprite(mat);
+  const r=node.__nodeR||5;
+  const aspect=c.width/c.height;
+  const lw=r*1.5*aspect;
+  const lh=r*1.5;
+  sprite.scale.set(lw,lh,1);
+  sprite.position.set(0,r+lh/2+2,0);
+  return sprite;
+}
+
+function nodeOpacity(n){
+  if(!hlNodes.size)return globalOpacity;
+  return hlNodes.has(n.id)?globalOpacity:0.04*globalOpacity;
+}
+
+function getEdgeType(l){
+  return l.type||'';
+}
+
+function linkColor(l){
+  if(!edgesVisible)return 'rgba(0,0,0,0)';
+  const et=getEdgeType(l);
+  const ec=EDGE_COLORS[et];
+  if(hlLinks.size){
+    return hlLinks.has(l)?(ec||'rgba(180,200,220,0.6)'):'rgba(50,50,60,0.06)';
+  }
+  return ec||'rgba(180,200,220,0.3)';
+}
+
+function linkWidth(l){
+  if(!edgesVisible)return 0;
+  const base=_getEdgeStyle(l.type,'w',0.7);
+  if(!hlLinks.size)return Math.max(0.3,base*edgeWidthMult*0.7);
+  return hlLinks.has(l)?Math.max(0.5,base*edgeWidthMult*1.8):0.08;
+}
+
+function _getEdgeStyle(type,key,def){
+  const s=D.links.find(l=>l.type===type);
+  return def;
+}
+
+function linkCurvatureFn(l){
+  const et=getEdgeType(l);
+  const c=EDGE_CURVES[et];
+  if(c!==undefined)return c;
+  return linkCurvature;
+}
+
+function linkDirectionalParticles(l){
+  if(!edgesVisible||!hlLinks.size)return 0;
+  return hlLinks.has(l)?2:0;
+}
+
+function linkDirectionalParticleColor(l){
+  const et=getEdgeType(l);
+  const ec=EDGE_COLORS[et];
+  return ec||'rgba(180,200,220,0.5)';
+}
+
+function showTooltip(node,x,y){
+  const tt=document.getElementById('tooltip');
+  const nt=node.node_type||'child';
+  document.getElementById('tt-label').textContent=node.label||'';
+  document.getElementById('tt-cat').textContent=(node.source_file||'').replace(' · ',', ');
+
+  const descEl=document.getElementById('tt-desc-section');
+  const descTextEl=document.getElementById('tt-desc');
+  const valSection=document.getElementById('tt-val-section');
+  const sigSection=document.getElementById('tt-sig-section');
+  const ctxSection=document.getElementById('tt-ctx-section');
+  const childrenEl=document.getElementById('tt-children');
+  const wtRow=document.getElementById('tt-wt-row');
+  const div1=document.getElementById('tt-divider-1');
+  const div2=document.getElementById('tt-divider-2');
+
+  valSection.style.display='none';sigSection.style.display='none';ctxSection.style.display='none';
+  childrenEl.innerHTML='';childrenEl.style.display='none';wtRow.style.display='none';
+  div1.style.display='block';div2.style.display='block';descEl.style.display='none';
+
+  if(nt==='head'){
+    const desc=node.context||'';
+    descTextEl.textContent=desc;descEl.style.display='block';
+    const kids=childrenMap[node.id]||[];
+    if(kids.length>0){childrenEl.style.display='flex';kids.forEach(k=>{
+      const tag=document.createElement('span');tag.className='tt-child-tag';tag.textContent=k.label;childrenEl.appendChild(tag);
+    });}
+    wtRow.style.display='flex';document.getElementById('tt-wt').textContent=kids.length+' items';
+  } else if(nt==='group'){
+    const desc=node.context||'';
+    descTextEl.textContent=desc;descEl.style.display='block';
+    const kids=childrenMap[node.id]||[];
+    if(kids.length>0){childrenEl.style.display='flex';kids.forEach(k=>{
+      const tag=document.createElement('span');tag.className='tt-child-tag';
+      const sigDot=SIGNAL_COLORS[k.signal]||'#B0BEC5';
+      tag.innerHTML='<span class="tt-signal" style="background:'+sigDot+';width:6px;height:6px;display:inline-block;border-radius:50%;margin-right:4px;vertical-align:middle"></span>'+k.label;
+      childrenEl.appendChild(tag);
+    });}
+    wtRow.style.display='flex';document.getElementById('tt-wt').textContent=kids.length+' data points';
+  } else if(nt==='verdict'){
+    descEl.style.display='block';descTextEl.textContent=node.value_text||'';
+    const sigColor=SIGNAL_COLORS[node.signal]||SIGNAL_COLORS.neutral;
+    const sigLabel=(node.signal||'neutral').charAt(0).toUpperCase()+(node.signal||'neutral').slice(1);
+    sigSection.style.display='block';
+    document.getElementById('tt-sig').innerHTML='<span class="tt-signal" style="background:'+sigColor+'"></span>'+sigLabel;
+    wtRow.style.display='flex';document.getElementById('tt-wt').textContent=node.weight?.toFixed(2)||'–';
+  } else {
+    const src=node.source_file||'';
+    const isNewsOrAnn=src.startsWith('news')||src.startsWith('announcement');
+    if(!isNewsOrAnn){valSection.style.display='block';document.getElementById('tt-val').textContent=node.value_text||'–';}
+    sigSection.style.display='block';
+    const sigColor=SIGNAL_COLORS[node.signal]||SIGNAL_COLORS.neutral;
+    const sigLabel=(node.signal||'neutral').charAt(0).toUpperCase()+(node.signal||'neutral').slice(1);
+    document.getElementById('tt-sig').innerHTML='<span class="tt-signal" style="background:'+sigColor+'"></span>'+sigLabel;
+    ctxSection.style.display='block';
+    const ctx=node.context||'';
+    document.getElementById('tt-ctx').textContent=ctx.length>180?ctx.slice(0,177)+'...':ctx||'No context available';
+    wtRow.style.display='flex';
+    document.getElementById('tt-wt').textContent=node.effective_weight?(node.effective_weight*100).toFixed(1)+'%':node.weight?.toFixed(2)||'–';
+  }
+
+  tt.style.display='block';
+  const maxW=340;let left=x+18;let top=y-12;
+  if(left+maxW+20>window.innerWidth)left=x-maxW-18;
+  if(top+280>window.innerHeight)top=window.innerHeight-290;
+  if(top<10)top=10;
+  tt.style.left=left+'px';tt.style.top=top+'px';
+}
+function hideTooltip(){document.getElementById('tooltip').style.display='none';}
+
+function buildGraph(){
+  Graph=ForceGraph3D()(document.getElementById('graph'))
+    .graphData(D)
+    .nodeId('id')
+    .nodeLabel(node=>{
+      const nt=node.node_type;
+      if(nt==='head'||nt==='group')return node.label+': '+(node.context||'');
+      return node.label;
+    })
+    .nodeThreeObject(makeNode)
+    .nodeThreeObjectExtend(false)
+    .nodeOpacity(nodeOpacity)
+    .linkSource('source')
+    .linkTarget('target')
+    .linkColor(linkColor)
+    .linkWidth(linkWidth)
+    .linkOpacity(0.8)
+    .linkCurvature(linkCurvatureFn)
+    .linkDirectionalParticles(linkDirectionalParticles)
+    .linkDirectionalParticleSpeed(0.006)
+    .linkDirectionalParticleWidth(2)
+    .linkDirectionalParticleColor(linkDirectionalParticleColor)
+    .linkDirectionalParticleResolution(4)
+    .backgroundColor('#050508')
+    .onNodeClick(node=>{
+      hlNodes.clear();hlLinks.clear();
+      if(node){
+        hlNodes.add(node.id);
+        D.links.forEach(l=>{
+          const s=typeof l.source==='object'?l.source.id:l.source;
+          const t=typeof l.target==='object'?l.target.id:l.target;
+          if(s===node.id||t===node.id){hlLinks.add(l);hlNodes.add(s);hlNodes.add(t);}
+        });
+        if(node.node_type==='head'||node.node_type==='group'){
+          (childrenMap[node.id]||[]).forEach(k=>hlNodes.add(k.id));
+        }
+      }
+      Graph.nodeOpacity(nodeOpacity).linkColor(linkColor).linkWidth(linkWidth);
+      if(node){
+        const d=130,m=Math.hypot(node.x||1,node.y||1,node.z||1),r=1+d/m;
+        Graph.cameraPosition({x:node.x*r,y:node.y*r,z:node.z*r},node,900);
+      }
+    })
+    .onNodeHover(node=>{
+      canvas.style.cursor=node?'pointer':'default';
+      if(node){hoveredNode=node;showTooltip(node,node.__screenX||0,node.__screenY||0);}
+      else{hoveredNode=null;hideTooltip();}
+    })
+    .onBackgroundClick(()=>{
+      hlNodes.clear();hlLinks.clear();
+      Graph.nodeOpacity(nodeOpacity).linkColor(linkColor).linkWidth(linkWidth);
+      hideTooltip();
+    });
+
+  const scene=Graph.scene();
+  scene.add(new THREE.AmbientLight(0xffffff,0.65));
+  const d1=new THREE.DirectionalLight(0xffffff,0.85);d1.position.set(200,300,400);scene.add(d1);
+  const d2=new THREE.DirectionalLight(0xffffff,0.3);d2.position.set(-200,-100,-300);scene.add(d2);
+
+  canvas=document.querySelector('#graph canvas');
+  if(showLabels)applyLabels();
+
+  Graph.onEngineStop(()=>{const c=Graph.controls();if(c){c.autoRotate=rotating;c.autoRotateSpeed=0.5;}});
+  setTimeout(()=>{const c=Graph.controls();if(c){c.autoRotate=rotating;c.autoRotateSpeed=0.5;c.enableDamping=true;c.dampingFactor=0.08;}},800);
+
+  document.getElementById('sn').textContent=D.meta.node_count;
+  document.getElementById('se').textContent=D.meta.edge_count;
+  document.getElementById('sc').textContent=D.communities.filter(c=>D.nodes.some(n=>n.community===c.id)).length;
+}
+
+document.addEventListener('mousemove',function(e){
+  if(hoveredNode)showTooltip(hoveredNode,e.clientX,e.clientY);
+},{passive:false});
+
+function applyLabels(){
+  if(!Graph)return;
+  if(showLabels){
+    Graph.nodeThreeObjectExtend(true).nodeThreeObject(node=>{
+      const group=makeNode(node);group.add(createLabelSprite(node));return group;
+    });
+  }else{
+    Graph.nodeThreeObjectExtend(false).nodeThreeObject(makeNode);
+  }
+}
+
+function rebuildGraph(){
+  Graph.graphData(D);
+}
+
+function toggleLabels(){
+  showLabels=!showLabels;
+  document.getElementById('btn-labels').classList.toggle('active',showLabels);
+  applyLabels();
+}
+
+function toggleRotation(){
+  rotating=!rotating;
+  document.getElementById('btn-rotate').classList.toggle('active',rotating);
+  const c=Graph.controls();if(c)c.autoRotate=rotating;
+}
+
+function toggleEdges(){
+  edgesVisible=!edgesVisible;
+  document.getElementById('btn-edges').classList.toggle('active',edgesVisible);
+  Graph.linkColor(linkColor).linkWidth(linkWidth).linkOpacity(edgesVisible?0.8:0);
+}
+
+function resetCamera(){
+  Graph.cameraPosition({x:0,y:0,z:500},{x:0,y:0,z:0},900);
+  hlNodes.clear();hlLinks.clear();
+  Graph.nodeOpacity(nodeOpacity).linkColor(linkColor).linkWidth(linkWidth);
+  hideTooltip();
+}
+
+function clearHighlight(){
+  hlNodes.clear();hlLinks.clear();
+  Graph.nodeOpacity(nodeOpacity).linkColor(linkColor).linkWidth(linkWidth);
+  hideTooltip();
+  document.getElementById('cat-filter').value='all';
+  document.getElementById('sig-filter').value='all';
+  document.getElementById('type-filter').value='all';
+  document.getElementById('edge-filter').value='all';
+}
+
+function highlightNeighbors(){
+  if(hlNodes.size)Graph.onNodeClick(hlNodes.values().next().value);
+}
+
+function toggleShapeDropdown(){
+  const dd=document.getElementById('shape-dropdown');
+  dd.classList.toggle('show');
+}
+
+function setShape(shape){
+  currentShape=shape;
+  document.getElementById('shape-label').text=shape.charAt(0).toUpperCase()+shape.slice(1);
+  document.getElementById('shape-label').textContent=shape.charAt(0).toUpperCase()+shape.slice(1);
+  document.querySelectorAll('.sd-item').forEach(el=>el.classList.remove('active'));
+  event.target.closest('.sd-item').classList.add('active');
+  document.getElementById('shape-dropdown').classList.remove('show');
+  Graph.nodeThreeObjectExtend(showLabels).nodeThreeObject(showLabels?node=>{const g=makeNode(node);g.add(createLabelSprite(node));return g;}:makeNode);
+}
+
+function setCharge(v){
+  document.getElementById('sv-charge').textContent=v;
+  Graph.d3Force('charge').strength(+v);
+  Graph.numDimensions(3);
+}
+
+function setLinkDist(v){
+  document.getElementById('sv-dist').textContent=v;
+  Graph.d3Force('link').distance(+v);
+  Graph.numDimensions(3);
+}
+
+function setCurvature(v){
+  linkCurvature=v/100;
+  document.getElementById('sv-curve').textContent=(v/100).toFixed(2);
+  Graph.linkCurvature(linkCurvatureFn);
+}
+
+function setGlobalOpacity(v){
+  globalOpacity=v/100;
+  document.getElementById('sv-opacity').textContent=v+'%';
+  Graph.nodeOpacity(nodeOpacity);
+}
+
+function setNodeScale(v){
+  nodeScale=v/100;
+  document.getElementById('sv-scale').textContent=nodeScale.toFixed(1)+'x';
+  Graph.nodeThreeObjectExtend(showLabels).nodeThreeObject(showLabels?node=>{const g=makeNode(node);g.add(createLabelSprite(node));return g;}:makeNode);
+}
+
+function setEdgeWidthMult(v){
+  edgeWidthMult=v/50;
+  document.getElementById('sv-ewidth').textContent=edgeWidthMult.toFixed(1)+'x';
+  Graph.linkWidth(linkWidth);
+}
+
+function setLayout(mode){
+  layoutMode=mode;
+  document.getElementById('btn-force').classList.toggle('active',mode==='force');
+  document.getElementById('btn-radial').classList.toggle('active',mode==='radial');
+  document.getElementById('btn-hierarchy').classList.toggle('active',mode==='hierarchy');
+
+  if(mode==='radial'){
+    const heads=D.nodes.filter(n=>n.node_type==='head');
+    const angleStep=(2*Math.PI)/Math.max(heads.length,1);
+    heads.forEach((h,i)=>{const a=i*angleStep,R=280;h.fx=R*Math.cos(a);h.fy=R*Math.sin(a);h.fz=0;});
+    D.nodes.filter(n=>n.node_type==='verdict').forEach((v,vi)=>{
+      const a=vi*(2*Math.PI)/Math.max(D.nodes.filter(n=>n.node_type==='verdict').length,1),R=400;
+      v.fx=R*Math.cos(a);v.fy=R*Math.sin(a);v.fz=0;
+    });
+    D.nodes.filter(n=>n.node_type==='group').forEach(g=>{
+      const p=D.nodes.find(n=>n.id===g.parent);
+      if(p&&p.fx!=null){const oR=80+Math.random()*40,oA=Math.random()*2*Math.PI;
+        g.fx=p.fx+oR*Math.cos(oA);g.fy=p.fy+oR*Math.sin(oA);g.fz=(Math.random()-0.5)*60;}
+    });
+    D.nodes.filter(n=>n.node_type==='child').forEach(c=>{
+      const p=D.nodes.find(n=>n.id===c.parent);
+      if(p&&p.fx!=null){const oR=40+Math.random()*60,oA=Math.random()*2*Math.PI;
+        c.fx=p.fx+oR*Math.cos(oA);c.fy=p.fy+oR*Math.sin(oA);c.fz=(Math.random()-0.5)*80;}
+      else{const oR=200+Math.random()*100,oA=Math.random()*2*Math.PI;
+        c.fx=oR*Math.cos(oA);c.fy=oR*Math.sin(oA);c.fz=(Math.random()-0.5)*100;}
+    });
+    Graph.cameraPosition({x:0,y:0,z:800},{x:0,y:0,z:0},900);
+  }else if(mode==='hierarchy'){
+    const heads=D.nodes.filter(n=>n.node_type==='head');
+    const headSpread=150;
+    heads.forEach((h,i)=>{h.fx=(i-(heads.length-1)/2)*headSpread;h.fy=280;h.fz=0;});
+    D.nodes.filter(n=>n.node_type==='verdict').forEach((v,i)=>{
+      v.fx=(i-(D.nodes.filter(n=>n.node_type==='verdict').length-1)/2)*headSpread;v.fy=-300;v.fz=0;
+    });
+    D.nodes.filter(n=>n.node_type==='group').forEach(g=>{
+      const p=D.nodes.find(n=>n.id===g.parent);
+      if(p&&p.fx!=null){const sibs=D.nodes.filter(n=>n.parent===g.parent&&n.node_type==='group');
+        const idx=sibs.indexOf(g);g.fx=p.fx+(idx-(sibs.length-1)/2)*40;g.fy=p.fy-80;g.fz=0;}
+    });
+    const children=D.nodes.filter(n=>n.node_type==='child');
+    const byParent={};children.forEach(c=>{const p=c.parent||'orphan';if(!byParent[p])byParent[p]=[];byParent[p].push(c);});
+    Object.keys(byParent).forEach(pid=>{
+      const p=D.nodes.find(n=>n.id===pid);const bx=p?p.fx:0,by=p?p.fy:0;
+      byParent[pid].forEach((c,ci)=>{c.fx=bx+(ci-(byParent[pid].length-1)/2)*20;c.fy=by-60-Math.random()*80;c.fz=(Math.random()-0.5)*40;});
+    });
+    (byParent.orphan||[]).forEach((c,i)=>{c.fx=(i-((byParent.orphan||[]).length-1)/2)*30;c.fy=0;c.fz=(Math.random()-0.5)*100;});
+    Graph.cameraPosition({x:0,y:0,z:900},{x:0,y:0,z:0},900);
+  }else{
+    D.nodes.forEach(n=>{delete n.fx;delete n.fy;delete n.fz;});
+    Graph.cameraPosition({x:0,y:0,z:500},{x:0,y:0,z:0},900);
+  }
+  Graph.graphData(D);
+}
+
+function filterCategory(cat){
+  hlNodes.clear();hlLinks.clear();
+  if(cat==='all'){Graph.nodeOpacity(nodeOpacity).linkColor(linkColor).linkWidth(linkWidth);hideTooltip();return;}
+  const headId='HEAD::'+cat;
+  D.nodes.forEach(n=>{
+    if(n.id===headId||n.node_type==='verdict'||n.community===2)hlNodes.add(n.id);
+    if(n.parent===headId)hlNodes.add(n.id);
+    if(n.node_type==='child'&&n.source_file&&n.source_file.startsWith(cat))hlNodes.add(n.id);
+    if(n.node_type==='group'&&n.id.startsWith('GROUP::'+cat))hlNodes.add(n.id);
+    if(n.parent&&n.parent.startsWith('GROUP::'+cat))hlNodes.add(n.id);
+  });
+  D.links.forEach(l=>{
+    const s=typeof l.source==='object'?l.source.id:l.source;
+    const t=typeof l.target==='object'?l.target.id:l.target;
+    if(hlNodes.has(s)&&hlNodes.has(t))hlLinks.add(l);
+  });
+  Graph.nodeOpacity(nodeOpacity).linkColor(linkColor).linkWidth(linkWidth);
+}
+
+function filterSignal(sig){
+  hlNodes.clear();hlLinks.clear();
+  if(sig==='all'){Graph.nodeOpacity(nodeOpacity).linkColor(linkColor).linkWidth(linkWidth);return;}
+  D.nodes.forEach(n=>{if(n.signal===sig||n.node_type==='head'||n.node_type==='verdict')hlNodes.add(n.id);});
+  D.links.forEach(l=>{
+    const s=typeof l.source==='object'?l.source.id:l.source;const t=typeof l.target==='object'?l.target.id:l.target;
+    if(hlNodes.has(s)&&hlNodes.has(t))hlLinks.add(l);
+  });
+  Graph.nodeOpacity(nodeOpacity).linkColor(linkColor).linkWidth(linkWidth);
+}
+
+function filterNodeType(nt){
+  hlNodes.clear();hlLinks.clear();
+  if(nt==='all'){Graph.nodeOpacity(nodeOpacity).linkColor(linkColor).linkWidth(linkWidth);return;}
+  D.nodes.forEach(n=>{if(n.node_type===nt)hlNodes.add(n.id);});
+  D.links.forEach(l=>{
+    const s=typeof l.source==='object'?l.source.id:l.source;const t=typeof l.target==='object'?l.target.id:l.target;
+    if(hlNodes.has(s)&&hlNodes.has(t))hlLinks.add(l);
+  });
+  Graph.nodeOpacity(nodeOpacity).linkColor(linkColor).linkWidth(linkWidth);
+}
+
+function filterEdgeType(et){
+  hlNodes.clear();hlLinks.clear();
+  if(et==='all'){Graph.nodeOpacity(nodeOpacity).linkColor(linkColor).linkWidth(linkWidth);return;}
+  D.links.forEach(l=>{if(l.type===et)hlLinks.add(l);});
+  hlLinks.forEach(l=>{
+    const s=typeof l.source==='object'?l.source.id:l.source;const t=typeof l.target==='object'?l.target.id:l.target;
+    hlNodes.add(s);hlNodes.add(t);
+  });
+  Graph.nodeOpacity(nodeOpacity).linkColor(linkColor).linkWidth(linkWidth);
+}
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#shape-btn-wrap'))document.getElementById('shape-dropdown').classList.remove('show');
+});
+
+let touchCount=0;
+document.addEventListener('touchstart',e=>{if(e.touches.length===3){e.preventDefault();return;}},{passive:false});
+document.addEventListener('touchmove',e=>{
+  if(e.touches.length===3){e.preventDefault();rotating=!rotating;const c=Graph.controls();if(c)c.autoRotate=rotating;}
+},{passive:false});
+
+buildGraph();
+</script>
+</body>
+</html>

@@ -52,6 +52,14 @@ class Node(BaseModel):
         default_factory=dict,
         description="Original source payload — kept for audit, never sent to LLM",
     )
+    context: str = Field(
+        default="",
+        description=(
+            "Gemini-generated context string — what this signal means for the "
+            "investor's chosen horizon. Generated at fetch time by context_generator.py. "
+            "Horizon-aware: same node gets different context for SHORT vs LONG."
+        ),
+    )
 
     # ── Signal ────────────────────────────────────────────────────────────────
     signal: NodeSignal
@@ -103,7 +111,7 @@ class Node(BaseModel):
     def prompt_repr(self) -> dict:
         """Compact dict safe to include in the LLM prompt.
         Never includes value_raw, source_url, fetched_at, or schema internals."""
-        return {
+        rep = {
             "id":       self.node_id,
             "name":     self.name,
             "value":    self.value,       # sanitizer has already scrubbed this
@@ -113,6 +121,9 @@ class Node(BaseModel):
             "source":   self.source,
             "date":     self.as_of_date.isoformat(),
         }
+        if self.context:
+            rep["context"] = self.context
+        return rep
 
     class Config:
         use_enum_values = False

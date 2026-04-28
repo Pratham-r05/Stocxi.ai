@@ -9,9 +9,9 @@
 
 | Field | Value |
 |---|---|
-| Current Phase | Phase 4 COMPLETE + Newsdata.io pipeline added. Phase 5 is next. |
+| Current Phase | KG Pipeline Live — HFBP graph wired into analysis prompt, 3D graph served via API. |
 | Started | 2026-04-26 |
-| Last Updated | 2026-04-26 |
+| Last Updated | 2026-04-28 |
 
 
 ---
@@ -544,3 +544,276 @@ rules for news nodes.
 **Next:** Phase 4 — Agent Layer. Start with `backend/agents/orchestrator.py`.
 
 ---
+
+### 2026-04-27 — Knowledge Graph Full Rebuild: HFBP Algorithm + Context Generation
+
+**What was done:**
+
+Complete rebuild of the knowledge graph system per the V2 spec:
+
+1. **Node schema extended** (`backend/schemas/node.py`)
+   - Added `context: str = ""` field — Gemini-generated, horizon-aware context per node
+   - Added `context` to `prompt_repr()` so LLM sees it in analysis
+
+2. **Context generation service** (`backend/services/context_generator.py`) — NEW
+   - `generate_technical_context(nodes, horizon)` — batch Gemini call for all technical nodes
+   - `generate_fundamental_context(nodes, horizon)` — ratio nodes, explains vs sector benchmarks
+   - `generate_financial_context(nodes, horizon)` — QoQ/YoY comparison context for statement nodes
+   - `apply_news_context(nodes)` — promotes existing `llm_summary` → `node.context` (no extra LLM call)
+   - `apply_announcement_context(nodes)` — same for announcement nodes
+   - All functions: sync (run in thread pool executor), fall back gracefully on any LLM failure
+
+3. **Graph builder rewritten** (`backend/graph/builder.py`) — FULL REWRITE
+   - 8 HFBP edge types: CONFIRMS, AMPLIFIES, CONTRADICTS, DAMPENS, CAUSES, TRIGGERS, CONTEXTUALIZES, CORRELATES
+   - EDGE_WEIGHT_PRIORS per type (used on first analysis of a stock)
+   - EDGE_MODIFIERS per type (forward pass multipliers)
+   - Full conditional edge creation logic: RSI→Bollinger conditional on value+position, ADX→trend conditional on ADX strength, news severity-based routing, announcement type-based routing, fundamental cross-edges
+   - `Edge` dataclass now has `weight` (HFBP prior/learned) + `strength` (score product) as separate fields
+   - `_weight_key(from_id, to_id, relation)` for deterministic persistence key
+
+4. **HFBP algorithm** (`backend/graph/hfbp.py`) — NEW
+   - `HFBPGraph` class with full forward/backward propagation
+   - Forward pass: seed activation → edge propagation → horizon lens → normalize [0,1]
+   - Horizon sensitivity table: SHORT boosts news/momentum, LONG boosts fundamentals/financials
+   - Backward pass: gradient update per edge using Gemini relevance vs computed effective_weight
+   - Weight persistence: `save_weights(ticker)` / `load_weights(ticker)` → JSON per ticker
+   - `_WEIGHTS_DIR` = `graph_weights/` at project root
+
+5. **StocxiKnowledgeGraph class** (`backend/graph/stocxi_knowledge_graph.py`) — NEW
+   - Full lifecycle: `build()` → `forward_propagate()` → `serialize_for_llm()` → `backward_propagate()` → `save_weights()`
+   - `serialize_for_llm()`: spec §5 format with header, top activated nodes (W≥0.3), context strings, outgoing edges, low-weight section, analysis instructions for Gemini
+   - `to_json()`: frontend-ready dict with effective_weight per node for 3D renderer
+   - All required accessors: `get_node()`, `get_edges_from()`, `get_edges_to()`, `get_subgraph()`
+
+6. **knowledge_graph.py updated** (`backend/graph/knowledge_graph.py`)
+   - Added HFBP edge type colors to `_BUILDER_EDGE_COLOR` dict
+   - Updated HTML legend to show all 8 HFBP types with correct colors
+   - Updated particle flow: AMPLIFIES/TRIGGERS = fast particles, CORRELATES/CONTEXTUALIZES = slow
+   - `serialize_for_llm()` now delegates to `StocxiKnowledgeGraph.serialize_for_llm()` for HFBP-aware format
+
+7. **Agents updated** to inject context generation:
+   - `agent_technical.py` — calls `generate_technical_context` after validate (in thread pool)
+   - `agent_fundamental.py` — calls `generate_fundamental_context` + `generate_financial_context`
+   - `agent_news.py` — calls `apply_news_context` (promotes existing llm_summary)
+   - `agent_announcement.py` — calls `apply_announcement_context` (promotes existing llm_summary)
+
+8. **graph/__init__.py** updated — exports StocxiKnowledgeGraph, HFBPGraph, Edge, build_edges
+
+**Validation:**
+- All imports clean: `conda run -n stocxi python -c "from backend.graph import *"` — OK
+- HFBP smoke test passed:
+  - RSI: short=0.238 vs long=0.036 ✓ (momentum correctly suppressed for long)
+  - PE Ratio: short=0.094 vs long=0.850 ✓ (fundamental correctly dominant for long)
+  - Revenue Growth: short=0.071 vs long=1.0 ✓ (financial correctly dominant for long)
+- LLM serialization output matches spec §5 format ✓
+
+**Files created:**
+- `backend/services/context_generator.py` (new)
+- `backend/graph/hfbp.py` (new)
+- `backend/graph/stocxi_knowledge_graph.py` (new)
+
+**Files modified:**
+- `backend/schemas/node.py` (added context field)
+- `backend/graph/builder.py` (full rewrite — HFBP edge types)
+- `backend/graph/knowledge_graph.py` (HFBP colors, updated serialize_for_llm)
+- `backend/graph/__init__.py` (updated exports)
+- `backend/agents/agent_technical.py` (context generation injection)
+- `backend/agents/agent_fundamental.py` (context generation injection)
+- `backend/agents/agent_news.py` (apply_news_context)
+- `backend/agents/agent_announcement.py` (apply_announcement_context)
+
+**Next:** Phase 5 — API + Frontend Wiring. Wire StocxiKnowledgeGraph into orchestrator.
+
+---
+
+### 2026-04-28 — KG Pipeline Fix: HFBP Graph Wired into Analysis Prompt + Graph API
+
+**What was done:**
+
+Fixed the 5 critical gaps identified in `BUG_FIX_KG_PIPELINE.md` where the StocxiKnowledgeGraph
+(HFBP algorithm) and per-node context generation were built but never connected to the analysis
+pipeline. The entire KG USP was dead code — Gemini never saw graph relationships, effective
+weights, or node context strings. All 5 gaps are now closed.
+
+**Gap fixes (5 gaps, 6 tasks):**
+
+1. **G1 — Orchestrator used legacy pipeline** (`backend/agents/orchestrator.py`)
+   - Removed `score_all()`, `build_edges()`, `serialize_for_llm()` imports
+   - Replaced with `StocxiKnowledgeGraph` lifecycle: `build()` → `forward_propagate()` → `serialize_for_llm()`
+   - KG now built BEFORE analysis (step 5), not after (was step 8)
+   - `kg_serialization` passed to `agent_analysis.run()`
+   - Backward propagation (`kg.backward_propagate()` + `kg.save_weights()`) runs post-analysis
+   - All graph code wrapped in try/except — analysis continues if KG fails
+   - 3D render uses `kg._edges` directly (HFBP-typed edges)
+
+2. **G2 — Prompt template never rendered `node.context`** (`backend/analysis/prompt_template.jinja`)
+   - Added `context: {{ n.context }}` line to all 4 category sections (technical, fundamental, news, announcement)
+   - Context nodes intentionally excluded (they are context already)
+
+3. **G3 — `kg_serialization` computed but never passed to analysis agent** (`backend/agents/agent_analysis.py`)
+   - Added `kg_serialization: str = ""` parameter to both `_render_prompt()` and `run()`
+   - Forwarded to `_TEMPLATE.render()` call
+
+4. **G4 — Analysis prompt had no KG section** (`backend/analysis/prompt_template.jinja`)
+   - Added `{% if kg_serialization %}` block after CONTEXT section, before 10-STEP PROTOCOL
+   - Includes instructions for Gemini: prioritize nodes by effective_weight, understand CONFIRMS/AMPLIFIES/CONTRADICTS/DAMPENS relationships, resolve contradictions using hierarchy
+
+5. **G5 — No API endpoint to serve 3D graph** (`backend/routers/v2_analysis.py`)
+   - Added `GET /api/v2/analysis/{symbol}/graph` endpoint
+   - Serves `FileResponse` with `text/html` media type
+   - Accepts optional `as_of_date` query parameter (defaults to today)
+   - Returns 404 if graph HTML doesn't exist (analysis must run first)
+
+**Version bump:**
+- `config/versions.yaml`: `arch_version` and `prompt_version` bumped from `"2026.04.a"` to `"2026.04.b"`
+- This flushes the analysis cache automatically (cache key includes `prompt_version`)
+
+**E2E Validation — BAJAJ-AUTO live analysis:**
+- Signal: mixed, Confidence: 0.60
+- KG: 60 nodes, 160 edges (23 active for short-term horizon)
+- Prompt: 42,202 chars (previously ~8,000 — now includes context + KG relationships)
+- Backward propagation: 160 weights saved to `graph_weights/BAJAJ-AUTO.json`
+- 3D graph rendered: `graphify-out/stocks/BAJAJ-AUTO/2026-04-28.html`
+- Stripped claims: 0 (verifier passed all claims)
+- Server running: `http://localhost:8000/api/v2/analysis/BAJAJ-AUTO/graph` (HTTP 200)
+
+**Files modified:**
+- `backend/analysis/prompt_template.jinja` (added `context` lines + KG section)
+- `backend/agents/agent_analysis.py` (added `kg_serialization` parameter to `_render_prompt` + `run`)
+- `backend/agents/orchestrator.py` (replaced legacy KG pipeline with StocxiKnowledgeGraph, reordered steps)
+- `backend/routers/v2_analysis.py` (added graph HTML endpoint + `FileResponse` import)
+- `config/versions.yaml` (bumped arch_version + prompt_version to 2026.04.b)
+
+**Validation:**
+- All 3 Python files pass syntax check ✓
+- All imports resolve correctly (StocxiKnowledgeGraph, build_graph, render_3d_html) ✓
+- Jinja template renders with `context` lines + `kg_serialization` block ✓
+- Router registers 3 routes: `/`, `/report`, `/graph` ✓
+- Live BAJAJ-AUTO analysis completes end-to-end ✓
+
+**Status:** KG pipeline fully live. The knowledge graph is no longer dead code — HFBP-typed edges, effective weights, and per-node context strings are now part of every Gemini analysis prompt.
+
+---
+
+### 2026-04-29 — Knowledge Graph: 4-Tier Hierarchy + 3D Shading + 30+ Financial Nodes + Full Context Generation
+
+**What was done:**
+
+Rebuilt the knowledge graph visualization into a professional 4-tier hierarchical 3D graph with Bloomberg-terminal aesthetics. Expanded financial sub-category nodes from 8 to 34+, and ensured every child node has all 3 data fields (value, context, sentiment/signal) populated via Gemini context generation.
+
+**Knowledge Graph Visualization (`backend/graph/knowledge_graph.py`):**
+
+1. **4-tier hierarchy**: HEAD (white, r=12) → GROUP (blue #3B82F6, r=8) → CHILD (dark grey #374151 + signal border, r=5.5) → VERDICT (purple #8B5CF6 hex, r=10)
+2. **6 financial group nodes**: Balance Sheet, P&L, Cash Flow, Share Holding, Quarterly Result, Annual Result — each with 2-8 child data nodes
+3. **3D rendering**: All `MeshBasicMaterial` → `MeshPhongMaterial` with `shininess` + `specular` highlights per node type. Scene lighting: AmbientLight(0.6) + DirectionalLight(0.8 front) + DirectionalLight(0.3 back)
+4. **Edge rendering**: White lines (opacity-based differentiation), grey data particles flowing through edges (`rgba(180,180,180,0.7)`, `linkDirectionalParticleResolution(4)`)
+5. **Tooltip**: news/announcement nodes skip Value box (`isNewsOrAnn` check), showing only Context + Performance. All other child nodes show Value + Context + Signal.
+
+**Financial Node Expansion (`backend/services/financials_service.py`):**
+- Added ~14 new node extractions: Total_Assets, Total_Liabilities, Shareholders_Equity, Reserves, Borrowings (Balance Sheet); Expenses_Quarterly, Operating_Profit_Quarterly, OPM_Quarterly (Quarterly Result); Expenses_Annual, Operating_Profit_Annual, OPM_Annual, EPS_Annual (Annual Result); Cash_From_Investing, Cash_From_Financing (Cash Flow); FII_Holding, DII_Holding (Share Holding)
+- Each new node has: value (formatted with ₹ and Cr), signal (positive/negative/neutral based on thresholds), and YoY comparison context where available
+- Fundamental nodes now produce 36 nodes (up from 23)
+
+**Context Generation (`backend/services/context_generator.py`):**
+- Expanded `_RATIO_NODES` from 11 → 17 (added Debt_To_Equity, Interest_Coverage, EBITDA_Margin, Promoter_Holding, Public_Retail_Holding, FII_Holding, DII_Holding)
+- Expanded `_FINANCIAL_NODES` from 12 → 28 (added all new financial statement nodes)
+- Expanded `_MOMENTUM_TECH`, `_TREND_TECH` to cover combined node names (`SMA`, `EMA`, `Stochastic`)
+- `generate_fundamental_context()` now sends ALL fundamental nodes (not just ratios) to Gemini in batches of 12
+- `generate_financial_context()` now processes remaining financial nodes that lack context after fundamental pass
+- Added `generate_context_category_context()` for Market Regime / Sector Trend / Peer Snapshot / Data Completeness nodes (skipped for placeholder values)
+- All context generation functions now use `_BATCH_SIZE = 12` to prevent Gemini response truncation
+- Increased `max_tokens` from 4096 → 8192 in `_call_gemini_batch()`
+- Added `generate_context_category_context` import to `agent_context.py` and call after node fetch
+
+**Context Coverage Results:**
+- 73/77 child nodes have context (95%)
+- 77/77 have value (100%)
+- 77/77 have signal (100%)
+- 4 missing context are context-category nodes with placeholder values ("Unknown", "Data unavailable") — correctly skipped
+
+**Files modified:**
+- `backend/graph/knowledge_graph.py` (4-tier hierarchy, MeshPhongMaterial, scene lighting, blue group nodes, grey particles, tooltip update)
+- `backend/services/financials_service.py` (14 new node extractions with signal logic)
+- `backend/services/context_generator.py` (expanded node sets, batched Gemini calls, max_tokens 8192, new `generate_context_category_context`)
+- `backend/agents/agent_context.py` (added context generation for context nodes)
+- `run_e2e_analysis.py` (timeout 60s → 120s for larger data loads)
+
+**E2E Validation — ASIANPAINT live analysis:**
+- 77 nodes, 325 edges, 212 HFBP edges
+- 36 fundamental nodes (up from 23)
+- 17 technical nodes (all with context)
+- Context coverage: 73/77 (95%), all non-placeholder nodes covered
+- Total time: ~156s (increased due to batched Gemini context calls)
+
+---
+
+### 2026-04-29 — Knowledge Graph V2: Control Panel Overhaul + Edge Color-Coding + Brighter Signals + SF Labels
+
+**What was done:**
+
+Complete visual redesign of the 3D knowledge graph, transforming the control panel from a minimal button strip into a full-featured Bloomberg-terminal-style sidebar, adding real-time graph controls, color-coded edges by relationship type, brighter signal colors, SF Pro text labels, and multi-shape node rendering.
+
+**1. Control Panel — Full Sidebar (`#panel`)**
+- Collapsible sections: Layout, Node Shape, Display, Physics, Appearance, Edge Legend, Actions
+- **Layout** — Force / Radial / Tree buttons
+- **Node Shape** — Dropdown with 6 options: Sphere, Box, Diamond, Cone, Torus, Octahedron. Visual icons per option. Live shape switching on all node types (head/group/child use selected shape; verdict stays hexagon)
+- **Display** — Edges toggle, Labels toggle, Spin toggle, Category filter dropdown, Signal filter dropdown (bullish/positive/bearish/negative/neutral/mixed), Node Type filter dropdown (head/group/child/verdict)
+- **Physics** — Repulsion Charge slider (-600 to -20), Link Distance slider (30–300), Curvature slider (0–0.50). All update live via `d3Force` API
+- **Appearance** — Global Opacity slider (10–100%), Node Scale slider (0.5x–2.0x), Edge Width multiplier slider (0–2.0x)
+- **Edge Legend** — Color-coded legend showing all 8 HFBP edge types with sample lines. Edge Type filter dropdown to highlight only CONFIRMS/AMPLIFIES/CONTRADICTS/etc edges
+- **Actions** — Reset View, Highlight Neighbors, Clear Selection buttons
+
+**2. Labels — SF Pro Plain Text**
+- Removed the boxed `roundRect` background from labels
+- Font changed from `Inter` to `-apple-system, 'SF Pro Text', 'SF Pro Display', BlinkMacSystemFont, system-ui`
+- Text rendered in pitch white `#FFFFFF` with no background box, no border, no outline
+- Canvas dynamically sizes to text width (no fixed 512px)
+- Higher font size (28px) for readability
+
+**3. Brighter Signal/Edge Colors**
+- Green: `#22C55E` → `#00FF88` (much brighter, neon green)
+- Red: `#EF4444` → `#FF3355` (vivid red)
+- Neutral: `#9CA3AF` → `#B0BEC5` (brighter grey)
+- Mixed: `#F59E0B` → `#FFB800` (brighter amber)
+
+**4. Color-Coded Edges per Relationship Type**
+- Edge colors now map to semantic HFBP relationship type instead of uniform white:
+  - CONFIRMS: `#00FF88` (green)
+  - AMPLIFIES: `#00FFCC` (cyan-green)
+  - CONTRADICTS: `#FF3355` (red)
+  - DAMPENS: `#FF8844` (orange)
+  - CAUSES: `#4499FF` (blue)
+  - TRIGGERS: `#AA55FF` (purple)
+  - CONTEXTUALIZES: `#6688AA` (steel blue)
+  - CORRELATES: `#556677` (dark steel)
+  - belongs_to/informs/cross_category: white variants (structural)
+- Per-edge curvature: CONTRADICTS curves heavily (0.25), TRIGGERS (0.12), AMPLIFIES (0.08), CONTEXTUALIZES (0.02), CORRELATES (0.0), cross_category (0.35 to separate)
+- Directional particle color matches edge type (not uniform grey)
+- Highlighted edges show their type color; dimmed edges fade to near-black
+
+**5. Node Background**
+- Background changed from `#0A0A0A` → `#050508` (deeper black for contrast)
+- Panel/sidebar uses `rgba(17,17,22,0.92)` with stronger blur
+
+**6. Additional Controls**
+- `filterSignal(sig)` — highlight only nodes matching a signal type
+- `filterNodeType(nt)` — highlight only nodes of a given type
+- `filterEdgeType(et)` — highlight only edges of a specific HFBP type
+- `toggleRotation()` — separate spin control button
+- `setGlobalOpacity(v)` — fade entire graph
+- `setNodeScale(v)` — scale all nodes up/down
+- `setEdgeWidthMult(v)` — thicken/thin all edges
+- `highlightNeighbors()` — focus on connected neighbors of selected node
+- `clearHighlight()` — reset all filters and highlights
+- Click-outside-dropdown closes shape selector
+
+**Files modified:**
+- `backend/graph/knowledge_graph.py` — complete `_HTML_TEMPLATE` rewrite (layout, styles, controls, JS logic), `_SIGNAL_COLORS` updated, `_EDGE_STYLE` updated with per-type colors
+- `run_e2e_analysis.py` — no changes (graph regenerated via existing pipeline)
+
+**E2E Validation — ASIANPAINT:**
+- 91 nodes, 326 edges, 209 HFBP edges (increased from 77/325 due to expanded financial nodes)
+- All control panel features working: shape switching, signal/type/edge filtering, physics sliders, appearance sliders
+- Labels render as plain SF Pro white text with no background box
+- Edge colors clearly distinguish relationship types
+- Graph file: `graphify-out/stocks/ASIANPAINT/2026-04-29.html`
