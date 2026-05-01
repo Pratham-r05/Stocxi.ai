@@ -320,14 +320,28 @@ def build_graph_data(symbol: str, meta: dict[str, str], nodes: list[ParsedNode])
         if fin_head:
             graph_links.append({"source": gid, "target": fin_head, "type": "belongs_to"})
 
-    # Child nodes — build id map for relates_to resolution
     child_id: dict[str, str] = {}
-    for n in nodes:
-        cid = f"{symbol}|{n.category}|{n.label}|{date}"
-        child_id[n.label] = cid
+    used_ids: set[str] = set()
 
     for n in nodes:
-        cid    = child_id[n.label]
+        base = f"{symbol}|{n.category}|{n.group or ''}|{n.label}|{date}"
+        cid = base
+        suffix = 1
+        while cid in used_ids:
+            cid = f"{base}_{suffix}"
+            suffix += 1
+        used_ids.add(cid)
+        label_key = (n.label, n.category, n.group or "")
+        child_id[label_key] = cid
+
+    label_to_keys: dict[str, list[tuple[str, str, str]]] = {}
+    for label_key in child_id:
+        lbl = label_key[0]
+        label_to_keys.setdefault(lbl, []).append(label_key)
+
+    for n in nodes:
+        label_key = (n.label, n.category, n.group or "")
+        cid    = child_id[label_key]
         style  = SIGNAL_STYLE.get(n.signal, SIGNAL_STYLE["neutral"])
         parent = group_id.get(n.group) if n.group else None
         parent = parent or head_id.get(n.category, "")
@@ -342,7 +356,7 @@ def build_graph_data(symbol: str, meta: dict[str, str], nodes: list[ParsedNode])
             "weight": WEIGHT.get(n.category, 1.0),
             "color": style["color"],
             "border_color": style["border_color"],
-            "val": max(4, 4 + min(len(n.relates), 4)),   # 4–8 based on connectivity
+            "val": max(4, 4 + min(len(n.relates), 4)),
             "degree": len(n.relates),
             "node_type": "child",
             "parent": parent,
@@ -351,12 +365,15 @@ def build_graph_data(symbol: str, meta: dict[str, str], nodes: list[ParsedNode])
         if parent:
             graph_links.append({"source": cid, "target": parent, "type": "belongs_to"})
 
-    # relates_to edges — only where target exists
     for n in nodes:
-        src = child_id[n.label]
+        src_key = (n.label, n.category, n.group or "")
+        src = child_id[src_key]
         for rel in n.relates:
-            tgt = child_id.get(rel)
-            if tgt and tgt != src:
+            keys = label_to_keys.get(rel)
+            if not keys:
+                continue
+            tgt = child_id[keys[0]]
+            if tgt != src:
                 graph_links.append({"source": src, "target": tgt, "type": "relates_to"})
 
     return {"nodes": graph_nodes, "links": graph_links}
@@ -370,11 +387,11 @@ _HTML_TEMPLATE = """\
 <head>
 <meta charset="utf-8"/>
 <title>{symbol} · Knowledge Graph · {date}</title>
-<script src="https://unpkg.com/vis-network@9.1.9/dist/vis-network.min.js"></script>
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 <style>
 * {{ box-sizing: border-box; margin: 0; padding: 0; }}
 body {{ background: #0f0f1a; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; display: flex; height: 100vh; overflow: hidden; }}
-#graph {{ flex: 1; height: 100%; min-height: 0; }}
+#graph {{ flex: 1; }}
 #sidebar {{ width: 300px; background: #1a1a2e; border-left: 1px solid #2a2a4e; display: flex; flex-direction: column; overflow: hidden; }}
 #search-wrap {{ padding: 12px; border-bottom: 1px solid #2a2a4e; }}
 #search {{ width: 100%; background: #0f0f1a; border: 1px solid #3a3a5e; color: #e0e0e0; padding: 7px 10px; border-radius: 6px; font-size: 13px; outline: none; }}
@@ -504,11 +521,11 @@ function showInfo(nodeId) {{
   `;
 }}
 
-function focusNode(nodeId) {{
+window.focusNode = function(nodeId) {{
   network.focus(nodeId, {{ scale: 1.4, animation: true }});
   network.selectNodes([nodeId]);
   showInfo(nodeId);
-}}
+}};
 
 let hoveredNodeId = null;
 network.on('hoverNode', p => {{ hoveredNodeId = p.node; container.style.cursor = 'pointer'; }});
@@ -635,7 +652,7 @@ def render_html(symbol: str, meta: dict[str, str], graph_data: dict) -> str:
                 "hover":      {"background": "#eeeeee", "border": clr},
             },
             "size":       size,
-            "font":       {"size": font_size, "color": "#ffffff" if d >= max_deg * 0.15 else "rgba(0,0,0,0)"},
+            "font":       {"size": font_size, "color": "#e0e0e0" if d >= max_deg * 0.15 else "rgba(255,255,255,0.55)"},
             "title":      tooltip,
             "community":  n.get("community", 0),
             "signal":     n.get("signal", "neutral"),
