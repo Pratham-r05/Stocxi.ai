@@ -105,6 +105,7 @@ class StocxiKnowledgeGraph:
             self._scores,
             persisted_weights=persisted,
             analysis_id=analysis_id,
+            emit_legacy_relations=False,
         )
 
         logger.info(

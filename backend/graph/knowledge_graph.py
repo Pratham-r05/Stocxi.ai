@@ -24,6 +24,10 @@ from backend.schemas.node import Node
 
 logger = logging.getLogger(__name__)
 
+# New hierarchical tree builder + renderer (Phase 1 rebuild)
+from backend.graph.tree_builder import NodeTree
+from backend.graph.kg_renderer import render_knowledge_graph
+
 _FINANCIAL_NODE_GROUPS: dict[str, str] = {
     "Debt_To_Equity": "Balance Sheet",
     "Total_Assets": "Balance Sheet",
@@ -61,6 +65,20 @@ _FINANCIAL_NODE_GROUPS: dict[str, str] = {
 }
 
 _FINANCIAL_NODE_NAMES: frozenset[str] = frozenset(_FINANCIAL_NODE_GROUPS.keys())
+
+_LINK_DISTANCE: dict[str, float] = {
+    "belongs_to": 25,
+    "informs": 60,
+    "CONFIRMS": 100,
+    "AMPLIFIES": 100,
+    "TRIGGERS": 110,
+    "CAUSES": 110,
+    "CONTRADICTS": 120,
+    "DAMPENS": 120,
+    "CONTEXTUALIZES": 140,
+    "CORRELATES": 160,
+    "cross_category": 150,
+}
 
 _FINANCIAL_GROUP_INFO: dict[str, str] = {
     "Balance Sheet": "Assets, liabilities, and equity — leverage and solvency metrics",
@@ -108,6 +126,13 @@ _HORIZON_DISPLAY = {
     "long": "Long-term",
 }
 
+_EXCLUDED_CONTEXT_NODES: frozenset[str] = frozenset({
+    "Market_Regime",
+    "Sector_Trend",
+    "Data_Completeness",
+    "Peer_Snapshot",
+})
+
 
 def build_graph(
     nodes: list[Any],
@@ -116,246 +141,68 @@ def build_graph(
     effective_weights: dict[str, float] | None = None,
     horizon: str = "short",
 ) -> dict[str, Any]:
-    """Convert analysis nodes into a hierarchical graph dict with 3 tiers.
+    """Convert analysis nodes into a hierarchical tree for knowledge graph visualization.
 
-    Tiers: head (category anchors), child (data nodes), verdict (LLM conclusions).
-    Edges: belongs_to (child→head), informs (head→verdict), HFBP cross-edges,
-            plus structural cross_category (head↔head, verdict↔verdict).
+    Uses NodeTree to build explicit parent-child hierarchy:
+      ROOT → HEADS → GROUPS (financial only) → CHILDREN
     """
+    # Build hierarchical tree using new tree builder
+    tree = NodeTree(nodes, edges)
+    tree_json = tree.to_json()
+
+    # Inject effective weights if provided
+    if effective_weights:
+        for node in tree_json["nodes"]:
+            if node["id"] in effective_weights:
+                node["effective_weight"] = effective_weights[node["id"]]
+
+    # Add verdict nodes from admin_view if available
     admin_view = admin_view or {}
-    ew = effective_weights or {}
-    graph_nodes: list[dict] = []
-    graph_links: list[dict] = []
-    node_ids: set[str] = set()
-
-    head_defs = [
-        ("HEAD::technical", "Technical Indicators", "technical"),
-        ("HEAD::fundamental", "Fundamentals", "fundamental"),
-        ("HEAD::announcement", "Announcements", "announcement"),
-        ("HEAD::news", "News", "news"),
-        ("HEAD::financial", "Financial Statements", "financial"),
-    ]
-
-    head_ids: dict[str, str] = {}
-    for head_id, head_label, head_cat in head_defs:
-        graph_nodes.append({
-            "id": head_id,
-            "label": head_label,
-            "community": 0,
-            "signal": "neutral",
-            "value_text": "",
-            "context": _HEAD_DESCRIPTIONS.get(head_cat, ""),
-            "weight": 3.0,
-            "effective_weight": None,
-            "color": "#FFFFFF",
-            "val": 12,
-            "degree": 0,
-            "source_file": f"{head_cat} · head",
-            "node_type": "head",
-        })
-        node_ids.add(head_id)
-        head_ids[head_cat] = head_id
-
-    financial_groups = [
-        ("GROUP::financial::Balance Sheet", "Balance Sheet", "Balance Sheet"),
-        ("GROUP::financial::P&L", "P&L", "P&L"),
-        ("GROUP::financial::Cash Flow", "Cash Flow", "Cash Flow"),
-        ("GROUP::financial::Share Holding", "Share Holding", "Share Holding"),
-        ("GROUP::financial::Quarterly Result", "Quarterly Result", "Quarterly Result"),
-        ("GROUP::financial::Annual Result", "Annual Result", "Annual Result"),
-    ]
-    financial_group_ids: dict[str, str] = {}
-    financial_group_names: dict[str, str] = {}
-    for gid, glabel, gkey in financial_groups:
-        desc = _FINANCIAL_GROUP_INFO.get(gkey, "")
-        graph_nodes.append({
-            "id": gid,
-            "label": glabel,
-            "community": 3,
-            "signal": "neutral",
-            "value_text": "",
-            "context": desc,
-            "weight": 2.0,
-            "effective_weight": None,
-            "color": "#3B82F6",
-            "border_color": "#60A5FA",
-            "val": 7,
-            "degree": 0,
-            "source_file": f"financial · group",
-            "node_type": "group",
-            "parent": "HEAD::financial",
-        })
-        node_ids.add(gid)
-        financial_group_ids[gkey] = gid
-        financial_group_names[gkey] = glabel
-        graph_links.append({
-            "source": gid,
-            "target": "HEAD::financial",
-            "type": "belongs_to",
-            "color": "rgba(255,255,255,0.25)",
-        })
-
-    for node in nodes:
-        nid = node.node_id if hasattr(node, "node_id") else str(node.get("node_id", ""))
-        cat = str(node.category.value if hasattr(node.category, "value") else node.category)
-        sig = str(node.signal.value if hasattr(node.signal, "value") else node.signal) if hasattr(node, "signal") else "neutral"
-        val = str(getattr(node, "value", ""))
-        ctx = str(getattr(node, "context", "") or "")
-        wt = float(getattr(node, "weight", 1.0))
-        name = str(getattr(node, "name", ""))
-
-        if cat == "fundamental" and name in _FINANCIAL_NODE_GROUPS:
-            group_key = _FINANCIAL_NODE_GROUPS[name]
-            parent = financial_group_ids.get(group_key, "HEAD::financial")
-        elif cat == "fundamental" and name in _FINANCIAL_NODE_NAMES:
-            parent = "HEAD::financial"
-        elif cat == "context":
-            parent = None
-        else:
-            parent = head_ids.get(cat, head_ids.get("fundamental"))
-
-        sig_color = _SIGNAL_BORDER.get(sig, "#4B5563")
-        ew_val = ew.get(nid, 0)
-        if ew_val and ew_val > 0:
-            visual_val = max(4, min(8, ew_val * 6 + 4))
-        else:
-            visual_val = max(4, min(8, math.log1p(wt * 80) * 3))
-
-        graph_nodes.append({
-            "id": nid,
-            "label": _short_label(nid),
-            "community": 1,
-            "signal": sig,
-            "value_text": val[:300],
-            "context": ctx[:500],
-            "weight": round(wt, 3),
-            "effective_weight": round(ew_val, 4) if ew_val else None,
-            "color": "#374151",
-            "border_color": sig_color,
-            "val": round(visual_val, 2),
-            "degree": 0,
-            "source_file": f"{cat} · {sig}",
-            "node_type": "child",
-            "parent": parent,
-        })
-        node_ids.add(nid)
-
-        if parent:
-            graph_links.append({
-                "source": nid,
-                "target": parent,
-                "type": "belongs_to",
-                "color": "rgba(255,255,255,0.18)",
-            })
-
     verdicts_raw = admin_view.get("verdicts", {})
-    verdicts_list = (
-        [{"category": cat, **v} for cat, v in verdicts_raw.items()]
-        if isinstance(verdicts_raw, dict) else verdicts_raw
-    )
-
-    verdict_cats = {
-        "technical": "HEAD::technical",
-        "fundamental": "HEAD::fundamental",
-        "announcement": "HEAD::announcement",
-        "news": "HEAD::news",
-        "financial": "HEAD::financial",
-    }
-
-    verdict_node_ids: list[str] = []
-    for verdict in verdicts_list:
-        cat_name = verdict.get("category", "unknown")
-        vid = f"VERDICT::{cat_name}"
-        vsig = verdict.get("direction", verdict.get("signal", "neutral"))
-
-        graph_nodes.append({
-            "id": vid,
-            "label": f"Verdict: {cat_name.title()}",
-            "community": 2,
-            "signal": vsig,
-            "value_text": vsig.upper(),
-            "context": "",
-            "weight": 2.5,
-            "effective_weight": None,
-            "color": "#8B5CF6",
-            "val": 10,
-            "degree": 0,
-            "source_file": f"verdict · {cat_name}",
-            "node_type": "verdict",
-        })
-        node_ids.add(vid)
-        verdict_node_ids.append(vid)
-
-        parent_head = verdict_cats.get(cat_name, head_ids.get(cat_name))
-        if parent_head and parent_head in node_ids:
-            graph_links.append({
-                "source": parent_head,
-                "target": vid,
-                "type": "informs",
-                "color": "rgba(255,255,255,0.30)",
+    if verdicts_raw and isinstance(verdicts_raw, dict):
+        verdict_cats = {
+            "technical": "HEAD::technical",
+            "fundamental": "HEAD::fundamental",
+            "announcement": "HEAD::announcement",
+            "news": "HEAD::news",
+            "financial": "HEAD::financial",
+        }
+        for cat_name, verdict in verdicts_raw.items():
+            vid = f"VERDICT::{cat_name}"
+            vsig = verdict.get("direction", verdict.get("signal", "neutral"))
+            tree_json["nodes"].append({
+                "id": vid,
+                "label": f"Verdict: {cat_name.title()}",
+                "node_type": "verdict",
+                "parent_id": verdict_cats.get(cat_name),
+                "children": [],
+                "depth": 2,
+                "value": vsig.upper(),
+                "context": "",
+                "impact": vsig,
+                "summary": "",
+                "category": cat_name,
+                "signal": vsig,
+                "weight": 2.5,
+                "effective_weight": None,
+                "confidence": 1.0,
+                "color": "#a855f7",
             })
-
-        for support_nid in verdict.get("supporting_node_ids", []):
-            if support_nid in node_ids:
-                graph_links.append({
-                    "source": support_nid,
+            # Link verdict to parent head
+            parent_head = verdict_cats.get(cat_name)
+            if parent_head:
+                tree_json["edges"].append({
+                    "source": parent_head,
                     "target": vid,
                     "type": "informs",
-                    "color": "rgba(255,255,255,0.20)",
+                    "weight": 0.8,
                 })
 
-    if edges:
-        for edge in edges:
-            src = edge.from_id if hasattr(edge, "from_id") else str(edge.get("from_id", ""))
-            tgt = edge.to_id if hasattr(edge, "to_id") else str(edge.get("to_id", ""))
-            rel = edge.relation if hasattr(edge, "relation") else str(edge.get("relation", "same_domain"))
-            if src in node_ids and tgt in node_ids:
-                style = _EDGE_STYLE.get(rel, _EDGE_STYLE.get("CORRELATES"))
-                graph_links.append({
-                    "source": src,
-                    "target": tgt,
-                    "type": rel,
-                    "color": style["color"],
-                    "eweight": float(getattr(edge, "weight", 1.0)),
-                })
+    # Update meta
+    tree_json["meta"]["node_count"] = len(tree_json["nodes"])
+    tree_json["meta"]["edge_count"] = len(tree_json["edges"])
 
-    head_list = list(head_ids.values())
-    for i, h1 in enumerate(head_list):
-        for h2 in head_list[i + 1:]:
-            graph_links.append({
-                "source": h1,
-                "target": h2,
-                "type": "cross_category",
-                "color": "rgba(255,255,255,0.10)",
-            })
-
-    for i, v1 in enumerate(verdict_node_ids):
-        for v2 in verdict_node_ids[i + 1:]:
-            graph_links.append({
-                "source": v1,
-                "target": v2,
-                "type": "cross_category",
-                "color": "rgba(255,255,255,0.10)",
-            })
-
-    degree: dict[str, int] = {n["id"]: 0 for n in graph_nodes}
-    for lnk in graph_links:
-        degree[lnk["source"]] = degree.get(lnk["source"], 0) + 1
-        degree[lnk["target"]] = degree.get(lnk["target"], 0) + 1
-    for n in graph_nodes:
-        n["degree"] = degree.get(n["id"], 0)
-
-    return {
-        "nodes": graph_nodes,
-        "links": graph_links,
-        "communities": [
-            {"id": 0, "key": "head", "name": "Head Nodes", "color": "#FFFFFF"},
-            {"id": 1, "key": "child", "name": "Data Points", "color": "#6B7280"},
-            {"id": 2, "key": "verdict", "name": "Verdicts", "color": "#8B5CF6"},
-            {"id": 3, "key": "group", "name": "Groups", "color": "#94A3B8"},
-        ],
-        "meta": {"node_count": len(graph_nodes), "edge_count": len(graph_links)},
-    }
+    return tree_json
 
 
 def render_3d_html(
@@ -365,23 +212,17 @@ def render_3d_html(
     horizon: str = "",
     output_path: str | Path | None = None,
 ) -> str:
-    """Render graph_data as self-contained professional 3D HTML."""
-    data_json = json.dumps(graph_data, ensure_ascii=False)
-    horizon_display = _HORIZON_DISPLAY.get(horizon, horizon) if horizon else ""
-    html = (
-        _HTML_TEMPLATE
-        .replace("__GRAPH_DATA__", data_json)
-        .replace("__STOCK_NAME__", stock_name)
-        .replace("__HORIZON__", horizon_display)
-    )
+    """Render graph_data as self-contained professional 3D HTML.
 
-    if output_path:
-        p = Path(output_path)
-        p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(html, encoding="utf-8")
-        logger.info("knowledge_graph: saved -> %s (%d nodes, %d edges)",
-                    p, graph_data["meta"]["node_count"], graph_data["meta"]["edge_count"])
-    return html
+    Delegates to the new hierarchical renderer (kg_renderer.py).
+    """
+    return render_knowledge_graph(
+        tree_data=graph_data,
+        title=title,
+        stock_name=stock_name,
+        horizon=horizon,
+        output_path=output_path,
+    )
 
 
 def serialize_for_llm(
@@ -557,6 +398,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);
 #stats strong{color:#A78BFA;font-weight:700}
 
 #shape-btn-wrap{position:relative}
+.graph-tooltip{display:none!important}
 #shape-dropdown{
   display:none;position:absolute;left:0;top:100%;margin-top:4px;z-index:120;
   background:rgba(26,26,34,0.98);border:1px solid var(--border);border-radius:8px;
@@ -598,12 +440,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);
         <span id="shape-label">Sphere</span> <span style="opacity:0.4">▼</span>
       </button>
       <div id="shape-dropdown">
-        <div class="sd-item active" onclick="setShape('sphere')"><span class="sd-shape">●</span> Sphere</div>
-        <div class="sd-item" onclick="setShape('box')"><span class="sd-shape">■</span> Box</div>
-        <div class="sd-item" onclick="setShape('diamond')"><span class="sd-shape">◆</span> Diamond</div>
-        <div class="sd-item" onclick="setShape('cone')"><span class="sd-shape">▲</span> Cone</div>
-        <div class="sd-item" onclick="setShape('torus')"><span class="sd-shape">◎</span> Torus</div>
-        <div class="sd-item" onclick="setShape('octahedron')"><span class="sd-shape">⬡</span> Octahedron</div>
+        <div class="sd-item active" onclick="setShape('sphere', this)"><span class="sd-shape">●</span> Sphere</div>
+        <div class="sd-item" onclick="setShape('box', this)"><span class="sd-shape">■</span> Box</div>
+        <div class="sd-item" onclick="setShape('diamond', this)"><span class="sd-shape">◆</span> Diamond</div>
+        <div class="sd-item" onclick="setShape('cone', this)"><span class="sd-shape">▲</span> Cone</div>
+        <div class="sd-item" onclick="setShape('torus', this)"><span class="sd-shape">◎</span> Torus</div>
+        <div class="sd-item" onclick="setShape('octahedron', this)"><span class="sd-shape">⬡</span> Octahedron</div>
       </div>
     </div>
   </div>
@@ -760,6 +602,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);
 const D=__GRAPH_DATA__;
 let rotating=true, showLabels=false, edgesVisible=true, layoutMode='force';
 let currentShape='sphere', globalOpacity=1.0, nodeScale=1.0, edgeWidthMult=1.0, linkCurvature=0.08;
+let linkDistScale=1.0;
+let focusMode=false;
+let selectedHeadId=null;
 let hoveredNode=null;
 const hlNodes=new Set(), hlLinks=new Set();
 
@@ -891,7 +736,7 @@ function createLabelSprite(node){
 
 function nodeOpacity(n){
   if(!hlNodes.size)return globalOpacity;
-  return hlNodes.has(n.id)?globalOpacity:0.04*globalOpacity;
+  return hlNodes.has(n.id)?globalOpacity:0.01*globalOpacity;
 }
 
 function getEdgeType(l){
@@ -903,21 +748,16 @@ function linkColor(l){
   const et=getEdgeType(l);
   const ec=EDGE_COLORS[et];
   if(hlLinks.size){
-    return hlLinks.has(l)?(ec||'rgba(180,200,220,0.6)'):'rgba(50,50,60,0.06)';
+    return hlLinks.has(l)?(ec||'rgba(180,200,220,0.6)'):'rgba(0,0,0,0)';
   }
   return ec||'rgba(180,200,220,0.3)';
 }
 
 function linkWidth(l){
   if(!edgesVisible)return 0;
-  const base=_getEdgeStyle(l.type,'w',0.7);
+  const base=typeof l.w==='number'?l.w:0.7;
   if(!hlLinks.size)return Math.max(0.3,base*edgeWidthMult*0.7);
   return hlLinks.has(l)?Math.max(0.5,base*edgeWidthMult*1.8):0.08;
-}
-
-function _getEdgeStyle(type,key,def){
-  const s=D.links.find(l=>l.type===type);
-  return def;
 }
 
 function linkCurvatureFn(l){
@@ -1008,15 +848,125 @@ function showTooltip(node,x,y){
 }
 function hideTooltip(){document.getElementById('tooltip').style.display='none';}
 
+function enterFocusMode(node){
+  focusMode=true;
+  selectedHeadId = (node.node_type==='head') ? node.id : null;
+  const ctrls=Graph.controls();
+  if(ctrls)ctrls.autoRotate=false;
+  hlNodes.clear();hlLinks.clear();
+  hlNodes.add(node.id);
+  const nt=node.node_type||'child';
+
+  // First pass: identify all highlighted nodes
+  if(nt==='head'||nt==='group'){
+    const dc=childrenMap[node.id]||[];
+    dc.forEach(c=>{hlNodes.add(c.id);(childrenMap[c.id]||[]).forEach(gc=>hlNodes.add(gc.id));});
+    if(node.parent){hlNodes.add(node.parent);(childrenMap[node.parent]||[]).forEach(s=>hlNodes.add(s.id));}
+    D.links.forEach(l=>{
+      const s=typeof l.source==='object'?l.source.id:l.source,t=typeof l.target==='object'?l.target.id:l.target;
+      if(hlNodes.has(s)&&hlNodes.has(t))hlLinks.add(l);
+    });
+  } else {
+    const neighborIds=new Set();
+    neighborIds.add(node.id);
+    D.links.forEach(l=>{
+      const s=typeof l.source==='object'?l.source.id:l.source,t=typeof l.target==='object'?l.target.id:l.target;
+      if(s===node.id){neighborIds.add(t);hlLinks.add(l);}
+      if(t===node.id){neighborIds.add(s);hlLinks.add(l);}
+    });
+    if(node.parent)neighborIds.add(node.parent);
+    if(childrenMap[node.id])childrenMap[node.id].forEach(c=>neighborIds.add(c.id));
+    neighborIds.forEach(id=>hlNodes.add(id));
+    D.links.forEach(l=>{
+      const s=typeof l.source==='object'?l.source.id:l.source,t=typeof l.target==='object'?l.target.id:l.target;
+      if(hlNodes.has(s)&&hlNodes.has(t))hlLinks.add(l);
+    });
+  }
+
+  // Clear ALL fixed positions first to avoid conflicts
+  D.nodes.forEach(n=>{delete n.fx;delete n.fy;delete n.fz;n.vx*=0.3;n.vy*=0.3;n.vz*=0.3;});
+
+  // Set fixed positions only for focused node and its highlight group
+  node.fx=0;node.fy=0;node.fz=0;
+
+  if(nt==='head'||nt==='group'){
+    const dc=childrenMap[node.id]||[];
+    const total=dc.length;
+    dc.forEach((c,i)=>{
+      const angle=(i/Math.max(total,1))*Math.PI*2;
+      const R=nt==='head'?130:100;
+      c.fx=R*Math.cos(angle);c.fy=R*Math.sin(angle);c.fz=0;
+      const gc=childrenMap[c.id]||[];
+      gc.forEach((g,gi)=>{
+        const ga=(gi/Math.max(gc.length,1))*Math.PI*2;
+        g.fx=c.fx+55*Math.cos(ga);g.fy=c.fy+55*Math.sin(ga);g.fz=0;
+      });
+    });
+    if(node.parent){
+      const pD=D.nodes.find(n=>n.id===node.parent);
+      if(pD){pD.fx=0;pD.fy=-160;pD.fz=0;}
+    }
+
+    // Push non-focused nodes deep behind focal cluster so they never sit in front.
+    const backgroundNodes=D.nodes.filter(n=>!hlNodes.has(n.id));
+    backgroundNodes.forEach((n,i)=>{
+      const angle=(i/Math.max(backgroundNodes.length,1))*Math.PI*2;
+      const R=520;
+      n.fx=R*Math.cos(angle);
+      n.fy=R*Math.sin(angle);
+      n.fz=-1200;
+    });
+  } else {
+    const neighborIds=new Set();
+    neighborIds.add(node.id);
+    D.links.forEach(l=>{
+      const s=typeof l.source==='object'?l.source.id:l.source,t=typeof l.target==='object'?l.target.id:l.target;
+      if(s===node.id)neighborIds.add(t);
+      if(t===node.id)neighborIds.add(s);
+    });
+    if(node.parent)neighborIds.add(node.parent);
+    if(childrenMap[node.id])childrenMap[node.id].forEach(c=>neighborIds.add(c.id));
+    const neighbors=D.nodes.filter(n=>neighborIds.has(n.id)&&n.id!==node.id);
+    neighbors.forEach((n,i)=>{
+      const angle=(i/Math.max(neighbors.length,1))*Math.PI*2;
+      const R=node.node_type==='verdict'?120:90;
+      n.fx=R*Math.cos(angle);n.fy=R*Math.sin(angle);n.fz=0;
+    });
+  }
+
+  // Gently reheat simulation instead of rebuilding graph
+  Graph.nodeOpacity(nodeOpacity).linkColor(linkColor).linkWidth(linkWidth);
+  Graph.d3Force('charge').strength(-250);
+  Graph.reheat(800);
+  setTimeout(()=>{Graph.cameraPosition({x:0,y:0,z:400},{x:0,y:0,z:0},900);},100);
+}
+
+function exitFocusMode(){
+  focusMode=false;
+  selectedHeadId=null;
+  hlNodes.clear();hlLinks.clear();
+  // Remove all fixed positions gently
+  D.nodes.forEach(n=>{
+    delete n.fx;delete n.fy;delete n.fz;
+    n.vx*=0.5;n.vy*=0.5;n.vz*=0.5;
+  });
+  if(layoutMode==='force'){
+    // For force layout, just let physics settle naturally
+    Graph.reheat(600);
+  } else {
+    setLayout(layoutMode);
+  }
+  const ctrls=Graph.controls();
+  if(ctrls)ctrls.autoRotate=rotating;
+  Graph.nodeOpacity(nodeOpacity).linkColor(linkColor).linkWidth(linkWidth);
+  hideTooltip();
+}
+
 function buildGraph(){
   Graph=ForceGraph3D()(document.getElementById('graph'))
     .graphData(D)
     .nodeId('id')
-    .nodeLabel(node=>{
-      const nt=node.node_type;
-      if(nt==='head'||nt==='group')return node.label+': '+(node.context||'');
-      return node.label;
-    })
+    .nodeLabel(node=>node.label||'')
     .nodeThreeObject(makeNode)
     .nodeThreeObjectExtend(false)
     .nodeOpacity(nodeOpacity)
@@ -1033,23 +983,12 @@ function buildGraph(){
     .linkDirectionalParticleResolution(4)
     .backgroundColor('#050508')
     .onNodeClick(node=>{
-      hlNodes.clear();hlLinks.clear();
-      if(node){
-        hlNodes.add(node.id);
-        D.links.forEach(l=>{
-          const s=typeof l.source==='object'?l.source.id:l.source;
-          const t=typeof l.target==='object'?l.target.id:l.target;
-          if(s===node.id||t===node.id){hlLinks.add(l);hlNodes.add(s);hlNodes.add(t);}
-        });
-        if(node.node_type==='head'||node.node_type==='group'){
-          (childrenMap[node.id]||[]).forEach(k=>hlNodes.add(k.id));
-        }
+      if(!node)return;
+      if(node.node_type==='head' && focusMode && selectedHeadId===node.id){
+        exitFocusMode();
+        return;
       }
-      Graph.nodeOpacity(nodeOpacity).linkColor(linkColor).linkWidth(linkWidth);
-      if(node){
-        const d=130,m=Math.hypot(node.x||1,node.y||1,node.z||1),r=1+d/m;
-        Graph.cameraPosition({x:node.x*r,y:node.y*r,z:node.z*r},node,900);
-      }
+      enterFocusMode(node);
     })
     .onNodeHover(node=>{
       canvas.style.cursor=node?'pointer':'default';
@@ -1057,6 +996,7 @@ function buildGraph(){
       else{hoveredNode=null;hideTooltip();}
     })
     .onBackgroundClick(()=>{
+      if(focusMode){exitFocusMode();return;}
       hlNodes.clear();hlLinks.clear();
       Graph.nodeOpacity(nodeOpacity).linkColor(linkColor).linkWidth(linkWidth);
       hideTooltip();
@@ -1066,6 +1006,66 @@ function buildGraph(){
   scene.add(new THREE.AmbientLight(0xffffff,0.65));
   const d1=new THREE.DirectionalLight(0xffffff,0.85);d1.position.set(200,300,400);scene.add(d1);
   const d2=new THREE.DirectionalLight(0xffffff,0.3);d2.position.set(-200,-100,-300);scene.add(d2);
+
+  // Per-link distance AND strength: belongs_to pulls tight, cross_category stretches far
+  const linkForce=Graph.d3Force('link');
+  linkForce.distance(l=>{
+    const t=l.type||'';
+    if(t==='cross_category') return 150;
+    const d=l.distance;
+    if(d) return d;
+    if(t==='belongs_to') return 25;
+    if(t==='informs') return 60;
+    if(t==='CONFIRMS'||t==='AMPLIFIES') return 100;
+    if(t==='CONTRADICTS'||t==='DAMPENS') return 120;
+    if(t==='TRIGGERS'||t==='CAUSES') return 110;
+    return 100;
+  });
+  linkForce.strength(l=>{
+    const t=l.type||'';
+    if(t==='belongs_to') return 1.5;
+    if(t==='informs') return 0.8;
+    if(t==='cross_category') return 0.2;
+    if(t==='CONFIRMS'||t==='AMPLIFIES') return 0.4;
+    if(t==='CONTRADICTS'||t==='DAMPENS') return 0.3;
+    if(t==='TRIGGERS'||t==='CAUSES') return 0.5;
+    if(t==='CONTEXTUALIZES') return 0.2;
+    if(t==='CORRELATES') return 0.1;
+    return 0.3;
+  });
+  Graph.d3Force('charge').strength(-250);
+  Graph.d3Force('headCenter',function(alpha){
+    if(focusMode)return;
+    D.nodes.filter(n=>n.node_type==='head').forEach(n=>{
+      if(n.fx==null){n.vx-=(n.x||0)*0.06*alpha;n.vy-=(n.y||0)*0.06*alpha;n.vz-=(n.z||0)*0.06*alpha;}
+    });
+  });
+
+  // Set initial positions so children start near parents
+  const headNodes=D.nodes.filter(n=>n.node_type==='head');
+  const headAngle=Math.PI*2/Math.max(headNodes.length,1);
+  headNodes.forEach((h,i)=>{
+    const a=i*headAngle;
+    const R=150;h.x=R*Math.cos(a);h.y=R*Math.sin(a);h.z=0;
+  });
+  const gdNodes=D.nodes.filter(n=>n.node_type==='group');
+  gdNodes.forEach(g=>{
+    const p=D.nodes.find(n=>n.id===g.parent);
+    if(p){g.x=(p.x||0)+(Math.random()-0.5)*60;g.y=(p.y||0)+(Math.random()-0.5)*60;g.z=(Math.random()-0.5)*40;}
+  });
+  const childNodes=D.nodes.filter(n=>n.node_type==='child');
+  childNodes.forEach(c=>{
+    const pid=c.parent;
+    const p=D.nodes.find(n=>n.id===pid);
+    if(p){c.x=(p.x||0)+(Math.random()-0.5)*30;c.y=(p.y||0)+(Math.random()-0.5)*30;c.z=(Math.random()-0.5)*20;}
+    else{const R=150+Math.random()*100;const a=Math.random()*Math.PI*2;c.x=R*Math.cos(a);c.y=R*Math.sin(a);c.z=(Math.random()-0.5)*50;}
+  });
+  const vdNodes=D.nodes.filter(n=>n.node_type==='verdict');
+  vdNodes.forEach((v,i)=>{
+    const a=i*(Math.PI*2)/Math.max(vdNodes.length,1);const R=350;
+    v.x=R*Math.cos(a);v.y=R*Math.sin(a);v.z=0;
+  });
+  Graph.graphData(D);
 
   canvas=document.querySelector('#graph canvas');
   if(showLabels)applyLabels();
@@ -1123,6 +1123,7 @@ function resetCamera(){
 }
 
 function clearHighlight(){
+  if(focusMode)exitFocusMode();
   hlNodes.clear();hlLinks.clear();
   Graph.nodeOpacity(nodeOpacity).linkColor(linkColor).linkWidth(linkWidth);
   hideTooltip();
@@ -1133,7 +1134,11 @@ function clearHighlight(){
 }
 
 function highlightNeighbors(){
-  if(hlNodes.size)Graph.onNodeClick(hlNodes.values().next().value);
+  if(!focusMode&&hlNodes.size===0)return;
+  const first=hlNodes.values().next().value;
+  if(!first)return;
+  const node=D.nodes.find(n=>n.id===first);
+  if(node)enterFocusMode(node);
 }
 
 function toggleShapeDropdown(){
@@ -1141,12 +1146,12 @@ function toggleShapeDropdown(){
   dd.classList.toggle('show');
 }
 
-function setShape(shape){
+function setShape(shape, el){
   currentShape=shape;
   document.getElementById('shape-label').text=shape.charAt(0).toUpperCase()+shape.slice(1);
   document.getElementById('shape-label').textContent=shape.charAt(0).toUpperCase()+shape.slice(1);
   document.querySelectorAll('.sd-item').forEach(el=>el.classList.remove('active'));
-  event.target.closest('.sd-item').classList.add('active');
+  if(el){el.classList.add('active');}
   document.getElementById('shape-dropdown').classList.remove('show');
   Graph.nodeThreeObjectExtend(showLabels).nodeThreeObject(showLabels?node=>{const g=makeNode(node);g.add(createLabelSprite(node));return g;}:makeNode);
 }
@@ -1154,13 +1159,17 @@ function setShape(shape){
 function setCharge(v){
   document.getElementById('sv-charge').textContent=v;
   Graph.d3Force('charge').strength(+v);
-  Graph.numDimensions(3);
 }
 
 function setLinkDist(v){
   document.getElementById('sv-dist').textContent=v;
-  Graph.d3Force('link').distance(+v);
-  Graph.numDimensions(3);
+  linkDistScale=+v/120;
+  Graph.d3Force('link').distance(l=>{
+    const t=l.type||'';
+    if(t==='cross_category') return 150*linkDistScale;
+    const d=l.distance || (t==='belongs_to' ? 25 : 100);
+    return d*linkDistScale;
+  });
 }
 
 function setCurvature(v){
@@ -1188,12 +1197,14 @@ function setEdgeWidthMult(v){
 }
 
 function setLayout(mode){
+  focusMode=false;
   layoutMode=mode;
   document.getElementById('btn-force').classList.toggle('active',mode==='force');
   document.getElementById('btn-radial').classList.toggle('active',mode==='radial');
   document.getElementById('btn-hierarchy').classList.toggle('active',mode==='hierarchy');
 
   if(mode==='radial'){
+    D.nodes.forEach(n=>{delete n.fx;delete n.fy;delete n.fz;});
     const heads=D.nodes.filter(n=>n.node_type==='head');
     const angleStep=(2*Math.PI)/Math.max(heads.length,1);
     heads.forEach((h,i)=>{const a=i*angleStep,R=280;h.fx=R*Math.cos(a);h.fy=R*Math.sin(a);h.fz=0;});
@@ -1202,43 +1213,47 @@ function setLayout(mode){
       v.fx=R*Math.cos(a);v.fy=R*Math.sin(a);v.fz=0;
     });
     D.nodes.filter(n=>n.node_type==='group').forEach(g=>{
-      const p=D.nodes.find(n=>n.id===g.parent);
+      const p=D.nodes.find(n2=>n2.id===g.parent);
       if(p&&p.fx!=null){const oR=80+Math.random()*40,oA=Math.random()*2*Math.PI;
         g.fx=p.fx+oR*Math.cos(oA);g.fy=p.fy+oR*Math.sin(oA);g.fz=(Math.random()-0.5)*60;}
     });
     D.nodes.filter(n=>n.node_type==='child').forEach(c=>{
-      const p=D.nodes.find(n=>n.id===c.parent);
+      const p=D.nodes.find(n2=>n2.id===c.parent);
       if(p&&p.fx!=null){const oR=40+Math.random()*60,oA=Math.random()*2*Math.PI;
         c.fx=p.fx+oR*Math.cos(oA);c.fy=p.fy+oR*Math.sin(oA);c.fz=(Math.random()-0.5)*80;}
       else{const oR=200+Math.random()*100,oA=Math.random()*2*Math.PI;
         c.fx=oR*Math.cos(oA);c.fy=oR*Math.sin(oA);c.fz=(Math.random()-0.5)*100;}
     });
+    Graph.d3Force('charge').strength(-250);
     Graph.cameraPosition({x:0,y:0,z:800},{x:0,y:0,z:0},900);
   }else if(mode==='hierarchy'){
+    D.nodes.forEach(n=>{delete n.fx;delete n.fy;delete n.fz;});
     const heads=D.nodes.filter(n=>n.node_type==='head');
     const headSpread=150;
     heads.forEach((h,i)=>{h.fx=(i-(heads.length-1)/2)*headSpread;h.fy=280;h.fz=0;});
     D.nodes.filter(n=>n.node_type==='verdict').forEach((v,i)=>{
-      v.fx=(i-(D.nodes.filter(n=>n.node_type==='verdict').length-1)/2)*headSpread;v.fy=-300;v.fz=0;
+      v.fx=(i-(D.nodes.filter(n2=>n2.node_type==='verdict').length-1)/2)*headSpread;v.fy=-300;v.fz=0;
     });
     D.nodes.filter(n=>n.node_type==='group').forEach(g=>{
-      const p=D.nodes.find(n=>n.id===g.parent);
-      if(p&&p.fx!=null){const sibs=D.nodes.filter(n=>n.parent===g.parent&&n.node_type==='group');
+      const p=D.nodes.find(n2=>n2.id===g.parent);
+      if(p&&p.fx!=null){const sibs=D.nodes.filter(n2=>n2.parent===g.parent&&n2.node_type==='group');
         const idx=sibs.indexOf(g);g.fx=p.fx+(idx-(sibs.length-1)/2)*40;g.fy=p.fy-80;g.fz=0;}
     });
     const children=D.nodes.filter(n=>n.node_type==='child');
-    const byParent={};children.forEach(c=>{const p=c.parent||'orphan';if(!byParent[p])byParent[p]=[];byParent[p].push(c);});
+    const byParent={};children.forEach(c2=>{const p2=c2.parent||'orphan';if(!byParent[p2])byParent[p2]=[];byParent[p2].push(c2);});
     Object.keys(byParent).forEach(pid=>{
-      const p=D.nodes.find(n=>n.id===pid);const bx=p?p.fx:0,by=p?p.fy:0;
-      byParent[pid].forEach((c,ci)=>{c.fx=bx+(ci-(byParent[pid].length-1)/2)*20;c.fy=by-60-Math.random()*80;c.fz=(Math.random()-0.5)*40;});
+      const pp=D.nodes.find(n2=>n2.id===pid);const bx=pp?pp.fx:0,by=pp?pp.fy:0;
+      byParent[pid].forEach((c2,ci)=>{c2.fx=bx+(ci-(byParent[pid].length-1)/2)*20;c2.fy=by-60-Math.random()*80;c2.fz=(Math.random()-0.5)*40;});
     });
-    (byParent.orphan||[]).forEach((c,i)=>{c.fx=(i-((byParent.orphan||[]).length-1)/2)*30;c.fy=0;c.fz=(Math.random()-0.5)*100;});
+    (byParent.orphan||[]).forEach((c2,i)=>{c2.fx=(i-((byParent.orphan||[]).length-1)/2)*30;c2.fy=0;c2.fz=(Math.random()-0.5)*100;});
+    Graph.d3Force('charge').strength(-250);
     Graph.cameraPosition({x:0,y:0,z:900},{x:0,y:0,z:0},900);
   }else{
-    D.nodes.forEach(n=>{delete n.fx;delete n.fy;delete n.fz;});
-    Graph.cameraPosition({x:0,y:0,z:500},{x:0,y:0,z:0},900);
+    // Force mode: clear all fixed positions, let physics settle
+    D.nodes.forEach(n=>{delete n.fx;delete n.fy;delete n.fz;n.vx*=0.1;n.vy*=0.1;n.vz*=0.1;});
+    Graph.d3Force('charge').strength(-250);
   }
-  Graph.graphData(D);
+  Graph.reheat(800);
 }
 
 function filterCategory(cat){

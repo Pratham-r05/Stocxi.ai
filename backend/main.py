@@ -26,7 +26,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import stock, analysis, search, v2_analysis
+from routers import stock, analysis, search, v2_analysis, knowledge_graph
 from config import settings
 from cache.redis_client import ping as redis_ping
 
@@ -71,6 +71,7 @@ app.include_router(stock.router)
 app.include_router(analysis.router)
 app.include_router(search.router)
 app.include_router(v2_analysis.router)
+app.include_router(knowledge_graph.router)
 
 
 # ── Health check ───────────────────────────────────────────────────────────────

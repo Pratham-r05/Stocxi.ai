@@ -144,7 +144,7 @@ async def _market_regime_node(request: FetchRequest, fetched_at: datetime) -> No
     (confidence=0.1, value="Unknown") if OHLCV fetch fails or rows < 200.
     """
     try:
-        df = await get_ohlcv("^NSEI", request.as_of_date)
+        df = await get_ohlcv("NIFTY 50", request.as_of_date)
         if df.empty or "Close" not in df.columns or len(df) < 200:
             raise ValueError("Insufficient NSEI OHLCV rows")
         close = df["Close"].dropna()

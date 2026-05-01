@@ -175,10 +175,11 @@ def _most_recent_period(soup) -> tuple[int, int] | None:
     if header_row is None:
         return None
 
-    # Headers are newest-first after the label column
+    # Screener headers are oldest-first; scan all and return the max (year, month).
     headers = [th.get_text(strip=True) for th in header_row.find_all("th")[1:]]
 
     import datetime as _dt
+    best: tuple[int, int] | None = None
     for h in headers:
         h_low = h.lower().strip()
         if "ttm" in h_low:
@@ -191,8 +192,10 @@ def _most_recent_period(soup) -> tuple[int, int] | None:
             year = int(m.group(2))
             month = _MONTH_MAP.get(month_str)
             if month:
-                return (year, month)
-    return None
+                candidate = (year, month)
+                if best is None or candidate > best:
+                    best = candidate
+    return best
 
 
 def _parse_top_ratios(soup) -> dict:

@@ -4,7 +4,7 @@
 
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Network } from "lucide-react";
 import DownloadReportButton from "@/components/stock/DownloadReportButton";
 
 interface StockNavbarProps {
@@ -42,8 +42,16 @@ export default function StockNavbar({ symbol, companyName }: StockNavbarProps) {
           <span className="text-zinc-500 hidden sm:block truncate max-w-[200px]">{shortName}</span>
         </div>
 
-        {/* Right: report action + avatar/sign in */}
-        <div className="flex items-center gap-2 shrink-0">
+        {/* Right: actions */}
+        <div className="flex items-center gap-3 shrink-0">
+          <Link
+            href={`/stock/${symbol}/knowledge`}
+            className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-sm"
+            title="Knowledge Graph"
+          >
+            <Network className="w-4 h-4" />
+            <span className="hidden sm:inline">Graph</span>
+          </Link>
           <DownloadReportButton symbol={symbol} />
           {initials ? (
             <div className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-300 shrink-0">

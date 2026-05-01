@@ -218,7 +218,13 @@ def _build_ticker_list(symbol: str) -> list[tuple[str, str]]:
       2. SYMBOL.BO  → source_id = "yfinance"
       3. alt ns     → source_id = "yfinance_alt"  (if in alt_tickers.yaml)
       4. alt bo     → source_id = "yfinance_alt"  (if in alt_tickers.yaml)
+
+    Index symbols starting with '^' are used as-is for yfinance
+    (yfinance uses ^NSEI, ^NSEBANK etc. directly without .NS/.BO suffixes).
     """
+    if symbol.startswith("^"):
+        return [(symbol, SOURCE_ID_MAIN)]
+
     tickers: list[tuple[str, str]] = [
         (f"{symbol}.NS", SOURCE_ID_MAIN),
         (f"{symbol}.BO", SOURCE_ID_MAIN),

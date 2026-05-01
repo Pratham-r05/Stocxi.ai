@@ -1,0 +1,975 @@
+
+> frontend@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.4 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.68.107:3000
+- Environments: .env.local
+✓ Ready in 308ms
+
+ GET / 200 in 216ms (next.js: 80ms, application-code: 137ms)
+ GET / 200 in 35ms (next.js: 3ms, application-code: 33ms)
+ GET /api/market-ticker 200 in 183ms (next.js: 37ms, application-code: 146ms)
+ GET /api/auth/session 200 in 555ms (next.js: 545ms, application-code: 9ms)
+ GET /stock/SUNPHARMA 200 in 248ms (next.js: 164ms, proxy.ts: 58ms, application-code: 26ms)
+ POST /api/user/stock-search 200 in 32ms (next.js: 24ms, application-code: 9ms)
+ GET /api/market-ticker 200 in 74ms (next.js: 3ms, application-code: 71ms)
+ GET /api/market-ticker 200 in 67ms (next.js: 3ms, application-code: 64ms)
+ GET /api/auth/session 200 in 16ms (next.js: 6ms, application-code: 9ms)
+ GET /api/auth/session 200 in 15ms (next.js: 6ms, application-code: 9ms)
+ GET /api/auth/session 200 in 10ms (next.js: 4ms, application-code: 7ms)
+ GET /api/auth/session 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /stock/HCLTECH 200 in 24.9s (next.js: 14ms, proxy.ts: 7ms, application-code: 24.8s)
+ POST /api/user/stock-search 200 in 10ms (next.js: 2ms, application-code: 8ms)
+ GET /api/auth/session 200 in 21ms (next.js: 9ms, application-code: 12ms)
+ GET /api/auth/session 200 in 17ms (next.js: 8ms, application-code: 9ms)
+ GET /api/auth/session 200 in 16ms (next.js: 6ms, application-code: 10ms)
+✓ Compiled in 214ms
+ GET /stock/HCLTECH 200 in 204ms (next.js: 27ms, proxy.ts: 6ms, application-code: 171ms)
+ GET /stock/HCLTECH 200 in 199ms (next.js: 69ms, proxy.ts: 7ms, application-code: 123ms)
+ GET /stock/HCLTECH 200 in 198ms (next.js: 80ms, proxy.ts: 19ms, application-code: 100ms)
+ GET /stock/HCLTECH 200 in 194ms (next.js: 51ms, proxy.ts: 64ms, application-code: 79ms)
+ GET /stock/HCLTECH 200 in 143ms (next.js: 102ms, proxy.ts: 12ms, application-code: 29ms)
+ GET /stock/HCLTECH 200 in 191ms (next.js: 70ms, proxy.ts: 58ms, application-code: 63ms)
+ GET /stock/HCLTECH 200 in 121ms (next.js: 9ms, proxy.ts: 6ms, application-code: 106ms)
+ GET /stock/HCLTECH 200 in 117ms (next.js: 35ms, proxy.ts: 6ms, application-code: 76ms)
+ GET /stock/HCLTECH 200 in 121ms (next.js: 22ms, proxy.ts: 7ms, application-code: 91ms)
+ GET /stock/HCLTECH 200 in 116ms (next.js: 50ms, proxy.ts: 5ms, application-code: 62ms)
+ GET /stock/HCLTECH 200 in 115ms (next.js: 61ms, proxy.ts: 4ms, application-code: 50ms)
+ GET /stock/HCLTECH 200 in 123ms (next.js: 68ms, proxy.ts: 19ms, application-code: 36ms)
+ GET /stock/HCLTECH 200 in 135ms (next.js: 14ms, proxy.ts: 11ms, application-code: 110ms)
+ GET /stock/HCLTECH 200 in 135ms (next.js: 33ms, proxy.ts: 11ms, application-code: 91ms)
+ GET /stock/HCLTECH 200 in 128ms (next.js: 65ms, proxy.ts: 10ms, application-code: 54ms)
+ GET /stock/HCLTECH 200 in 130ms (next.js: 46ms, proxy.ts: 8ms, application-code: 76ms)
+ GET /stock/HCLTECH 200 in 124ms (next.js: 87ms, proxy.ts: 11ms, application-code: 27ms)
+ GET /stock/HCLTECH 200 in 128ms (next.js: 76ms, proxy.ts: 8ms, application-code: 44ms)
+ GET /stock/HCLTECH 200 in 16ms (next.js: 1503µs, proxy.ts: 1812µs, application-code: 13ms)
+ GET /stock/HCLTECH 200 in 154ms (next.js: 68ms, proxy.ts: 46ms, application-code: 40ms)
+ GET /stock/RELIANCE/knowledge 200 in 1851ms (next.js: 1731ms, proxy.ts: 1718µs, application-code: 118ms)
+ GET /api/auth/session 200 in 88ms (next.js: 72ms, application-code: 16ms)
+ GET /api/auth/session 200 in 10ms (next.js: 1340µs, application-code: 9ms)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+ GET /login?callbackUrl=%2Fstock%2FRELIANCE%2Fknowledge 200 in 60ms (next.js: 14ms, application-code: 46ms)
+ GET /api/auth/session 200 in 15ms (next.js: 7ms, application-code: 8ms)
+ GET /api/auth/session 200 in 8ms (next.js: 2ms, application-code: 5ms)
+✓ Compiled in 63ms
+ GET /stock/HCLTECH 200 in 301ms (next.js: 7ms, proxy.ts: 2ms, application-code: 291ms)
+ GET /stock/HCLTECH 200 in 206ms (next.js: 36ms, proxy.ts: 95ms, application-code: 75ms)
+ GET /stock/HCLTECH 200 in 204ms (next.js: 54ms, proxy.ts: 94ms, application-code: 56ms)
+ GET /stock/HCLTECH 200 in 73ms (next.js: 8ms, proxy.ts: 9ms, application-code: 57ms)
+ GET /stock/HCLTECH 200 in 26ms (next.js: 1881µs, proxy.ts: 3ms, application-code: 21ms)
+ GET /stock/RELIANCE/knowledge 200 in 741ms (next.js: 3ms, proxy.ts: 3ms, application-code: 735ms)
+ GET /stock/RELIANCE/knowledge 200 in 1633ms (next.js: 106ms, proxy.ts: 7ms, application-code: 1519ms)
+ GET /stock/RELIANCE/knowledge 200 in 1432ms (next.js: 34ms, proxy.ts: 7ms, application-code: 1392ms)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+ GET /stock/RELIANCE/knowledge 200 in 2.6s (next.js: 96ms, proxy.ts: 7ms, application-code: 2.5s)
+ GET /stock/RELIANCE/knowledge 200 in 2.7s (next.js: 80ms, proxy.ts: 123ms, application-code: 2.5s)
+ GET /stock/HCLTECH 200 in 37ms (next.js: 5ms, proxy.ts: 5ms, application-code: 27ms)
+ GET /stock/RELIANCE/knowledge 200 in 1820ms (next.js: 19ms, proxy.ts: 3ms, application-code: 1798ms)
+ GET /login?callbackUrl=%2Fstock%2FRELIANCE%2Fknowledge 200 in 59ms (next.js: 10ms, application-code: 49ms)
+ GET /stock/RELIANCE/knowledge 200 in 1519ms (next.js: 3ms, proxy.ts: 1910µs, application-code: 1514ms)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+ GET /api/auth/session 200 in 84ms (next.js: 72ms, application-code: 12ms)
+ GET /api/auth/session 200 in 10ms (next.js: 1404µs, application-code: 8ms)
+ GET /login?callbackUrl=%2Fstock%2FRELIANCE%2Fknowledge 200 in 16ms (next.js: 1304µs, application-code: 15ms)
+ GET /api/auth/session 200 in 12ms (next.js: 5ms, application-code: 7ms)
+ GET /api/auth/session 200 in 7ms (next.js: 1325µs, application-code: 6ms)
+ HEAD / 200 in 71ms (next.js: 13ms, application-code: 58ms)
+ GET /stock/SUNPHARMA 200 in 178ms (next.js: 5ms, proxy.ts: 2ms, application-code: 172ms)
+ GET /api/auth/session 200 in 9ms (next.js: 3ms, application-code: 6ms)
+ GET /api/auth/session 200 in 10ms (next.js: 2ms, application-code: 7ms)
+ GET /api/auth/session 200 in 11ms (next.js: 4ms, application-code: 7ms)
+ POST /api/user/stock-search 200 in 28ms (next.js: 21ms, application-code: 8ms)
+ GET /stock/RELIANCE/knowledge 200 in 213ms (next.js: 83ms, proxy.ts: 64ms, application-code: 66ms)
+ GET /stock/RELIANCE/knowledge 200 in 149ms (next.js: 120ms, proxy.ts: 8ms, application-code: 21ms)
+✓ Compiled in 660ms
+ GET /stock/HCLTECH 200 in 301ms (next.js: 189ms, proxy.ts: 5ms, application-code: 107ms)
+ GET /stock/HCLTECH 200 in 460ms (next.js: 388ms, proxy.ts: 14ms, application-code: 59ms)
+ GET /stock/SUNPHARMA 200 in 517ms (next.js: 405ms, proxy.ts: 68ms, application-code: 44ms)
+ GET /stock/HCLTECH 200 in 523ms (next.js: 434ms, proxy.ts: 68ms, application-code: 21ms)
+ GET /stock/SUNPHARMA 200 in 309ms (next.js: 221ms, proxy.ts: 7ms, application-code: 81ms)
+ GET /stock/SUNPHARMA 200 in 525ms (next.js: 419ms, proxy.ts: 68ms, application-code: 38ms)
+ GET /stock/RELIANCE/knowledge 200 in 153ms (next.js: 14ms, proxy.ts: 43ms, application-code: 96ms)
+ GET /stock/SUNPHARMA 200 in 174ms (next.js: 29ms, proxy.ts: 43ms, application-code: 102ms)
+ GET /stock/HCLTECH 200 in 174ms (next.js: 42ms, proxy.ts: 43ms, application-code: 89ms)
+ GET /stock/SUNPHARMA 200 in 174ms (next.js: 62ms, proxy.ts: 40ms, application-code: 72ms)
+ GET /stock/HCLTECH 200 in 156ms (next.js: 78ms, proxy.ts: 6ms, application-code: 72ms)
+ GET /stock/SUNPHARMA 200 in 95ms (next.js: 5ms, proxy.ts: 5ms, application-code: 86ms)
+ GET /stock/RELIANCE/knowledge 200 in 67ms (next.js: 6ms, proxy.ts: 22ms, application-code: 39ms)
+ GET /stock/HCLTECH 200 in 76ms (next.js: 8ms, proxy.ts: 3ms, application-code: 65ms)
+ GET /stock/RELIANCE/knowledge 200 in 50ms (next.js: 15ms, proxy.ts: 5ms, application-code: 30ms)
+ GET /stock/RELIANCE/knowledge 200 in 49ms (next.js: 23ms, proxy.ts: 5ms, application-code: 21ms)
+ GET /api/auth/session 200 in 96ms (next.js: 82ms, application-code: 14ms)
+ GET /api/auth/session 200 in 7ms (next.js: 1147µs, application-code: 6ms)
+ GET /api/auth/session 200 in 5ms (next.js: 739µs, application-code: 5ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 1458ms (next.js: 4ms, proxy.ts: 3ms, application-code: 1452ms)
+ GET /api/auth/session 200 in 8ms (next.js: 2ms, application-code: 5ms)
+ GET /api/auth/session 200 in 7ms (next.js: 872µs, application-code: 7ms)
+ GET /api/auth/session 200 in 7ms (next.js: 1205µs, application-code: 6ms)
+ GET /api/auth/session 200 in 6ms (next.js: 757µs, application-code: 5ms)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+ GET /api/auth/session 200 in 16ms (next.js: 6ms, application-code: 10ms)
+ GET /api/auth/session 200 in 11ms (next.js: 1849µs, application-code: 9ms)
+ GET /api/auth/session 200 in 7ms (next.js: 1395µs, application-code: 6ms)
+ GET /api/auth/session 200 in 6ms (next.js: 874µs, application-code: 5ms)
+ GET /api/auth/session 200 in 16ms (next.js: 7ms, application-code: 9ms)
+ GET /api/auth/session 200 in 8ms (next.js: 1833µs, application-code: 6ms)
+ GET /api/auth/session 200 in 6ms (next.js: 1278µs, application-code: 4ms)
+ GET /api/auth/session 200 in 8ms (next.js: 3ms, application-code: 4ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 2.0s (next.js: 12ms, proxy.ts: 7ms, application-code: 1999ms)
+ GET /api/auth/session 200 in 8ms (next.js: 2ms, application-code: 6ms)
+ GET /api/auth/session 200 in 6ms (next.js: 869µs, application-code: 5ms)
+ GET /api/auth/session 200 in 5ms (next.js: 941µs, application-code: 4ms)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+ GET /api/auth/session 200 in 5ms (next.js: 729µs, application-code: 4ms)
+ GET /api/auth/session 200 in 18ms (next.js: 8ms, application-code: 10ms)
+ GET /api/auth/session 200 in 8ms (next.js: 1609µs, application-code: 7ms)
+ GET /api/auth/session 200 in 6ms (next.js: 1066µs, application-code: 5ms)
+ GET /api/auth/session 200 in 6ms (next.js: 728µs, application-code: 5ms)
+ GET /login?callbackUrl=%2Fstock%2FSUNPHARMA%2Fknowledge 200 in 52ms (next.js: 11ms, application-code: 41ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 250ms (next.js: 136ms, proxy.ts: 12ms, application-code: 103ms)
+ GET /stock/RELIANCE/knowledge 200 in 250ms (next.js: 153ms, proxy.ts: 12ms, application-code: 85ms)
+ GET /stock/RELIANCE/knowledge 200 in 242ms (next.js: 61ms, proxy.ts: 124ms, application-code: 56ms)
+ GET /stock/HCLTECH 200 in 322ms (next.js: 77ms, proxy.ts: 60ms, application-code: 185ms)
+ GET /stock/SUNPHARMA 200 in 333ms (next.js: 107ms, proxy.ts: 66ms, application-code: 160ms)
+ GET /stock/SUNPHARMA 200 in 194ms (next.js: 84ms, proxy.ts: 31ms, application-code: 79ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 135ms (next.js: 8ms, proxy.ts: 16ms, application-code: 111ms)
+ GET /stock/RELIANCE/knowledge 200 in 131ms (next.js: 18ms, proxy.ts: 14ms, application-code: 99ms)
+ GET /stock/RELIANCE/knowledge 200 in 123ms (next.js: 28ms, proxy.ts: 7ms, application-code: 88ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 131ms (next.js: 51ms, proxy.ts: 6ms, application-code: 74ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 115ms (next.js: 3ms, proxy.ts: 38ms, application-code: 74ms)
+ GET /stock/SUNPHARMA 200 in 200ms (next.js: 54ms, proxy.ts: 15ms, application-code: 132ms)
+ GET /stock/RELIANCE/knowledge 200 in 140ms (next.js: 6ms, proxy.ts: 14ms, application-code: 121ms)
+ GET /stock/RELIANCE/knowledge 200 in 131ms (next.js: 56ms, proxy.ts: 5ms, application-code: 70ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 129ms (next.js: 68ms, proxy.ts: 3ms, application-code: 57ms)
+ GET /stock/SUNPHARMA 200 in 145ms (next.js: 24ms, proxy.ts: 14ms, application-code: 107ms)
+ GET /stock/SUNPHARMA 200 in 108ms (next.js: 5ms, proxy.ts: 23ms, application-code: 80ms)
+ GET /stock/SUNPHARMA 200 in 106ms (next.js: 15ms, proxy.ts: 5ms, application-code: 86ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 76ms (next.js: 6ms, proxy.ts: 3ms, application-code: 67ms)
+ GET /stock/RELIANCE/knowledge 200 in 77ms (next.js: 19ms, proxy.ts: 3ms, application-code: 55ms)
+ GET /stock/SUNPHARMA 200 in 174ms (next.js: 30ms, proxy.ts: 3ms, application-code: 140ms)
+ GET /stock/SUNPHARMA 200 in 193ms (next.js: 16ms, proxy.ts: 29ms, application-code: 148ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 133ms (next.js: 6ms, proxy.ts: 6ms, application-code: 121ms)
+ GET /stock/RELIANCE/knowledge 200 in 131ms (next.js: 32ms, proxy.ts: 6ms, application-code: 93ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 148ms (next.js: 55ms, proxy.ts: 27ms, application-code: 66ms)
+ GET /stock/SUNPHARMA 200 in 188ms (next.js: 21ms, proxy.ts: 54ms, application-code: 112ms)
+ GET /stock/RELIANCE/knowledge 200 in 95ms (next.js: 5ms, proxy.ts: 4ms, application-code: 86ms)
+ GET /stock/RELIANCE/knowledge 200 in 92ms (next.js: 23ms, proxy.ts: 23ms, application-code: 46ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 73ms (next.js: 41ms, proxy.ts: 3ms, application-code: 30ms)
+ GET /stock/RELIANCE/knowledge 200 in 74ms (next.js: 15ms, proxy.ts: 40ms, application-code: 19ms)
+ GET /stock/SUNPHARMA 200 in 118ms (next.js: 5ms, proxy.ts: 22ms, application-code: 91ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 97ms (next.js: 23ms, proxy.ts: 5ms, application-code: 70ms)
+ GET /stock/RELIANCE/knowledge 200 in 93ms (next.js: 33ms, proxy.ts: 21ms, application-code: 39ms)
+ GET /stock/SUNPHARMA 200 in 103ms (next.js: 11ms, proxy.ts: 3ms, application-code: 88ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 90ms (next.js: 29ms, proxy.ts: 31ms, application-code: 30ms)
+ GET /stock/RELIANCE/knowledge 200 in 64ms (next.js: 29ms, proxy.ts: 19ms, application-code: 16ms)
+ GET /stock/SUNPHARMA 200 in 104ms (next.js: 33ms, proxy.ts: 8ms, application-code: 63ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 100ms (next.js: 31ms, proxy.ts: 4ms, application-code: 66ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 96ms (next.js: 68ms, proxy.ts: 5ms, application-code: 23ms)
+ GET /stock/RELIANCE/knowledge 200 in 98ms (next.js: 41ms, proxy.ts: 5ms, application-code: 52ms)
+ GET /stock/SUNPHARMA 200 in 107ms (next.js: 9ms, proxy.ts: 4ms, application-code: 95ms)
+ GET /stock/RELIANCE/knowledge 200 in 99ms (next.js: 43ms, proxy.ts: 39ms, application-code: 17ms)
+ GET /stock/SUNPHARMA 200 in 109ms (next.js: 50ms, proxy.ts: 5ms, application-code: 54ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 87ms (next.js: 18ms, proxy.ts: 4ms, application-code: 65ms)
+ GET /stock/RELIANCE/knowledge 200 in 85ms (next.js: 42ms, proxy.ts: 4ms, application-code: 38ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 56ms (next.js: 17ms, proxy.ts: 25ms, application-code: 15ms)
+ GET /stock/SUNPHARMA 200 in 90ms (next.js: 30ms, proxy.ts: 4ms, application-code: 56ms)
+ GET /stock/SUNPHARMA 200 in 96ms (next.js: 6ms, proxy.ts: 7ms, application-code: 83ms)
+ GET /stock/SUNPHARMA 200 in 91ms (next.js: 51ms, proxy.ts: 3ms, application-code: 37ms)
+ GET /stock/RELIANCE/knowledge 200 in 85ms (next.js: 7ms, proxy.ts: 4ms, application-code: 74ms)
+ GET /stock/RELIANCE/knowledge 200 in 81ms (next.js: 41ms, proxy.ts: 4ms, application-code: 37ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 82ms (next.js: 31ms, proxy.ts: 4ms, application-code: 47ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 66ms (next.js: 36ms, proxy.ts: 16ms, application-code: 14ms)
+ GET /stock/SUNPHARMA 200 in 88ms (next.js: 19ms, proxy.ts: 5ms, application-code: 64ms)
+ GET /stock/SUNPHARMA 200 in 100ms (next.js: 40ms, proxy.ts: 16ms, application-code: 44ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 84ms (next.js: 8ms, proxy.ts: 2ms, application-code: 74ms)
+ GET /stock/RELIANCE/knowledge 200 in 82ms (next.js: 30ms, proxy.ts: 4ms, application-code: 48ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 81ms (next.js: 50ms, proxy.ts: 4ms, application-code: 27ms)
+ GET /stock/SUNPHARMA 200 in 89ms (next.js: 17ms, proxy.ts: 4ms, application-code: 68ms)
+ GET /stock/SUNPHARMA 200 in 89ms (next.js: 40ms, proxy.ts: 4ms, application-code: 45ms)
+ GET /stock/SUNPHARMA 200 in 93ms (next.js: 2ms, proxy.ts: 35ms, application-code: 56ms)
+ GET /stock/RELIANCE/knowledge 200 in 67ms (next.js: 17ms, proxy.ts: 4ms, application-code: 45ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 68ms (next.js: 7ms, proxy.ts: 2ms, application-code: 59ms)
+ GET /stock/RELIANCE/knowledge 200 in 75ms (next.js: 26ms, proxy.ts: 3ms, application-code: 46ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 74ms (next.js: 14ms, proxy.ts: 24ms, application-code: 36ms)
+ GET /stock/RELIANCE/knowledge 200 in 66ms (next.js: 16ms, proxy.ts: 20ms, application-code: 30ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 110ms (next.js: 3ms, proxy.ts: 10ms, application-code: 97ms)
+ GET /stock/HCLTECH 200 in 121ms (next.js: 11ms, proxy.ts: 3ms, application-code: 107ms)
+ GET /stock/HCLTECH 200 in 129ms (next.js: 22ms, proxy.ts: 6ms, application-code: 100ms)
+ GET /stock/HCLTECH 200 in 132ms (next.js: 45ms, proxy.ts: 7ms, application-code: 79ms)
+ GET /stock/HCLTECH 200 in 129ms (next.js: 45ms, proxy.ts: 20ms, application-code: 64ms)
+ GET /stock/HCLTECH 200 in 130ms (next.js: 36ms, proxy.ts: 43ms, application-code: 51ms)
+ GET /stock/HCLTECH 200 in 127ms (next.js: 2ms, proxy.ts: 1978µs, application-code: 123ms)
+ GET /stock/HCLTECH 200 in 103ms (next.js: 9ms, proxy.ts: 6ms, application-code: 89ms)
+ GET /stock/HCLTECH 200 in 102ms (next.js: 21ms, proxy.ts: 6ms, application-code: 75ms)
+ GET /stock/HCLTECH 200 in 123ms (next.js: 21ms, proxy.ts: 18ms, application-code: 84ms)
+ GET /stock/HCLTECH 200 in 123ms (next.js: 36ms, proxy.ts: 19ms, application-code: 68ms)
+ GET /stock/HCLTECH 200 in 134ms (next.js: 25ms, proxy.ts: 30ms, application-code: 79ms)
+ GET /stock/HCLTECH 200 in 143ms (next.js: 7ms, proxy.ts: 1837µs, application-code: 135ms)
+ GET /stock/HCLTECH 200 in 143ms (next.js: 33ms, proxy.ts: 28ms, application-code: 81ms)
+ GET /stock/HCLTECH 200 in 131ms (next.js: 51ms, proxy.ts: 4ms, application-code: 76ms)
+ GET /stock/HCLTECH 200 in 130ms (next.js: 34ms, proxy.ts: 32ms, application-code: 64ms)
+ GET /stock/HCLTECH 200 in 101ms (next.js: 30ms, proxy.ts: 22ms, application-code: 50ms)
+ GET /stock/HCLTECH 200 in 83ms (next.js: 27ms, proxy.ts: 15ms, application-code: 41ms)
+ GET /stock/HCLTECH 200 in 68ms (next.js: 2ms, proxy.ts: 1371µs, application-code: 65ms)
+ GET /stock/HCLTECH 200 in 53ms (next.js: 4ms, proxy.ts: 3ms, application-code: 46ms)
+ GET /stock/HCLTECH 200 in 50ms (next.js: 16ms, proxy.ts: 2ms, application-code: 31ms)
+ GET /stock/HCLTECH 200 in 49ms (next.js: 19ms, proxy.ts: 16ms, application-code: 14ms)
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.35) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.35) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+ GET /api/auth/session 200 in 99ms (next.js: 82ms, application-code: 18ms)
+ GET /api/auth/session 200 in 7ms (next.js: 742µs, application-code: 6ms)
+ GET /api/auth/session 200 in 5ms (next.js: 906µs, application-code: 4ms)
+ GET /api/auth/session 200 in 5ms (next.js: 1685µs, application-code: 3ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 2.2s (next.js: 8ms, proxy.ts: 5ms, application-code: 2.2s)
+ GET /api/auth/session 200 in 10ms (next.js: 2ms, application-code: 7ms)
+ GET /api/auth/session 200 in 7ms (next.js: 870µs, application-code: 6ms)
+ GET /api/auth/session 200 in 7ms (next.js: 2ms, application-code: 5ms)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+ GET /api/auth/session 200 in 7ms (next.js: 1236µs, application-code: 6ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 26ms (next.js: 10ms, proxy.ts: 8ms, application-code: 8ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 1505ms (next.js: 1785µs, proxy.ts: 3ms, application-code: 1500ms)
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.35) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.35) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+ GET /stock/SUNPHARMA/knowledge 200 in 17ms (next.js: 7ms, proxy.ts: 5ms, application-code: 5ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 21ms (next.js: 9ms, proxy.ts: 5ms, application-code: 8ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 2.4s (next.js: 1635µs, proxy.ts: 1594µs, application-code: 2.4s)
+ GET /stock/SUNPHARMA/knowledge 200 in 18ms (next.js: 9ms, proxy.ts: 4ms, application-code: 4ms)
+✓ Compiled in 39ms
+ GET /stock/SUNPHARMA/knowledge 200 in 1231ms (next.js: 2ms, proxy.ts: 2ms, application-code: 1226ms)
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.35) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.35) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+ GET /knowledge/SUNPHARMA 200 in 2.7s (next.js: 622ms, application-code: 2.0s)
+ GET /stock/SUNPHARMA/knowledge 200 in 16.5s (next.js: 1756µs, proxy.ts: 2ms, application-code: 16.5s)
+ GET /knowledge/SUNPHARMA 200 in 2.3s (next.js: 4ms, application-code: 2.3s)
+ GET /api/auth/session 200 in 9ms (next.js: 3ms, application-code: 7ms)
+ GET /api/auth/session 200 in 10ms (next.js: 1258µs, application-code: 8ms)
+ GET /api/auth/session 200 in 11ms (next.js: 2ms, application-code: 8ms)
+ GET /api/auth/session 200 in 13ms (next.js: 5ms, application-code: 8ms)
+ GET /api/auth/session 200 in 13ms (next.js: 6ms, application-code: 7ms)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+ GET /knowledge/SUNPHARMA 200 in 815ms (next.js: 3ms, application-code: 812ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 1392ms (next.js: 3ms, proxy.ts: 1387µs, application-code: 1387ms)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+ GET /stock/SUNPHARMA/knowledge 200 in 2.1s (next.js: 3ms, proxy.ts: 3ms, application-code: 2.1s)
+ GET /stock/SUNPHARMA/knowledge 200 in 684ms (next.js: 5ms, proxy.ts: 3ms, application-code: 675ms)
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.35) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.35) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+ GET /stock/SUNPHARMA/knowledge 200 in 1674ms (next.js: 3ms, proxy.ts: 1393µs, application-code: 1670ms)
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.35) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.35) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+ GET /api/auth/session 200 in 17ms (next.js: 8ms, application-code: 9ms)
+ GET /api/auth/session 200 in 8ms (next.js: 1901µs, application-code: 6ms)
+ GET /api/auth/session 200 in 8ms (next.js: 1729µs, application-code: 6ms)
+ GET /api/auth/session 200 in 5ms (next.js: 789µs, application-code: 4ms)
+ GET /api/auth/session 200 in 6ms (next.js: 731µs, application-code: 5ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 1533ms (next.js: 8ms, proxy.ts: 5ms, application-code: 1520ms)
+ GET /api/auth/session 200 in 9ms (next.js: 2ms, application-code: 6ms)
+ GET /api/auth/session 200 in 6ms (next.js: 1184µs, application-code: 5ms)
+ GET /api/auth/session 200 in 7ms (next.js: 3ms, application-code: 4ms)
+ GET /api/auth/session 200 in 7ms (next.js: 4ms, application-code: 4ms)
+ GET /api/auth/session 200 in 8ms (next.js: 1168µs, application-code: 7ms)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+ GET /stock/SUNPHARMA/knowledge 200 in 892ms (next.js: 9ms, proxy.ts: 5ms, application-code: 879ms)
+ GET /api/auth/session 200 in 10ms (next.js: 3ms, application-code: 7ms)
+ GET /api/auth/session 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/auth/session 200 in 13ms (next.js: 5ms, application-code: 8ms)
+ GET /api/auth/session 200 in 13ms (next.js: 6ms, application-code: 7ms)
+ GET /api/auth/session 200 in 10ms (next.js: 4ms, application-code: 6ms)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+ GET /api/auth/session 200 in 13ms (next.js: 5ms, application-code: 8ms)
+ GET /api/auth/session 200 in 8ms (next.js: 1034µs, application-code: 7ms)
+ GET /api/auth/session 200 in 8ms (next.js: 723µs, application-code: 8ms)
+ GET /api/auth/session 200 in 10ms (next.js: 2ms, application-code: 8ms)
+ GET /api/auth/session 200 in 5ms (next.js: 693µs, application-code: 4ms)
+ GET /knowledge/SUNPHARMA 200 in 2.4s (next.js: 3ms, application-code: 2.4s)
+ GET /stock/SUNPHARMA/knowledge 200 in 1978ms (next.js: 4ms, proxy.ts: 1374µs, application-code: 1973ms)
+ GET /api/auth/session 200 in 8ms (next.js: 2ms, application-code: 5ms)
+ GET /api/auth/session 200 in 7ms (next.js: 978µs, application-code: 6ms)
+ GET /api/auth/session 200 in 9ms (next.js: 3ms, application-code: 5ms)
+ GET /api/auth/session 200 in 5ms (next.js: 822µs, application-code: 4ms)
+ GET /api/auth/session 200 in 5ms (next.js: 2ms, application-code: 3ms)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.35) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.35) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+ GET / 200 in 73ms (next.js: 13ms, application-code: 60ms)
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.35) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.35) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+ GET / 200 in 22ms (next.js: 1021µs, application-code: 21ms)
+ GET /api/auth/session 200 in 11ms (next.js: 6ms, application-code: 6ms)
+ GET /api/auth/session 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/auth/session 200 in 9ms (next.js: 1022µs, application-code: 8ms)
+ GET /api/auth/session 200 in 9ms (next.js: 3ms, application-code: 6ms)
+ GET /api/auth/session 200 in 8ms (next.js: 2ms, application-code: 6ms)
+✓ Compiled in 41ms
+✓ Compiled in 162ms
+ GET /stock/RELIANCE/knowledge 200 in 276ms (next.js: 53ms, proxy.ts: 40ms, application-code: 184ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 285ms (next.js: 140ms, proxy.ts: 38ms, application-code: 107ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 253ms (next.js: 166ms, proxy.ts: 6ms, application-code: 82ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 256ms (next.js: 105ms, proxy.ts: 85ms, application-code: 66ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 271ms (next.js: 65ms, proxy.ts: 137ms, application-code: 70ms)
+ GET /stock/HCLTECH 200 in 332ms (next.js: 105ms, proxy.ts: 39ms, application-code: 188ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 167ms (next.js: 36ms, proxy.ts: 57ms, application-code: 74ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 170ms (next.js: 64ms, proxy.ts: 17ms, application-code: 90ms)
+ GET /stock/HCLTECH 200 in 201ms (next.js: 39ms, proxy.ts: 10ms, application-code: 152ms)
+ GET /stock/HCLTECH 200 in 211ms (next.js: 62ms, proxy.ts: 28ms, application-code: 122ms)
+ GET /stock/HCLTECH 200 in 184ms (next.js: 58ms, proxy.ts: 56ms, application-code: 70ms)
+ GET /stock/HCLTECH 200 in 213ms (next.js: 42ms, proxy.ts: 32ms, application-code: 139ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 142ms (next.js: 37ms, proxy.ts: 4ms, application-code: 100ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 141ms (next.js: 65ms, proxy.ts: 3ms, application-code: 73ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 141ms (next.js: 86ms, proxy.ts: 3ms, application-code: 52ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 139ms (next.js: 26ms, proxy.ts: 72ms, application-code: 42ms)
+ GET /stock/SUNPHARMA 200 in 160ms (next.js: 14ms, proxy.ts: 16ms, application-code: 131ms)
+ GET /stock/RELIANCE/knowledge 200 in 95ms (next.js: 4ms, proxy.ts: 18ms, application-code: 73ms)
+ GET /stock/RELIANCE/knowledge 200 in 93ms (next.js: 7ms, proxy.ts: 3ms, application-code: 83ms)
+ GET /stock/RELIANCE/knowledge 200 in 112ms (next.js: 40ms, proxy.ts: 3ms, application-code: 68ms)
+ GET /stock/RELIANCE/knowledge 200 in 107ms (next.js: 37ms, proxy.ts: 36ms, application-code: 34ms)
+ GET /stock/SUNPHARMA 200 in 115ms (next.js: 27ms, proxy.ts: 3ms, application-code: 85ms)
+ GET /stock/SUNPHARMA 200 in 128ms (next.js: 30ms, proxy.ts: 21ms, application-code: 77ms)
+ GET /stock/SUNPHARMA 200 in 80ms (next.js: 5ms, proxy.ts: 36ms, application-code: 39ms)
+ GET /stock/SUNPHARMA 200 in 24ms (next.js: 3ms, proxy.ts: 2ms, application-code: 19ms)
+ GET /knowledge/SUNPHARMA 200 in 1417ms (next.js: 9ms, application-code: 1408ms)
+ GET /knowledge/SUNPHARMA 200 in 2.2s (next.js: 6ms, application-code: 2.2s)
+ GET /api/auth/session 200 in 81ms (next.js: 71ms, application-code: 10ms)
+ GET /api/auth/session 200 in 9ms (next.js: 907µs, application-code: 8ms)
+ GET /api/auth/session 200 in 9ms (next.js: 2ms, application-code: 7ms)
+ GET /api/auth/session 200 in 9ms (next.js: 3ms, application-code: 5ms)
+ GET /api/auth/session 200 in 7ms (next.js: 2ms, application-code: 5ms)
+ GET /api/auth/session 200 in 7ms (next.js: 949µs, application-code: 6ms)
+ GET /stock/SUNPHARMA/knowledge 200 in 1693ms (next.js: 6ms, proxy.ts: 4ms, application-code: 1682ms)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+ GET /api/auth/session 200 in 26ms (next.js: 12ms, application-code: 14ms)
+ GET /api/auth/session 200 in 10ms (next.js: 2ms, application-code: 8ms)
+ GET /api/auth/session 200 in 11ms (next.js: 1767µs, application-code: 10ms)
+ GET /api/auth/session 200 in 13ms (next.js: 4ms, application-code: 9ms)
+ GET /api/auth/session 200 in 12ms (next.js: 3ms, application-code: 10ms)
+ GET /api/auth/session 200 in 13ms (next.js: 4ms, application-code: 10ms)
+ GET /api/auth/session 200 in 22ms (next.js: 12ms, application-code: 10ms)
+ GET /api/auth/session 200 in 18ms (next.js: 6ms, application-code: 12ms)
+ GET /api/auth/session 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/auth/session 200 in 13ms (next.js: 4ms, application-code: 9ms)
+ GET /api/auth/session 200 in 12ms (next.js: 4ms, application-code: 8ms)
+ GET /api/auth/session 200 in 6ms (next.js: 1271µs, application-code: 4ms)
+ GET /api/auth/session 200 in 19ms (next.js: 8ms, application-code: 11ms)
+ GET /api/auth/session 200 in 8ms (next.js: 1073µs, application-code: 7ms)
+ GET /api/auth/session 200 in 6ms (next.js: 695µs, application-code: 5ms)
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.35) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.35) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.22) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.35) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.35) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+[browser] THREE.Color: Alpha component of rgba(255,255,255,0.10) will be ignored.
+ GET /api/auth/session 200 in 31ms (next.js: 5ms, application-code: 26ms)
+ GET /api/auth/session 200 in 5ms (next.js: 773µs, application-code: 4ms)
+ GET /api/auth/session 200 in 5ms (next.js: 531µs, application-code: 5ms)
+ GET /api/auth/session 200 in 11ms (next.js: 4ms, application-code: 7ms)
+ GET /api/auth/session 200 in 15ms (next.js: 1766µs, application-code: 13ms)
+ GET /api/auth/session 200 in 9ms (next.js: 2ms, application-code: 6ms)
+ GET /api/auth/session 200 in 7ms (next.js: 2ms, application-code: 5ms)
+ GET /api/auth/session 200 in 5ms (next.js: 617µs, application-code: 4ms)
+ GET /api/auth/session 200 in 14ms (next.js: 6ms, application-code: 8ms)
+ GET /api/auth/session 200 in 15ms (next.js: 7ms, application-code: 8ms)
+ GET /api/auth/session 200 in 12ms (next.js: 6ms, application-code: 7ms)
+ GET /api/auth/session 200 in 8ms (next.js: 973µs, application-code: 7ms)
+ GET /api/auth/session 200 in 19ms (next.js: 6ms, application-code: 13ms)
+ GET /api/auth/session 200 in 19ms (next.js: 7ms, application-code: 13ms)
+ GET /api/auth/session 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/auth/session 200 in 9ms (next.js: 3ms, application-code: 6ms)
+ GET /api/auth/session 200 in 6ms (next.js: 1001µs, application-code: 5ms)
+ GET /api/auth/session 200 in 7ms (next.js: 1217µs, application-code: 6ms)
+ GET /api/auth/session 200 in 6ms (next.js: 3ms, application-code: 3ms)
+ GET /api/auth/session 200 in 45ms (next.js: 12ms, application-code: 33ms)
+ GET /api/auth/session 200 in 23ms (next.js: 12ms, application-code: 11ms)
+ GET /api/auth/session 200 in 15ms (next.js: 6ms, application-code: 10ms)
+ GET /api/auth/session 200 in 17ms (next.js: 5ms, application-code: 11ms)
+ GET /api/auth/session 200 in 15ms (next.js: 4ms, application-code: 10ms)
+ GET /api/auth/session 200 in 10ms (next.js: 4ms, application-code: 6ms)
+ GET /api/auth/session 200 in 14ms (next.js: 5ms, application-code: 9ms)
+ GET /api/auth/session 200 in 17ms (next.js: 7ms, application-code: 10ms)
+ GET /api/auth/session 200 in 9ms (next.js: 4ms, application-code: 6ms)
+ GET /api/auth/session 200 in 14ms (next.js: 4ms, application-code: 10ms)
+ GET /api/auth/session 200 in 15ms (next.js: 5ms, application-code: 10ms)

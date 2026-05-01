@@ -319,13 +319,35 @@ def _build_nodes(
     profile: UserProfile,
     fetched_at: datetime,
 ) -> list[Node]:
-    """Convert raw announcement items to Node list."""
-    nodes: list[Node] = []
+    """Convert raw announcement items to Node list.
+
+    Deduplicates by node_id so multiple announcements of the same
+    classification on the same date don't produce duplicate nodes.
+    When duplicates share a classification, a numeric suffix is appended
+    to the node name (e.g. ``Board_Meeting_2``, ``Board_Meeting_3``)
+    to produce unique node_ids.
+    """
+    raw_nodes: list[Node] = []
     w_ver = yaml_cfg.versions.get("weight_version", "")
 
     for item in items:
         node = _item_to_node(item, symbol, as_of_date, profile, fetched_at, w_ver)
         if node is not None:
+            raw_nodes.append(node)
+
+    seen_ids: dict[str, int] = {}
+    nodes: list[Node] = []
+    for node in raw_nodes:
+        nid = node.node_id
+        if nid not in seen_ids:
+            seen_ids[nid] = 1
+            nodes.append(node)
+        else:
+            seen_ids[nid] += 1
+            new_name = f"{node.name}_{seen_ids[nid]}"
+            cat = node.category.value if hasattr(node.category, "value") else str(node.category)
+            new_node_id = f"{node.stock}|{cat}|{new_name}|{node.as_of_date}"
+            node = node.model_copy(update={"name": new_name, "node_id": new_node_id})
             nodes.append(node)
 
     return nodes

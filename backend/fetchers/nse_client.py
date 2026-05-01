@@ -177,6 +177,82 @@ async def fetch_ohlcv(
     return {"symbol": symbol, "rows": rows}
 
 
+async def fetch_index_ohlcv(
+    index_name: str,
+    from_date: date,
+    to_date: date,
+) -> dict[str, Any]:
+    """
+    Fetch daily OHLCV history for an NSE index (e.g. "NIFTY 50").
+
+    NSE's index history API caps at ~70 rows per request, so this function
+    automatically chunks the date range into 90-day windows and concatenates
+    results to satisfy long lookbacks (e.g. 400 days for SMA200).
+
+    Field mapping from NSE response:
+      EOD_OPEN_INDEX_VAL, EOD_HIGH_INDEX_VAL, EOD_LOW_INDEX_VAL,
+      EOD_CLOSE_INDEX_VAL, HIT_TRADED_QTY, EOD_TIMESTAMP
+
+    Args:
+        index_name: NSE index name, e.g. "NIFTY 50".
+        from_date:  Start date (inclusive).
+        to_date:    End date (inclusive).
+
+    Returns:
+        Dict with "rows" (list of dicts) and "symbol".
+
+    Raises:
+        ValueError: on empty or malformed response.
+    """
+    from datetime import timedelta
+    nse = _get_nse()
+    CHUNK_DAYS = 90
+
+    # Build non-overlapping 90-day windows covering [from_date, to_date]
+    chunks: list[tuple[date, date]] = []
+    chunk_start = from_date
+    while chunk_start < to_date:
+        chunk_end = min(chunk_start + timedelta(days=CHUNK_DAYS), to_date)
+        chunks.append((chunk_start, chunk_end))
+        chunk_start = chunk_end + timedelta(days=1)
+
+    all_raw: list[dict] = []
+    seen_dates: set[str] = set()
+    for c_start, c_end in chunks:
+        try:
+            chunk = await _run_sync(nse.fetch_historical_index_data, index_name,
+                                    c_start, c_end)
+            if isinstance(chunk, list):
+                for item in chunk:
+                    ts = item.get("EOD_TIMESTAMP", "")
+                    if ts not in seen_dates:
+                        seen_dates.add(ts)
+                        all_raw.append(item)
+        except Exception as exc:
+            logger.warning("fetch_index_ohlcv chunk %s–%s failed: %s", c_start, c_end, exc)
+
+    if not all_raw:
+        raise ValueError(f"NSE returned empty index OHLCV for {index_name}")
+
+    rows = []
+    for item in all_raw:
+        if not isinstance(item, dict):
+            continue
+        rows.append({
+            "date":   item.get("EOD_TIMESTAMP") or "",
+            "open":   _to_float(item.get("EOD_OPEN_INDEX_VAL")),
+            "high":   _to_float(item.get("EOD_HIGH_INDEX_VAL")),
+            "low":    _to_float(item.get("EOD_LOW_INDEX_VAL")),
+            "close":  _to_float(item.get("EOD_CLOSE_INDEX_VAL")),
+            "volume": _to_int(item.get("HIT_TRADED_QTY")),
+        })
+
+    if not rows:
+        raise ValueError(f"NSE index OHLCV rows all malformed for {index_name}")
+
+    return {"symbol": index_name, "rows": rows}
+
+
 async def fetch_shareholding(symbol: str) -> dict[str, Any]:
     """
     Fetch shareholding pattern from NSE.

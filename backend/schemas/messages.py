@@ -19,8 +19,9 @@ from .node import Node
 # ── User Profile ──────────────────────────────────────────────────────────────
 
 class Horizon(str, Enum):
-    short = "short"
-    long  = "long"
+    short  = "short"
+    medium = "medium"
+    long   = "long"
 
 
 class Risk(str, Enum):

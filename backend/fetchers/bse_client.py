@@ -194,20 +194,19 @@ async def fetch_meta_info(symbol: str) -> dict[str, Any]:
         raise ValueError(f"BSE equityMetaInfo empty for {symbol}")
 
     # Consolidated staleness guard:
-    # BSE populates ConPE/ConEPS by dividing the live price by a stored ConEPS figure.
-    # When ConROE and ConPB are both null, BSE itself signals the consolidated dataset
-    # is incomplete or stale (common for recently-listed companies and holding companies).
-    # In that case, fall through to standalone EPS/PE which are recomputed nightly.
+    # Use consolidated figures if ConPE, ConROE, or ConPB is populated.
+    # ConROE/ConPB alone are not always present (e.g. RELIANCE conglomerate structure)
+    # but ConPE/ConEPS are still valid — so include ConPE in the check.
+    con_pe  = _to_float(raw.get("ConPE"))
     con_roe = _to_float(raw.get("ConROE"))
     con_pb  = _to_float(raw.get("ConPB"))
-    use_consolidated = (con_roe is not None) or (con_pb is not None)
+    use_consolidated = (con_pe is not None) or (con_roe is not None) or (con_pb is not None)
 
     if use_consolidated:
-        pe  = _to_float(raw.get("ConPE") or raw.get("PE"))
+        pe  = con_pe  if con_pe  is not None else _to_float(raw.get("PE"))
         eps = _to_float(raw.get("ConEPS") or raw.get("EPS"))
-        roe = _to_float(raw.get("ConROE") or raw.get("ROE"))
+        roe = con_roe if con_roe is not None else _to_float(raw.get("ROE"))
     else:
-        # Standalone is the reliable figure — ConEPS is stale
         pe  = _to_float(raw.get("PE"))
         eps = _to_float(raw.get("EPS"))
         roe = _to_float(raw.get("ROE"))

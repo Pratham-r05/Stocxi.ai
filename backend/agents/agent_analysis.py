@@ -35,6 +35,7 @@ from backend.schemas.messages import (
     Verdict,
 )
 from backend.schemas.node import Node, NodeCategory
+from backend.analysis.output_instructions import load_shorthand_book, load_horizon_instructions
 
 logger = logging.getLogger(__name__)
 
@@ -120,6 +121,10 @@ def _render_prompt(nodes: list[Node], request: FetchRequest, kg_serialization: s
     cats    = _split_by_category(nodes)
     weights = _category_weights(horizon, risk)
 
+    # Load output instruction files (cached after first read)
+    shorthand_book = load_shorthand_book()
+    horizon_instructions = load_horizon_instructions(horizon)
+
     return _TEMPLATE.render(
         prompt_version=_PROMPT_VER,
         weight_version=_WEIGHT_VER,
@@ -136,6 +141,8 @@ def _render_prompt(nodes: list[Node], request: FetchRequest, kg_serialization: s
         announcement_nodes=cats["announcement"],
         context_nodes=cats["context"],
         kg_serialization=kg_serialization,
+        shorthand_book=shorthand_book,
+        horizon_instructions=horizon_instructions,
     )
 
 

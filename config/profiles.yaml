@@ -19,6 +19,12 @@ category_mix:
     fundamental:  0.15
     announcement: 0.05
 
+  medium:
+    technical:    0.25
+    news:         0.15
+    fundamental:  0.45
+    announcement: 0.15
+
   long:
     technical:    0.20
     news:         0.10
@@ -63,6 +69,9 @@ profile_buckets:
   - "short_conservative"
   - "short_moderate"
   - "short_aggressive"
+  - "medium_conservative"
+  - "medium_moderate"
+  - "medium_aggressive"
   - "long_conservative"
   - "long_moderate"
   - "long_aggressive"
@@ -74,14 +83,18 @@ chart_window:
   short:
     default: "3M"
     options: ["1M", "3M", "6M"]
+  medium:
+    default: "1Y"
+    options: ["6M", "1Y", "2Y"]
   long:
     default: "3Y"
     options: ["1Y", "3Y", "5Y"]
 
-# ── News age cutoff by horizon ────────────────────────────────────────────────
+# ── News age cutoff by horizon ──────────────────────────────────────────────────
 news_max_age_days:
-  short: 30
-  long:  90
+  short:  30
+  medium: 60
+  long:   90
 
 # ── Sector list (for UI dropdown and peer selection) ─────────────────────────
 # Not used in weight calculation. Displayed to user during profile setup.

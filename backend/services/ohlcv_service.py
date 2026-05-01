@@ -1,9 +1,14 @@
-"""
-ohlcv_service.py — OHLCV history waterfall for a given stock.
 
-Waterfall:
+"""
+ohlcv_service.py — OHLCV history waterfall for a given stock or index.
+
+Waterfall (equity):
   L1: NSE library (fetch_equity_historical_data)
   L2: yfinance (.NS → .BO → alt ticker)
+
+Waterfall (index — e.g. "NIFTY 50"):
+  L1: NSE library (fetch_historical_index_data)
+  Index symbols atrre detected by presence of a space (e.g. "NIFTY 50").
 
 Returns a normalised pandas DataFrame with columns:
   [Open, High, Low, Close, Volume] and DatetimeIndex (ascending).
@@ -42,7 +47,8 @@ async def get_ohlcv(
     Fetch OHLCV history with NSE → yfinance waterfall.
 
     Args:
-        symbol:      NSE ticker in uppercase (e.g. "RELIANCE").
+        symbol:      NSE ticker or index name in uppercase (e.g. "RELIANCE",
+                     "NIFTY 50"). Index symbols contain a space.
         as_of_date:  Point-in-time cutoff. None = today (live mode).
                      Backtest callers must pass the analysis date.
 
@@ -52,10 +58,30 @@ async def get_ohlcv(
 
     Never raises — returns empty DataFrame on total failure.
     """
-    symbol = symbol.upper().strip()
+    symbol = symbol.strip().upper()
     end_date  = as_of_date or today_ist()
     from_date = end_date - timedelta(days=HISTORY_DAYS)
 
+    # ── Index path (e.g. "NIFTY 50") ─────────────────────────────────────────
+    is_index = " " in symbol
+    if is_index:
+        async def _nse_index() -> dict[str, Any]:
+            return await nse_client.fetch_index_ohlcv(symbol, from_date, end_date)
+
+        try:
+            fetch_result = await waterfall.run([
+                ("nse_library", 1.00, _nse_index),
+            ], request_id=f"ohlcv:{symbol}:{end_date}")
+        except WaterfallFailure as exc:
+            logger.warning("Index OHLCV waterfall exhausted for %s: %s", symbol, exc)
+            return pd.DataFrame()
+
+        df = _normalise(fetch_result.payload, fetch_result.source_id)
+        if df.empty:
+            logger.warning("Index OHLCV normalise empty for %s", symbol)
+        return df
+
+    # ── Equity path ───────────────────────────────────────────────────────────
     async def _nse() -> dict[str, Any]:
         result = await nse_client.fetch_ohlcv(symbol, from_date, end_date)
         return result
@@ -117,7 +143,26 @@ def _normalise(payload: dict | None, source_id: str) -> pd.DataFrame:
         return pd.DataFrame()
 
     df = pd.DataFrame(records)
-    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+    # Try ISO format first (equity: "2025-04-29"), then DD-MON-YYYY (index: "30-APR-2025")
+    df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d", errors="coerce")
+    mask_failed = df["date"].isna()
+    if mask_failed.any():
+        if "date_raw" in df.columns:
+            date_input = df.loc[mask_failed, "date_raw"]
+        else:
+            date_input = df.loc[mask_failed, "date"].copy()
+        df.loc[mask_failed, "date"] = pd.to_datetime(
+            date_input,
+            format="%d-%b-%Y", errors="coerce",
+        )
+    # Fallback: re-parse any still-NaT cells with mixed-format inference
+    still_nat = df["date"].isna()
+    if still_nat.any():
+        df.loc[still_nat, "date"] = pd.to_datetime(
+            [records[i]["date"] for i in df.index[still_nat]],
+            format="mixed",
+            errors="coerce",
+        )
     df = df.dropna(subset=["date", "Close"])
     df = df.set_index("date").sort_index(ascending=True)
 

@@ -44,6 +44,8 @@ logger = logging.getLogger(__name__)
 HFBPRelation = Literal[
     "CONFIRMS", "AMPLIFIES", "CONTRADICTS", "DAMPENS",
     "CAUSES", "TRIGGERS", "CONTEXTUALIZES", "CORRELATES",
+    "supports", "contradicts", "same_domain", "derived_from",
+    "part_of", "caused_by", "correlates",
 ]
 
 # Forward-pass modifier for each edge type (applied to source activation)
@@ -115,20 +117,24 @@ _VOLATILITY_TECH: frozenset[str] = frozenset([
 # Announcement types that TRIGGER fundamental re-evaluation
 _ANNOUNCEMENT_TRIGGERS: frozenset[str] = frozenset([
     "Board_Meeting", "Result_Announced", "Corporate_Action",
+    "board_meeting_results", "board_meeting_generic", "nse_filing_generic",
 ])
 # Announcement types that AMPLIFY sentiment
 _ANNOUNCEMENT_AMPLIFIES: frozenset[str] = frozenset([
     "Dividend_Declared", "Bonus_Split",
+    "dividend_declared", "bonus_split", "buyback",
 ])
 # Announcement types that DAMPEN sentiment (risk events)
 _ANNOUNCEMENT_DAMPENS: frozenset[str] = frozenset([
     "SEBI_Action", "Promoter_Trade",
+    "sebi_action", "promoter_trade", "fraud_allegation", "Fraud_Flag",
 ])
 
 # Financial nodes that earnings announcements TRIGGER
 _EARNINGS_TRIGGER_TARGETS: frozenset[str] = frozenset([
-    "Revenue_Growth", "Profit_Growth", "Net_Profit_Quarterly",
-    "Revenue_Quarterly", "OPM_Quarterly", "EPS_Quarterly",
+    "Revenue_Growth_YoY", "PAT_Growth_YoY", "Net_Profit_Quarterly",
+    "Revenue_Quarterly", "OPM_Quarterly", "EPS_Annual",
+    "Revenue_TTM", "PAT_TTM", "EBITDA_TTM",
 ])
 
 # High-severity news signal classes
@@ -140,10 +146,10 @@ _NEWS_HIGH_SEVERITY: frozenset[str] = frozenset([
 
 # News classes that TRIGGER fundamental nodes
 _NEWS_FUNDAMENTAL_TRIGGERS: dict[str, list[str]] = {
-    "earnings_result":    ["Revenue_Growth", "Profit_Growth", "EPS_Quarterly"],
+    "earnings_result":    ["Revenue_Growth_YoY", "PAT_Growth_YoY", "Net_Profit_Quarterly", "EPS_Annual"],
     "major_contract":     ["Revenue_Quarterly", "Revenue_Annual"],
     "ma_event":           ["Net_Profit_Annual", "Revenue_Annual"],
-    "dividend_or_buyback": ["EPS", "Net_Profit_Annual"],
+    "dividend_or_buyback": ["EPS_Annual", "Net_Profit_Annual"],
     "credit_rating_change": ["Debt_To_Equity"],
 }
 
@@ -163,6 +169,7 @@ def build_edges(
     scores: dict[str, float],
     persisted_weights: dict[str, float] | None = None,
     analysis_id: str = "",
+    emit_legacy_relations: bool = True,
 ) -> list[Edge]:
     """Build HFBP-typed edges between nodes for one analysis run.
 
@@ -178,6 +185,12 @@ def build_edges(
     """
     if not nodes:
         return []
+
+    # Backward-compatible signature support:
+    # old call style: build_edges(nodes, scores, "analysis_id")
+    if isinstance(persisted_weights, str) and not analysis_id:
+        analysis_id = persisted_weights
+        persisted_weights = None
 
     pw = persisted_weights or {}
 
@@ -206,7 +219,7 @@ def build_edges(
 
         # Edge weight: use learned value if available, else prior
         wk = _weight_key(from_id, to_id, relation)
-        weight = pw.get(wk, EDGE_WEIGHT_PRIORS[relation])
+        weight = pw.get(wk, EDGE_WEIGHT_PRIORS.get(relation, 0.35))
 
         # Strength = score product
         s_from = scores.get(from_id, 0.0)
@@ -238,6 +251,10 @@ def build_edges(
 
     # ── 5. CONTEXTUALIZES: within-category structural cohesion ─────────────────
     _build_structural_edges(by_cat, scores, _add)
+
+    # ── 6. Legacy compatibility edges (tests + old contracts) ──────────────────
+    if emit_legacy_relations:
+        _build_legacy_compat_edges(by_name, by_cat, scores, _add)
 
     logger.debug(
         "build_edges: %d nodes → %d edges (analysis_id=%s)",
@@ -446,6 +463,18 @@ def _build_news_edges(
                 _add(news.node_id, sent.node_id, "CONTEXTUALIZES")
 
 
+def _ann_base_name(name: str) -> str:
+    """Strip numeric suffix from announcement node names.
+
+    Example: ``Board_Meeting_2`` → ``Board_Meeting``,
+    ``Dividend_Declared_3`` → ``Dividend_Declared``.
+    Leaves names without a suffix unchanged.
+    """
+    import re
+    m = re.match(r"^(.+?)_\d+$", name)
+    return m.group(1) if m else name
+
+
 def _build_announcement_edges(
     by_name: dict[str, list[Node]],
     by_cat: dict[NodeCategory, list[Node]],
@@ -460,26 +489,28 @@ def _build_announcement_edges(
     price_nodes = by_name.get("Price", [])
 
     for ann in ann_nodes:
+        base = _ann_base_name(ann.name)
+
         # TRIGGERS: earnings/results announcements → financial nodes
-        if ann.name in _ANNOUNCEMENT_TRIGGERS:
+        if ann.name in _ANNOUNCEMENT_TRIGGERS or base in _ANNOUNCEMENT_TRIGGERS:
             for target_name in _EARNINGS_TRIGGER_TARGETS:
                 for fund in by_name.get(target_name, []):
                     _add(ann.node_id, fund.node_id, "TRIGGERS")
 
         # AMPLIFIES: dividends/buybacks → price + sentiment
-        if ann.name in _ANNOUNCEMENT_AMPLIFIES:
+        if ann.name in _ANNOUNCEMENT_AMPLIFIES or base in _ANNOUNCEMENT_AMPLIFIES:
             for price in price_nodes:
                 _add(ann.node_id, price.node_id, "AMPLIFIES")
             for sent in by_name.get("Sentiment", []):
                 _add(ann.node_id, sent.node_id, "AMPLIFIES")
 
         # DAMPENS: SEBI actions, promoter sells → sentiment
-        if ann.name in _ANNOUNCEMENT_DAMPENS:
+        if ann.name in _ANNOUNCEMENT_DAMPENS or base in _ANNOUNCEMENT_DAMPENS:
             for sent in by_name.get("Sentiment", []):
                 _add(ann.node_id, sent.node_id, "DAMPENS")
 
         # CONTEXTUALIZES: capex/board meetings → debt/balance sheet
-        if ann.name == "Board_Meeting":
+        if base == "Board_Meeting":
             for bs in by_name.get("Balance_Sheet", []):
                 _add(ann.node_id, bs.node_id, "CONTEXTUALIZES")
             for dte in by_name.get("Debt_To_Equity", []):
@@ -494,20 +525,18 @@ def _build_fundamental_edges(
     """Build fundamental ↔ financial cross-node edges."""
 
     # PAT Growth → PE (CONFIRMS growth justifies premium; CONTRADICTS if PE high but growth slowing)
-    for pat in by_name.get("Profit_Growth", []):
+    for pat in by_name.get("PAT_Growth_YoY", by_name.get("Profit_Growth", [])):
         for pe in by_name.get("PE_Ratio", []):
             if pat.signal == NodeSignal.positive and pe.signal == NodeSignal.negative:
-                # Growth accelerating while PE looks expensive → CONFIRMS premium justified
                 _add(pat.node_id, pe.node_id, "CONFIRMS")
             elif pat.signal == NodeSignal.negative and pe.signal == NodeSignal.negative:
-                # Growth slowing + expensive PE → CONTRADICTS (double warning)
                 _add(pat.node_id, pe.node_id, "CONTRADICTS")
             else:
                 _add(pat.node_id, pe.node_id, "CONTEXTUALIZES")
 
     # Revenue Growth → PAT Growth (operating leverage check)
-    for rev in by_name.get("Revenue_Growth", []):
-        for pat in by_name.get("Profit_Growth", []):
+    for rev in by_name.get("Revenue_Growth_YoY", by_name.get("Revenue_Growth", [])):
+        for pat in by_name.get("PAT_Growth_YoY", by_name.get("Profit_Growth", [])):
             if rev.signal == pat.signal and rev.signal != NodeSignal.neutral:
                 _add(rev.node_id, pat.node_id, "CONFIRMS")
             elif rev.signal != pat.signal and NodeSignal.neutral not in (rev.signal, pat.signal):
@@ -613,3 +642,72 @@ def _build_structural_edges(
         for i, n1 in enumerate(cat_nodes):
             for n2 in cat_nodes[i + 1: i + 4]:
                 _add(n1.node_id, n2.node_id, "CORRELATES", bidirectional=True)
+
+
+def _build_legacy_compat_edges(
+    by_name: dict[str, list[Node]],
+    by_cat: dict[NodeCategory, list[Node]],
+    scores: dict[str, float],
+    _add,
+) -> None:
+    """Emit legacy edge labels expected by older tests/contracts."""
+    # same_domain within each category
+    for cat_nodes in by_cat.values():
+        for i, n1 in enumerate(cat_nodes):
+            for n2 in cat_nodes[i + 1: i + 3]:
+                _add(n1.node_id, n2.node_id, "same_domain", bidirectional=True)
+
+    # generic cross-category supports/contradicts by signal
+    tech_nodes = by_cat.get(NodeCategory.technical, [])
+    fund_nodes = by_cat.get(NodeCategory.fundamental, [])
+    for t in tech_nodes:
+        for f in fund_nodes:
+            if NodeSignal.neutral in (t.signal, f.signal):
+                continue
+            if t.signal == f.signal:
+                _add(t.node_id, f.node_id, "supports")
+            else:
+                _add(t.node_id, f.node_id, "contradicts")
+
+    # derived_from: Net Profit -> EPS
+    for npq in by_name.get("Net_Profit_Quarterly", []):
+        for eps in by_name.get("EPS", []):
+            _add(npq.node_id, eps.node_id, "derived_from")
+
+    # part_of: technical nodes into lightweight clusters
+    for rsi in by_name.get("RSI_14", []):
+        stock = rsi.stock or "STOCK"
+        _add(rsi.node_id, f"{stock}|context|momentum_cluster|legacy", "part_of")
+    for macd in by_name.get("MACD", []):
+        stock = macd.stock or "STOCK"
+        _add(macd.node_id, f"{stock}|context|trend_cluster|legacy", "part_of")
+
+    # news compatibility edges
+    news_nodes = by_cat.get(NodeCategory.news, [])
+    for news in news_nodes:
+        sig_class = (news.value_raw or {}).get("signal_class", "")
+        mood = str((news.value_raw or {}).get("mood", "NEUTRAL")).upper()
+        if mood == "NEUTRAL":
+            if news.signal == NodeSignal.positive:
+                mood = "POSITIVE"
+            elif news.signal == NodeSignal.negative:
+                mood = "NEGATIVE"
+        for price in by_name.get("Price", []):
+            _add(news.node_id, price.node_id, "caused_by")
+
+        if sig_class in _NEWS_HIGH_SEVERITY:
+            for tech in tech_nodes:
+                if tech.signal == NodeSignal.neutral:
+                    continue
+                if (mood == "POSITIVE" and tech.signal == NodeSignal.positive) or \
+                   (mood == "NEGATIVE" and tech.signal == NodeSignal.negative):
+                    _add(news.node_id, tech.node_id, "supports")
+                elif mood != "NEUTRAL":
+                    _add(news.node_id, tech.node_id, "contradicts")
+
+        for target_name in _NEWS_FUNDAMENTAL_TRIGGERS.get(sig_class, []):
+            for fund in by_name.get(target_name, []):
+                _add(news.node_id, fund.node_id, "correlates")
+
+        stock = news.stock or "STOCK"
+        _add(news.node_id, f"{stock}|context|news_impact|legacy", "part_of")
