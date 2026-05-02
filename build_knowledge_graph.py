@@ -84,8 +84,7 @@ def _extract_value(content: str) -> str:
     # Multi-period: **Values:** Mar 2026: X | Mar 2025: Y ...
     mv = re.search(r'\*\*Values:\*\*\s*(.+?)(?=\n|$)', content)
     if mv:
-        first = mv.group(1).split("|")[0].strip()
-        return first
+        return mv.group(1).strip()
 
     # Sentiment is on the same line as Value: strip it
     sv = re.search(r'\*\*Value:\*\*\s*(.+?)(?:\s*\|\s*\*\*Sentiment)', content)
