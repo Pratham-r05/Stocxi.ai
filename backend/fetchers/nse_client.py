@@ -9,6 +9,7 @@ Source ID: "nse_library" (config/sources.yaml, priority 1 for technicals).
 Confidence: 1.00 (L1 — exchange-direct data).
 
 Capabilities:
+  - fetch_meta_info  → equityMetaInfo(symbol)  — company name, industry, ISIN, listing date
   - fetch_quote      → equityQuote(symbol)    — live price, change%, VWAP, volumes
   - fetch_ohlcv      → fetch_equity_historical_data(symbol, from_date, to_date)
   - fetch_shareholding → shareholding(symbol) — promoter/FII/DII/retail breakdown
@@ -78,6 +79,38 @@ async def _run_sync(fn, *args, **kwargs) -> Any:
 
 
 # ── Public fetch methods ──────────────────────────────────────────────────────
+
+async def fetch_meta_info(symbol: str) -> dict[str, Any]:
+    """
+    Fetch company metadata from NSE equityMetaInfo.
+
+    Provides sector/industry classification directly from NSE — more reliable than
+    any hardcoded map, especially for small-cap and SME stocks.
+
+    Args:
+        symbol: NSE ticker in uppercase.
+
+    Returns:
+        Dict with company_name, industry, isin, listing_date, segment.
+
+    Raises:
+        Exception: on network error or symbol not found.
+    """
+    symbol = symbol.upper().strip()
+    nse = _get_nse()
+    raw: dict = await _run_sync(nse.equityMetaInfo, symbol)
+    if not raw:
+        raise ValueError(f"NSE equityMetaInfo empty for {symbol}")
+    return {
+        "symbol":       symbol,
+        "company_name": raw.get("companyName") or symbol,
+        "industry":     raw.get("industry") or "",
+        "isin":         raw.get("isin") or "",
+        "listing_date": raw.get("listingDate") or "",
+        "segment":      raw.get("segment") or "",
+        "_raw":         raw,
+    }
+
 
 async def fetch_quote(symbol: str) -> dict[str, Any]:
     """

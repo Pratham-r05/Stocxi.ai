@@ -40,19 +40,36 @@ sys.path.insert(0, str(ROOT / "backend"))
 SYMBOL  = sys.argv[1].upper() if len(sys.argv) > 1 else "RELIANCE"
 HORIZON = sys.argv[2].lower() if len(sys.argv) > 2 else "long"
 
-_SECTOR_MAP = {
-    "RELIANCE": "energy",      "ONGC": "energy",        "IOC": "energy",
-    "TCS": "technology",       "INFY": "technology",    "WIPRO": "technology",  "HCLTECH": "technology",
-    "HDFCBANK": "banking",     "ICICIBANK": "banking",  "AXISBANK": "banking",  "KOTAKBANK": "banking",
-    "ASIANPAINT": "paints",    "BERGERPAINTS": "paints",
-    "MARUTI": "automobiles",   "TATAMOTORS": "automobiles", "BAJAJ-AUTO": "automobiles",
-    "SUNPHARMA": "pharma",     "DRREDDY": "pharma",     "CIPLA": "pharma",
-    "ITC": "fmcg",             "HINDUNILVR": "fmcg",    "NESTLEIND": "fmcg",
-    "LT": "infrastructure",    "ADANIPORTS": "infrastructure",
-    "SBIN": "banking",         "BAJFINANCE": "nbfc",    "BAJAJFINSV": "nbfc",
-    "NYKAA": "retail",         "ZOMATO": "food_delivery",
-}
-SECTOR = _SECTOR_MAP.get(SYMBOL, "diversified")
+def _fetch_sector_live(symbol: str) -> str:
+    """
+    Fetch sector/industry from NSE equityMetaInfo (L1) with BSE equityMetaInfo fallback (L2).
+    Falls back to "diversified" only if both exchange APIs fail.
+    """
+    import asyncio as _asyncio
+    from backend.fetchers import nse_client as _nse, bse_client as _bse
+
+    async def _try() -> str:
+        try:
+            meta = await _nse.fetch_meta_info(symbol)
+            if meta.get("industry"):
+                return meta["industry"].lower()
+        except Exception:
+            pass
+        try:
+            meta = await _bse.fetch_meta_info(symbol)
+            industry = meta.get("industry") or meta.get("sector") or ""
+            if industry:
+                return industry.lower()
+        except Exception:
+            pass
+        return "diversified"
+
+    try:
+        return _asyncio.run(_try())
+    except Exception:
+        return "diversified"
+
+SECTOR = _fetch_sector_live(SYMBOL)
 
 print(f"\n{'='*60}")
 print(f"  STOCXI — Phase 1 Data Fetch")

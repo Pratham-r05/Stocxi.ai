@@ -24,7 +24,7 @@ import logging
 from datetime import date, datetime
 from typing import Any
 
-from backend.fetchers import bse_client, screener_client
+from backend.fetchers import bse_client, nse_client, screener_client
 from backend.fetchers.base import waterfall, WaterfallFailure
 from backend.schemas.node import Node, NodeCategory, NodeSignal, HorizonRelevance
 from backend.schemas.messages import UserProfile
@@ -71,7 +71,87 @@ async def get_ratios(
         logger.warning("Ratios waterfall exhausted for %s: %s", symbol, exc)
         return []
 
-    return _build_nodes(result.payload, symbol, as_of_date,
+    raw = dict(result.payload)
+
+    # Augment with BSE market cap (getScripTradingStats.MktCapFull) — more reliable than Screener.
+    try:
+        stats = await bse_client.fetch_trading_stats(symbol)
+        if stats.get("market_cap_cr") is not None:
+            raw["market_cap_cr"] = stats["market_cap_cr"]
+    except Exception as exc:
+        logger.debug("BSE trading stats unavailable for %s: %s", symbol, exc)
+
+    # Augment with NSE/BSE industry classification — overrides any hardcoded sector default.
+    try:
+        nse_meta = await nse_client.fetch_meta_info(symbol)
+        if nse_meta.get("industry"):
+            raw["industry"] = nse_meta["industry"]
+    except Exception as exc:
+        logger.debug("NSE meta info unavailable for %s, trying BSE: %s", symbol, exc)
+        try:
+            bse_meta = await bse_client.fetch_meta_info(symbol)
+            if bse_meta.get("industry"):
+                raw["industry"] = bse_meta["industry"]
+            if bse_meta.get("sector"):
+                raw["sector"] = bse_meta["sector"]
+        except Exception as exc2:
+            logger.debug("BSE meta info also unavailable for %s: %s", symbol, exc2)
+
+    # Recompute EPS/OPM/NPM/PB/ROE/PE from Screener quarterly + balance sheet data.
+    # BSE equityMetaInfo precomputed ratios go stale after equity dilution events
+    # (rights issue, QIP) because BSE doesn't update EPS/share-count immediately.
+    # Screener scrapes the latest filed data, so these computed values are more accurate.
+    try:
+        sc_full = await screener_client.fetch_financials(symbol)
+        qr = sc_full.get("quarterly_results", {})
+        bs = sc_full.get("balance_sheet", {})
+
+        eps_q  = _extract_screener_series(qr, "eps", "earnings per share")
+        rev_q  = _extract_screener_series(qr, "sales", "revenue", "net sales")
+        op_q   = _extract_screener_series(qr, "operating profit")
+        pat_q  = _extract_screener_series(qr, "net profit", "profit after tax")
+        eq_bs  = _extract_screener_series(bs, "equity capital", "share capital")
+        res_bs = _extract_screener_series(bs, "reserves", "reserves and surplus")
+
+        if len(eps_q) >= 4:
+            raw["eps"] = round(sum(eps_q[:4]), 2)
+
+        if len(rev_q) >= 4 and len(op_q) >= 4:
+            rev_ttm = sum(rev_q[:4])
+            op_ttm  = sum(op_q[:4])
+            if rev_ttm > 0:
+                raw["opm"] = round(op_ttm / rev_ttm * 100, 1)
+
+        if len(rev_q) >= 4 and len(pat_q) >= 4:
+            rev_ttm = sum(rev_q[:4])
+            pat_ttm = sum(pat_q[:4])
+            if rev_ttm > 0:
+                raw["npm"] = round(pat_ttm / rev_ttm * 100, 1)
+
+        net_worth = (eq_bs[0] if eq_bs else 0.0) + (res_bs[0] if res_bs else 0.0)
+        if net_worth > 0:
+            mc_cr = raw.get("market_cap_cr")
+            if mc_cr:
+                raw["pb"] = round(mc_cr / net_worth, 2)
+            if len(pat_q) >= 4:
+                pat_ttm = sum(pat_q[:4])
+                raw["roe"] = round(pat_ttm / net_worth * 100, 1)
+
+        # PE = live CMP / EPS_TTM (recomputed with corrected EPS)
+        eps_ttm = raw.get("eps")
+        if eps_ttm and eps_ttm > 0:
+            try:
+                quote = await nse_client.fetch_quote(symbol)
+                cmp = quote.get("close")
+                if cmp and cmp > 0:
+                    raw["pe"] = round(cmp / eps_ttm, 1)
+            except Exception as pe_exc:
+                logger.debug("NSE quote for PE computation failed for %s: %s", symbol, pe_exc)
+
+    except Exception as exc:
+        logger.debug("Screener ratio override failed for %s: %s", symbol, exc)
+
+    return _build_nodes(raw, symbol, as_of_date,
                         result.source_id, result.confidence,
                         profile, now_ist())
 
@@ -181,6 +261,13 @@ def _build_nodes(
              {"dividend_yield_pct": div_yield}, NodeSignal.neutral,
              "valuation", HorizonRelevance.long)
 
+    # Market Cap — sourced from BSE getScripTradingStats (MktCapFull) injected in get_ratios
+    mc_cr = _to_float(raw.get("market_cap_cr"))
+    if mc_cr is not None:
+        sig = NodeSignal.neutral
+        _add("Market_Cap", f"Mkt Cap: ₹{mc_cr:,.0f} Cr",
+             {"market_cap_cr": mc_cr}, sig, "valuation", HorizonRelevance.both)
+
     return nodes
 
 
@@ -201,3 +288,36 @@ def _to_float(v: Any) -> float | None:
         return None if (f != f) else f
     except (ValueError, TypeError):
         return None
+
+
+def _extract_screener_series(table: dict, *label_hints: str) -> list[float]:
+    """
+    Find a row in a Screener table dict and return its numeric values newest-first.
+
+    Screener stores columns oldest-left → newest-right; this function reverses them.
+    Rows with non-numeric cells (e.g. '%' strings) are converted; None on failure.
+
+    Args:
+        table:        Screener table dict with "headers" and "rows" keys.
+        label_hints:  Lowercase substrings to match against row label.
+
+    Returns:
+        List of floats, newest value first. Empty list if row not found.
+    """
+    if not table:
+        return []
+    rows = table.get("rows", [])
+    for row in rows:
+        label = (row.get("label") or "").lower()
+        if any(hint in label for hint in label_hints):
+            raw_vals = row.get("values", [])
+            values: list[float] = []
+            for v in raw_vals:
+                try:
+                    f = float(str(v).replace(",", "").replace("%", "").strip())
+                    if f == f:  # exclude NaN
+                        values.append(f)
+                except (TypeError, ValueError):
+                    pass
+            return list(reversed(values))
+    return []

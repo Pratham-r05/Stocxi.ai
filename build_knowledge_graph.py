@@ -421,6 +421,19 @@ body {{ background: #0f0f1a; color: #e0e0e0; font-family: -apple-system, BlinkMa
 #legend-controls button:hover {{ border-color: #4E79A7; color: #e0e0e0; }}
 #stats {{ padding: 10px 14px; border-top: 1px solid #2a2a4e; font-size: 11px; color: #444; }}
 .sig-pos {{ color: #00FF88; }} .sig-neg {{ color: #FF3355; }} .sig-neu {{ color: #6B7280; }} .sig-mix {{ color: #FFB800; }}
+.sig-badge {{ display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }}
+.badge-pos {{ background: rgba(0,255,136,0.12); color: #00FF88; border: 1px solid rgba(0,255,136,0.25); }}
+.badge-neg {{ background: rgba(255,51,85,0.12); color: #FF3355; border: 1px solid rgba(255,51,85,0.25); }}
+.badge-neu {{ background: rgba(107,114,128,0.15); color: #9CA3AF; border: 1px solid rgba(107,114,128,0.25); }}
+.badge-mix {{ background: rgba(255,184,0,0.12); color: #FFB800; border: 1px solid rgba(255,184,0,0.25); }}
+.metric-row {{ display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }}
+.metric {{ background: rgba(255,255,255,0.03); border: 1px solid #2a2a4e; border-radius: 6px; padding: 5px 10px; font-size: 10px; color: #6B7280; text-align: center; flex: 1; min-width: 60px; }}
+.metric b {{ display: block; font-size: 13px; color: #e0e0e0; font-weight: 700; margin-bottom: 1px; }}
+.section-divider {{ border: none; border-top: 1px solid #2a2a4e; margin: 10px 0; }}
+.edge-stat {{ display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: #475569; margin-right: 8px; }}
+.edge-dot {{ width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }}
+#neighbors-section h4 {{ font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: #475569; margin-bottom: 6px; }}
+.news-full {{ font-size: 11px; color: #94a3b8; line-height: 1.5; margin-top: 6px; word-break: break-word; }}
 </style>
 </head>
 <body>
@@ -458,12 +471,13 @@ const nodesDS = new vis.DataSet(RAW_NODES.map(n => ({{
   font: n.font, title: n.title,
   _signal: n.signal, _value: n.value_text, _context: n.context,
   _type: n.node_type, _degree: n.degree, _community: n.community,
+  _full_label: n.full_label,
 }})));
 
 const edgesDS = new vis.DataSet(RAW_EDGES.map((e, i) => ({{
   id: i, from: e.from, to: e.to,
   dashes: e.dashes, width: e.width, color: e.color,
-  title: e.title,
+  title: e.title, _type: e.edge_type,
   arrows: {{ to: {{ enabled: true, scaleFactor: 0.4 }} }},
 }})));
 
@@ -474,22 +488,34 @@ const network = new vis.Network(container, {{ nodes: nodesDS, edges: edgesDS }},
     solver: 'forceAtlas2Based',
     forceAtlas2Based: {{
       gravitationalConstant: -60,
-      centralGravity: 0.005,
-      springLength: 120,
-      springConstant: 0.08,
+      centralGravity: 0.02,
+      springLength: 100,
+      springConstant: 0.12,
       damping: 0.4,
       avoidOverlap: 0.8,
     }},
-    stabilization: {{ iterations: 200, fit: true }},
+    stabilization: {{ iterations: 300, fit: true }},
   }},
   interaction: {{
     hover: true,
-    tooltipDelay: 100,
+    tooltipDelay: 200,
     hideEdgesOnDrag: true,
     navigationButtons: false,
     keyboard: false,
   }},
-  nodes: {{ shape: 'dot', borderWidth: 1.5 }},
+  nodes: {{
+    shape: 'dot',
+    borderWidth: 1.5,
+    scaling: {{
+      label: {{
+        enabled: true,
+        min: 8,
+        max: 20,
+        maxVisible: 30,
+        drawThreshold: 3,
+      }},
+    }},
+  }},
   edges: {{ smooth: {{ type: 'continuous', roundness: 0.2 }}, selectionWidth: 3 }},
 }});
 
@@ -499,25 +525,73 @@ network.once('stabilizationIterationsDone', () => {{
 }});
 
 const SIG_CLASS = {{ positive:'sig-pos', negative:'sig-neg', neutral:'sig-neu', mixed:'sig-mix' }};
+const SIG_BADGE = {{ positive:'badge-pos', negative:'badge-neg', neutral:'badge-neu', mixed:'badge-mix' }};
 const SIG_LABEL = {{ positive:'Bullish', negative:'Bearish', neutral:'Neutral', mixed:'Mixed' }};
+const TYPE_COLOR = {{ belongs_to: '#3b82f6', relates_to: '#a855f7' }};
 
 function showInfo(nodeId) {{
   const n = nodesDS.get(nodeId);
   if (!n) return;
+
+  const connectedEdges = network.getConnectedEdges(nodeId);
   const neighborIds = network.getConnectedNodes(nodeId);
+
+  // Count edge types
+  let belongsCount = 0, relatesCount = 0;
+  connectedEdges.forEach(eid => {{
+    const e = edgesDS.get(eid);
+    if (e && e._type === 'belongs_to') belongsCount++;
+    else if (e && e._type === 'relates_to') relatesCount++;
+  }});
+
+  // Build neighbor list with edge type indicator
   const neighborItems = neighborIds.map(nid => {{
     const nb = nodesDS.get(nid);
     const c  = nb ? nb.color.background : '#555';
-    return `<span class="neighbor-link" style="border-left-color:${{esc(c)}}" onclick="focusNode(${{JSON.stringify(nid)}})">${{esc(nb ? nb.label : nid)}}</span>`;
+    const edgesTo = connectedEdges.filter(eid => {{
+      const e = edgesDS.get(eid);
+      return e && (e.from === nid || e.to === nid);
+    }});
+    const eType = edgesTo.length > 0 ? (edgesDS.get(edgesTo[0])._type || '') : '';
+    const eDot = eType === 'relates_to'
+      ? `<span class="edge-dot" style="background:#a855f7;margin-right:4px"></span>`
+      : `<span class="edge-dot" style="background:#3b82f6;margin-right:4px"></span>`;
+    return `<span class="neighbor-link" style="border-left-color:${{esc(c)}}" onclick="focusNode(${{JSON.stringify(nid)}})">${{eDot}}${{esc(nb ? nb.label : nid)}}</span>`;
   }}).join('');
-  const sigCls = SIG_CLASS[n._signal] || 'sig-neu';
-  const sigLbl = SIG_LABEL[n._signal] || n._signal || '';
+
+  const sigBadge = SIG_BADGE[n._signal] || 'badge-neu';
+  const sigLbl   = SIG_LABEL[n._signal] || (n._signal || 'Neutral');
+  const typeLabel = n._type === 'head' ? 'Category Hub' : n._type === 'group' ? 'Sub-Group' : 'Data Node';
+
+  // Full headline for news nodes
+  const fullLabel = n._full_label && n._full_label !== n.label
+    ? `<div class="news-full">${{esc(n._full_label)}}</div>` : '';
+
+  const metricsHtml = `
+    <div class="metric-row">
+      <div class="metric"><b>${{n._degree || 0}}</b>connections</div>
+      ${{belongsCount ? `<div class="metric"><b>${{belongsCount}}</b>structural</div>` : ''}}
+      ${{relatesCount ? `<div class="metric"><b style="color:#a855f7">${{relatesCount}}</b>semantic</div>` : ''}}
+    </div>`;
+
+  const edgeStatsHtml = (belongsCount || relatesCount) ? `
+    <div style="margin-top:8px">
+      ${{belongsCount ? `<span class="edge-stat"><span class="edge-dot" style="background:#3b82f6"></span>${{belongsCount}} structural</span>` : ''}}
+      ${{relatesCount ? `<span class="edge-stat"><span class="edge-dot" style="background:#a855f7"></span>${{relatesCount}} semantic</span>` : ''}}
+    </div>` : '';
+
   document.getElementById('info-content').innerHTML = `
-    <div class="field"><b>${{esc(n.label)}}</b>${{sigLbl ? ` <span class="${{sigCls}}">● ${{sigLbl}}</span>` : ''}}</div>
-    <div class="field" style="color:#555;font-size:11px">${{esc(n._type)}}</div>
-    ${{n._value ? `<div class="field" style="color:#aaa;margin-top:6px;font-size:12px">${{esc(n._value)}}</div>` : ''}}
-    ${{n._context ? `<div class="field" style="color:#c9d1d9;font-size:11px;border-top:1px solid #2a2a4e;margin-top:8px;padding-top:8px">${{esc(n._context)}}</div>` : ''}}
-    ${{neighborIds.length ? `<div class="field" style="margin-top:10px;color:#555;font-size:11px">Connected (${{neighborIds.length}})</div><div id="neighbors-list">${{neighborItems}}</div>` : ''}}
+    <div class="field" style="display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap">
+      <b style="font-size:14px">${{esc(n.label)}}</b>
+      <span class="sig-badge ${{sigBadge}}">${{sigLbl}}</span>
+    </div>
+    <div style="color:#475569;font-size:10px;text-transform:uppercase;letter-spacing:0.06em;margin:3px 0 6px">${{typeLabel}}</div>
+    ${{fullLabel}}
+    ${{n._value ? `<hr class="section-divider"><div style="color:#94a3b8;font-size:12px">${{esc(n._value)}}</div>` : ''}}
+    ${{n._context ? `<hr class="section-divider"><div style="color:#c9d1d9;font-size:11px;line-height:1.6">${{esc(n._context)}}</div>` : ''}}
+    ${{metricsHtml}}
+    ${{edgeStatsHtml}}
+    ${{neighborIds.length ? `<hr class="section-divider"><div id="neighbors-section"><h4>Connected (${{neighborIds.length}})</h4><div id="neighbors-list">${{neighborItems}}</div></div>` : ''}}
   `;
 }}
 
@@ -550,13 +624,16 @@ searchInput.addEventListener('input', () => {{
   const q = searchInput.value.toLowerCase().trim();
   searchResults.innerHTML = '';
   if (!q) {{ searchResults.style.display = 'none'; return; }}
-  const matches = RAW_NODES.filter(n => n.label.toLowerCase().includes(q)).slice(0, 20);
+  const matches = RAW_NODES.filter(n =>
+    (n.label || '').toLowerCase().includes(q) ||
+    (n.full_label || '').toLowerCase().includes(q)
+  ).slice(0, 20);
   if (!matches.length) {{ searchResults.style.display = 'none'; return; }}
   searchResults.style.display = 'block';
   matches.forEach(n => {{
     const el = document.createElement('div');
     el.className = 'search-item';
-    el.textContent = n.label;
+    el.textContent = n.full_label || n.label;
     el.style.borderLeft = `3px solid ${{n.color.background}}`;
     el.style.paddingLeft = '8px';
     el.onclick = () => {{
@@ -634,17 +711,32 @@ def render_html(symbol: str, meta: dict[str, str], graph_data: dict) -> str:
             size      = round(10 + 20 * (d / max_deg), 1)
             font_size = 12 if d >= max_deg * 0.15 else 11
 
-        val_txt = (n.get("value_text") or "")
-        ctx_txt = (n.get("context")    or "")
-        tooltip = f"<b>{_html.escape(n['label'].replace('_', ' '))}</b>"
+        full_label = n["label"].replace("_", " ")
+        val_txt    = (n.get("value_text") or "")
+        ctx_txt    = (n.get("context")    or "")
+
+        # Plain-text tooltip (newer vis-network treats title strings as text, not HTML)
+        cat = n.get("node_type", "child")
+        tooltip_parts = [full_label]
         if val_txt:
-            tooltip += f"<br/><span style='color:#aaa'>{_html.escape(val_txt[:120])}</span>"
+            tooltip_parts.append(val_txt[:120])
         if ctx_txt:
-            tooltip += f"<br/><span style='color:#ccc;font-size:11px'>{_html.escape(ctx_txt[:240])}</span>"
+            tooltip_parts.append(ctx_txt[:200])
+        tooltip = "\n".join(tooltip_parts)
+
+        # Truncate labels so they don't overflow nodes in the canvas
+        # News/announcement headlines are always shortened — full text is in the side panel
+        display_label = full_label
+        parent_id = n.get("parent") or ""
+        if "news" in parent_id.lower() or "announcement" in parent_id.lower():
+            display_label = full_label[:25] + "…" if len(full_label) > 25 else full_label
+        elif len(display_label) > 35:
+            display_label = display_label[:33] + "…"
 
         vis_nodes.append({
             "id":         n["id"],
-            "label":      n["label"].replace("_", " "),
+            "label":      display_label,
+            "full_label": full_label,
             "color": {
                 "background": clr,
                 "border":     clr,
@@ -657,7 +749,7 @@ def render_html(symbol: str, meta: dict[str, str], graph_data: dict) -> str:
             "community":  n.get("community", 0),
             "signal":     n.get("signal", "neutral"),
             "value_text": val_txt[:200],
-            "context":    ctx_txt[:300],
+            "context":    ctx_txt[:400],
             "node_type":  nt,
             "degree":     d,
         })
@@ -665,13 +757,20 @@ def render_html(symbol: str, meta: dict[str, str], graph_data: dict) -> str:
     vis_edges = []
     for lnk in raw_links:
         ltype = lnk.get("type", "relates_to")
+        is_structural = ltype == "belongs_to"
         vis_edges.append({
-            "from":   lnk["source"],
-            "to":     lnk["target"],
-            "dashes": ltype == "relates_to",
-            "width":  2 if ltype == "belongs_to" else 1,
-            "color":  {"opacity": 0.65 if ltype == "belongs_to" else 0.35},
-            "title":  ltype,
+            "from":      lnk["source"],
+            "to":        lnk["target"],
+            "edge_type": ltype,
+            "dashes":    not is_structural,
+            "width":     2 if is_structural else 2,
+            "color": {
+                "color":   "#3b82f6" if is_structural else "#a855f7",
+                "opacity": 0.5 if is_structural else 0.55,
+                "highlight": "#ffffff",
+                "hover":     "#ffffff",
+            },
+            "title": "structural (belongs to)" if is_structural else "semantic (relates to)",
         })
 
     legend = [

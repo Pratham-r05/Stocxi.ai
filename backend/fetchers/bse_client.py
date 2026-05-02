@@ -193,14 +193,15 @@ async def fetch_meta_info(symbol: str) -> dict[str, Any]:
     if not raw:
         raise ValueError(f"BSE equityMetaInfo empty for {symbol}")
 
-    # Consolidated staleness guard:
-    # Use consolidated figures if ConPE, ConROE, or ConPB is populated.
-    # ConROE/ConPB alone are not always present (e.g. RELIANCE conglomerate structure)
-    # but ConPE/ConEPS are still valid — so include ConPE in the check.
     con_pe  = _to_float(raw.get("ConPE"))
     con_roe = _to_float(raw.get("ConROE"))
     con_pb  = _to_float(raw.get("ConPB"))
-    use_consolidated = (con_pe is not None) or (con_roe is not None) or (con_pb is not None)
+    # Require at least 2 of {ConPE, ConROE, ConPB} to be populated before using consolidated.
+    # A lone ConPE with null ConROE/ConPB indicates incomplete/stale consolidated data
+    # (e.g. small-cap companies that file consolidated but don't update all BSE fields).
+    # In that case standalone figures (PE, EPS, ROE) are more reliable.
+    non_null_con = sum(1 for v in [con_pe, con_roe, con_pb] if v is not None)
+    use_consolidated = non_null_con >= 2
 
     if use_consolidated:
         pe  = con_pe  if con_pe  is not None else _to_float(raw.get("PE"))
@@ -347,7 +348,7 @@ async def fetch_trading_stats(symbol: str) -> dict[str, Any]:
     return {
         "symbol":          symbol,
         "bse_code":        bse_code,
-        "market_cap_cr":   _to_float(raw.get("MarketCap") or raw.get("marketCap")),
+        "market_cap_cr":   _to_float(raw.get("MktCapFull") or raw.get("MarketCap") or raw.get("marketCap")),
         "deliverable_pct": _to_float(raw.get("DeliverableQty") or raw.get("deliverable_pct")),
         "upper_circuit":   _to_float(raw.get("UpperCircuit") or raw.get("upper_circuit")),
         "lower_circuit":   _to_float(raw.get("LowerCircuit") or raw.get("lower_circuit")),

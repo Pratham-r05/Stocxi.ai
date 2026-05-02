@@ -246,3 +246,6 @@ Before starting each session, Claude must confirm:
 ---
 
 *This file is the single source of truth for the KG rebuild. If any other file contradicts this — follow THIS file.*
+
+
+

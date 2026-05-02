@@ -187,14 +187,19 @@ def _build_nodes(
               "yoy_growth_pct": growth},
              sig, "profit_growth_yoy", HorizonRelevance.long)
 
-    # Total Debt (from balance sheet)
-    debt = _extract_series(raw.get("balance_sheet", {}), "borrowings", "total debt", "debt")
-    equity = _extract_series(raw.get("balance_sheet", {}), "shareholders' equity",
-                             "total equity", "equity")
+    # Total Debt and D/E (from balance sheet)
+    debt      = _extract_series(raw.get("balance_sheet", {}), "borrowings", "total debt", "debt")
+    # Net Worth = Equity Capital + Reserves — searched separately to avoid matching
+    # "Equity Capital" alone (which is just paid-up share capital, ~1-3 Cr for small-caps,
+    # not the full shareholders' equity). Screener doesn't expose a combined "Net Worth" row.
+    share_cap = _extract_series(raw.get("balance_sheet", {}), "equity capital", "share capital", "paid-up capital")
+    reserves  = _extract_series(raw.get("balance_sheet", {}), "reserves", "reserves and surplus")
     if debt["values"]:
-        debt_cr = debt["values"][0]
-        equity_cr = equity["values"][0] if equity["values"] else None
-        de_ratio = round(debt_cr / equity_cr, 2) if equity_cr and equity_cr > 0 else None
+        debt_cr   = debt["values"][0]
+        sc_cr     = share_cap["values"][0] if share_cap["values"] else 0.0
+        res_cr    = reserves["values"][0]  if reserves["values"]  else 0.0
+        equity_cr = (sc_cr + res_cr) if (sc_cr + res_cr) > 0 else None
+        de_ratio  = round(debt_cr / equity_cr, 2) if equity_cr else None
         sig = (NodeSignal.negative if de_ratio and de_ratio > 2.0
                else NodeSignal.positive if de_ratio and de_ratio < 0.5
                else NodeSignal.neutral)
@@ -333,17 +338,29 @@ def _build_nodes(
               "yoy_growth_pct": growth},
              sig, "debt_equity", HorizonRelevance.long)
 
+    # Screener's "Total Liabilities" row = Total Assets (Indian balance sheet format:
+    # both sides balance at Equity + External Liabilities = Total Assets).
+    # We expose this as "Total_Capital" to prevent the LLM from misreading it as
+    # "equity is zero / insolvency" when Total_Liabilities = Total_Assets.
     tl = _extract_series(raw.get("balance_sheet", {}), "total liabilities")
+    eq_cap2  = _extract_series(raw.get("balance_sheet", {}), "equity capital", "share capital")
+    res_cap2 = _extract_series(raw.get("balance_sheet", {}), "reserves", "reserves and surplus")
     if len(tl["values"]) >= 2:
         growth = _growth_pct(tl["values"][0], tl["values"][1])
         sig = (NodeSignal.negative if growth and growth > 15
                else NodeSignal.positive if growth and growth < 0
                else NodeSignal.neutral)
+        equity_note = ""
+        eq_cr  = eq_cap2["values"][0]  if eq_cap2["values"]  else None
+        res_cr = res_cap2["values"][0] if res_cap2["values"] else None
+        if eq_cr is not None and res_cr is not None:
+            equity_note = f" (incl. ₹{eq_cr + res_cr:,.0f} Cr equity)"
         _add("Total_Liabilities",
-             f"Total Liabilities: ₹{tl['values'][0]:,.0f} Cr ({tl['periods'][0]})",
+             f"Total Assets: ₹{tl['values'][0]:,.0f} Cr ({tl['periods'][0]}){equity_note}",
              {"periods": [{"period": p, "value_cr": v}
                           for p, v in zip(tl["periods"][:5], tl["values"][:5])],
-              "yoy_growth_pct": growth},
+              "yoy_growth_pct": growth,
+              "screener_format_note": "Total Liabilities in Screener = Total Assets (both sides of Indian balance sheet). Equity Capital + Reserves + Borrowings + Other Liabilities = Total Assets."},
              sig, "debt_equity", HorizonRelevance.long)
 
     se = _extract_series(raw.get("balance_sheet", {}), "shareholders' equity", "total equity")
