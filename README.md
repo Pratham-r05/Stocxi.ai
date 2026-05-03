@@ -70,7 +70,7 @@ flowchart LR
 | Announcements | NSE/BSE corporate actions, board meetings, dividends, filings |
 | News | Approved news sources with sanitization before AI use |
 | AI Analysis | Profile-aware summary with signals in favor and against |
-| Knowledge Graph | 3D graph for signal relationships and contradictions |
+| Knowledge Graph | 2D graph for signal relationships and contradictions |
 | Reports | Analysis output and PDF/report generation paths |
 
 ---
