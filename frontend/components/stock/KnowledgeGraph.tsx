@@ -188,11 +188,12 @@ function KnowledgeGraphScene({
     
     childNodes.forEach((node, i) => {
       const parentEdge = data.edges.find(e => e.target === node.id);
-      const parentPos = parentEdge ? positions.get(parentEdge.source) : [0, 0, 0];
+      const resolvedPos = parentEdge ? positions.get(parentEdge.source) : undefined;
+      const parentPos: [number, number, number] = resolvedPos ?? [0, 0, 0];
       const categoryIndex = headNodes.findIndex(h => h.id === parentEdge?.source);
       const angle = categoryIndex >= 0 ? (categoryIndex / headCount) * Math.PI * 2 : 0;
       const spread = 2.5;
-      
+
       positions.set(node.id, [
         parentPos[0] + Math.cos(angle + (i * 0.3)) * spread,
         parentPos[1] + 1 + (i % 3) * 0.5,
@@ -390,7 +391,7 @@ export default function KnowledgeGraph({
       
       <Canvas
         camera={{ position: [0, 5, 15], fov: 60 }}
-        style={{ background: '#0A0A0A' }}
+        style={{ background: '#0A0A0A', outline: 'none' }}
       >
         <KnowledgeGraphScene data={data} onNodeHover={handleNodeHover} />
       </Canvas>

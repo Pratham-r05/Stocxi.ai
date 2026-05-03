@@ -17,8 +17,10 @@ Error handling:
   - Each service wrapped in try/except — partial data served gracefully
 """
 
+import asyncio
 import logging
 import re
+from datetime import datetime
 from urllib.parse import urljoin, urlparse
 
 import httpx
@@ -31,8 +33,10 @@ from services.yfinance_service import get_price_and_fundamentals, get_history
 from services.screener_service import get_financials
 from services.technicals_service import calculate_technicals
 from services.news_service import get_news
-from services.announcements_service import get_announcements
+from fetchers import nse_client, bse_client
 from services import sentiment_service
+from services.announcement_summary_service import summarise_announcements
+from services.announcements_service import enrich_announcements_with_pdf_text
 
 logger = logging.getLogger(__name__)
 
@@ -336,7 +340,7 @@ async def get_stock_overview(symbol: str):
     """
     requested_symbol = symbol.upper().strip()
     symbol = _SYMBOL_ALIASES.get(requested_symbol, requested_symbol)
-    cache_key = f"stock:overview:v5:{requested_symbol}"
+    cache_key = f"stock:overview:v8:{requested_symbol}"
 
     # ── Cache hit ─────────────────────────────────────────────────────────────
     cached = await cache_get(cache_key)
@@ -354,6 +358,7 @@ async def get_stock_overview(symbol: str):
         raise HTTPException(status_code=503, detail=f"Price data unavailable: {e}")
 
     # ── Fetch screener ratios (optional — degrade gracefully) ─────────────────
+    screener_data = {}
     screener_ratios = {}
     screener_website = None
     try:
@@ -362,6 +367,12 @@ async def get_stock_overview(symbol: str):
         screener_website = screener_data.get("website")
     except Exception as e:
         logger.warning(f"Screener ratios failed for {symbol}: {e}")
+
+    bse_meta = {}
+    try:
+        bse_meta = await bse_client.fetch_meta_info(symbol)
+    except Exception as e:
+        logger.debug(f"BSE meta ratios failed for {symbol}: {e}")
 
     # ── Fetch technicals (optional — degrade gracefully) ─────────────────────
     technicals = {}
@@ -374,6 +385,34 @@ async def get_stock_overview(symbol: str):
     def fill(primary, fallback_key):
         """Use screener value if primary source returned None."""
         return primary if primary is not None else screener_ratios.get(fallback_key)
+
+    def latest_row_value(table: dict, *labels: str) -> float | None:
+        for row in table.get("rows", []):
+            label = str(row.get("label") or "").lower()
+            if not any(token in label for token in labels):
+                continue
+            for raw in reversed(row.get("values", [])):
+                try:
+                    val = float(str(raw).replace(",", "").replace("%", "").strip())
+                    if val == val:
+                        return val
+                except (TypeError, ValueError):
+                    continue
+        return None
+
+    quarterly_table = screener_data.get("quarterly_results", {}) if isinstance(screener_data, dict) else {}
+    opm_value = bse_meta.get("opm") or latest_row_value(quarterly_table, "opm", "financing margin")
+    if opm_value is None:
+        revenue_latest = latest_row_value(quarterly_table, "sales", "revenue")
+        operating_profit_latest = latest_row_value(quarterly_table, "operating profit", "financing profit")
+        if revenue_latest and operating_profit_latest is not None:
+            opm_value = round(operating_profit_latest / revenue_latest * 100, 1)
+    npm_value = bse_meta.get("npm")
+    if npm_value is None:
+        sales_latest = latest_row_value(quarterly_table, "sales", "revenue")
+        profit_latest = latest_row_value(quarterly_table, "net profit")
+        if sales_latest and profit_latest is not None:
+            npm_value = round(profit_latest / sales_latest * 100, 1)
 
     company_website = price_data.get("website") or screener_website
     if not company_website:
@@ -429,25 +468,38 @@ async def get_stock_overview(symbol: str):
         "beta":            price_data.get("beta"),
         "roce":            screener_ratios.get("roce"),
         "roe":             screener_ratios.get("roe"),
+        "operating_margin": opm_value,
+        "net_profit_margin": npm_value,
         "face_value":      screener_ratios.get("face_value"),
+        "debt_to_equity":  screener_ratios.get("debt_to_equity"),
+        "current_ratio":   screener_ratios.get("current_ratio"),
         # ── Technicals ─────────────────────────────────────────────────────────
         "technicals": {
             "rsi":              technicals.get("rsi"),
-            "rsi_signal":       technicals.get("rsi_signal", "Neutral"),
+            "rsi_signal":       technicals.get("rsi_signal") or "Neutral",
             "macd":             technicals.get("macd"),
-            "macd_signal":      technicals.get("macd_signal", "Neutral"),
+            "macd_signal_line": technicals.get("macd_signal_line"),
+            "macd_histogram":   technicals.get("macd_histogram"),
+            "macd_signal":      technicals.get("macd_signal") or "Neutral",
             "adx":              technicals.get("adx"),
-            "adx_signal":       technicals.get("adx_signal", "Weak Trend"),
+            "adx_signal":       technicals.get("adx_signal") or "Weak Trend",
             "atr":              technicals.get("atr"),
             "bb_upper":         technicals.get("bb_upper"),
             "bb_lower":         technicals.get("bb_lower"),
-            "bb_signal":        technicals.get("bb_signal", "Inside Bands"),
+            "bb_signal":        technicals.get("bb_signal") or "Inside Bands",
             "ema_20":           technicals.get("ema_20"),
             "ema_50":           technicals.get("ema_50"),
             "ema_200":          technicals.get("ema_200"),
-            "ema_signal":       technicals.get("ema_signal", "Mixed"),
+            "ema_signal":       technicals.get("ema_signal") or "Mixed",
+            "stoch_k":          technicals.get("stoch_k"),
+            "stoch_d":          technicals.get("stoch_d"),
+            "stoch_signal":     technicals.get("stoch_signal") or "Neutral",
+            "vwap":             technicals.get("vwap"),
+            "vwap_signal":      technicals.get("vwap_signal") or "Neutral",
+            "obv":              technicals.get("obv"),
+            "obv_signal":       technicals.get("obv_signal") or "Neutral",
             "volume_sma_20":    technicals.get("volume_sma_20"),
-            "overall_signal":   technicals.get("overall_signal", "Neutral"),
+            "overall_signal":   technicals.get("overall_signal") or "Neutral",
         },
     }
 
@@ -613,43 +665,183 @@ async def get_stock_history(
 
 
 # ── GET /api/v1/stock/{symbol}/announcements ──────────────────────────────────
+def _announcement_url_fields(raw_url: str) -> tuple[str, str]:
+    """Return (pdf_url, filing_url) without mislabeling non-PDF files."""
+    url = str(raw_url or "").strip()
+    if not url:
+        return "", ""
+    if url.lower().endswith(".pdf"):
+        return url, ""
+    return "", url
+
+
+def _normalise_announcement_date(raw: str) -> str:
+    text = str(raw or "").strip()
+    if not text:
+        return ""
+    try:
+        return datetime.fromisoformat(text.replace("Z", "+00:00")).date().isoformat()
+    except ValueError:
+        pass
+    for fmt in ("%Y-%m-%d", "%d-%b-%Y", "%d-%B-%Y", "%d/%m/%Y", "%Y/%m/%d"):
+        try:
+            return datetime.strptime(text, fmt).date().isoformat()
+        except ValueError:
+            continue
+    return text
+
+
+def _announcement_sort_date(raw: str) -> datetime:
+    text = str(raw or "").strip()
+    if not text:
+        return datetime.min
+    try:
+        return datetime.fromisoformat(text.replace("Z", "+00:00")).replace(tzinfo=None)
+    except ValueError:
+        pass
+    for fmt in ("%Y-%m-%d", "%d-%b-%Y", "%d-%B-%Y", "%d/%m/%Y", "%Y/%m/%d"):
+        try:
+            return datetime.strptime(text, fmt)
+        except ValueError:
+            continue
+    return datetime.min
+
+
 @router.get("/{symbol}/announcements")
 async def get_stock_announcements(
     symbol: str,
-    limit: int = Query(default=10, ge=1, le=20, description="Number of announcements (1-20)"),
+    limit: int = Query(default=20, ge=1, le=50, description="Number of announcements (1-50)"),
 ):
     """
-    Recent BSE corporate announcements for a stock.
-    Source: BSE India public API (free, no auth required).
-    Returns [{subject, date, category, pdf_url, bse_code}, ...]
+    Corporate announcements from NSE + BSE for a stock.
+    Merges: NSE announcements, board meetings, actions + BSE actions.
     Cached 2 hours.
     """
     symbol = symbol.upper().strip()
-    cache_key = f"stock:announcements:v2:{symbol}"  # v2: 60-day recency filter
+    cache_key = f"stock:announcements:v11:{symbol}"
 
     cached = await cache_get(cache_key)
     if cached:
         return JSONResponse(content=cached)
 
-    try:
-        items = await get_announcements(symbol, limit=limit)
-    except Exception as e:
-        logger.error(f"Announcements fetch failed for {symbol}: {e}")
-        items = []
+    # Fetch from NSE and BSE concurrently
+    results = await asyncio.gather(
+        nse_client.fetch_announcements(symbol, limit=limit),
+        nse_client.fetch_board_meetings(symbol),
+        nse_client.fetch_actions(symbol),
+        bse_client.fetch_announcements(symbol, limit=limit),
+        bse_client.fetch_actions(symbol),
+        return_exceptions=True,
+    )
+
+    nse_ann_res, nse_meetings_res, nse_actions_res, bse_ann_res, bse_actions_res = results
+
+    all_items: list[dict] = []
+
+    # NSE announcements (regulatory filings, exchange notices)
+    if isinstance(nse_ann_res, dict):
+        for item in nse_ann_res.get("items", []):
+            pdf_url, filing_url = _announcement_url_fields(item.get("pdf_url") or "")
+            all_items.append({
+                "subject":  item.get("title") or item.get("category") or "NSE Filing",
+                "date":     _normalise_announcement_date(item.get("date", "")),
+                "category": "NSE Filing",
+                "pdf_url":  pdf_url,
+                "filing_url": filing_url,
+                "details":  item.get("details") or item.get("category") or "",
+                "source":   "NSE",
+            })
+
+    # NSE board meetings
+    if isinstance(nse_meetings_res, dict):
+        for m in nse_meetings_res.get("meetings", []):
+            pdf_url, filing_url = _announcement_url_fields(m.get("pdf_url") or "")
+            all_items.append({
+                "subject":  m.get("purpose") or "Board Meeting",
+                "date":     _normalise_announcement_date(m.get("date", "")),
+                "category": "Board Meeting",
+                "pdf_url":  pdf_url,
+                "filing_url": filing_url,
+                "details":  m.get("purpose") or "",
+                "source":   "NSE",
+            })
+
+    # NSE corporate actions (dividends, bonus, splits)
+    if isinstance(nse_actions_res, dict):
+        for a in nse_actions_res.get("actions", []):
+            all_items.append({
+                "subject":  a.get("purpose") or a.get("subject") or "Corporate Action",
+                "date":     _normalise_announcement_date(a.get("ex_date") or a.get("record_date") or ""),
+                "category": "Corporate Action",
+                "pdf_url":  "",
+                "filing_url": "",
+                "details":  a.get("details") or "",
+                "source":   "NSE",
+            })
+
+    # BSE announcements (filings with exchange attachment links)
+    if isinstance(bse_ann_res, dict):
+        for item in bse_ann_res.get("items", []):
+            pdf_url, filing_url = _announcement_url_fields(
+                item.get("pdf_url") or item.get("filing_url") or ""
+            )
+            all_items.append({
+                "subject":  item.get("title") or item.get("category") or "BSE Filing",
+                "date":     _normalise_announcement_date(item.get("date", "")),
+                "category": item.get("category") or "BSE Filing",
+                "pdf_url":  pdf_url,
+                "filing_url": filing_url,
+                "details":  item.get("details") or "",
+                "source":   "BSE",
+            })
+
+    # BSE corporate actions
+    if isinstance(bse_actions_res, dict):
+        for a in bse_actions_res.get("actions", []):
+            all_items.append({
+                "subject":  a.get("purpose") or "Corporate Action",
+                "date":     _normalise_announcement_date(a.get("ex_date") or a.get("record_date") or ""),
+                "category": "Corporate Action",
+                "pdf_url":  "",
+                "filing_url": "",
+                "details":  a.get("details") or "",
+                "source":   "BSE",
+            })
+
+    def _sort_key(item: dict) -> datetime:
+        return _announcement_sort_date(item.get("date") or "")
+
+    all_items = [item for item in all_items if item.get("pdf_url")]
+    all_items.sort(key=_sort_key, reverse=True)
+
+    seen: set[tuple] = set()
+    unique: list[dict] = []
+    for item in all_items:
+        key = (item.get("date", ""), item.get("subject", "")[:60].lower(), item.get("source", ""))
+        if key not in seen:
+            seen.add(key)
+            unique.append(item)
+
+    unique = [it for it in unique if it.get("subject") and it.get("date")][:10]
+
+    # Gemini Flash: add a 1-sentence investor-relevant summary for each item
+    if unique:
+        unique = await enrich_announcements_with_pdf_text(unique)
+        unique = [it for it in unique if it.get("pdf_url")]
+        unique = await summarise_announcements(symbol, unique)
+
+    for item in unique:
+        summary = str(item.get("summary") or "").strip()
+        if not summary:
+            item["summary"] = str(item.get("subject") or "").strip()[:120]
 
     response = {
         "symbol":        symbol,
-        "count":         len(items),
-        "announcements": [
-            {
-                **item,
-                "title": item.get("subject", "No subject"),
-            }
-            for item in items
-        ],
+        "count":         len(unique),
+        "announcements": unique,
     }
 
-    if items:
-        await cache_set(cache_key, response, TTL_NEWS)  # reuse 2hr TTL
+    if unique:
+        await cache_set(cache_key, response, TTL_NEWS)
 
     return JSONResponse(content=response)

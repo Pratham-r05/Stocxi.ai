@@ -420,7 +420,8 @@ async def get_history(symbol: str, period: str = "1y") -> dict:
             return []
 
         if period == "1d":
-            range_param, interval_param = ("1d", "1m")
+            # range=1d returns 0 points when market is closed; use 5d+5m and filter to last trading day
+            range_param, interval_param = ("5d", "5m")
         elif period == "1w":
             range_param, interval_param = ("5d", "60m")
         else:
@@ -490,6 +491,11 @@ async def get_history(symbol: str, period: str = "1y") -> dict:
                             pass
 
                     out.append(entry)
+
+                if out and period == "1d":
+                    # Filter to last trading day only
+                    last_day = sorted({p["date"][:10] for p in out})[-1]
+                    out = [p for p in out if p["date"].startswith(last_day)]
 
                 if out:
                     logger.info(f"Yahoo intraday chart: {len(out)} points for {symbol}{suffix} period={period}")
@@ -744,27 +750,66 @@ async def get_price_and_fundamentals(symbol: str) -> dict:
     """
     Async entry point for all services.
     Flow:
-      1. Try NSE via nsepython (direct NSE API, fastest, no rate limits)
-      2. If NSE fails → try Groww Trade API (reliable, uses our authenticated client)
-      3. If Groww fails → try Yahoo chart API (no crumb, works for BSE stocks)
-      4. If all fail → raise ValueError
+      1. NseIndiaApi (nse_client.fetch_quote) — primary, uses BennyThadikaran/NseIndiaApi git repo
+      2. nsepython nse_eq() fallback — older lib, missing market cap
+      3. Groww Trade API — reliable for BSE stocks
+      4. Yahoo chart API — last resort
 
     The result always has the same keys — some may be None if source
     doesn't provide them (frontend shows "—" for null fields).
     """
+    from fetchers.nse_client import fetch_quote as nse_fetch_quote
+
     symbol = symbol.upper().strip()
 
-    # Stage 1: NSE direct
+    # Stage 1: NseIndiaApi (BennyThadikaran/NseIndiaApi git repo) — accurate, full data
+    try:
+        q = await nse_fetch_quote(symbol)
+        market_cap = int(q["market_cap_cr"] * 1e7) if q.get("market_cap_cr") else None
+        # Volume from trade info falls back to pre-open if trade session not started
+        volume = q.get("volume")
+        data = {
+            "symbol":        symbol,
+            "exchange":      "NSE",
+            "company_name":  q.get("company_name") or symbol,
+            "sector":        q.get("sector"),
+            "industry":      q.get("industry"),
+            "price":         q["close"],
+            "previous_close": q.get("previous_close"),
+            "change":        q.get("change"),
+            "change_percent": q.get("change_pct"),
+            "open":          q.get("open"),
+            "day_high":      q.get("high"),
+            "day_low":       q.get("low"),
+            "week_52_high":  q.get("week_high_52"),
+            "week_52_low":   q.get("week_low_52"),
+            "volume":        volume,
+            "market_cap":    market_cap,
+            "pe_ratio":      None,
+            "pb_ratio":      None,
+            "eps":           None,
+            "dividend_yield": None,
+            "beta":          None,
+            "description":   None,
+            "website":       None,
+            "employees":     None,
+        }
+        logger.info(f"Quote source: NseIndiaApi for {symbol}")
+        return data
+    except Exception as e:
+        logger.warning(f"NseIndiaApi failed for {symbol}: {e}. Trying nsepython...")
+
+    # Stage 2: nsepython nse_eq() (older lib, no market cap)
     try:
         loop = asyncio.get_running_loop()
         data = await loop.run_in_executor(None, _fetch_from_nse, symbol)
         data["symbol"] = symbol
-        logger.info(f"Quote source: NSE direct for {symbol}")
+        logger.info(f"Quote source: nsepython for {symbol}")
         return data
     except Exception as e:
-        logger.warning(f"NSE direct failed for {symbol}: {e}. Trying Groww...")
+        logger.warning(f"nsepython failed for {symbol}: {e}. Trying Groww...")
 
-    # Stage 2: Groww Trade API
+    # Stage 3: Groww Trade API
     try:
         loop = asyncio.get_running_loop()
         data = await loop.run_in_executor(None, _fetch_from_groww, symbol)
@@ -774,7 +819,7 @@ async def get_price_and_fundamentals(symbol: str) -> dict:
     except Exception as e:
         logger.warning(f"Groww quote failed for {symbol}: {e}. Trying Yahoo chart...")
 
-    # Stage 3: Yahoo chart API (BSE fallback)
+    # Stage 4: Yahoo chart API (BSE fallback)
     data = await _fetch_from_yahoo_chart(symbol)
     data["symbol"] = symbol
     return data

@@ -38,7 +38,7 @@ export default function NewsSection({ symbol }: NewsSectionProps) {
       setFailed(false);
       const data = await fetchNews(symbol);
       if (!active) return;
-      if (data === null) {
+      if (data == null) {
         setArticles([]);
         setFailed(true);
       } else {

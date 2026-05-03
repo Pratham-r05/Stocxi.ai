@@ -151,9 +151,9 @@ function CustomTooltip({
           {formatTooltipDate(rawDate, period)}
         </div>
       )}
-      {priceEntry && (
+      {priceEntry?.value != null && (
         <div className="font-mono font-bold text-white text-sm">
-          ₹{priceEntry.value.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          ₹{Number(priceEntry.value).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </div>
       )}
       {typeof volumeValue === "number" && volumeValue > 0 && (
@@ -277,7 +277,7 @@ export default function PriceChart({
     return calcChange(currentData);
   }, [period, currentData, dataMap, defaultChangePercent]);
 
-  const strokeColor = change === null ? "#71717a" : change >= 0 ? "#10b981" : "#ef4444";
+  const strokeColor = change == null ? "#71717a" : change >= 0 ? "#10b981" : "#ef4444";
   const gradientId  = `priceGrad_${symbol}`;
 
   const thinned = useMemo(() => {
@@ -302,7 +302,8 @@ export default function PriceChart({
   const hasVolume = chartData.some((p) => p.volume > 0);
 
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-3 sm:p-5 h-full flex flex-col overflow-hidden">
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-3 sm:p-5 flex flex-col overflow-hidden
+      [&_*]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-surface]:outline-none">
       {/* Period tabs */}
       <div className="flex items-center gap-2 mb-5 flex-wrap">
         {PERIODS.map((p) => {
@@ -343,7 +344,7 @@ export default function PriceChart({
       </div>
 
       {/* Chart body */}
-      <div ref={chartBodyRef} className="h-[clamp(270px,52vw,420px)] sm:h-[360px] lg:h-[420px] min-h-[270px]">
+      <div ref={chartBodyRef} className="h-[clamp(270px,48vw,390px)] sm:h-[350px] lg:h-[390px] min-h-[270px]">
       {loading ? (
         <Skeleton className="h-full w-full rounded-xl" />
       ) : failed ? (
@@ -413,8 +414,8 @@ export default function PriceChart({
               <Bar
                 yAxisId="volume"
                 dataKey="volume"
-                fill="#52525b"
-                fillOpacity={0.22}
+                fill="#2563eb"
+                fillOpacity={0.35}
                 barSize={period === "1d" ? 1 : period === "1w" ? 3 : period === "1mo" ? 4 : period === "1y" ? 2 : 3}
                 radius={[1, 1, 0, 0]}
                 isAnimationActive={false}

@@ -36,7 +36,7 @@ export async function fetchAIAnalysis(
 
 export async function fetchAIAnalysisV2(
   symbol: string,
-  horizon: "short" | "long" = "short",
+  horizon: "short" | "medium" | "long" = "short",
   risk: "conservative" | "moderate" | "aggressive" = "moderate",
   sector = ""
 ): Promise<V2AnalysisResult | null> {
@@ -45,9 +45,37 @@ export async function fetchAIAnalysisV2(
   return apiFetch<V2AnalysisResult>(`/api/v2/analysis/${symbol}?${params.toString()}`);
 }
 
+export interface SimpleAnalysisResult {
+  symbol: string;
+  horizon: string;
+  level: string;
+  generated_on: string;
+  cached: boolean;
+  analysis_html: string;
+  kg_html: string;
+}
+
+export async function fetchSimpleAnalysis(
+  symbol: string,
+  horizon: "short" | "medium" | "long",
+  risk: "conservative" | "moderate" | "aggressive",
+): Promise<SimpleAnalysisResult | null> {
+  const params = new URLSearchParams({ horizon, risk });
+  try {
+    const res = await fetch(
+      `${BASE}/api/v2/analysis/${symbol}/generate?${params.toString()}`,
+      { cache: "no-store" }
+    );
+    if (!res.ok) return null;
+    return res.json() as Promise<SimpleAnalysisResult>;
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchAIAnalysisV2Report(
   symbol: string,
-  horizon: "short" | "long" = "short",
+  horizon: "short" | "medium" | "long" = "short",
   risk: "conservative" | "moderate" | "aggressive" = "moderate",
   sector = "",
   tier: "orbiter" | "stellar" | "apex" = "stellar"
@@ -72,7 +100,16 @@ export async function fetchNews(symbol: string): Promise<NewsResponse | null> {
 }
 
 export async function fetchAnnouncements(symbol: string): Promise<AnnouncementsResponse | null> {
-  return apiFetch<AnnouncementsResponse>(`/api/v1/stock/${symbol}/announcements?limit=10`);
+  try {
+    const res = await fetch(
+      `${BASE}/api/v1/stock/${symbol}/announcements?limit=10`,
+      { cache: "no-store" }
+    );
+    if (!res.ok) return null;
+    return res.json() as Promise<AnnouncementsResponse>;
+  } catch {
+    return null;
+  }
 }
 
 export async function fetchSentiment(symbol: string, forceRefresh = false): Promise<SentimentData | null> {

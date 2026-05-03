@@ -35,7 +35,8 @@ function isIndianMarketOpen(now = new Date()): boolean {
   return minutes >= openMinutes && minutes <= closeMinutes;
 }
 
-function formatPrice(value: number, currency: string): string {
+function formatPrice(value: number | null | undefined, currency: string): string {
+  if (value == null) return "—";
   if (currency === "INR") {
     return `₹${value.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
   }
@@ -136,11 +137,11 @@ export default function MarketTickerBar() {
                     <span className="font-semibold tracking-wide text-white/95 drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]">
                       {item.label}
                     </span>
-                    <span className={`${up ? "text-emerald-400" : "text-red-400"} font-bold drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]`}>
+                    <span className={`${up ? "text-emerald-400" : "text-rose-400"} font-bold drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]`}>
                       {formatPrice(item.price, item.currency)}
                     </span>
-                    <span className={up ? "text-emerald-300/95" : "text-red-300/95"}>
-                      ({up ? "+" : ""}{item.changePercent.toFixed(2)}%)
+                    <span className={up ? "text-emerald-300/95" : "text-rose-300/95"}>
+                      ({item.changePercent != null ? `${up ? "+" : ""}${item.changePercent.toFixed(2)}%` : "—"})
                     </span>
                     <span className="text-zinc-700/80">•</span>
                   </div>

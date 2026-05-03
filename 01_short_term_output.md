@@ -46,6 +46,40 @@ These rules override any brevity impulse. Every section must be substantive.
 
 ---
 
+## 0.6. REPORT STRUCTURE AND WRITING STYLE (MANDATORY — OVERRIDES ALL FORMAT DEFAULTS)
+
+### Section Order (ALL user levels)
+Every report MUST follow this section order — no exceptions:
+1. Company / Fundamental context (what the company does, key business signals relevant to this horizon)
+2. Technical indicators (price signals, momentum)
+3. News (its own dedicated sub-section)
+4. Announcements (its own dedicated sub-section)
+5. Financial information (detailed statements, quarterly tables, balance sheet)
+6. Summary / Assessment
+
+### Technical Analysis — Paragraph Style (NO BULLET-PER-INDICATOR)
+Technical sections MUST be written as flowing prose paragraphs. NEVER write one bullet point per indicator.
+Group related indicators by relationship into 3–4 paragraphs:
+
+- **Paragraph 1 — Price Structure & Moving Averages:** Describe price level, trend, SMA 20/50/200, EMA, key support/resistance — showing what the MA alignment collectively says about trend structure.
+- **Paragraph 2 — Momentum:** Cover RSI + MACD + Stochastic + Williams %R — show whether they confirm or contradict each other. Confluence = high conviction. Divergence = flag it explicitly.
+- **Paragraph 3 — Volume & Trend Strength:** Cover Volume trend + OBV + ADX — explain what volume activity implies about conviction behind the price move.
+- **Paragraph 4 — Volatility & Range (when data present):** Cover Bollinger Bands + ATR + Ichimoku — range and volatility context.
+
+BAD (rejected): "RSI is 61. MACD is bullish. ADX is 19."
+GOOD: "The momentum indicators are internally mixed: RSI at 61.6 is building toward the 70 overbought zone without triggering exhaustion yet, and MACD has confirmed a bullish crossover with an expanding histogram — suggesting near-term upside pressure. The critical caveat is ADX at 19.6, which falls below the 20 directional threshold; this means the rally lacks structural trend conviction and historically implies momentum without follow-through unless volume confirms."
+
+Every paragraph must show the RELATIONSHIP between indicators, not state them sequentially.
+
+### News and Announcements — Both Must Be Covered Separately
+- When both news nodes AND announcement nodes exist in the knowledge graph, they MUST appear as two separate sub-sections with their own headers.
+- Each item must be individually explained: what it is, what it means for this horizon, likely impact direction.
+- NEVER merge news and announcements into one combined list.
+- If only one type is present, cover it in its own section.
+- If neither is present, write exactly: "No relevant news or announcements found for this horizon."
+
+---
+
 ## 1. WHAT SHORT-TERM MEANS
 
 1–3 months = momentum-driven. The investor wants to know:
@@ -176,26 +210,45 @@ Write 5–6 sentences:
 
 ---
 
+#### Is the Business Doing Well? (Fundamental Signals)
+2–3 simple sentences covering the fundamental picture most relevant to this 1–3 month window:
+- "In the last 3 months, the company's sales were ₹X — [higher/lower] than the same period last year."
+- "Its profit per share (the amount each shareholder earns) is ₹X."
+- One sentence on whether the latest quarterly number was a positive or negative surprise for investors.
+
+---
+
 #### Price Signals (Technical Analysis)
-Before starting: Write one sentence explaining what "technical analysis" means in simple words.
+Begin with one sentence explaining what technical analysis means in simple words.
 ("Technical analysis means looking at the stock's price chart and trading patterns to understand
 where the price might go next — think of it like reading the mood of the market.")
 
-For each indicator:
-- **[Indicator Name]** — what it currently shows, explained in one simple sentence.
-  **Signal:** Positive / Negative / Neutral (in plain English: e.g., "This is a good sign" / "This is a warning sign")
+Write this section as 2–3 short paragraphs in plain, simple language. Do NOT list one bullet point per indicator. Group related signals and show how they connect:
+- **Paragraph 1 — Where is the price sitting?** In simple terms, explain what the moving averages say. Is the stock above or below its recent average prices? Are the short-term and long-term averages pointing in the same direction or pulling apart?
+- **Paragraph 2 — Is momentum building or fading?** Cover RSI and MACD in plain language — is the stock "heated up and approaching a ceiling" or "building energy to move higher"? Do these two signals agree or contradict each other?
+- **Paragraph 3 — Are traders putting real money behind this?** One or two sentences on whether high or low trading volumes are backing the current price move.
 
 End with: **Overall Price Signal:** [Positive / Negative / Mixed / Neutral] — 1–2 line plain summary.
 
 ---
 
-#### Recent Company News & Updates
-For each announcement or news item (only if relevant to next 1–3 months):
+#### Recent Company News
+For each news item relevant to the next 1–3 months:
 - **What happened:** (one simple line)
 - **What this means for you:** (one line — why should a beginner care?)
 - **Likely effect:** Good for stock / Bad for stock / No clear effect
 
-If nothing relevant: "No major news or announcements expected to impact the stock in the next 1–3 months."
+If no news: "No significant news found for this period."
+
+---
+
+#### Recent Company Announcements
+For each corporate announcement (dividends, splits, buybacks, upcoming results date, regulatory filings) relevant to the next 1–3 months:
+- **What happened:** (one simple line)
+- **What this means for you:** (one line — why should a beginner care?)
+- **Likely effect:** Good for stock / Bad for stock / No clear effect
+
+If no announcements: "No major company announcements in the next 1–3 months."
 
 ---
 
@@ -255,6 +308,15 @@ Can handle tables and percentages. Does not need every term explained.
 
 ---
 
+#### Fundamental Signals (Short-Term Relevant)
+Cover only the fundamental signals that matter in a 1–3 month window. Keep to 3–5 sentences:
+- Latest quarterly EPS vs prior quarter and YoY — beat or miss?
+- Revenue QoQ direction: accelerating or decelerating?
+- Debt-to-equity only if abnormally high for the sector (a short-term risk in rate-sensitive markets).
+Skip slow-moving annual metrics (ROE, PE, book value) — they are irrelevant at this horizon.
+
+---
+
 #### Technical Analysis
 
 | Indicator       | Current Value / Signal | Interpretation                        | Short-Term Bias |
@@ -267,16 +329,24 @@ Can handle tables and percentages. Does not need every term explained.
 | ADX             | [value]                | [trend strength]                      | Strong/Weak trend |
 | Support / Res   | [levels]               | [key price floors and ceilings]       | — |
 
-**Technical Summary:** 2–3 lines on the overall technical picture and any confluence signals.
+**Technical Summary:** Write 2–3 sentences as a flowing paragraph — not more bullets. Show how the indicators relate to each other: where they converge (high conviction) and where they diverge (tension/risk). Synthesize the picture; do not list each indicator again.
 **Overall Technical Bias:** Bullish / Bearish / Mixed | **Strength:** Strong / Moderate / Weak
 
 ---
 
-#### Announcements & News
-For each relevant item:
+#### Recent News
+For each news item relevant to the next 1–3 months:
+- **[Item]:** [What happened] — **Why it matters:** [short-term implication] — **Bias:** Positive/Negative/Neutral
+
+If no news: "No significant news found for this period."
+
+---
+
+#### Recent Announcements
+For each corporate action or exchange filing relevant to the next 1–3 months:
 - **[Type]:** [What happened] — **Impact:** [why it matters short-term] — **Bias:** Positive/Negative/Neutral
 
-If earnings date is known: flag it clearly — it is the most important short-term event.
+If earnings date is known: flag it clearly — it is the single most important short-term event.
 
 ---
 
@@ -324,30 +394,52 @@ Dense, precise, data-first. Numbers and relationships over narrative prose. Ever
 
 ---
 
+#### Fundamental Signals (Short-Term Relevant)
+3–5 lines, dense. Only short-horizon fundamentals — skip annual metrics:
+- Latest quarterly EPS: [value] vs prior quarter [value] (Δ[X]%) vs YoY [value] (Δ[X]%) — beat/miss context
+- Revenue QoQ: [direction + magnitude] — accelerating or decelerating?
+- D/E: [value] — flag only if above sector norm or moving sharply
+
+---
+
 #### Price Structure & Momentum
-- **Trend:** [uptrend/downtrend/consolidation] since [date/level]
-- **Key levels:** Support ₹[X] / ₹[X] | Resistance ₹[X] / ₹[X]
-- **SMA 20/50/200:** [price vs each MA, alignment status]
-- **RSI(14):** [value] — [divergence/confluence with price?]
-- **MACD:** [fast-slow diff], histogram [expanding/contracting], signal [above/below]
-- **ADX:** [value] — trend [strong/weak/absent]
-- **Bollinger:** [%B value or band position], bandwidth [expanding/contracting]
-- **Volume:** [X-day avg], [current vs avg], OBV [rising/falling/divergent]
-- **Stochastic %K/%D:** [values, crossover status]
+
+Write this section as 3–4 flowing prose paragraphs. No bullet points per indicator.
+
+**Paragraph 1 — Price Structure & Moving Averages:** State the current price and its position relative to SMA 20, SMA 50, SMA 200 (and EMA equivalents where available). State key support and resistance levels. Explain what the MA alignment collectively says about trend structure — are the MAs stacked (clean uptrend), crossed bearishly, or is the price trapped between conflicting averages? Show the relationship between them.
+
+**Paragraph 2 — Momentum:** Cover RSI(14), MACD (fast-slow diff, histogram direction, signal cross), Stochastic %K/%D, and Williams %R in one connected paragraph. Do they confirm each other or diverge? A bullish MACD crossover against an overbought RSI is a tension — name it explicitly. Momentum confluence across 3+ indicators is a high-conviction signal — call it out.
+
+**Paragraph 3 — Volume & Trend Strength:** Cover 20-day avg volume vs current session volume, OBV direction, and ADX. Is volume confirming the price move or diverging from it? Is ADX above 20 (trend in place) or below (choppy, no directional conviction)? Explain what this combination implies about the sustainability of the current move.
+
+**Paragraph 4 — Volatility & Range:** Cover Bollinger Band position (%B or band touch), bandwidth direction (expanding = volatility rising, contracting = pre-breakout squeeze). If Ichimoku or ATR data is present, include it here. Conclude with the overall momentum verdict.
 
 **Momentum verdict:** [Bullish/Bearish/Neutral] | **Conviction:** [High/Medium/Low]
 **Confluence signals:** [list any multi-indicator clusters — these are high-weight]
 
 ---
 
-#### Catalyst Map (Next 90 Days)
+#### Recent News (Next 90 Days)
 
-| Catalyst                  | Date / Timeline   | Expected Impact | Direction   | Confidence |
+| News Item                 | Date / Timeline   | Expected Impact | Direction   | Confidence |
+|---------------------------|-------------------|-----------------|-------------|------------|
+| [News item 1]             | [date]            | [magnitude]     | +/–/neutral | High/Med/Low |
+| [News item 2]             | [timeline]        | [magnitude]     | +/–/neutral | High/Med/Low |
+
+1–2 line interpretation: What is the combined news sentiment for the next 30–90 days?
+
+---
+
+#### Recent Announcements (Next 90 Days)
+
+| Announcement              | Date / Timeline   | Expected Impact | Direction   | Confidence |
 |---------------------------|-------------------|-----------------|-------------|------------|
 | [Earnings / Q result]     | [date]            | [magnitude]     | +/–/neutral | High/Med/Low |
-| [Announcement]            | [date]            | [magnitude]     | +/–/neutral | High/Med/Low |
-| [News / regulatory]       | [timeline]        | [magnitude]     | +/–/neutral | High/Med/Low |
-| [Sector event / FII flow] | [timeline]        | [magnitude]     | +/–/neutral | High/Med/Low |
+| [Dividend / Bonus / Split]| [date]            | [magnitude]     | +/–/neutral | High/Med/Low |
+| [Buyback / Rights issue]  | [timeline]        | [magnitude]     | +/–/neutral | High/Med/Low |
+| [Regulatory / Order win]  | [timeline]        | [magnitude]     | +/–/neutral | High/Med/Low |
+
+1–2 line interpretation: Which announcement has the highest price-impact probability in the next 30–90 days?
 
 ---
 

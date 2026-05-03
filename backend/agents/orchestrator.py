@@ -67,7 +67,7 @@ except Exception as exc:
     logger.warning("orchestrator: could not load calibration.yaml — %s", exc)
     _CALIB_MAP = {}
 
-AGENT_TIMEOUT_S = 50.0
+AGENT_TIMEOUT_S = 120.0
 
 
 # ── Exceptions ─────────────────────────────────────────────────────────────────

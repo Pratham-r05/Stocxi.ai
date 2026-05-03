@@ -444,7 +444,68 @@ Audit Log Write → Cache Write → Return AnalysisResult
 <claude-mem-context>
 # Memory Context
 
-# [stocxi] recent context, 2026-04-27 12:26am GMT+5:30
+# [stocxi] recent context, 2026-05-04 3:27am GMT+5:30
 
-No previous sessions found.
+Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
+Format: ID TIME TYPE TITLE
+Fetch details: get_observations([IDs]) | Search: mem-search skill
+
+Stats: 50 obs (20,598t read) | 1,194,452t work | 98% savings
+
+### Apr 30, 2026
+9 1:22a 🔵 yfinance ^NSEI Ticker Broken — JSONDecodeError on Download
+10 " 🔵 yfinance Entirely Non-Functional in stocxi Environment — All Tickers Fail
+11 " 🔵 NSE equityQuote API Returns Different Schema for Index Tickers
+13 1:24a 🔵 NSE Library Has fetch_historical_index_data — Synchronous, Not Wrapped in nse_client.py
+14 " 🔵 NSE fetch_historical_index_data Returns 70 Rows of Valid Nifty 50 OHLCV Data
+15 " 🔵 nse_client.py fetch_ohlcv Implementation Pattern for Index OHLCV Fix
+17 " 🔵 screener_service.py _most_recent_period — Page Selection Logic Confirmed Working
+16 1:25a 🔵 ohlcv_service.py Full Waterfall Architecture — HISTORY_DAYS=400, No Index Special-Case
+18 1:27a 🔵 screener_service Candidate Page Selection — TTM Header Always Wins Over Dated Quarters
+19 " 🔵 Critical Bug: _most_recent_period Reads Oldest Quarter — Screener Headers Are Oldest-First
+20 " 🔴 screener_service _most_recent_period Iterates Headers Forward — Bug Confirmed, Fix Identified
+21 " 🔵 knowledge_graph.py Node Community Assignments — 4 Community Types for 3D Visualization
+22 1:28a 🔴 screener_service._most_recent_period Fixed — Now Returns Max Period Across All Headers
+23 " 🟣 fetch_index_ohlcv Added to nse_client.py — Enables Nifty 50 OHLCV via NSE Library
+24 " ⚖️ Index vs Equity Detection in ohlcv_service — Space in Symbol Name as Discriminator
+25 " 🔴 ohlcv_service.py Index Branching Implemented — But agent_context.py Still Passes "^NSEI" Not "NIFTY 50"
+26 " 🔴 agent_context.py _market_regime_node Confirmed Using "^NSEI" — Change to "NIFTY 50" Required
+27 1:29a 🔴 agent_context.py Fixed — Market_Regime Now Calls get_ohlcv("NIFTY 50") Not "^NSEI"
+S1 Fix all bugs in stocxi Indian stock analytics backend — verify all data components work, fix NYKAA no-data issue, fix knowledge graph bugs (Apr 30 at 1:29 AM)
+28 3:56a 🔵 Stocxi Project Debug Session Initiated via Handoff XML
+29 " 🔵 Stocxi 3D Knowledge Graph Renders 0 Meshes in Browser Despite Valid Data Pipeline
+30 " 🔵 Stocxi Knowledge Graph Architecture: Three-Layer Python-to-Three.js Pipeline
+31 3:57a 🔵 kg_renderer.py Initialization Runs Immediately Without DOMContentLoaded Guard
+32 " 🔵 Root Node Size=0 Causes SphereGeometry(0, 32, 16) in Three.js — Potential Loop Crash
+33 " 🔵 Data Injection Uses json.dumps with ensure_ascii=False — Risk of Unicode Line Terminators in Injected JSON
+34 3:58a 🔵 Root Node Mesh Creation Confirmed: SphereGeometry(0) Called for Root, Camera at z=500 Looking at Origin
+35 " 🔵 tree_builder.py Serializes children Array Into JSON — JS prepareData() Has Redundant Children-Build Logic
+36 3:59a 🔵 OrbitControls CDN Path Likely Invalid for Three.js 0.158.0 — examples/js/ Removed in Favor of examples/jsm/
+37 " 🔵 Debug Panel Mesh/Edge Counts Updated Inside Animation Loop, Not updateScene() — Critical for Diagnosing Blank Graph
+38 4:00a 🔵 Generated HTML Data Confirmed Clean: 63 Nodes, 210 Edges, No NaN/Infinity, All Positions Computed
+39 " 🔵 animate() Called as Last Line of initScene() — Confirms OrbitControls Failure Blocks Entire Render Loop
+40 " 🔵 Script Injection Attack Vector Eliminated: No &lt;/script&gt; Tag in 72KB DATA JSON
+41 " 🔵 All Four Layout Functions Are Hoisted Declarations — No Temporal Dead Zone Issues
+42 4:01a 🔵 Browser Screenshot Captured for Visual Inspection of Knowledge Graph State
+S2 Fix blank 3D knowledge graph canvas in Stocxi — Three.js nodes not rendering (0 meshes shown despite 63+ nodes parsed) (Apr 30 at 4:02 AM)
+43 4:16a ⚖️ Knowledge Graph UI Bug Fix Task — Todo List Defined
+44 " 🔵 Visual Bug Evidence Loaded — Knowledge Graph Screenshots Analyzed
+### May 3, 2026
+45 11:11p 🔵 Three Active Bugs Identified in Stock Analysis Web App
+46 " 🔵 Visual Evidence of AI Analysis Box Format Bug Captured
+47 11:12p 🔵 Three Active Bugs Identified in Stock Analysis Web App
+48 " 🔵 Announcement Summary: Frontend Renders Correctly, Service Generates Field Properly
+49 " 🔵 Knowledge Graph Router References Broken Service Import
+50 11:13p 🔵 Announcement Summary Pipeline Is Correctly Wired in Stock Router
+51 " 🔵 Knowledge Graph Router Uses JSON-Based Service, Not HTML File Generation Script
+52 " 🔵 Two Competing Knowledge Graph Implementations — v2_analysis Serves HTML Files, knowledge_graph Router Returns JSON
+53 " 🔵 Knowledge Graph Endpoint Confirmed: Requires Pre-Generated HTML File, Returns 404 If Missing
+54 11:14p 🔵 Knowledge Graph HTML Files Stored at Project Root `graphify-out/stocks/`
+55 " 🔵 Pre-Generated Knowledge Graph Files Exist for 7 Stocks But May Be Stale
+56 " 🔵 Critical Date Mismatch: Script Names HTML by MD File's `captured_at`, Router Looks for Today's Date
+57 11:15p 🔵 Frontend Knowledge Graph Uses React Three Fiber 3D Renderer, NOT an HTML Iframe
+58 " 🔵 Knowledge Graph Page Uses Iframe to `/api/v2/analysis/{symbol}/graph` — HTML File Approach Is Correct
+59 " 🔵 Announcement Type and `fetchAnnouncements` Missing from `lib/types.ts` and `lib/api.ts`
+
+Access 1194k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>

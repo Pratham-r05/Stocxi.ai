@@ -8,21 +8,30 @@ export interface SearchResult {
 // Technicals
 export interface Technicals {
   rsi: number | null;
-  rsi_signal: string;
+  rsi_signal: string | null;
   macd: number | null;
-  macd_signal: string;
+  macd_signal_line: number | null;
+  macd_histogram: number | null;
+  macd_signal: string | null;
   adx: number | null;
-  adx_signal: string;
+  adx_signal: string | null;
   atr: number | null;
   bb_upper: number | null;
   bb_lower: number | null;
-  bb_signal: string;
+  bb_signal: string | null;
   ema_20: number | null;
   ema_50: number | null;
   ema_200: number | null;
-  ema_signal: string;
+  ema_signal: string | null;
+  stoch_k: number | null;
+  stoch_d: number | null;
+  stoch_signal: string | null;
+  vwap: number | null;
+  vwap_signal: string | null;
+  obv: number | null;
+  obv_signal: string | null;
   volume_sma_20: number | null;
-  overall_signal: string;
+  overall_signal: string | null;
 }
 
 // Sentiment
@@ -93,7 +102,11 @@ export interface StockOverview {
   beta: number | null;
   roce: number | null;
   roe: number | null;
+  operating_margin: number | null;
+  net_profit_margin: number | null;
   face_value: number | null;
+  debt_to_equity: number | null;
+  current_ratio: number | null;
   technicals: Technicals;
   sentiment: SentimentData | null;
 }
@@ -193,11 +206,14 @@ export interface HistoryData {
 
 // Announcements
 export interface Announcement {
-  subject: string;
-  title?: string;
-  date: string;
+  subject:  string;
+  title?:   string;
+  date:     string;
   category: string;
-  pdf_url: string | null;
+  pdf_url:  string | null;
+  filing_url?: string | null;
+  source?: string;
+  summary?: string;
 }
 export interface AnnouncementsResponse {
   symbol: string;

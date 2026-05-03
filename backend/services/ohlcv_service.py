@@ -175,7 +175,70 @@ def _normalise(payload: dict | None, source_id: str) -> pd.DataFrame:
         logger.warning("OHLCV missing columns from %s: %s", source_id, missing)
         return pd.DataFrame()
 
-    return df[required].copy()
+    # Correct unadjusted prices caused by splits/bonuses (NSE returns raw prices)
+    df = _apply_split_adjustment(df[required].copy(), source_id)
+    return df
+
+
+_SPLIT_DETECTION_THRESHOLD = 0.40  # ratio < this → forward split (catches 3:1, 4:1, 5:1, 10:1)
+_SPLIT_CANDIDATES = [2.0, 3.0, 4.0, 5.0, 10.0, 1.5, 2.5]
+
+
+def _nearest_split_factor(raw: float) -> float:
+    """Round a detected ratio to the nearest common corporate action factor."""
+    return min(_SPLIT_CANDIDATES, key=lambda c: abs(c - raw))
+
+
+def _apply_split_adjustment(df: pd.DataFrame, source_id: str) -> pd.DataFrame:
+    """
+    Detect consecutive-day price discontinuities caused by unadjusted splits/bonuses
+    and normalise all historical prices to the post-split scale.
+
+    NSE's fetch_equity_historical_data returns raw (unadjusted) prices. When a
+    stock has had a corporate split, pre-split prices are N× higher, inflating
+    SMA/EMA calculations. This function detects jumps where the day-over-day
+    close ratio falls outside [threshold, 1/threshold] and adjusts all prices
+    before the jump date by the detected factor.
+
+    Only applied to NSE source data; yfinance already auto-adjusts.
+    """
+    if source_id not in ("nse_library",) or df.empty or len(df) < 2:
+        return df
+
+    close = df["Close"].values
+    n = len(close)
+    row_factors = [1.0] * n
+
+    for i in range(1, n):
+        prev = close[i - 1]
+        curr = close[i]
+        if prev <= 0 or curr <= 0:
+            continue
+        ratio = curr / prev
+        if ratio < _SPLIT_DETECTION_THRESHOLD:
+            # Forward split: price dropped (e.g. 5:1 → ratio ≈ 0.2)
+            raw_factor = 1.0 / ratio
+            factor = _nearest_split_factor(raw_factor)
+            for j in range(i):
+                row_factors[j] /= factor
+        elif ratio > (1.0 / _SPLIT_DETECTION_THRESHOLD):
+            # Reverse split / consolidation: price jumped
+            factor = _nearest_split_factor(ratio)
+            for j in range(i):
+                row_factors[j] *= factor
+
+    if all(abs(f - 1.0) < 1e-6 for f in row_factors):
+        return df
+
+    n_adjusted = sum(1 for f in row_factors if abs(f - 1.0) > 1e-6)
+    logger.info(
+        "ohlcv: split adjustment applied to %d rows (source=%s)", n_adjusted, source_id
+    )
+    factor_s = pd.Series(row_factors, index=df.index)
+    for col in ("Open", "High", "Low", "Close"):
+        if col in df.columns:
+            df[col] = (df[col] * factor_s).round(2)
+    return df
 
 
 def _to_float(v: Any) -> float | None:

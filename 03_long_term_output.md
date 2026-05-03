@@ -49,6 +49,33 @@ These rules override any brevity impulse. Every section must be substantive.
 
 ---
 
+## 0.6. REPORT STRUCTURE AND WRITING STYLE (MANDATORY — OVERRIDES ALL FORMAT DEFAULTS)
+
+### Section Order (ALL user levels)
+Every report MUST follow this section order — no exceptions:
+1. Company / Fundamental context (business quality, key compounding metrics)
+2. Technical context (brief — entry zone reference only at this horizon)
+3. News (its own dedicated sub-section — long-horizon relevant items only)
+4. Announcements (its own dedicated sub-section — major corporate actions only)
+5. Financial information (detailed 5-year statements, balance sheet, cash flow)
+6. Summary / Assessment
+
+### Technical Analysis — Paragraph Style (NO BULLET-PER-INDICATOR)
+Technical sections MUST be written as flowing prose paragraphs. NEVER write one bullet point per indicator.
+At the long-term horizon, the technical section is brief (entry zone context only — 1 short paragraph).
+Cover 200-day MA position, monthly RSI zone, and 52-week range in one connected paragraph explaining
+what the current entry zone means for a long-term investor. Do NOT spend more than 3–4 sentences on technicals.
+
+### News and Announcements — Both Must Be Covered Separately
+- When both news nodes AND announcement nodes exist in the knowledge graph, they MUST appear as two separate sub-sections with their own headers.
+- For long-term, only cover structurally significant items: regulatory changes, major capacity decisions, acquisitions, governance events. Skip short-term noise.
+- Each item must be individually explained: what it is, what it means over a 1–5 year horizon, likely impact direction.
+- NEVER merge news and announcements into one combined list.
+- If only one type is present, cover it in its own section.
+- If neither is present, write exactly: "No structurally significant news or announcements found for this horizon."
+
+---
+
 ## 1. WHAT LONG-TERM MEANS
 
 1–5 years = business quality and compounding. The investor wants to know:
@@ -278,9 +305,32 @@ Explain in simple narrative form (no tables):
 ---
 
 #### Price Signals (Brief, for context only)
-1 short paragraph: "Right now, the stock price is at [position relative to historical range].
-For long-term investors, this is [relevant context only — not a timing recommendation]."
-Do NOT emphasize technicals. Keep this to 2–3 lines max.
+Write one short paragraph (2–3 lines, no bullets): "Right now, the stock price is at [position relative to historical range]. For long-term investors, this is [relevant context only — not a timing recommendation]."
+Do NOT list each technical indicator separately. One connected paragraph only.
+
+---
+
+#### Important News (Long-Term Relevant)
+Only include news items with structural, long-term significance (regulatory changes, major industry shifts, government policy impact). Skip short-term noise.
+
+For each relevant news item:
+- **What happened:** (one simple line)
+- **Why this matters over the next 5 years:** (one line)
+- **Likely long-term effect:** Good for company / Concern to watch / Unclear
+
+If no structural news: "No major structural news relevant to the long-term view."
+
+---
+
+#### Important Announcements (Long-Term Relevant)
+Only include announcements with long-term impact (acquisitions, capacity expansions, major management changes, significant governance events).
+
+For each relevant announcement:
+- **What happened:** (one simple line)
+- **Why this matters over the next 5 years:** (one line)
+- **Likely long-term effect:** Good for company / Concern to watch / Unclear
+
+If no major announcements: "No major corporate announcements relevant to the long-term thesis."
 
 ---
 
@@ -350,6 +400,36 @@ Can handle multi-year tables and percentage comparisons. No need to explain ever
 
 ---
 
+#### Technical Context (Entry Zone Only)
+Write one connected paragraph (3–4 lines max, no bullet list): describe 200-day MA position, monthly RSI zone, and 52-week range in one flowing paragraph explaining what the current entry zone context means. Remind the reader this is entry context, not thesis-determining.
+
+---
+
+#### Recent News (Long-Term Relevant Only)
+Only include structurally significant news: regulatory changes, major policy shifts, industry disruption. Skip short-term noise.
+- **[Item]:** [What happened] — **5-year implication:** [impact on long-term thesis] — **Direction:** Positive/Negative/Neutral — **Timeline to materialize:** [when]
+
+If no structural news: "No structurally significant news relevant to the long-term view."
+
+---
+
+#### Recent Announcements (Long-Term Relevant Only)
+Only include major corporate actions with multi-year impact: acquisitions, large capacity additions, management changes, governance events.
+- **[Type]:** [What happened] — **5-year implication:** [impact on long-term thesis] — **Direction:** Positive/Negative/Neutral — **Timeline:** [when]
+
+If no major announcements: "No major corporate announcements relevant to the long-term thesis."
+
+---
+
+#### Macro & Sector Tailwinds / Headwinds (5-Year View)
+- Sector growth rate (India TAM)
+- Policy alignment (PLI, infrastructure, consumption)
+- Competitive landscape trend
+- Global / export exposure risk or opportunity
+- Demographic / structural tailwind
+
+---
+
 #### Financial Statements Deep-Dive
 
 **P&L (Annual, 4–5 Years):**
@@ -398,24 +478,6 @@ Earnings quality: [High/Medium/Low] — rationale in 1 line.
 
 ---
 
-#### Macro & Sector Tailwinds / Headwinds (5-Year View)
-- Sector growth rate (India TAM)
-- Policy alignment (PLI, infrastructure, consumption)
-- Competitive landscape trend
-- Global / export exposure risk or opportunity
-- Demographic / structural tailwind
-
----
-
-#### Technical Context (Entry Zone Only)
-- 200-day MA position
-- 52-week range: current price is X% from 52-week high / low
-- Monthly RSI: [overbought / neutral / oversold zone]
-- Note: "For long-term investors, technical signals are less important than business quality.
-  This is provided for context on the current entry zone only."
-
----
-
 #### Long-Term Analysis (Gemini's Assessment)
 - **Business quality assessment:** Grade (A/B/C/D) with specific reasoning
 - **Compounding potential:** Can this business deliver EPS CAGR of X% over 5 years? Basis?
@@ -448,6 +510,61 @@ Thinks in DCF, moats, capital cycles, earnings quality, governance. Highest dens
 **Promoter: [X]% (Δ[+/-X]% YoY) | FII: [X]% | Pledge: [X]%**
 **EPS CAGR (3Y): X% | Revenue CAGR (3Y): X% | PAT CAGR (3Y): X%**
 **Captured: [DATE]**
+
+---
+
+#### Fundamental Signals (Core Compounding Metrics)
+7–10 lines, maximum density. These drive the entire long-term thesis:
+- Revenue CAGR (5Y): X% | PAT CAGR (5Y): X% | EPS CAGR (5Y): X% — acceleration/deceleration?
+- OPM trajectory: [X]% → [Y]% over 5Y — operating leverage direction
+- ROE: [X]% (avg 5Y: [Y]%) | ROCE: [X]% — above/below cost of equity?
+- D/E: [X]x → [Y]x (5Y trend) — deleveraging or leveraging?
+- FCF: [positive/negative] | OCF/PAT avg: [X]x — earnings quality
+- PE vs 5Y own avg: [X]x vs [Y]x — stretched/fair/cheap?
+These are the load-bearing signals. Everything else is context.
+
+---
+
+#### Moat Assessment
+
+Rate each dimension [Strong / Moderate / Weak / None]:
+- **Pricing power:** [evidence from margin stability under cost pressure]
+- **Switching cost:** [customer lock-in mechanisms, if any]
+- **Cost advantage:** [economies of scale, process efficiency vs peers]
+- **Network effects:** [if applicable]
+- **Intangibles (brand/IP):** [patents, brand premium]
+- **Regulatory moat:** [licenses, barriers to entry]
+
+**Overall moat grade:** [Wide / Narrow / None] | **Durability:** [High/Medium/Low]
+Evidence: [cite specific nodes]
+
+---
+
+#### Technical Context (Entry Zone Only)
+
+Write one flowing paragraph (3–4 sentences, no bullet list): describe 200-day MA position, monthly RSI zone, 52-week range, and OBV multi-month direction in one connected paragraph explaining what the current entry zone context implies. Conclude with: "For a 1–5Y horizon, technical context is entry-zone reference only."
+
+---
+
+#### Recent News (Structural / Long-Term Relevant Only)
+
+| News Item                           | Timeline to Impact | Direction | Confidence |
+|-------------------------------------|--------------------|-----------|------------|
+| [Structural news item 1]            | [years]            | +/–       | H/M/L      |
+| [Structural news item 2]            | [years]            | +/–       | H/M/L      |
+
+1–2 line interpretation: How does this news affect the 5-year compounding thesis?
+
+---
+
+#### Recent Announcements (Major Corporate Actions Only)
+
+| Announcement                        | Timeline to Impact | Direction | Confidence |
+|-------------------------------------|--------------------|-----------|------------|
+| [Acquisition / capacity / mgmt]     | [years]            | +/–       | H/M/L      |
+| [Governance / regulatory event]     | [years]            | +/–       | H/M/L      |
+
+1–2 line interpretation: Does this announcement strengthen or threaten the long-term thesis?
 
 ---
 
@@ -518,21 +635,6 @@ Governance flags: [list any — related party transactions, audit qualifications
 
 ---
 
-#### Moat Assessment
-
-Rate each dimension [Strong / Moderate / Weak / None]:
-- **Pricing power:** [evidence from margin stability under cost pressure]
-- **Switching cost:** [customer lock-in mechanisms, if any]
-- **Cost advantage:** [economies of scale, process efficiency vs peers]
-- **Network effects:** [if applicable]
-- **Intangibles (brand/IP):** [patents, brand premium]
-- **Regulatory moat:** [licenses, barriers to entry]
-
-**Overall moat grade:** [Wide / Narrow / None] | **Durability:** [High/Medium/Low]
-Evidence: [cite specific nodes]
-
----
-
 #### Valuation Context
 
 | Metric      | Current | 1Y Avg | 3Y Avg | 5Y Avg | Sector Avg | Position      |
@@ -554,17 +656,6 @@ Implied EPS CAGR priced in (at current P/E): X% — vs actual EPS CAGR: X% — g
 - Input cost cycle: commodity / energy dependency, current phase
 - Export opportunity / risk: [if applicable]
 - Interest rate sensitivity: [high/medium/low] — for [reason]
-
----
-
-#### Technical Context (Entry Zone Only)
-
-- 200d MA: [price vs MA %]
-- Monthly RSI: [X] — [zone]
-- Price from 52w high: [X]% | From 52w low: [X]%
-- Institutional accumulation/distribution (OBV multi-month): [direction]
-
-Note: For 1–5Y horizon, technical context is entry-zone reference only. Not thesis-determining.
 
 ---
 

@@ -1,30 +1,35 @@
-// KeyFundamentals — sidebar panel with key financial metrics
+// KeyFundamentals — sidebar panel with unique financial metrics not shown in the top bar
 
 interface KeyFundamentalsProps {
-  marketCap: number | null;
-  volume: number | null;
   eps: number | null;
-  peRatio: number | null;
-  pbRatio: number | null;
   bookValue: number | null;
+  faceValue: number | null;
   dividendYield: number | null;
-  industry: string | null;
-  sector: string | null;
   roe: number | null;
   roce: number | null;
-  faceValue: number | null;
-}
-
-function fmtMarketCap(v: number | null): string {
-  if (v === null) return "—";
-  const cr = v / 1e7;
-  if (cr >= 1_00_000) return `₹${(cr / 1_00_000).toFixed(2)}L Cr`;
-  return `₹${cr.toLocaleString("en-IN", { maximumFractionDigits: 2 })} Cr`;
+  operatingMargin: number | null;
+  netProfitMargin: number | null;
+  debtToEquity: number | null;
+  currentRatio: number | null;
+  peRatio: number | null;
+  pbRatio: number | null;
+  marketCap: number | null;
+  beta: number | null;
+  industry: string | null;
+  sector: string | null;
 }
 
 function fmtNum(v: number | null, suffix = "", decimals = 2): string {
-  if (v === null) return "—";
+  if (v == null) return "";
   return v.toLocaleString("en-IN", { maximumFractionDigits: decimals }) + suffix;
+}
+
+function fmtMarketCap(v: number | null): string {
+  if (v == null) return "";
+  const cr = v / 1e7;
+  if (cr >= 100000) return `₹${(cr / 100000).toFixed(2)}L Cr`;
+  if (cr >= 1000) return `₹${(cr / 1000).toFixed(2)}K Cr`;
+  return `₹${cr.toFixed(0)} Cr`;
 }
 
 function Row({
@@ -50,44 +55,35 @@ function Row({
   );
 }
 
-function fmtVolume(v: number | null): string {
-  if (v === null) return "—";
-  if (v >= 1_00_00_000) return `${(v / 1_00_00_000).toFixed(2)} Cr`;
-  if (v >= 1_00_000)    return `${(v / 1_00_000).toFixed(2)} L`;
-  return v.toLocaleString("en-IN");
-}
-
 export default function KeyFundamentals({
-  marketCap,
-  volume,
   eps,
-  peRatio,
-  pbRatio,
   bookValue,
+  faceValue,
   dividendYield,
-  industry,
-  sector,
   roe,
   roce,
-  faceValue,
+  operatingMargin,
+  netProfitMargin,
+  marketCap,
+  industry,
+  sector,
 }: KeyFundamentalsProps) {
   const rows = [
+    { label: "EPS",              value: eps != null ? `₹${fmtNum(eps)}` : "" },
+    { label: "Book Value",       value: bookValue != null ? `₹${fmtNum(bookValue)}` : "" },
+    { label: "Face Value",       value: faceValue != null ? `₹${fmtNum(faceValue)}` : "" },
+    { label: "Dividend Yield",   value: dividendYield != null ? `${dividendYield.toFixed(2)} %` : "" },
+    { label: "Return on Equity", value: roe != null ? `${fmtNum(roe)} %` : "" },
+    { label: "ROCE",             value: roce != null ? `${fmtNum(roce)} %` : "" },
+    { label: "Operating Margin", value: operatingMargin != null ? `${fmtNum(operatingMargin)} %` : "" },
+    { label: "Net Profit Margin", value: netProfitMargin != null ? `${fmtNum(netProfitMargin)} %` : "" },
     { label: "Market Cap",       value: fmtMarketCap(marketCap) },
-    { label: "Volume",           value: fmtVolume(volume) },
-    { label: "EPS",              value: eps !== null ? `₹${fmtNum(eps)}` : "—" },
-    { label: "PE Ratio",         value: peRatio !== null ? peRatio.toFixed(2) : "—" },
-    { label: "PB Ratio",         value: pbRatio !== null ? pbRatio.toFixed(2) : "—" },
-    { label: "Book Value",       value: bookValue !== null ? `₹${fmtNum(bookValue)}` : "—" },
-    { label: "Face Value",       value: faceValue !== null ? `₹${fmtNum(faceValue)}` : "—" },
-    { label: "Dividend Yield",   value: dividendYield !== null ? `${dividendYield.toFixed(2)} %` : "—" },
-    { label: "Return on Equity", value: roe !== null ? `${fmtNum(roe)} %` : "—" },
-    { label: "ROCE",             value: roce !== null ? `${fmtNum(roce)} %` : "—" },
-    { label: "Industry",         value: industry ?? "—", highlight: !!industry },
-    { label: "Sector",           value: sector ?? "—",   highlight: !!sector },
-  ];
+    { label: "Industry",         value: industry ?? "", highlight: !!industry },
+    { label: "Sector",           value: sector ?? "",   highlight: !!sector },
+  ].filter((row) => row.value);
 
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 h-full">
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 h-fit">
       <div className="mb-3 flex items-center gap-2.5">
         <h3 className="text-sm font-bold text-zinc-100 uppercase tracking-[0.12em] leading-none">
           Key Fundamentals

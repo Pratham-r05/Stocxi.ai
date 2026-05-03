@@ -7,8 +7,8 @@ import TopStatsBar from "@/components/stock/TopStatsBar";
 import PriceChart from "@/components/stock/PriceChart";
 import KeyFundamentals from "@/components/stock/KeyFundamentals";
 import TechnicalsSection from "@/components/stock/TechnicalsSection";
-import AIAnalysisPanel from "@/components/stock/AIAnalysisPanel";
 import StockSectionTabs from "@/components/stock/StockSectionTabs";
+import AIAnalysisLauncher from "@/components/stock/AIAnalysisLauncher";
 import TrackStockSearch from "@/components/stock/TrackStockSearch";
 import NewsSection from "@/components/stock/NewsSection";
 import AnnouncementsSection from "@/components/stock/AnnouncementsSection";
@@ -31,9 +31,8 @@ export default async function StockPage({ params }: { params: Promise<{ symbol: 
   const pageSections = [
     { id: "overview", label: "Overview" },
     { id: "key-fundamentals", label: "Key Fundamentals" },
-    { id: "ai-analysis", label: "AI Analysis" },
     { id: "technical-indicators", label: "Technical Indicators" },
-    { id: "bse-announcements", label: "BSE Announcements" },
+    { id: "announcements", label: "Announcements" },
     { id: "recent-news", label: "News" },
     { id: "financials", label: "Financials" },
   ];
@@ -67,44 +66,51 @@ export default async function StockPage({ params }: { params: Promise<{ symbol: 
           <TopStatsBar
             marketCap={data.market_cap}
             peRatio={data.pe_ratio}
+            pbRatio={data.pb_ratio}
             volume={data.volume}
-            dayHigh={data.day_high}
-            dayLow={data.day_low}
+            open={data.open}
+            previousClose={data.previous_close}
             week52High={data.week_52_high}
             week52Low={data.week_52_low}
           />
         </section>
 
-        {/* Section tabs (sticky while scrolling content) */}
-        <StockSectionTabs sections={pageSections} />
-
-        {/* Chart + Key Fundamentals side by side */}
-        <div className="flex flex-col lg:flex-row gap-3">
-          <div id="price-chart" className="flex-1 min-w-0 scroll-mt-32">
-            <PriceChart symbol={upper} defaultChangePercent={data.change_percent} />
+        {/* Section tabs + AI Analysis launcher beside Financials */}
+        <div className="flex items-center gap-2">
+          <div className="flex-1 min-w-0">
+            <StockSectionTabs sections={pageSections} />
           </div>
-          <div id="key-fundamentals" className="lg:w-72 shrink-0 scroll-mt-32">
-            <KeyFundamentals
-              marketCap={data.market_cap}
-              volume={data.volume}
-              eps={data.eps}
-              peRatio={data.pe_ratio}
-              pbRatio={data.pb_ratio}
-              bookValue={data.book_value}
-              faceValue={data.face_value}
-              dividendYield={data.dividend_yield}
-              industry={data.industry}
-              sector={data.sector}
-              roe={data.roe}
-              roce={data.roce}
-            />
+          <div className="shrink-0">
+            <AIAnalysisLauncher symbol={upper} sector={data.sector ?? ""} />
           </div>
         </div>
 
-        {/* AI Analysis */}
-        <section id="ai-analysis" className="scroll-mt-32">
-          <AIAnalysisPanel symbol={upper} />
-        </section>
+        {/* Chart + Key Fundamentals side by side */}
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_18rem] gap-3 items-start">
+          <div id="price-chart" className="flex-1 min-w-0 scroll-mt-32">
+            <PriceChart symbol={upper} defaultChangePercent={data.change_percent} />
+          </div>
+          <div id="key-fundamentals" className="scroll-mt-32">
+            <KeyFundamentals
+              eps={data.eps}
+              bookValue={data.book_value}
+              faceValue={data.face_value}
+              dividendYield={data.dividend_yield}
+              roe={data.roe}
+              roce={data.roce}
+              operatingMargin={data.operating_margin}
+              netProfitMargin={data.net_profit_margin}
+              debtToEquity={data.debt_to_equity}
+              currentRatio={data.current_ratio}
+              peRatio={data.pe_ratio}
+              pbRatio={data.pb_ratio}
+              marketCap={data.market_cap}
+              beta={data.beta}
+              industry={data.industry}
+              sector={data.sector}
+            />
+          </div>
+        </div>
 
         {/* Technical Indicators */}
         <section id="technical-indicators" className="scroll-mt-32">
@@ -116,7 +122,7 @@ export default async function StockPage({ params }: { params: Promise<{ symbol: 
 
         {/* News, Announcements */}
         <div className="space-y-5">
-          <section id="bse-announcements" className="scroll-mt-32">
+          <section id="announcements" className="scroll-mt-32">
             <AnnouncementsSection symbol={upper} />
           </section>
           <section id="recent-news" className="scroll-mt-32">

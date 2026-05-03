@@ -619,9 +619,16 @@ def _item_to_node(
 
 # ── PDF extraction ────────────────────────────────────────────────────────────
 
-_PDF_ALLOWED_DOMAINS = {"nseindia.com", "bseindia.com", "static.bseindia.com"}
+_PDF_ALLOWED_DOMAINS = {
+    "nseindia.com",
+    "nsearchives.nseindia.com",
+    "nsearchives2.nseindia.com",
+    "bseindia.com",
+    "static.bseindia.com",
+}
 _PDF_MAX_CHARS       = 1000   # first N chars of extracted text per announcement
 _PDF_FETCH_TIMEOUT   = 10     # seconds
+_INVALID_PDF         = "__INVALID_PDF__"
 
 
 async def _enrich_with_pdf_text(items: list[dict]) -> list[dict]:
@@ -640,8 +647,20 @@ async def _enrich_with_pdf_text(items: list[dict]) -> list[dict]:
     tasks = [_fetch_pdf_text(item.get("pdf_url") or "") for item in items]
     texts = await asyncio.gather(*tasks, return_exceptions=True)
     for item, text in zip(items, texts):
-        item["pdf_text"] = text if isinstance(text, str) else ""
+        if text == _INVALID_PDF:
+            item["pdf_url"] = ""
+            item["invalid_pdf"] = True
+            item["pdf_text"] = ""
+        else:
+            item["pdf_text"] = text if isinstance(text, str) else ""
     return items
+
+
+async def enrich_announcements_with_pdf_text(items: list[dict]) -> list[dict]:
+    """Public wrapper to attach `pdf_text` to announcement items."""
+    if not items:
+        return items
+    return await _enrich_with_pdf_text(items)
 
 
 async def _fetch_pdf_text(url: str) -> str:
@@ -678,6 +697,9 @@ async def _fetch_pdf_text(url: str) -> str:
         async with httpx.AsyncClient(timeout=_PDF_FETCH_TIMEOUT, follow_redirects=True) as client:
             resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
             resp.raise_for_status()
+
+        if not resp.content.lstrip().startswith(b"%PDF"):
+            return _INVALID_PDF
 
         reader = pypdf.PdfReader(io.BytesIO(resp.content))
         parts: list[str] = []

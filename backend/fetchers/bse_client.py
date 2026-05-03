@@ -16,6 +16,7 @@ Capabilities:
   - fetch_trading_stats   → getScripTradingStats(scripcode) — market cap, deliverable
   - fetch_result_calendar → resultCalendar()           — upcoming earnings dates
   - fetch_actions         → actions(scripcode=int)     — dividends, splits, bonus
+  - fetch_announcements   → announcements(scripcode)   — filings + attachments
 
 BSE code resolution order:
   1. BSE.getScripCode(symbol) — live API call
@@ -30,6 +31,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from datetime import datetime, timedelta
 from typing import Any
 
 from bse import BSE  # type: ignore
@@ -421,6 +423,54 @@ async def fetch_actions(symbol: str) -> dict[str, Any]:
     return {"symbol": symbol, "bse_code": bse_code, "actions": actions, "_raw": raw}
 
 
+async def fetch_announcements(symbol: str, limit: int = 20, days: int = 120) -> dict[str, Any]:
+    """
+    Fetch recent BSE corporate announcements with attachment URLs preserved.
+
+    Args:
+        symbol: NSE ticker in uppercase.
+        limit: Max filings to return.
+        days:  Lookback window for BSE filings.
+
+    Returns:
+        Dict with "items" list.
+    """
+    bse_code = await resolve_scrip_code(symbol)
+    bse = _get_bse()
+    to_date = datetime.now()
+    from_date = to_date - timedelta(days=days)
+    raw = await _run_sync(
+        bse.announcements,
+        from_date=from_date,
+        to_date=to_date,
+        scripcode=bse_code,
+    )
+
+    rows = raw.get("Table", []) if isinstance(raw, dict) else []
+    items: list[dict[str, Any]] = []
+    for item in rows:
+        if not isinstance(item, dict):
+            continue
+        attachment = _normalize_bse_attachment(item.get("ATTACHMENTNAME") or "")
+        filing = attachment or item.get("AUDIO_VIDEO_FILE") or item.get("NSURL") or ""
+        items.append({
+            "title":      item.get("NEWSSUB") or item.get("HEADLINE") or "",
+            "date":       item.get("NEWS_DT") or item.get("DT_TM") or item.get("News_submission_dt") or "",
+            "category":   item.get("SUBCATNAME") or item.get("CATEGORYNAME") or "BSE Filing",
+            "pdf_url":    attachment if attachment.lower().endswith(".pdf") else "",
+            "filing_url": filing if not str(filing).lower().endswith(".pdf") else "",
+            "details":    item.get("MORE") or item.get("HEADLINE") or "",
+            "source":     SOURCE_ID,
+        })
+
+    return {
+        "symbol": symbol,
+        "bse_code": bse_code,
+        "items": items[:limit],
+        "_raw": rows[:5],
+    }
+
+
 # ── Type coercers ─────────────────────────────────────────────────────────────
 
 def _to_float(v: Any) -> float | None:
@@ -441,3 +491,15 @@ def _to_int(v: Any) -> int | None:
         return int(str(v).replace(",", "").split(".")[0].strip())
     except (ValueError, TypeError):
         return None
+
+
+def _normalize_bse_attachment(name: Any) -> str:
+    """Normalize BSE attachment file names to absolute URLs."""
+    clean = str(name or "").strip()
+    if not clean or clean.lower() in {"na", "n/a", "none"}:
+        return ""
+    if clean.startswith("http://") or clean.startswith("https://"):
+        return clean
+    if clean.startswith("//"):
+        return f"https:{clean}"
+    return f"https://www.bseindia.com/xml-data/corpfiling/AttachLive/{clean.lstrip('/')}"

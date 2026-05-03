@@ -12,7 +12,7 @@ import logging
 from datetime import date, timedelta
 
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 
 from services.knowledge_graph_service import build_knowledge_graph
 from services.yfinance_service import get_price_and_fundamentals
@@ -20,7 +20,7 @@ from services.technicals_service import calculate_technicals
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1", tags=["Knowledge Graph"])
+router = APIRouter(tags=["Knowledge Graph"])
 
 
 async def fetch_all_data(symbol: str) -> dict:
@@ -41,7 +41,7 @@ async def fetch_all_data(symbol: str) -> dict:
     }
 
 
-@router.get("/knowledge-graph/{symbol}")
+@router.get("/api/v1/knowledge-graph/{symbol}")
 async def get_knowledge_graph(symbol: str):
     """Get knowledge graph for a stock symbol."""
     try:
@@ -59,3 +59,21 @@ async def get_knowledge_graph(symbol: str):
     except Exception as e:
         logger.error(f"Error building knowledge graph for {symbol}: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to build knowledge graph: {str(e)}")
+
+
+@router.get("/api/knowledge-graph/{symbol}")
+async def get_generated_knowledge_graph(symbol: str):
+    """Generate and serve the standalone HTML knowledge graph."""
+    try:
+        from routers.v2_analysis import _resolve_graph_path
+
+        graph_path = await _resolve_graph_path(symbol)
+        return HTMLResponse(
+            content=graph_path.read_text(encoding="utf-8"),
+            headers={"Cache-Control": "no-store"},
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    except Exception as exc:
+        logger.error("Error generating knowledge graph for %s: %s", symbol, exc)
+        raise HTTPException(status_code=503, detail=f"Failed to generate knowledge graph: {exc}")

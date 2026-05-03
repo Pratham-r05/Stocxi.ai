@@ -47,6 +47,40 @@ These rules override any brevity impulse. Every section must be substantive.
 
 ---
 
+## 0.6. REPORT STRUCTURE AND WRITING STYLE (MANDATORY — OVERRIDES ALL FORMAT DEFAULTS)
+
+### Section Order (ALL user levels)
+Every report MUST follow this section order — no exceptions:
+1. Company / Fundamental context (what the company does, key business signals relevant to this horizon)
+2. Technical indicators (price signals, momentum)
+3. News (its own dedicated sub-section)
+4. Announcements (its own dedicated sub-section)
+5. Financial information (detailed statements, quarterly tables, balance sheet, cash flow)
+6. Summary / Assessment
+
+### Technical Analysis — Paragraph Style (NO BULLET-PER-INDICATOR)
+Technical sections MUST be written as flowing prose paragraphs. NEVER write one bullet point per indicator.
+Group related indicators by relationship into 3–4 paragraphs:
+
+- **Paragraph 1 — Price Structure & Moving Averages:** Describe price level, SMA 50/200, key support/resistance — showing what the MA alignment collectively says about the medium-term trend structure.
+- **Paragraph 2 — Momentum:** Cover RSI (weekly) + MACD (weekly) — show whether they confirm each other or diverge. Convergence = reliable signal for medium-term. Divergence = caution.
+- **Paragraph 3 — Volume & Relative Strength:** Cover Volume profile + OBV direction + performance vs Nifty/sector — does accumulation support the fundamental direction?
+- **Paragraph 4 — Key Levels (when relevant):** Cover 52-week range context, base-building patterns, or band indicators.
+
+BAD (rejected): "SMA 50 is below price. RSI weekly is 55. MACD is bullish."
+GOOD: "The medium-term technical picture aligns with the fundamental momentum: the stock is holding above both the 50-week and 200-week moving averages, confirming an intact structural uptrend. Weekly RSI at 55 sits in the constructive neutral-to-bullish zone — not overextended — while MACD on the weekly chart shows a positive crossover with a gradually expanding histogram, suggesting institutional accumulation is building. This technical configuration, when aligned with improving earnings, has historically been a high-conviction medium-term setup."
+
+Every paragraph must show the RELATIONSHIP between indicators, not state them sequentially.
+
+### News and Announcements — Both Must Be Covered Separately
+- When both news nodes AND announcement nodes exist in the knowledge graph, they MUST appear as two separate sub-sections with their own headers.
+- Each item must be individually explained: what it is, what it means for this horizon, likely impact direction.
+- NEVER merge news and announcements into one combined list.
+- If only one type is present, cover it in its own section.
+- If neither is present, write exactly: "No relevant news or announcements found for this horizon."
+
+---
+
 ## 1. WHAT MEDIUM-TERM MEANS
 
 3–12 months = earnings-driven + fundamental trend. The investor wants to know:
@@ -238,17 +272,34 @@ Repeat for 2 quarters. End with: "The trend over the last year is [improving / d
 ---
 
 #### Price Signals (What the Chart Says)
-One simple explanation of what "technical analysis" means.
-Then for each major indicator — state result in plain English + Positive/Negative/Neutral label.
+Begin with one sentence explaining what technical analysis means in simple words.
+
+Write this section as 2–3 short paragraphs in plain language. Do NOT list one bullet per indicator. Group related signals together:
+- **Paragraph 1 — Where is the price in its trend?** Explain the moving averages simply: is the stock trading above its long-term average price (generally positive) or below (generally negative)? Are the short and long averages aligned or pulling apart?
+- **Paragraph 2 — Is momentum supporting the business trend?** Cover RSI and MACD in plain language — is the stock "gaining momentum" or "slowing down"? Do they confirm or contradict the fundamental picture?
+- **Paragraph 3 — Volume and trend strength:** One or two sentences on whether trading volume backs up the price move.
+
 End with: **Chart Signal:** [Positive / Negative / Mixed] — 1 line summary.
 
 ---
 
-#### Important Company Updates
-For each announcement/news relevant to 3–12 months:
+#### Recent Company News
+For each news item relevant to the next 3–12 months:
 - **What happened:** (simple)
 - **Why this matters for the stock in the next year:** (simple)
 - **Likely effect:** Good / Bad / Unclear
+
+If no news: "No significant news found for this period."
+
+---
+
+#### Recent Company Announcements
+For each corporate announcement (capacity expansion, acquisitions, management changes, dividend, policy impact) relevant to the next 3–12 months:
+- **What happened:** (simple)
+- **Why this matters for the stock in the next year:** (simple)
+- **Likely effect:** Good / Bad / Unclear
+
+If no announcements: "No major company announcements relevant to this period."
 
 ---
 
@@ -324,6 +375,36 @@ Semi-technical language okay. Tables, percentages, and comparisons are welcome.
 
 ---
 
+#### Technical Analysis (Medium-Term Lens)
+
+Focus on weekly/monthly chart signals. Write the analysis as 2–3 flowing paragraphs, not bullets:
+
+**Paragraph 1 — Trend & Moving Averages:** Describe price position relative to SMA 50 and SMA 200 on the weekly chart. Are they aligned (both pointing same direction) or diverging? What does the MA structure imply for the medium-term trend?
+
+**Paragraph 2 — Momentum & Volume:** Cover weekly RSI zone, weekly MACD crossover status, and volume profile (accumulation vs distribution on weekly bars). Show how momentum confirms or contradicts the fundamental earnings direction.
+
+**Paragraph 3 — Relative Performance & Key Levels:** Cover performance vs Nifty/sector index over the past 6 months, and key price support/resistance levels relevant to a 3–12 month view.
+
+**Technical Bias:** [Bullish/Bearish/Neutral] | **Conviction:** [High/Medium/Low]
+
+---
+
+#### Recent News
+For each news item relevant to the next 3–12 months:
+- **[Item]:** [What happened] — **Why it matters:** [medium-term implication] — **Impact:** Positive/Negative/Neutral — **Timeline:** [when expected to materialize]
+
+If no news: "No significant news found for this period."
+
+---
+
+#### Recent Announcements
+For each corporate action or filing relevant to the next 3–12 months (capacity expansion, acquisition, management change, dividend, regulatory approval):
+- **[Type]:** [What happened] — **Impact:** [why it matters medium-term] — **Direction:** Positive/Negative/Neutral — **Timeline:** [when expected to materialize]
+
+If no announcements: "No major company announcements relevant to this period."
+
+---
+
 #### Financial Statements Deep-Dive
 
 **P&L Trend (Last 4 Quarters):**
@@ -355,26 +436,6 @@ Interpretation: Revenue trajectory + margin trend in 2–3 lines.
 
 ---
 
-#### Technical Analysis (Medium-Term Lens)
-
-Focus on weekly/monthly chart signals:
-- **Trend (SMA 50/200):** [price vs MA, alignment]
-- **Momentum (RSI weekly):** [value, zone]
-- **MACD (weekly):** [signal]
-- **Volume trend:** [accumulation / distribution]
-- **Key levels:** Support [₹X] | Resistance [₹X]
-- **vs Nifty / Sector:** [relative performance]
-
-**Technical Bias:** [Bullish/Bearish/Neutral] | **Conviction:** [High/Medium/Low]
-
----
-
-#### Announcements & Sector Events
-For each relevant to 3–12 months:
-- [Type]: [What + Why it matters medium-term] — **Impact:** Positive/Negative/Neutral — **Timeline:** [when expected to materialize]
-
----
-
 #### Medium-Term Analysis (Gemini's Assessment)
 - **Setup:** What does the combined picture suggest for 3–12 months? (3–4 lines)
 - **Key signal:** Single highest-conviction data point for this horizon
@@ -402,6 +463,54 @@ Numbers, ratios, trend vectors, signal conflicts — all without prose filler.
 **Horizon: MT (90–365d) | Sector: [SECTOR] | MCap: ₹[X]Cr | P/E: [X]x | P/B: [X]x**
 **ROE: [X]% | D/E: [X]x | FCF Yield: [X]% | Promoter: [X]% | FII: [X]%**
 **Captured: [DATE]**
+
+---
+
+#### Fundamental Signals
+5–7 lines, dense. Key compounding metrics at medium-term horizon:
+- Revenue CAGR (2Y): [X]% | PAT CAGR (2Y): [X]% | EPS trajectory: [accelerating/decelerating/stable]
+- OPM trend: [X]% → [Y]% (Δ[X] bps) — expanding/compressing?
+- ROE: [X]% | D/E: [X]x | Interest Coverage: [X]x — capital efficiency direction
+- FCF: [positive/negative] | OCF/PAT avg: [X]x — earnings quality signal
+- PE vs sector avg: [X]x vs [Y]x — premium/discount rationale
+These metrics are the primary drivers at 90–365d. Technicals serve only as timing/confirmation.
+
+---
+
+#### Technical Structure (Weekly / Monthly)
+
+Write this section as 2–3 flowing prose paragraphs. No bullet points per indicator.
+
+**Paragraph 1 — Trend & Moving Averages:** Describe price position relative to weekly SMA 50 and SMA 200. Are they aligned (structural uptrend/downtrend) or converging (trend change risk)? What does the MA structure imply for 3–12 month direction?
+
+**Paragraph 2 — Momentum & Volume:** Cover weekly RSI zone, weekly MACD crossover status, and volume profile (accumulation vs distribution on weekly bars, OBV direction). Do these confirm or contradict the fundamental earnings trajectory? Divergence between fundamentals and technicals at this horizon = unpriced opportunity or trap — identify which.
+
+**Paragraph 3 — Relative Performance & Key Levels:** Describe performance vs Nifty/sector over 6 months, 52-week range position, and key S/R levels relevant for medium-term entries.
+
+**Technical grade:** [A/B/C/D] | **Trend conviction:** [High/Medium/Low]
+
+---
+
+#### Recent News (3–12 Month Horizon)
+
+| News Item                 | Timeline    | Magnitude | Direction | Probability | Conf  |
+|---------------------------|-------------|-----------|-----------|-------------|-------|
+| [News item 1]             |             |           | +/–       | H/M/L       | H/M/L |
+| [News item 2]             |             |           | +/–       | H/M/L       | H/M/L |
+
+1–2 line interpretation: What is the combined news impact on the medium-term thesis?
+
+---
+
+#### Recent Announcements (3–12 Month Horizon)
+
+| Announcement              | Timeline    | Magnitude | Direction | Probability | Conf  |
+|---------------------------|-------------|-----------|-----------|-------------|-------|
+| [Corporate action 1]      |             |           | +/–       | H/M/L       | H/M/L |
+| [Corporate action 2]      |             |           | +/–       | H/M/L       | H/M/L |
+| [Sector / regulatory]     |             |           | +/–       | H/M/L       | H/M/L |
+
+1–2 line interpretation: Which announcement is the single largest medium-term catalyst or risk?
 
 ---
 
@@ -462,29 +571,6 @@ FCF conversion rate: [X]% of PAT | Capex intensity: [growth / maintenance] | Cas
 | Public/Retail |       |        |        |        | ↑/↓/→          |
 
 Smart money signal: [FII+DII combined trend interpretation in one line]
-
----
-
-#### Technical Structure (Weekly / Monthly)
-
-- **Primary trend:** [SMA50/200 alignment, price position]
-- **Momentum:** RSI(14w) = [X] | MACD(w) = [fast-slow diff, histogram dir]
-- **Volume:** [accumulation/distribution on weekly, OBV direction]
-- **Relative strength vs Nifty (6m):** [outperform/underperform by X%]
-- **Key price levels:** S1=[₹X] S2=[₹X] | R1=[₹X] R2=[₹X]
-- **52w range:** Low=[₹X] High=[₹X] | Current = [X]% from high
-
-**Technical grade:** [A/B/C/D] | **Trend conviction:** [High/Medium/Low]
-
----
-
-#### Catalyst & Risk Matrix (3–12 Month)
-
-| Event / Risk              | Timeline    | Magnitude | Direction | Probability | Conf  |
-|---------------------------|-------------|-----------|-----------|-------------|-------|
-| [Catalyst/Risk 1]         |             |           | +/–       | H/M/L       | H/M/L |
-| [Catalyst/Risk 2]         |             |           | +/–       | H/M/L       | H/M/L |
-| [Catalyst/Risk 3]         |             |           | +/–       | H/M/L       | H/M/L |
 
 ---
 

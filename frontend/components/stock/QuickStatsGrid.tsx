@@ -40,23 +40,23 @@ function StatCard({
 }
 
 function formatMarketCap(v: number | null): string {
-  if (v === null) return "—";
+  if (v == null) return "—";
   const cr = v / 1e7;
   return cr >= 1000 ? `₹${(v / 1e9).toFixed(1)}B` : `₹${cr.toFixed(0)}Cr`;
 }
 
 function formatPrice(v: number | null): string {
-  if (v === null) return "—";
+  if (v == null) return "—";
   return `₹${v.toLocaleString("en-IN")}`;
 }
 
 function formatPercent(v: number | null): string {
-  if (v === null) return "—";
+  if (v == null) return "—";
   return `${v.toFixed(2)}%`;
 }
 
 function formatPE(v: number | null): string {
-  if (v === null) return "—";
+  if (v == null) return "—";
   return v.toFixed(2);
 }
 
@@ -100,7 +100,7 @@ export default function QuickStatsGrid({ marketCap, peRatio, week52High, week52L
     },
     {
       label: "Book Value",
-      value: bookValue !== null ? `₹${bookValue.toLocaleString("en-IN")}` : "—",
+      value: bookValue != null ? `₹${bookValue.toLocaleString("en-IN")}` : "—",
       tooltip: "Net asset value per share. If price is far above book value, valuation may depend more on growth expectations.",
       Icon: BookOpen,
     },

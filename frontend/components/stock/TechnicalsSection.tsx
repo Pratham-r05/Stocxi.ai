@@ -1,6 +1,6 @@
 "use client";
 
-// TechnicalsSection — 8 professional indicator cards with category badges and (i) tooltips
+// TechnicalsSection — 10 professional indicator cards with category badges and (i) tooltips
 
 import { motion, type Variants } from "framer-motion";
 import Badge from "@/components/ui/Badge";
@@ -10,21 +10,27 @@ import { InfoTooltip } from "@/components/ui/InfoTooltip";
 interface TechnicalsSectionProps {
   technicals: {
     rsi: number | null;
-    rsi_signal: string;
+    rsi_signal: string | null;
     macd: number | null;
-    macd_signal: string;
+    macd_signal_line: number | null;
+    macd_signal: string | null;
     adx: number | null;
-    adx_signal: string;
+    adx_signal: string | null;
     atr: number | null;
     bb_upper: number | null;
     bb_lower: number | null;
-    bb_signal: string;
+    bb_signal: string | null;
     ema_20: number | null;
     ema_50: number | null;
     ema_200: number | null;
-    ema_signal: string;
+    ema_signal: string | null;
+    stoch_k: number | null;
+    stoch_d: number | null;
+    stoch_signal: string | null;
+    vwap: number | null;
+    vwap_signal: string | null;
     volume_sma_20: number | null;
-    overall_signal: string;
+    overall_signal: string | null;
   };
   currentVolume?: number | null;
 }
@@ -93,7 +99,7 @@ function signalSummary(
 }
 
 function explainRsi(rsi: number | null) {
-  if (rsi === null) return "RSI data is not available right now, so momentum cannot be judged from this indicator.";
+  if (rsi == null) return "RSI data is not available right now, so momentum cannot be judged from this indicator.";
   if (rsi >= 70) return "Momentum is very hot. The stock can still rise, but fresh entries carry higher pullback risk.";
   if (rsi <= 30) return "Momentum is deeply sold off. This zone often attracts bounce trades, but trend confirmation is important.";
   if (rsi >= 60) return "Momentum is healthy and in favor of buyers, without being in extreme overbought territory.";
@@ -102,14 +108,14 @@ function explainRsi(rsi: number | null) {
 }
 
 function explainAdx(adx: number | null) {
-  if (adx === null) return "ADX data is unavailable, so trend strength cannot be confirmed from this card.";
+  if (adx == null) return "ADX data is unavailable, so trend strength cannot be confirmed from this card.";
   if (adx >= 25) return "Trend strength is strong. Direction should be taken from other indicators like EMA or MACD.";
   if (adx >= 20) return "Trend strength is building, but not yet decisive.";
   return "Trend is weak or sideways. Breakouts are less reliable in this zone.";
 }
 
 function explainAtr(atr: number | null) {
-  if (atr === null) return "ATR data is unavailable, so daily risk range cannot be estimated from this card.";
+  if (atr == null) return "ATR data is unavailable, so daily risk range cannot be estimated from this card.";
   return `Typical daily movement is around Rs ${atr.toFixed(2)}. Use this as a practical stop-loss distance guide.`;
 }
 
@@ -119,11 +125,13 @@ export default function TechnicalsSection({
 }: TechnicalsSectionProps) {
   const {
     rsi, rsi_signal,
-    macd, macd_signal,
+    macd, macd_signal_line, macd_signal,
     adx, adx_signal,
     atr,
     bb_upper, bb_lower, bb_signal,
     ema_20, ema_50, ema_200, ema_signal,
+    stoch_k, stoch_d, stoch_signal,
+    vwap, vwap_signal,
     volume_sma_20,
     overall_signal,
   } = technicals;
@@ -136,11 +144,11 @@ export default function TechnicalsSection({
       ? (currentVolume / volume_sma_20).toFixed(2)
       : null;
   const volSignal =
-    volRatio === null ? "Neutral"
+    volRatio == null ? "Neutral"
     : parseFloat(volRatio) >= 1.5 ? "Bullish"
     : parseFloat(volRatio) < 0.7  ? "Bearish"
     : "Neutral";
-  const volRatioNum = volRatio !== null ? parseFloat(volRatio) : null;
+  const volRatioNum = volRatio != null ? parseFloat(volRatio) : null;
 
   const indicators = [
     {
@@ -149,7 +157,7 @@ export default function TechnicalsSection({
       title: "Price vs Moving Averages",
       tooltip: "EMA 20/50/200 show short, medium, and long-term trend. Price above all 3 EMAs = strong uptrend. Below all 3 = downtrend.",
       signal: ema_signal,
-      value: ema_20 !== null ? (
+      value: ema_20 != null ? (
         <span className="font-mono text-xs text-zinc-300">
           20: {fmt(ema_20)} · 50: {fmt(ema_50)} · 200: {fmt(ema_200)}
         </span>
@@ -169,7 +177,7 @@ export default function TechnicalsSection({
       title: "RSI (Relative Strength Index)",
       tooltip: "14-period RSI tells you if the stock is overbought (>70) or oversold (<30). Most Indian traders use this daily.",
       signal: rsi_signal,
-      value: rsi !== null ? (
+      value: rsi != null ? (
         <>
           <span className="font-mono text-sm text-zinc-200">{fmt(rsi, 1)}</span>
           <RSIBar rsi={rsi} />
@@ -187,19 +195,19 @@ export default function TechnicalsSection({
       signal: volSignal,
       value: (
         <div className="space-y-0.5">
-          {volume_sma_20 !== null && (
+          {volume_sma_20 != null && (
             <span className="font-mono text-xs text-zinc-300">
               SMA-20: {volume_sma_20.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
             </span>
           )}
-          {volRatio !== null && (
+          {volRatio != null && (
             <div className="font-mono text-xs text-zinc-400">Ratio: {volRatio}×</div>
           )}
         </div>
       ),
       description: "Price moves with high volume are genuine; low-volume breakouts on NSE often fail. Compare today's volume to the 20-day average.",
       beginnerSummary:
-        volRatioNum === null
+        volRatioNum == null
           ? "Volume context is incomplete right now, so treat breakouts with caution."
           : volRatioNum >= 1.5
             ? "Participation is strong: this move has crowd support and is more likely to sustain."
@@ -214,7 +222,7 @@ export default function TechnicalsSection({
       title: "Support & Resistance Levels",
       tooltip: "Bollinger Bands identify dynamic support/resistance. Price near upper band = resistance. Near lower band = support.",
       signal: bb_signal,
-      value: bb_upper !== null ? (
+      value: bb_upper != null ? (
         <span className="font-mono text-xs text-zinc-300">
           Upper: {fmt(bb_upper)} · Lower: {fmt(bb_lower)}
         </span>
@@ -234,8 +242,13 @@ export default function TechnicalsSection({
       title: "MACD (Crossover & Histogram)",
       tooltip: "MACD line crossing above the signal line = bullish momentum. The histogram shows momentum strength — shrinking bars = weakening trend.",
       signal: macd_signal,
-      value: macd !== null ? (
-        <span className="font-mono text-sm text-zinc-200">{fmt(macd, 3)}</span>
+      value: macd != null ? (
+        <div className="space-y-0.5">
+          <span className="font-mono text-sm text-zinc-200">MACD: {fmt(macd, 3)}</span>
+          {macd_signal_line != null && (
+            <div className="font-mono text-xs text-zinc-400">Signal Line: {fmt(macd_signal_line, 3)}</div>
+          )}
+        </div>
       ) : null,
       description: "MACD line crossing above the signal line = bullish momentum. Histogram shows momentum strength — shrinking bars = weakening trend.",
       beginnerSummary: signalSummary(
@@ -251,8 +264,8 @@ export default function TechnicalsSection({
       category: "Volatility",
       title: "ATR (Average True Range)",
       tooltip: "ATR measures how much a stock moves per day on average. Critical for sizing your position and placing stop-losses — especially for F&O stocks.",
-      signal: atr !== null ? (atr > 0 ? "Neutral" : "Neutral") : "Neutral",
-      value: atr !== null ? (
+      signal: atr != null ? (atr > 0 ? "Neutral" : "Neutral") : "Neutral",
+      value: atr != null ? (
         <span className="font-mono text-sm text-zinc-200">₹{fmt(atr)}</span>
       ) : null,
       description: "ATR measures how much a stock moves per day on average. Critical for sizing your position and placing stop-losses — especially for F&O stocks.",
@@ -265,7 +278,7 @@ export default function TechnicalsSection({
       title: "ADX — Trend Strength",
       tooltip: "ADX measures how strong the current trend is — not its direction. Above 25 = strong trend. Below 20 = weak or sideways.",
       signal: adx_signal,
-      value: adx !== null ? (
+      value: adx != null ? (
         <span className="font-mono text-sm text-zinc-200">{fmt(adx, 1)}</span>
       ) : null,
       description: "ADX measures the strength of a trend regardless of direction. A rising ADX above 25 confirms the trend is gathering momentum.",
@@ -274,6 +287,47 @@ export default function TechnicalsSection({
     },
     {
       num: "08",
+      category: "Momentum",
+      title: "Stochastic Oscillator",
+      tooltip: "Stochastic %K and %D lines show overbought/oversold conditions. Both above 80 = overbought. Both below 20 = oversold. %K crossing %D is a trade signal.",
+      signal: stoch_signal,
+      value: stoch_k != null ? (
+        <div className="space-y-0.5">
+          <span className="font-mono text-sm text-zinc-200">%K: {fmt(stoch_k, 1)}</span>
+          {stoch_d != null && (
+            <div className="font-mono text-xs text-zinc-400">%D: {fmt(stoch_d, 1)}</div>
+          )}
+        </div>
+      ) : null,
+      description: "Stochastic compares current closing price to the price range over a lookback period. Popular with swing traders on NSE.",
+      beginnerSummary: stoch_k == null
+        ? "Stochastic data is unavailable right now."
+        : stoch_k >= 80
+          ? "Momentum is in overbought territory — avoid chasing the move; wait for a pullback before entering."
+          : stoch_k <= 20
+            ? "Momentum is in oversold territory — potential for a bounce, but confirm with price action first."
+            : "Momentum is in a neutral zone — neither stretched to the upside nor the downside.",
+      rule: "Buy when %K crosses above %D below 20. Avoid when both lines are above 80.",
+    },
+    {
+      num: "09",
+      category: "Trend",
+      title: "VWAP (Volume-Weighted Average Price)",
+      tooltip: "VWAP is the average price weighted by volume. Institutional traders use it as a benchmark — price above VWAP is bullish intraday.",
+      signal: vwap_signal,
+      value: vwap != null ? (
+        <span className="font-mono text-sm text-zinc-200">₹{fmt(vwap, 2)}</span>
+      ) : null,
+      description: "VWAP combines price and volume data. Institutions benchmark orders against VWAP — sustained price above VWAP signals buying pressure.",
+      beginnerSummary: vwap == null
+        ? "VWAP data is unavailable. This indicator needs intraday OHLCV data."
+        : (vwap_signal ?? "neutral").toLowerCase() === "bullish"
+          ? "Price is above VWAP — institutional buying pressure is likely favoring the upside."
+          : "Price is below VWAP — institutional activity is likely on the sell side; caution advised.",
+      rule: "For intraday: buy pullbacks to VWAP in an uptrend. Don't short a stock that keeps bouncing at VWAP.",
+    },
+    {
+      num: "10",
       category: "Structure",
       title: "Overall Technical Signal",
       tooltip: "A combined signal using RSI, MACD, and EMA to give one overall technical verdict for this stock.",

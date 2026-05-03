@@ -44,18 +44,29 @@ _DOWNLOAD_FOLDER = "/tmp/stocxi_nse"
 
 # ── Singleton management ──────────────────────────────────────────────────────
 
+import time as _time
+
 _nse_instance: NSE | None = None
+_nse_created_at: float = 0.0
+_NSE_SESSION_TTL = 1800.0  # recreate session every 30 minutes to avoid stale cookies
 
 
 def _get_nse() -> NSE:
     """
-    Return the module-level NSE singleton, creating it lazily on first call.
-    The NSE instance holds an internal requests.Session that we reuse.
+    Return the module-level NSE singleton, recreating it every 30 minutes
+    to avoid stale session cookies returning old price data from NSE.
     """
-    global _nse_instance
-    if _nse_instance is None:
+    global _nse_instance, _nse_created_at
+    now = _time.monotonic()
+    if _nse_instance is None or (now - _nse_created_at) > _NSE_SESSION_TTL:
+        if _nse_instance is not None:
+            try:
+                _nse_instance.__exit__(None, None, None)
+            except Exception:
+                pass
         _nse_instance = NSE(download_folder=_DOWNLOAD_FOLDER)
-        _nse_instance.__enter__()   # initialise the session
+        _nse_instance.__enter__()
+        _nse_created_at = now
     return _nse_instance
 
 
@@ -114,48 +125,74 @@ async def fetch_meta_info(symbol: str) -> dict[str, Any]:
 
 async def fetch_quote(symbol: str) -> dict[str, Any]:
     """
-    Fetch live equity quote from NSE.
+    Fetch live equity quote from NSE (NseIndiaApi git repo).
 
-    Returns flat dict with keys: close, open, high, low, volume, previousClose,
-    change, changePercent, vwap, weekHigh52, weekLow52, upper_circuit,
-    lower_circuit, market_cap_cr, company_name, isin.
+    Uses nse.quote() for full price/fundamental data and nse.quote(section='trade_info')
+    for market cap and delivery volume. Returns a normalised flat dict.
 
     Args:
         symbol: NSE ticker in uppercase (e.g. "RELIANCE").
 
     Returns:
-        Normalised quote dict.
+        Normalised quote dict with price, 52W, volume, market_cap_cr, sector, industry.
 
     Raises:
+        ValueError: if price data is missing.
         Exception: on network error or symbol not found.
     """
     symbol = symbol.upper().strip()
     nse = _get_nse()
-    raw: dict = await _run_sync(nse.equityQuote, symbol)
 
-    # equityQuote returns a flat dict with keys like close/open/high/low
-    price = raw.get("close") or raw.get("lastPrice") or raw.get("priceInfo", {}).get("lastPrice")
-    if price is None:
-        raise ValueError(f"NSE equityQuote returned no price for {symbol}")
+    # Primary: full equity quote (price, 52W, change, sector/industry)
+    raw: dict = await _run_sync(nse.quote, symbol, type="equity")
+
+    pi = raw.get("priceInfo") or {}
+    meta = raw.get("metadata") or {}
+    info = raw.get("info") or {}
+    industry_info = raw.get("industryInfo") or {}
+    intra = pi.get("intraDayHighLow") or {}
+    whl = pi.get("weekHighLow") or {}
+
+    price = pi.get("lastPrice") or pi.get("close")
+    if not price or float(price) <= 0:
+        raise ValueError(f"NSE quote returned no price for {symbol}")
+
+    # Secondary: trade_info section for market cap and actual traded volume
+    market_cap_cr: float | None = None
+    delivery_qty: int | None = None
+    traded_qty: int | None = None
+    try:
+        ti_raw: dict = await _run_sync(nse.quote, symbol, type="equity", section="trade_info")
+        mktdept = (ti_raw.get("marketDeptOrderBook") or {})
+        trade_info = mktdept.get("tradeInfo") or {}
+        market_cap_cr = _to_float(trade_info.get("totalMarketCap"))
+        sec_wise = ti_raw.get("securityWiseDP") or {}
+        delivery_qty = _to_int(sec_wise.get("deliveryQuantity"))
+        traded_qty = _to_int(sec_wise.get("quantityTraded"))
+    except Exception:
+        pass  # non-critical — proceed without market cap
 
     return {
         "symbol":         symbol,
         "close":          _to_float(price),
-        "open":           _to_float(raw.get("open")),
-        "high":           _to_float(raw.get("high")),
-        "low":            _to_float(raw.get("low")),
-        "volume":         _to_int(raw.get("totalTradedVolume") or raw.get("volume")),
-        "previous_close": _to_float(raw.get("previousClose") or raw.get("previousClosePrice")),
-        "change":         _to_float(raw.get("change")),
-        "change_pct":     _to_float(raw.get("pChange") or raw.get("percentChange")),
-        "vwap":           _to_float(raw.get("vwap")),
-        "week_high_52":   _to_float(raw.get("weekHighLow52", {}).get("max") if isinstance(raw.get("weekHighLow52"), dict) else raw.get("weekHigh52")),
-        "week_low_52":    _to_float(raw.get("weekHighLow52", {}).get("min") if isinstance(raw.get("weekHighLow52"), dict) else raw.get("weekLow52")),
-        "upper_circuit":  _to_float(raw.get("upperCP") or raw.get("ucLimit")),
-        "lower_circuit":  _to_float(raw.get("lowerCP") or raw.get("lcLimit")),
-        "market_cap_cr":  _to_float(raw.get("totalMarketCap") or raw.get("marketCap")),
-        "company_name":   raw.get("companyName") or raw.get("name") or symbol,
-        "isin":           raw.get("isin") or "",
+        "open":           _to_float(pi.get("open")),
+        "high":           _to_float(intra.get("max")),
+        "low":            _to_float(intra.get("min")),
+        "volume":         traded_qty or _to_int(raw.get("preOpenMarket", {}).get("totalTradedVolume")),
+        "previous_close": _to_float(pi.get("previousClose")),
+        "change":         _to_float(pi.get("change")),
+        "change_pct":     _to_float(pi.get("pChange")),
+        "vwap":           _to_float(pi.get("vwap")),
+        "week_high_52":   _to_float(whl.get("max")),
+        "week_low_52":    _to_float(whl.get("min")),
+        "upper_circuit":  _to_float(pi.get("upperCP")),
+        "lower_circuit":  _to_float(pi.get("lowerCP")),
+        "market_cap_cr":  market_cap_cr,
+        "delivery_qty":   delivery_qty,
+        "sector":         industry_info.get("sector") or meta.get("pdSectorInd"),
+        "industry":       industry_info.get("industry") or meta.get("industry"),
+        "company_name":   info.get("companyName") or meta.get("companyName") or symbol,
+        "isin":           info.get("isin") or meta.get("isin") or "",
         "_raw":           raw,
     }
 
@@ -372,18 +409,28 @@ async def fetch_announcements(symbol: str, limit: int = 20) -> dict[str, Any]:
     if not isinstance(raw, list):
         raise ValueError("NSE announcements() did not return a list")
 
-    items = [
-        {
+    items = []
+    for a in raw:
+        if not isinstance(a, dict):
+            continue
+        if str(a.get("symbol", "")).upper() != symbol:
+            continue
+        raw_url = (
+            a.get("attchmntFile")
+            or a.get("fileName")
+            or a.get("url")
+            or ""
+        )
+        items.append({
             "title":    a.get("desc") or a.get("attchmntText") or "",
             "date":     a.get("dt") or a.get("date") or "",
             "category": a.get("desc") or "",
-            "pdf_url":  a.get("attchmntFile") or "",
+            "pdf_url":  _normalize_pdf_url(str(raw_url)),
             "symbol":   symbol,
             "source":   SOURCE_ID,
-        }
-        for a in raw
-        if isinstance(a, dict) and str(a.get("symbol", "")).upper() == symbol
-    ][:limit]
+        })
+
+    items = items[:limit]
 
     if not items:
         # Empty is OK — stock may have no recent announcements
@@ -416,9 +463,17 @@ async def fetch_board_meetings(symbol: str) -> dict[str, Any]:
     for item in (raw if isinstance(raw, list) else [raw]):
         if not isinstance(item, dict):
             continue
+        raw_url = (
+            item.get("attchmntFile")
+            or item.get("attachment")
+            or item.get("fileName")
+            or item.get("url")
+            or ""
+        )
         meetings.append({
             "date":    item.get("bm_date") or item.get("meetingDate") or "",
             "purpose": item.get("bm_purpose") or item.get("purpose") or "",
+            "pdf_url": _normalize_pdf_url(str(raw_url)),
             "symbol":  symbol,
         })
 
@@ -492,6 +547,24 @@ async def fetch_annual_reports(symbol: str) -> dict[str, Any]:
 
 
 # ── Type coercers ─────────────────────────────────────────────────────────────
+
+def _normalize_pdf_url(url: str) -> str:
+    """Normalize NSE attachment URLs to absolute links."""
+    if not url or url.strip().lower() in {"na", "n/a", "none"}:
+        return ""
+    clean = url.strip()
+    lower = clean.lower()
+    if url.startswith("http://") or url.startswith("https://"):
+        return clean
+    if url.startswith("//"):
+        return f"https:{clean}"
+    if clean.startswith("/"):
+        if lower.startswith("/corporate/") or lower.startswith("/xbrl/"):
+            return f"https://nsearchives.nseindia.com{clean}"
+        return f"https://www.nseindia.com{clean}"
+    if lower.startswith("corporate/") or lower.startswith("xbrl/"):
+        return f"https://nsearchives.nseindia.com/{clean}"
+    return f"https://www.nseindia.com/{clean}"
 
 def _to_float(v: Any) -> float | None:
     """Coerce value to float, returning None on failure."""

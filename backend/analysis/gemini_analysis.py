@@ -27,7 +27,7 @@ from google.genai import types as genai_types
 _PROJECT_ROOT = Path(__file__).parents[2]          # backend/analysis/ → stocxi/
 sys.path.insert(0, str(_PROJECT_ROOT))
 
-from backend.config import settings                # type: ignore
+from backend.config import settings, yaml_cfg       # type: ignore
 from build_knowledge_graph import parse_md, ParsedNode  # type: ignore
 
 logger = logging.getLogger(__name__)
@@ -43,8 +43,33 @@ HORIZON_FILE: dict[str, str] = {
     "long":   "03_long_term_output.md",
 }
 
-# Gemini model — pinned for determinism
-_MODEL_ID = "gemini-3.1-pro-preview"
+STANDARD_SECTION_HEADINGS = [
+    "About",
+    "Fundamentals",
+    "Technical Indicators",
+    "Announcements",
+    "News",
+    "Financial Statements",
+    "Overall Summary & AI Opinion",
+]
+
+HEADING_ALIASES = {
+    "about the company": "About",
+    "company overview": "About",
+    "business overview": "About",
+    "technical analysis": "Technical Indicators",
+    "technicals": "Technical Indicators",
+    "financials": "Financial Statements",
+    "financial statement": "Financial Statements",
+    "financial statements": "Financial Statements",
+    "ai opinion and overall summary": "Overall Summary & AI Opinion",
+    "overall summary and ai opinion": "Overall Summary & AI Opinion",
+    "overall summary": "Overall Summary & AI Opinion",
+    "ai opinion": "Overall Summary & AI Opinion",
+}
+
+# Gemini model — pinned for determinism (read from versions.yaml at runtime)
+_MODEL_ID = yaml_cfg.versions.get("llm", {}).get("active", "gemini-2.5-flash").replace("google/", "")
 
 _SYSTEM_INSTRUCTION = """You are a senior equity research analyst at a top-tier Indian institutional brokerage with 15 years of experience covering NSE/BSE-listed stocks across all sectors. Your speciality is translating raw financial data and market signals into clear, evidence-backed research notes that help investors of all levels understand what the numbers actually mean.
 
@@ -60,7 +85,8 @@ Your standards:
 - You do not use emoji or coloured symbols anywhere. Your signal language is plain English: Positive, Negative, Neutral, Improving, Deteriorating, Strong, Weak.
 - You do not include charts or chart code. All visual trends are described in text and tables.
 - You are NOT a SEBI-registered advisor. You never say buy, sell, recommend, or advise. You describe what the data has historically implied.
-- You write comprehensive reports. Short analysis is incomplete analysis."""
+- You write comprehensive reports. Short analysis is incomplete analysis.
+- You always use the exact seven Markdown H2 headings requested. No alternate headings."""
 
 # ── Gemini client init ────────────────────────────────────────────────────────
 
@@ -190,6 +216,34 @@ Replace [KG_LINK_PLACEHOLDER] with the kg_link value above.
 
 ---
 
+## MANDATORY OUTPUT SKELETON
+
+Use these exact Markdown headings, in this order, for every horizon and user level:
+
+1. ## About
+2. ## Fundamentals
+3. ## Technical Indicators
+4. ## Announcements
+5. ## News
+6. ## Financial Statements
+7. ## Overall Summary & AI Opinion
+
+Rules:
+- Do not add, rename, reorder, or skip these H2 headings.
+- Put all horizon-specific content inside these same sections.
+- Do not create different section structures for short, medium, or long horizon.
+- Start the report with one H1 title, then the seven H2 sections.
+- If a section has no source data, write one concise sentence saying data is unavailable.
+- Format numeric comparisons as Markdown tables, not inline pipe text.
+- Every table must include the separator row, for example: | A | B | then |---|---|.
+- In Financial Statements, include P&L, balance sheet, and cash flow when supplied.
+- After each Financial Statements table, write 2-3 sentences interpreting the numbers.
+- Even for short-term analysis, explain the latest quarter and cash-flow quality.
+
+Keep the horizon-specific focus and depth requirements from the instructions above.
+
+---
+
 ## KNOWLEDGE GRAPH DATA (JSON)
 
 The following JSON contains all nodes extracted from the stock's data file.
@@ -203,6 +257,45 @@ Use this as your sole data source. Do not invent numbers not present here.
 
 Begin the report now. Start directly with the company name / header line.
 """
+
+
+def standardize_report_markdown(md_text: str) -> str:
+    """Force the public report into the fixed seven-section Markdown contract."""
+    text = md_text.strip()
+    if text.startswith("```"):
+        lines = text.splitlines()
+        if lines and lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].startswith("```"):
+            lines = lines[:-1]
+        text = "\n".join(lines).strip()
+
+    intro_lines: list[str] = []
+    sections: dict[str, list[str]] = {heading: [] for heading in STANDARD_SECTION_HEADINGS}
+    current: str | None = None
+
+    for raw_line in text.splitlines():
+        stripped = raw_line.strip()
+        if stripped.startswith("## "):
+            heading = stripped[3:].strip().strip("#").strip()
+            canonical = HEADING_ALIASES.get(heading.lower(), heading)
+            if canonical in STANDARD_SECTION_HEADINGS:
+                current = canonical
+                continue
+        if current:
+            sections[current].append(raw_line)
+        else:
+            intro_lines.append(raw_line)
+
+    rebuilt: list[str] = [line for line in intro_lines if line.strip()]
+    for heading in STANDARD_SECTION_HEADINGS:
+        body = "\n".join(sections[heading]).strip()
+        rebuilt.extend(["", f"## {heading}"])
+        if body:
+            rebuilt.append(body)
+        else:
+            rebuilt.append("Data unavailable in the supplied nodes.")
+    return "\n".join(rebuilt).strip()
 
 
 # ── Main analysis function ────────────────────────────────────────────────────
@@ -266,7 +359,7 @@ def run_analysis(
             max_output_tokens=32768,
         ),
     )
-    report = response.text
+    report = standardize_report_markdown(response.text or "")
 
     logger.info("[gemini_analysis] Report generated — %d chars", len(report))
     return report

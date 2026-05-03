@@ -27,8 +27,8 @@ export default function StockHeader({
   change,
   changePercent,
 }: StockHeaderProps) {
-  const isPositive = change !== null && change >= 0;
-  const isNegative = change !== null && change < 0;
+  const isPositive = change != null && change >= 0;
+  const isNegative = change != null && change < 0;
   const changeArrow = isPositive ? "▲" : isNegative ? "▼" : null;
   const changeColor = isPositive ? "text-emerald-400" : isNegative ? "text-red-400" : "text-zinc-400";
   const changeBg = isPositive ? "bg-emerald-500/10" : isNegative ? "bg-red-500/10" : "bg-zinc-800/50";
@@ -62,9 +62,9 @@ export default function StockHeader({
         {/* Price + change */}
         <div className="flex items-baseline sm:flex-col sm:items-end gap-2 sm:gap-0 min-w-0 sm:shrink-0">
           <div className="text-2xl sm:text-4xl font-black font-mono text-white tracking-tight whitespace-nowrap">
-            {price !== null ? `₹${price.toLocaleString("en-IN")}` : "—"}
+            {price != null ? `₹${price.toLocaleString("en-IN")}` : "—"}
           </div>
-          {changeArrow && change !== null && changePercent !== null && (
+          {changeArrow && change != null && changePercent != null && (
             <div className={`inline-flex items-center gap-1 sm:mt-1.5 text-xs sm:text-sm font-semibold px-2 sm:px-2.5 py-0.5 rounded-full whitespace-nowrap ${changeColor} ${changeBg}`}>
               <span>{changeArrow}</span>
               <span>₹{Math.abs(change).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>

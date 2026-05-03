@@ -209,6 +209,7 @@ def _parse_top_ratios(soup) -> dict:
         "pe_ratio": None, "market_cap": None, "book_value": None,
         "dividend_yield": None, "roce": None, "roe": None,
         "face_value": None, "eps": None, "sector": None, "industry": None,
+        "debt_to_equity": None, "current_ratio": None,
     }
     try:
         ratios_ul = soup.find("ul", {"id": "top-ratios"})
@@ -252,6 +253,10 @@ def _parse_top_ratios(soup) -> dict:
                     result["roe"] = to_float(raw)
                 elif "face value" in name:
                     result["face_value"] = to_float(raw)
+                elif "debt" in name and ("equity" in name or "d/e" in name or "eq" in name):
+                    result["debt_to_equity"] = to_float(raw)
+                elif "current ratio" in name:
+                    result["current_ratio"] = to_float(raw)
             except Exception:
                 continue
 

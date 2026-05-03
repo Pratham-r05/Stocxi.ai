@@ -178,6 +178,23 @@ TMPV, QUESTCAP). Every coverage claim below is empirically tested.
 
 ## Session Log
 
+### 2026-05-03 — Announcements summary + KG + analysis format fixes
+
+**What was done:**
+- Fixed announcement summary parsing to handle Gemini IDs returned as strings and list-only responses.
+- Normalized NSE announcement attachment URLs and exposed board meeting PDF links when available.
+- Added summary fallback in announcements endpoint and bumped cache key to v6.
+- Normalized Gemini markdown output before HTML rendering to avoid code-block-only output.
+- Enforced a consistent analysis section skeleton across all horizons in the Gemini prompt.
+- Wired simple analysis KG HTML output to graphify-out so the /api/v2/analysis/{symbol}/graph endpoint resolves.
+- Generated fresh knowledge graph HTML for ADANIPOWER via build_knowledge_graph.py.
+
+**Files touched:**
+- `backend/services/announcement_summary_service.py`
+- `backend/services/simple_analysis_service.py`
+- `backend/analysis/gemini_analysis.py`
+- `NEW_PROGRESS.md`
+
 ### 2026-04-26 — Architecture Reset + Plan Creation
 
 **What was done:**
@@ -1050,3 +1067,89 @@ and a graph visualization link.
 
 **Files modified:**
 - `fetch_phase1_data.py` (added `_build_markdown()`, changed output from `.json` to `.md`)
+
+---
+
+## Session — 2026-05-03 (UI Bug Fix Pass)
+
+**What was done:**
+
+### Backend Fixes
+- **announcements_service router (stock.py)**: Fixed critical bug where `get_stock_announcements` was calling `get_announcements(symbol, limit=limit)` but the function requires `as_of_date` and `profile` args (TypeError). Rewrote endpoint to directly call `nse_client.fetch_announcements`, `nse_client.fetch_board_meetings`, `nse_client.fetch_actions`, `bse_client.fetch_actions` in parallel — now returns real merged NSE+BSE announcements.
+
+- **technicals_service.py**: Fixed `rsi_signal` returning "RSI:" (wrong — was `node.value.split()[0]`). Now stores `_signal` key in `value_raw` inside `emit()` for all indicators. Fixed `macd_signal` missing from legacy dict (only had `macd_signal_line`). Added `stoch_signal`, `obv_signal`, `vwap_signal`, `bb_signal`, `ema_signal`, `adx_signal`. Added new Volume_SMA20 indicator node for `volume_sma_20` field.
+
+- **stock.py router (technicals response)**: Added `macd_signal_line`, `macd_histogram`, `stoch_k`, `stoch_d`, `stoch_signal`, `vwap`, `vwap_signal`, `obv`, `obv_signal` to the technicals dict.
+
+- **v2_analysis.py**: Updated horizon pattern from `^(short|long)$` to `^(short|medium|long)$` to support medium-term analysis horizon.
+
+### Frontend Fixes
+- **TopStatsBar**: Replaced Day High–Low with PB Ratio and Open·Prev Close. Now shows: Market Cap, PE, PB, Volume, Open·Prev Close, 52W H–L.
+- **KeyFundamentals**: Removed MarketCap, Volume, PE, PB (duplicate with TopStatsBar). Now shows only unique: EPS, Book Value, Face Value, Dividend Yield, ROE, ROCE, Industry, Sector.
+- **TechnicalsSection**: Added 2 new indicators (Stochastic Oscillator, VWAP) to reach 10 total. Updated MACD card to show both MACD line and Signal line values. Updated type interface for new fields.
+- **FinancialsSection**: Removed MF Holdings tab entirely. Added green/red color coding — most-recent column color-coded vs previous period (green=better, red=worse, expense rows inverted). Added "View full report on Screener.in" link at the bottom of each tab.
+- **AIAnalysisLauncher**: Changed from 2 horizons to 3: Short Term (1–3M), Medium Term (3M–1Y), Long Term (1–5Y). Grid updated to 3-column layout.
+- **analysis/page.tsx + AnalysisClient**: Updated to accept "medium" as a valid horizon type.
+- **lib/types.ts (Technicals)**: Added new fields: macd_signal_line, macd_histogram, stoch_k, stoch_d, stoch_signal, vwap, vwap_signal, obv, obv_signal.
+- **KnowledgeGraph.tsx + KnowledgeGraphClient.tsx**: Fixed pre-existing TypeScript errors (TS18048 — parentPos possibly undefined).
+
+**Files modified:**
+- `backend/services/technicals_service.py`
+- `backend/routers/stock.py`
+- `backend/routers/v2_analysis.py`
+- `frontend/components/stock/TopStatsBar.tsx`
+- `frontend/components/stock/KeyFundamentals.tsx`
+- `frontend/components/stock/TechnicalsSection.tsx`
+- `frontend/components/stock/FinancialsSection.tsx`
+- `frontend/components/stock/AIAnalysisLauncher.tsx`
+- `frontend/components/stock/AnalysisClient.tsx`
+- `frontend/components/stock/KnowledgeGraph.tsx`
+- `frontend/components/stock/KnowledgeGraphClient.tsx`
+- `frontend/app/stock/[symbol]/page.tsx`
+- `frontend/app/stock/[symbol]/analysis/page.tsx`
+- `frontend/lib/types.ts`
+- `frontend/lib/api.ts`
+- `NEW_PROGRESS.md` (this update)
+
+**Open Issues:**
+- AI Analysis pipeline success depends on LLM (Gemini) API availability and min_nodes thresholds (technical:10, fundamental:8, announcement:3)
+- Knowledge graph 3D rendering now type-safe; data endpoint at `/api/v1/knowledge-graph/{symbol}` should work after NSE data loads
+- Cache keys are versioned so existing cached data should not interfere
+
+---
+
+## Session — 2026-05-03
+
+**What was built:**
+1. **DMA/EMA fix**: NSE OHLCV returns unadjusted prices for stocks with splits. Added `_apply_split_adjustment()` in `ohlcv_service.py` that detects consecutive-day price jumps > 2.5× (split events) and normalises historical prices to post-split scale. Verified ADANIPOWER 200-SMA now 152.98 (vs real ~156.07) and 50-SMA 164.03 (vs real ~163.83).
+
+2. **AI Analysis pipeline replaced**: The v2 orchestrator (M0-M5 with min_nodes gates) was failing with InsufficientDataError. Replaced frontend with a new simplified pipeline:
+   - `backend/services/simple_analysis_service.py` — runs `fetch_phase1_data.py` → KG build → Gemini analysis → HTML
+   - `GET /api/v2/analysis/{symbol}/generate` endpoint — serves cached HTML or triggers fresh pipeline
+   - `frontend/components/stock/AnalysisClient.tsx` — rewritten to call the simple endpoint, shows progress steps, renders HTML in sandboxed iframe
+   - `frontend/app/stock/[symbol]/analysis/page.tsx` — no SSR fetch, all client-side
+   - Fixed `gemini_analysis.py` model ID: was `gemini-3.1-pro-preview` (nonexistent) → now reads from `versions.yaml` = `gemini-2.5-pro`
+
+3. **Announcement summaries**: Each announcement now gets a 1-sentence investor-context summary via Gemini Flash (cheap, fast).
+   - `backend/services/announcement_summary_service.py` — single batched Gemini 2.5 Flash call per page load
+   - `backend/routers/stock.py` — calls summariser before caching response
+   - `frontend/components/stock/AnnouncementsSection.tsx` — `AnnouncementRow` shows summary truncated to 120 chars with "…read more" expand button
+   - `frontend/lib/types.ts` — added `summary?: string` to `Announcement`
+
+**Files touched:**
+- `backend/services/ohlcv_service.py` — split adjustment
+- `backend/services/simple_analysis_service.py` — NEW
+- `backend/services/announcement_summary_service.py` — NEW
+- `backend/routers/v2_analysis.py` — new `/generate` endpoint
+- `backend/routers/stock.py` — calls announcement summariser
+- `backend/analysis/gemini_analysis.py` — model ID fix
+- `frontend/lib/api.ts` — added `fetchSimpleAnalysis`, `SimpleAnalysisResult`
+- `frontend/lib/types.ts` — added `summary` to Announcement
+- `frontend/components/stock/AnalysisClient.tsx` — full rewrite
+- `frontend/components/stock/AnnouncementsSection.tsx` — AnnouncementRow with summaries
+- `frontend/app/stock/[symbol]/analysis/page.tsx` — no SSR
+
+**Open Issues:**
+- `simple_analysis_service.py` depends on `fetch_phase1_data.py` existing at repo root (runs as subprocess); first-time analysis takes 2–4 min
+- KG button links to `/stock/{symbol}/knowledge` (React Three.js KG) — separate from the HTML KG built by `build_knowledge_graph.py`
+- Announcement summary cache is 2 hours (shared with the main announcements cache key)

@@ -9,3 +9,4 @@ frontend/.env
 backend/__pycache__/
 backend/**/*.pyc
 docs/frontend-backend-md/
+.gstack/

@@ -126,8 +126,8 @@ def _compute_nodes(
         w = _get_weight(weights, "technical", weight_key, horizon)
         nodes.append(Node(
             stock=symbol, category=NodeCategory.technical, name=name,
-            value=value_str, value_raw=value_raw, signal=sig,
-            confidence=1.00,  # computed from L1 OHLCV — full confidence in computation
+            value=value_str, value_raw={**value_raw, "_signal": signal_str}, signal=sig,
+            confidence=1.00,
             source="ta_library", source_url="",
             as_of_date=as_of_date, fetched_at_ist=fetched,
             horizon_relevance=horizon_rel, weight=w, weight_version=w_ver,
@@ -337,6 +337,8 @@ def _compute_nodes(
     # ── 14. VWAP (14-day rolling) ─────────────────────────────────────────────
     try:
         w = min(14, max(5, n))
+        if volume.sum() <= 0:
+            raise ValueError("volume all zero")
         vwap = _last_valid(
             ta_volume.VolumeWeightedAveragePrice(high=high, low=low, close=close,
                                                   volume=volume, window=w)
@@ -380,7 +382,20 @@ def _compute_nodes(
     except Exception:
         pass
 
-    # ── 17. 52-Week High/Low Ratio ────────────────────────────────────────────
+    # ── 17. Volume SMA 20 (for volume ratio card) ────────────────────────────
+    try:
+        vol_sma20 = _f(volume.rolling(window=min(20, n), min_periods=1).mean().iloc[-1])
+        if vol_sma20 and vol_sma20 > 0:
+            current_vol = _f(volume.iloc[-1])
+            ratio = (current_vol / vol_sma20) if current_vol else 1.0
+            s = "Bullish" if ratio >= 1.5 else "Bearish" if ratio < 0.7 else "Neutral"
+            emit("Volume_SMA20", f"Vol SMA20: {vol_sma20:.0f}",
+                 {"volume_sma_20": vol_sma20, "current_volume": current_vol},
+                 s, "volume", HorizonRelevance.short)
+    except Exception:
+        pass
+
+    # ── 18. 52-Week High/Low Ratio ────────────────────────────────────────────
     try:
         n52   = min(252, n)
         h52   = _f(high.iloc[-n52:].max())
@@ -408,23 +423,46 @@ def _nodes_to_legacy_dict(nodes: list[Node]) -> dict:
     for node in nodes:
         raw = node.value_raw
         name = node.name
-        if name == "RSI_14":     d.update({"rsi": raw.get("rsi"), "rsi_signal": node.value.split()[0]})
-        elif name == "MACD":     d.update({"macd": raw.get("macd"), "macd_signal_line": raw.get("signal"), "macd_histogram": raw.get("histogram")})
-        elif name == "ADX_14":   d.update({"adx": raw.get("adx"), "adx_signal": node.signal.value})
-        elif name == "ATR_14":   d.update({"atr": raw.get("atr")})
+        sig = raw.get("_signal", "Neutral")  # stored by emit() for round-trip accuracy
+        if name == "RSI_14":
+            d.update({"rsi": raw.get("rsi"), "rsi_signal": sig})
+        elif name == "MACD":
+            d.update({"macd": raw.get("macd"), "macd_signal_line": raw.get("signal"),
+                      "macd_histogram": raw.get("histogram"), "macd_signal": sig})
+        elif name == "ADX_14":
+            d.update({"adx": raw.get("adx"), "adx_signal": sig})
+        elif name == "ATR_14":
+            d.update({"atr": raw.get("atr")})
         elif name in ("Bollinger_Bands", "Bollinger_Upper", "Bollinger_Lower"):
-            d.update({"bb_upper": raw.get("upper"), "bb_middle": raw.get("middle"), "bb_lower": raw.get("lower")})
-        elif name == "EMA":      d.update({"ema_20": raw.get("ema_20"), "ema_50": raw.get("ema_50"), "ema_200": raw.get("ema_200")})
-        elif name == "SMA":      d.update({"sma_20": raw.get("sma_20"), "sma_50": raw.get("sma_50"), "sma_200": raw.get("sma_200")})
-        elif name == "Ichimoku": d.update({"ichimoku_a": raw.get("ichimoku_a"), "ichimoku_b": raw.get("ichimoku_b")})
-        elif name == "Parabolic_SAR": d.update({"psar": raw.get("psar")})
-        elif name == "Stochastic": d.update({"stoch_k": raw.get("stoch_k"), "stoch_d": raw.get("stoch_d")})
-        elif name == "Williams_R": d.update({"williams_r": raw.get("williams_r")})
-        elif name == "ROC":      d.update({"roc": raw.get("roc_pct")})
-        elif name == "OBV":      d.update({"obv": raw.get("obv")})
-        elif name == "VWAP":     d.update({"vwap": raw.get("vwap")})
-        elif name == "CMF":      d.update({"cmf": raw.get("cmf")})
-        elif name == "MFI":      d.update({"mfi": raw.get("mfi")})
+            d.update({"bb_upper": raw.get("upper"), "bb_middle": raw.get("middle"),
+                      "bb_lower": raw.get("lower"), "bb_signal": sig})
+        elif name == "EMA":
+            d.update({"ema_20": raw.get("ema_20"), "ema_50": raw.get("ema_50"),
+                      "ema_200": raw.get("ema_200"), "ema_signal": sig})
+        elif name == "SMA":
+            d.update({"sma_20": raw.get("sma_20"), "sma_50": raw.get("sma_50"),
+                      "sma_200": raw.get("sma_200")})
+        elif name == "Ichimoku":
+            d.update({"ichimoku_a": raw.get("ichimoku_a"), "ichimoku_b": raw.get("ichimoku_b")})
+        elif name == "Parabolic_SAR":
+            d.update({"psar": raw.get("psar"), "psar_signal": sig})
+        elif name == "Stochastic":
+            d.update({"stoch_k": raw.get("stoch_k"), "stoch_d": raw.get("stoch_d"),
+                      "stoch_signal": sig})
+        elif name == "Williams_R":
+            d.update({"williams_r": raw.get("williams_r"), "williams_r_signal": sig})
+        elif name == "ROC":
+            d.update({"roc": raw.get("roc_pct")})
+        elif name == "OBV":
+            d.update({"obv": raw.get("obv"), "obv_signal": sig})
+        elif name == "VWAP":
+            d.update({"vwap": raw.get("vwap"), "vwap_signal": sig})
+        elif name == "CMF":
+            d.update({"cmf": raw.get("cmf")})
+        elif name == "MFI":
+            d.update({"mfi": raw.get("mfi")})
+        elif name == "Volume_SMA20":
+            d.update({"volume_sma_20": raw.get("volume_sma_20")})
         elif name == "52W_HL_Ratio":
             d.update({"week_52_high": raw.get("high"), "week_52_low": raw.get("low"),
                       "week_52_ratio": raw.get("ratio")})
