@@ -1,5 +1,11 @@
 .DS_Store
+__pycache__/
+*.py[cod]
+*.log
 .venv/
+.venv312/
+.conda/
+stoxk/
 backend/.env
 frontend/.env.local
 frontend/.env
@@ -10,3 +16,8 @@ backend/__pycache__/
 backend/**/*.pyc
 docs/frontend-backend-md/
 .gstack/
+frontend/.next/
+frontend/node_modules/
+.claude/worktrees/
+graphify-out/*debug*.html
+graphify-out/test_vis.html

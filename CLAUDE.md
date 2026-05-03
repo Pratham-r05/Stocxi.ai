@@ -33,8 +33,8 @@ Legal posture: not a SEBI advisor — never says "buy"; only describes what sign
 historically implied.
 
 - Live URL: https://stocxi.vercel.app
-- Stage: MVP live. Building full analysis pipeline (see PLAN.md for phases).
-- Progress: see NEW_PROGRESS.md
+- Stage: MVP live. Building full analysis pipeline (see docs/architecture/PLAN.md for phases).
+- Progress: see docs/progress/NEW_PROGRESS.md
 
 ---
 
@@ -88,11 +88,11 @@ Waterfall pattern: try L1 first, fall to L2 on failure, etc. Every result stampe
 ```
 stocxi/
 ├── CLAUDE.md                  <- this file, agent entrypoint
-├── ARCHITECTURE.md            <- system architecture, data sources, node schema, knowledge graph
+├── docs/architecture/ARCHITECTURE.md            <- system architecture, data sources, node schema, knowledge graph
 ├── AGENTS.md                  <- multi-agent orchestration contract
-├── SCALE.md                   <- performance, caching, rate limits, cost
-├── PLAN.md                    <- phased build plan with checklist
-├── NEW_PROGRESS.md            <- append-only session log + current state
+├── docs/architecture/SCALE.md                   <- performance, caching, rate limits, cost
+├── docs/architecture/PLAN.md                    <- phased build plan with checklist
+├── docs/progress/NEW_PROGRESS.md            <- append-only session log + current state
 ├── README.md                  <- public project overview
 ├── config/
 │   ├── versions.yaml          <- pinned model / prompt / weight / schema versions
@@ -165,11 +165,11 @@ Every new module lives under the correct directory. No ad-hoc top-level files.
 
 Before touching any file, the agent MUST:
 
-1. Read `NEW_PROGRESS.md` — current state, last session, known issues.
-2. Read `ARCHITECTURE.md` if touching: data sources, node schema, analysis protocol, weights, knowledge graph.
+1. Read `docs/progress/NEW_PROGRESS.md` — current state, last session, known issues.
+2. Read `docs/architecture/ARCHITECTURE.md` if touching: data sources, node schema, analysis protocol, weights, knowledge graph.
 3. Read `AGENTS.md` if adding or modifying any agent.
-4. Read `SCALE.md` if touching fetchers, caches, queues, or LLM calls.
-5. Read `PLAN.md` to understand current phase and what's next.
+4. Read `docs/architecture/SCALE.md` if touching fetchers, caches, queues, or LLM calls.
+5. Read `docs/architecture/PLAN.md` to understand current phase and what's next.
 6. If unsure whether a rule applies, ASK — do not guess.
 
 ---
@@ -178,13 +178,13 @@ Before touching any file, the agent MUST:
 
 After finishing any task, the agent MUST:
 
-1. Update `NEW_PROGRESS.md`:
+1. Update `docs/progress/NEW_PROGRESS.md`:
    - Append a Session Log entry (date, what was built, files touched, next steps).
    - Add any new blockers to known issues.
-2. If architecture changed: update `ARCHITECTURE.md` + log in NEW_PROGRESS.md.
+2. If architecture changed: update `docs/architecture/ARCHITECTURE.md` + log in docs/progress/NEW_PROGRESS.md.
 3. If agent changed: update `AGENTS.md`.
-4. If cache/scale changed: update `SCALE.md`.
-5. Check off completed items in `PLAN.md`.
+4. If cache/scale changed: update `docs/architecture/SCALE.md`.
+5. Check off completed items in `docs/architecture/PLAN.md`.
 6. Bump version in `config/versions.yaml` if prompt, weight table, or model id changed.
 
 ---
@@ -215,14 +215,14 @@ After finishing any task, the agent MUST:
 
 | Topic | Where to look |
 |---|---|
-| Data sources, methods, fields, priorities | ARCHITECTURE.md Section 3 |
-| Node schema + data formats | ARCHITECTURE.md Section 4 |
-| Knowledge graph edges + scoring | ARCHITECTURE.md Section 5 |
-| 10-step analysis protocol | ARCHITECTURE.md Section 6 |
+| Data sources, methods, fields, priorities | docs/architecture/ARCHITECTURE.md Section 3 |
+| Node schema + data formats | docs/architecture/ARCHITECTURE.md Section 4 |
+| Knowledge graph edges + scoring | docs/architecture/ARCHITECTURE.md Section 5 |
+| 10-step analysis protocol | docs/architecture/ARCHITECTURE.md Section 6 |
 | Agent contracts + waterfall details | AGENTS.md Sections 2.1-2.5 |
 | Pipeline execution flow | AGENTS.md Section 10 |
-| Cache keys, TTLs, rate limits | SCALE.md Sections 2-4 |
-| Build phases + current progress | PLAN.md + NEW_PROGRESS.md |
+| Cache keys, TTLs, rate limits | docs/architecture/SCALE.md Sections 2-4 |
+| Build phases + current progress | docs/architecture/PLAN.md + docs/progress/NEW_PROGRESS.md |
 
 ---
 

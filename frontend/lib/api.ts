@@ -24,7 +24,13 @@ export async function searchSymbols(query: string): Promise<SearchResult[]> {
 }
 
 export async function fetchStockOverview(symbol: string): Promise<StockOverview | null> {
-  return apiFetch<StockOverview>(`/api/v1/stock/${symbol}`);
+  try {
+    const res = await fetch(`${BASE}/api/v1/stock/${symbol}`, { cache: "no-store" });
+    if (!res.ok) return null;
+    return res.json() as Promise<StockOverview>;
+  } catch {
+    return null;
+  }
 }
 
 export async function fetchAIAnalysis(

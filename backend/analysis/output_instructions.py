@@ -5,7 +5,7 @@ The analysis pipeline uses two sets of instruction files:
   1. 00_kg_shorthand_book.md — read BEFORE graph analysis (node reference + HFBP edges + signal rules)
   2. 01/02/03 horizon files   — read AFTER graph analysis (output format per investor horizon)
 
-This module loads these files from the project root and caches them in memory.
+This module loads these files from docs/output and caches them in memory.
 Files are read once at module import; restart the process to pick up changes.
 """
 
@@ -22,12 +22,14 @@ _PROJECT_ROOT = Path(__file__).parents[1].parent  # backend/analysis/ → stocxi
 
 # ── Instruction file paths ────────────────────────────────────────────────────
 
-SHORTHAND_BOOK_PATH = _PROJECT_ROOT / "00_kg_shorthand_book.md"
+_OUTPUT_DOCS = _PROJECT_ROOT / "docs" / "output"
+
+SHORTHAND_BOOK_PATH = _OUTPUT_DOCS / "00_kg_shorthand_book.md"
 
 HORIZON_FILE_MAP: dict[str, Path] = {
-    "short":  _PROJECT_ROOT / "01_short_term_output.md",
-    "medium": _PROJECT_ROOT / "02_medium_term_output.md",
-    "long":   _PROJECT_ROOT / "03_long_term_output.md",
+    "short":  _OUTPUT_DOCS / "01_short_term_output.md",
+    "medium": _OUTPUT_DOCS / "02_medium_term_output.md",
+    "long":   _OUTPUT_DOCS / "03_long_term_output.md",
 }
 
 # ── In-memory cache (loaded once) ─────────────────────────────────────────────

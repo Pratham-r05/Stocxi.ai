@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stocxi Project Resume</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #060708;
+      --panel: rgba(255,255,255,0.055);
+      --panel-strong: rgba(255,255,255,0.095);
+      --line: rgba(255,255,255,0.14);
+      --text: #f5f7fb;
+      --muted: #9aa3b2;
+      --soft: #c7ceda;
+      --green: #13c89b;
+      --blue: #56a5ff;
+      --violet: #a78bfa;
+      --amber: #f2c94c;
+      --red: #ff6b6b;
+      --shadow: 0 24px 90px rgba(0,0,0,0.55);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% 8%, rgba(19,200,155,0.18), transparent 30%),
+        radial-gradient(circle at 86% 18%, rgba(86,165,255,0.16), transparent 28%),
+        linear-gradient(180deg, #08090b 0%, #050607 100%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    .page {
+      width: min(1120px, calc(100% - 40px));
+      margin: 34px auto;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.075), rgba(255,255,255,0.028));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero {
+      position: relative;
+      padding: 46px 48px 34px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(19,200,155,0.12), transparent 40%),
+        linear-gradient(180deg, rgba(255,255,255,0.05), transparent);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto 48px 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(19,200,155,0.8), rgba(86,165,255,0.75), transparent);
+    }
+
+    .topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 34px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(145deg, rgba(19,200,155,0.35), rgba(86,165,255,0.22)),
+        #101316;
+      border: 1px solid rgba(255,255,255,0.18);
+      font-weight: 900;
+      color: #fff;
+      font-size: 22px;
+    }
+
+    .eyebrow {
+      margin: 0 0 6px;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(44px, 7vw, 82px);
+      line-height: 0.9;
+      letter-spacing: 0;
+    }
+
+    .role {
+      margin: 16px 0 0;
+      max-width: 780px;
+      color: var(--soft);
+      font-size: 20px;
+      line-height: 1.45;
+      font-weight: 520;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 26px;
+    }
+
+    .pill {
+      padding: 9px 12px;
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      color: var(--soft);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .status {
+      display: grid;
+      gap: 8px;
+      min-width: 210px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(0,0,0,0.18);
+    }
+
+    .status b {
+      font-size: 13px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .status span {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--green);
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 1.18fr 0.82fr;
+      gap: 22px;
+      padding: 28px;
+    }
+
+    .section {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--panel);
+      padding: 24px;
+    }
+
+    .section + .section { margin-top: 22px; }
+
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 18px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #fff;
+    }
+
+    h2::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 28px var(--green);
+    }
+
+    .summary {
+      margin: 0;
+      color: var(--soft);
+      font-size: 17px;
+      line-height: 1.65;
+    }
+
+    .impact-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .metric {
+      min-height: 118px;
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.13);
+      background: linear-gradient(180deg, var(--panel-strong), rgba(255,255,255,0.035));
+    }
+
+    .metric strong {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 30px;
+      line-height: 1;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .story {
+      display: grid;
+      gap: 14px;
+    }
+
+    .story-item {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .num {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(19,200,155,0.14);
+      color: var(--green);
+      font-weight: 900;
+      border: 1px solid rgba(19,200,155,0.35);
+    }
+
+    .story-item h3 {
+      margin: 0 0 6px;
+      font-size: 16px;
+    }
+
+    .story-item p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+
+    .chip {
+      padding: 9px 11px;
+      border-radius: 11px;
+      background: rgba(255,255,255,0.075);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--soft);
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .feature-list li {
+      position: relative;
+      padding-left: 22px;
+      color: var(--soft);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .feature-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 9px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--blue);
+    }
+
+    .system-map {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .map-row {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0,0,0,0.15);
+    }
+
+    .map-row b {
+      color: #fff;
+      font-size: 13px;
+    }
+
+    .map-row span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .callout {
+      border-color: rgba(19,200,155,0.35);
+      background:
+        linear-gradient(135deg, rgba(19,200,155,0.14), rgba(86,165,255,0.08)),
+        var(--panel);
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 22px 28px 30px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 860px) {
+      .topline, .footer { flex-direction: column; align-items: flex-start; }
+      main { grid-template-columns: 1fr; }
+      .impact-grid { grid-template-columns: 1fr; }
+      .hero { padding: 34px 24px 28px; }
+      .page { width: min(100% - 20px, 1120px); margin: 10px auto; }
+      .map-row { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      body { background: #fff; color: #111; }
+      .page { margin: 0; width: 100%; border: 0; box-shadow: none; border-radius: 0; }
+      .section, .metric, .status, .map-row { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <article class="page">
+    <header class="hero">
+      <div class="topline">
+        <div class="brand">
+          <div class="mark">SX</div>
+          <div>
+            <p class="eyebrow">Full-stack AI finance product</p>
+            <h1>Stocxi</h1>
+          </div>
+        </div>
+        <div class="status">
+          <b>Project stage</b>
+          <span>Deployment Ready</span>
+        </div>
+      </div>
+
+      <p class="role">
+        AI-powered Indian stock analysis platform for retail investors.
+        It converts verified market data into transparent, citation-backed
+        insights through agents, knowledge graphs, and deterministic checks.
+      </p>
+
+      <div class="pill-row">
+        <span class="pill">Next.js 16</span>
+        <span class="pill">FastAPI</span>
+        <span class="pill">Python 3.11</span>
+        <span class="pill">Redis Cache</span>
+        <span class="pill">Gemini / OpenRouter</span>
+        <span class="pill">NSE + BSE + Screener</span>
+        <span class="pill">Three.js Knowledge Graph</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <div class="section callout">
+          <h2>Project Summary</h2>
+          <p class="summary">
+            Built a production-grade stock intelligence system for Indian markets.
+            The platform fetches price, fundamentals, financial statements,
+            technical indicators, news, and announcements. It normalizes them into
+            auditable data nodes, builds a knowledge graph, and returns clear
+            user-facing analysis without making investment-advice claims.
+          </p>
+        </div>
+
+        <div class="section">
+          <h2>Core Product Flow</h2>
+          <div class="story">
+            <div class="story-item">
+              <div class="num">1</div>
+              <div>
+                <h3>Search any Indian stock</h3>
+                <p>Users search NSE/BSE symbols and open a rich stock overview.</p>
+              </div>
+            </div>
+            <div class="story-item">
+              <div class="num">2</div>
+              <div>
+                <h3>Fetch verified market data</h3>
+                <p>Backend pulls from approved exchange, Screener, RSS, and fallback sources.</p>
+              </div>
+            </div>
+            <div class="story-item">
+              <div class="num">3</div>
+              <div>
+                <h3>Build evidence graph</h3>
+                <p>Signals become typed nodes connected by agreements, contradictions, and context.</p>
+              </div>
+            </div>
+            <div class="story-item">
+              <div class="num">4</div>
+              <div>
+                <h3>Generate verified analysis</h3>
+                <p>AI output is checked so uncited claims are stripped before users see them.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>System Architecture</h2>
+          <div class="system-map">
+            <div class="map-row">
+              <b>Frontend</b>
+              <span>Next.js dashboard with search, charting, fundamentals, AI analysis, filings, news, and graph views.</span>
+            </div>
+            <div class="map-row">
+              <b>Backend</b>
+              <span>FastAPI routers, service layer, source fetchers, cache, and report endpoints.</span>
+            </div>
+            <div class="map-row">
+              <b>Agents</b>
+              <span>Technical, fundamental, news, announcement, context, analysis, verifier, and formatter agents.</span>
+            </div>
+            <div class="map-row">
+              <b>Data Layer</b>
+              <span>NSE, BSE, Screener, yfinance fallback, approved RSS sources, Redis, and audit logs.</span>
+            </div>
+            <div class="map-row">
+              <b>Trust Layer</b>
+              <span>Anonymization, sanitizer, source priority, data completeness checks, and citation verification.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside>
+        <div class="section">
+          <h2>Impact</h2>
+          <div class="impact-grid">
+            <div class="metric">
+              <strong>17</strong>
+              <span>Technical indicators computed per stock.</span>
+            </div>
+            <div class="metric">
+              <strong>5</strong>
+              <span>Parallel data domains in the analysis pipeline.</span>
+            </div>
+            <div class="metric">
+              <strong>60s</strong>
+              <span>Full pipeline budget with graceful degradation.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>Highlights</h2>
+          <ul class="feature-list">
+            <li>Built a live market intelligence workflow for Indian equities.</li>
+            <li>Designed typed Pydantic messages for agent communication.</li>
+            <li>Implemented source waterfalls and confidence-weighted data nodes.</li>
+            <li>Created a 3D knowledge graph for explainable analysis.</li>
+            <li>Added Redis caching for faster repeated analysis.</li>
+            <li>Added verifier logic to reduce hallucinated claims.</li>
+            <li>Shaped outputs for beginners without hiding risk signals.</li>
+          </ul>
+        </div>
+
+        <div class="section">
+          <h2>Skills Shown</h2>
+          <div class="chips">
+            <span class="chip">Product Engineering</span>
+            <span class="chip">Backend Architecture</span>
+            <span class="chip">Frontend Design</span>
+            <span class="chip">Data Pipelines</span>
+            <span class="chip">LLM Orchestration</span>
+            <span class="chip">Prompt Safety</span>
+            <span class="chip">Financial Data</span>
+            <span class="chip">API Design</span>
+            <span class="chip">Caching</span>
+            <span class="chip">Testing</span>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>Resume Bullets</h2>
+          <ul class="feature-list">
+            <li>Built Stocxi, an AI-powered stock analysis platform for Indian retail investors.</li>
+            <li>Engineered FastAPI services that merge NSE, BSE, Screener, news, and technical data.</li>
+            <li>Designed a multi-agent analysis pipeline with deterministic verification and auditability.</li>
+            <li>Developed a premium Next.js interface for stock research, charts, filings, and AI reports.</li>
+            <li>Implemented knowledge graph visualization to explain signal relationships and contradictions.</li>
+          </ul>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="footer">
+      <span>Stocxi is an educational analysis product, not financial advice.</span>
+      <span>Designed for portfolio, interview, and deployment showcase use.</span>
+    </footer>
+  </article>
+</body>
+</html>

@@ -340,7 +340,7 @@ async def get_stock_overview(symbol: str):
     """
     requested_symbol = symbol.upper().strip()
     symbol = _SYMBOL_ALIASES.get(requested_symbol, requested_symbol)
-    cache_key = f"stock:overview:v8:{requested_symbol}"
+    cache_key = f"stock:overview:v9:{requested_symbol}"
 
     # ── Cache hit ─────────────────────────────────────────────────────────────
     cached = await cache_get(cache_key)
@@ -401,18 +401,52 @@ async def get_stock_overview(symbol: str):
         return None
 
     quarterly_table = screener_data.get("quarterly_results", {}) if isinstance(screener_data, dict) else {}
-    opm_value = bse_meta.get("opm") or latest_row_value(quarterly_table, "opm", "financing margin")
-    if opm_value is None:
-        revenue_latest = latest_row_value(quarterly_table, "sales", "revenue")
-        operating_profit_latest = latest_row_value(quarterly_table, "operating profit", "financing profit")
-        if revenue_latest and operating_profit_latest is not None:
-            opm_value = round(operating_profit_latest / revenue_latest * 100, 1)
-    npm_value = bse_meta.get("npm")
-    if npm_value is None:
-        sales_latest = latest_row_value(quarterly_table, "sales", "revenue")
-        profit_latest = latest_row_value(quarterly_table, "net profit")
-        if sales_latest and profit_latest is not None:
-            npm_value = round(profit_latest / sales_latest * 100, 1)
+    annual_table = screener_data.get("annual_results", {}) if isinstance(screener_data, dict) else {}
+
+    def first_available(*values):
+        for value in values:
+            if value is not None:
+                return value
+        return None
+
+    def computed_margin(table: dict, profit_labels: tuple[str, ...]) -> float | None:
+        revenue_latest = latest_row_value(
+            table,
+            "sales",
+            "revenue",
+            "income",
+            "total income",
+            "net interest income",
+        )
+        profit_latest = latest_row_value(table, *profit_labels)
+        if revenue_latest and profit_latest is not None:
+            return round(profit_latest / revenue_latest * 100, 1)
+        return None
+
+    def computed_operating_margin(table: dict) -> float | None:
+        direct = computed_margin(table, ("operating profit", "financing profit"))
+        if direct is not None:
+            return direct
+        revenue_latest = latest_row_value(table, "sales", "revenue", "total income")
+        expenses_latest = latest_row_value(table, "expenses", "total expenses")
+        if revenue_latest and expenses_latest is not None:
+            return round((revenue_latest - expenses_latest) / revenue_latest * 100, 1)
+        return None
+
+    opm_value = first_available(
+        bse_meta.get("opm"),
+        latest_row_value(quarterly_table, "opm", "operating margin", "financing margin"),
+        latest_row_value(annual_table, "opm", "operating margin", "financing margin"),
+        computed_operating_margin(quarterly_table),
+        computed_operating_margin(annual_table),
+    )
+    npm_value = first_available(
+        bse_meta.get("npm"),
+        latest_row_value(quarterly_table, "npm", "net profit margin"),
+        latest_row_value(annual_table, "npm", "net profit margin"),
+        computed_margin(quarterly_table, ("net profit", "profit after tax", "pat")),
+        computed_margin(annual_table, ("net profit", "profit after tax", "pat")),
+    )
 
     company_website = price_data.get("website") or screener_website
     if not company_website:

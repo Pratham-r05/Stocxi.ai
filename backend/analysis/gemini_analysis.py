@@ -38,9 +38,9 @@ Horizon   = Literal["short", "medium", "long"]
 UserLevel = Literal["beginner", "medium", "pro"]
 
 HORIZON_FILE: dict[str, str] = {
-    "short":  "01_short_term_output.md",
-    "medium": "02_medium_term_output.md",
-    "long":   "03_long_term_output.md",
+    "short":  "docs/output/01_short_term_output.md",
+    "medium": "docs/output/02_medium_term_output.md",
+    "long":   "docs/output/03_long_term_output.md",
 }
 
 STANDARD_SECTION_HEADINGS = [
