@@ -1,100 +1,172 @@
 # Stocxi
 
 <p align="center">
-	<img src="https://readme-typing-svg.demolab.com?font=Space+Grotesk&weight=700&size=24&duration=2200&pause=900&color=00A67D&center=true&vCenter=true&width=980&lines=Stocxi+-+AI-Powered+Indian+Stock+Analysis;Search+%3E+Understand+%3E+Decide;FastAPI+%2B+Next.js+%2B+Redis+%2B+OpenRouter" alt="Stocxi animated banner" />
+  <img src="https://readme-typing-svg.demolab.com?font=Space+Grotesk&weight=800&size=28&duration=2200&pause=800&color=13C89B&center=true&vCenter=true&width=980&lines=AI-Powered+Indian+Stock+Analysis;NSE+%2B+BSE+%2B+Screener+%2B+News+%2B+Knowledge+Graph;Evidence-Backed+Signals+For+Retail+Investors" alt="Stocxi animated headline" />
 </p>
 
 <p align="center">
-	<img src="https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
-	<img src="https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
-	<img src="https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" />
-	<img src="https://img.shields.io/badge/Redis-Upstash-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
-	<img src="https://img.shields.io/badge/OpenRouter-AI-111827?style=for-the-badge" alt="OpenRouter" />
+  <img src="https://img.shields.io/badge/Next.js-16.2.4-black?style=for-the-badge&logo=nextdotjs" alt="Next.js" />
+  <img src="https://img.shields.io/badge/React-19.2.4-61DAFB?style=for-the-badge&logo=react&logoColor=111" alt="React" />
+  <img src="https://img.shields.io/badge/FastAPI-0.115.6-009688?style=for-the-badge&logo=fastapi" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/Redis-Upstash-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
 </p>
 
-Stocxi is a full-stack stock analysis app for Indian markets (NSE/BSE).
-It combines market data, financials, technical indicators, news, social sentiment, and AI-generated decision support into one beginner-friendly workflow.
+<p align="center">
+  <b>Search a stock. Read the data. See the risks. Understand the signal.</b>
+</p>
 
-## What This Project Does
+---
 
-- Fast symbol search for Indian stocks.
-- Stock overview with price, 52-week range, key ratios, and technical indicators.
-- Financial statements from Screener data (P&L, balance sheet, cash flow, shareholding, MF holdings).
-- News and announcements aggregation.
-- Social sentiment signal from Reddit and X/Twitter feed processing.
-- AI analysis endpoint that returns Buy / Hold / Avoid with reasoning.
-- Redis caching for faster repeated calls.
+## What Is Stocxi?
 
-## Product Flow
+Stocxi is a full-stack AI stock analysis platform for Indian markets.
+It helps retail investors understand NSE/BSE stocks through verified data,
+technical indicators, fundamentals, filings, news, and AI-generated analysis.
 
-1. User opens the frontend and searches a symbol.
-2. Frontend calls backend APIs.
-3. Backend checks Redis cache first.
-4. On cache miss, backend fetches live/source data from service layers.
-5. Data gets normalized and returned to frontend.
-6. AI analysis and report endpoints generate decision summaries.
+It is built around one rule:
+
+> Every claim should come from data. No hidden reasoning. No unsupported hype.
+
+Stocxi is not a SEBI-registered advisor. It does not provide financial advice.
+It describes what the available data suggests.
+
+---
+
+## Why It Stands Out
+
+- **Indian-market first** - NSE, BSE, Screener, corporate filings, and Indian news.
+- **Evidence-backed analysis** - every major claim maps to source data.
+- **Multi-agent backend** - separate agents for technicals, fundamentals, news, filings, and context.
+- **Knowledge graph layer** - connects signals, contradictions, and supporting evidence.
+- **Verifier gate** - strips unsupported AI claims before output.
+- **Beginner-friendly UI** - clean stock overview, quick reads, key fundamentals, and risk signals.
+- **Deployment-minded** - FastAPI backend, Next.js frontend, Redis cache, env examples, buildable structure.
+
+---
+
+## Product Preview
+
+```mermaid
+flowchart LR
+  User["Retail investor"] --> Search["Stock search"]
+  Search --> Overview["Price + fundamentals"]
+  Overview --> Graph["Knowledge graph"]
+  Graph --> AI["AI analysis"]
+  AI --> Verify["Verifier agent"]
+  Verify --> Output["Signals for / against"]
+```
+
+---
+
+## Core Features
+
+| Area | What Stocxi Does |
+|---|---|
+| Stock Overview | Price, change, volume, market cap, PE, PB, 52W range |
+| Key Fundamentals | EPS, book value, ROE, ROCE, OPM, NPM, sector, industry |
+| Technical Indicators | RSI, MACD, ADX, ATR, Bollinger Bands, EMA, VWAP, OBV |
+| Financials | Quarterly results, annual P&L, balance sheet, cash flow, shareholding |
+| Announcements | NSE/BSE corporate actions, board meetings, dividends, filings |
+| News | Approved news sources with sanitization before AI use |
+| AI Analysis | Profile-aware summary with signals in favor and against |
+| Knowledge Graph | 3D graph for signal relationships and contradictions |
+| Reports | Analysis output and PDF/report generation paths |
+
+---
 
 ## Architecture
 
 ```mermaid
-flowchart LR
-	U[User] --> F[Next.js Frontend]
-	F --> B[FastAPI Backend]
-	B --> R[(Redis Cache)]
-	B --> M1[nsepython / Yahoo chart]
-	B --> M2[Screener scraping]
-	B --> M3[News + Announcements]
-	B --> M4[Sentiment processing]
-	B --> AI[OpenRouter AI]
+flowchart TB
+  FE["Next.js Frontend"] --> API["FastAPI Backend"]
+  API --> Cache["Redis Cache"]
+  API --> Orchestrator["Orchestrator Agent"]
+
+  Orchestrator --> TA["Technical Agent"]
+  Orchestrator --> FA["Fundamental Agent"]
+  Orchestrator --> NA["News Agent"]
+  Orchestrator --> AA["Announcement Agent"]
+  Orchestrator --> CA["Context Agent"]
+
+  TA --> KG["Knowledge Graph"]
+  FA --> KG
+  NA --> KG
+  AA --> KG
+  CA --> KG
+
+  KG --> Anon["Anonymizer"]
+  Anon --> LLM["Analysis Agent"]
+  LLM --> Verifier["Verifier Agent"]
+  Verifier --> Formatter["Output Formatter"]
+  Formatter --> FE
 ```
+
+---
+
+## Data Pipeline
+
+1. User searches a stock.
+2. Backend checks Redis cache.
+3. On cache miss, agents fetch data in parallel.
+4. Data is normalized into typed nodes.
+5. Conflicts are reconciled by source priority.
+6. Unsafe text is sanitized before AI prompts.
+7. Stock identity is anonymized for reasoning.
+8. AI creates structured analysis.
+9. Verifier removes unsupported claims.
+10. Formatter returns user-facing output.
+
+---
 
 ## Tech Stack
 
 | Layer | Stack |
 |---|---|
-| Frontend | Next.js 16, React 19, TypeScript, NextAuth |
-| Backend | FastAPI, Python 3.11 |
-| Data sources | nsepython, yfinance, Screener scraping, RSS/API feeds |
-| Technicals | pandas + ta |
-| Cache | Redis (Upstash compatible) |
-| AI | OpenRouter via OpenAI-compatible SDK |
-| Deployment | Vercel (frontend + backend as separate projects) |
+| Frontend | Next.js 16, React 19, TypeScript, Tailwind, Recharts |
+| Backend | FastAPI, Python, Pydantic |
+| Data Sources | NSE, BSE, Screener, yfinance fallback, RSS feeds |
+| Technicals | pandas, ta |
+| AI | Google Gemini / OpenAI-compatible client |
+| Cache | Redis / Upstash |
+| Graph | Three.js, React Three Fiber |
+| Reports | ReportLab |
+| Deployment | Vercel frontend, backend-ready FastAPI service |
 
-## Repository Layout
+---
+
+## Repository Structure
 
 ```text
 stocxi/
-├── backend/
-│   ├── main.py
-│   ├── config.py
-│   ├── routers/
-│   ├── services/
-│   ├── cache/
-│   ├── requirements.txt
-│   └── .env.example
-├── frontend/
-│   ├── app/
-│   ├── components/
-│   ├── lib/
-│   ├── package.json
-│   └── .env.example
-├── config/
-├── graphify-out/
-│   └── graph3d.html (3D knowledge graph visualization)
-└── README.md
+├── frontend/                 # Next.js application
+│   ├── app/                  # Routes and pages
+│   ├── components/           # UI components
+│   └── lib/                  # API client and types
+├── backend/                  # FastAPI application
+│   ├── agents/               # Specialist analysis agents
+│   ├── routers/              # API routes
+│   ├── services/             # Business logic
+│   ├── fetchers/             # NSE/BSE/Screener clients
+│   ├── schemas/              # Pydantic contracts
+│   └── cache/                # Redis helpers
+├── config/                   # Sources, weights, profiles, versions
+├── docs/
+│   ├── architecture/         # Architecture, scale, plan docs
+│   ├── output/               # AI output instruction docs
+│   └── progress/             # Progress and rebuild notes
+├── data/                     # Generated stock data markdown
+├── graphify-out/             # Knowledge graph outputs
+├── fetch_phase1_data.py      # Data fetch CLI
+├── build_knowledge_graph.py  # Graph builder CLI
+└── run_analysis.py           # End-to-end analysis CLI
 ```
 
-## Local Setup and Run
+---
 
-### Prerequisites
+## Local Setup
 
-- Python 3.11+
-- Node.js 20+
-- npm 10+
-- Redis URL (Upstash rediss URL recommended)
-- OpenRouter API key
-
-### 1) Backend Setup
+### 1. Backend
 
 ```bash
 cd backend
@@ -104,11 +176,14 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Edit backend .env values:
+Fill `backend/.env`:
 
 ```env
-REDIS_URL=rediss://:YOUR_PASSWORD@YOUR_ENDPOINT.upstash.io:6379
-OPENROUTER_API_KEY=sk-or-v1-YOUR_KEY_HERE
+REDIS_URL=rediss://default:YOUR_PASSWORD@YOUR_ENDPOINT.upstash.io:6379
+GOOGLE_API_KEY=YOUR_GOOGLE_API_KEY
+GOOGLE_CLOUD_PROJECT=YOUR_GCP_PROJECT_ID
+GOOGLE_APPLICATION_CREDENTIALS=../vertex_credentials.json
+NEWSDATA_API_KEY=YOUR_NEWSDATA_KEY
 ALLOWED_ORIGINS_RAW=*
 ENVIRONMENT=development
 ```
@@ -119,20 +194,20 @@ Run backend:
 uvicorn main:app --reload --port 8000
 ```
 
-### 2) Frontend Setup
+### 2. Frontend
 
 ```bash
-cd ../frontend
+cd frontend
 npm install
 cp .env.example .env.local
 ```
 
-Edit frontend .env.local values:
+Fill `frontend/.env.local`:
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:8000
 NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=replace_with_long_random_secret
+NEXTAUTH_SECRET=replace_with_a_long_random_secret
 REDIS_URL=rediss://:YOUR_PASSWORD@YOUR_ENDPOINT.upstash.io:6379
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
@@ -144,74 +219,81 @@ Run frontend:
 npm run dev
 ```
 
-Open app:
+Open:
 
-- Frontend: http://localhost:3000
-- Backend docs: http://localhost:8000/docs
-- Health check: http://localhost:8000/health
+- Frontend: `http://localhost:3000`
+- Backend docs: `http://localhost:8000/docs`
+- Health check: `http://localhost:8000/health`
 
-## API Endpoints
+---
+
+## Useful Commands
+
+```bash
+# Backend smoke compile
+conda run -n stocxi python -m py_compile backend/routers/stock.py
+
+# Frontend production build
+cd frontend
+npm run build -- --webpack
+
+# Fetch stock data
+conda run -n stocxi python fetch_phase1_data.py RELIANCE long
+
+# Build knowledge graph
+conda run -n stocxi python build_knowledge_graph.py RELIANCE long
+
+# Run analysis CLI
+conda run -n stocxi python run_analysis.py RELIANCE --horizon long --level pro
+```
+
+---
+
+## API Snapshot
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| GET | /health | Liveness + Redis connectivity |
-| GET | /api/v1/search?q=tcs&limit=10 | Symbol autocomplete |
-| GET | /api/v1/stock/{symbol} | Stock overview |
-| GET | /api/v1/stock/{symbol}/financials | Financial statements |
-| GET | /api/v1/stock/{symbol}/news | News feed |
-| GET | /api/v1/stock/{symbol}/sentiment | Social sentiment |
-| GET | /api/v1/stock/{symbol}/history?period=1y | Historical chart data |
-| GET | /api/v1/stock/{symbol}/announcements | Corporate announcements |
-| GET | /api/v1/analysis/{symbol}?risk_level=medium | AI analysis |
-| GET | /api/v1/analysis/{symbol}/report | Downloadable report |
+| GET | `/health` | Backend health |
+| GET | `/api/v1/search?q=tcs&limit=10` | Symbol search |
+| GET | `/api/v1/stock/{symbol}` | Stock overview |
+| GET | `/api/v1/stock/{symbol}/financials` | Financial statements |
+| GET | `/api/v1/stock/{symbol}/news` | News |
+| GET | `/api/v1/stock/{symbol}/announcements` | Announcements |
+| GET | `/api/v1/stock/{symbol}/history?period=1y` | Price history |
+| GET | `/api/v2/analysis/{symbol}` | Agent analysis |
+| GET | `/api/v2/analysis/{symbol}/graph` | Knowledge graph |
 
-## Deployment (Vercel)
+---
 
-Deploy as two separate Vercel projects from the same repository:
+## Design Principles
 
-1. Backend project with Root Directory set to backend.
-2. Frontend project with Root Directory set to frontend.
-3. Set backend and frontend environment variables in each project.
-4. Point frontend NEXT_PUBLIC_API_URL to backend Vercel URL.
-5. Lock backend ALLOWED_ORIGINS_RAW to frontend domain in production.
+- No invented data.
+- No unapproved sources.
+- No future data leakage.
+- No raw HTML inside prompts.
+- No unsupported AI claims.
+- Always show risk signals.
+- Always show disclaimer.
 
-## Troubleshooting
+---
 
-### Frontend npm run dev fails
+## Deployment Notes
 
-- Run npm install inside frontend again.
-- Verify Node version (node -v), use Node 20+.
-- Make sure frontend .env.local exists and NEXT_PUBLIC_API_URL is set.
+Recommended deployment:
 
-### Backend startup fails
+1. Deploy `frontend/` as the Vercel frontend project.
+2. Deploy `backend/` as the API service.
+3. Set production `NEXT_PUBLIC_API_URL`.
+4. Set backend `ALLOWED_ORIGINS_RAW` to the frontend domain.
+5. Add Redis and AI keys in the hosting dashboard.
+6. Keep `.env`, `.env.local`, and credentials out of Git.
 
-- Activate backend virtual environment.
-- Reinstall deps: pip install -r requirements.txt
-- Confirm backend .env has REDIS_URL and OPENROUTER_API_KEY.
+---
 
-### CORS error in browser
+## Disclaimer
 
-- In local development, keep ALLOWED_ORIGINS_RAW=*.
-- In production, set ALLOWED_ORIGINS_RAW to exact frontend URL.
+Stocxi is an educational analysis product.
+It is not a SEBI-registered investment advisor.
+It does not provide investment advice.
+Markets involve risk.
 
-### Redis connection issues
-
-- Verify REDIS_URL starts with rediss://
-- Check password/host/port in Upstash console.
-
-## Notes
-
-- This project is for educational and product-building purposes.
-- It is not financial advice and not a SEBI-registered advisory service.
-
-## Knowledge Graph Visualization
-
-The project includes an advanced 3D knowledge graph visualization in the `graphify-out/` directory:
-
-- **Interactive 3D graph** using Three.js and 3D-Force-Graph
-- **Community detection** with color-coded node groups
-- **Advanced search functionality** with exact matching and direct connection highlighting
-- **Real-time filtering** by communities and search terms
-- **Enhanced visual design** with improved edge visibility and node information display
-
-The graph visualization provides insights into the codebase structure and relationships between different components, making it easier to understand the architecture and data flow within the Stocxi application.
