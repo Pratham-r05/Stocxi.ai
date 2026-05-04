@@ -329,7 +329,10 @@ def _run_gemini_sync(symbol: str, horizon: Horizon, level: UserLevel, kg_link: s
     if str(_ROOT / "backend") not in sys.path:
         sys.path.insert(0, str(_ROOT / "backend"))
 
-    from backend.analysis.gemini_analysis import run_analysis  # type: ignore
+    try:
+        from backend.analysis.gemini_analysis import run_analysis  # type: ignore
+    except ModuleNotFoundError:
+        from analysis.gemini_analysis import run_analysis  # type: ignore
     return run_analysis(symbol.upper(), horizon, level, kg_link=kg_link)
 
 
