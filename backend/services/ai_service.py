@@ -43,7 +43,13 @@ def _get_vertex_client():
     )
 
 
-_client = _get_vertex_client()
+_client = None
+
+def _get_client():
+    global _client
+    if _client is None:
+        _client = _get_vertex_client()
+    return _client
 
 # ── Prompt builders ───────────────────────────────────────────────────────────
 
@@ -521,7 +527,7 @@ def _call_gemini_report(symbol: str, user_prompt: str) -> dict:
     last_error = None
     for attempt in range(3):
         try:
-            response = _client.chat.completions.create(
+            response = _get_client().chat.completions.create(
                 model=settings.google_model,
                 messages=[
                     {"role": "system", "content": _REPORT_SYSTEM_PROMPT},
@@ -623,7 +629,7 @@ def _call_gemini(symbol: str, user_prompt: str) -> dict:
 
     for attempt in range(3):
         try:
-            response = _client.chat.completions.create(
+            response = _get_client().chat.completions.create(
                 model=settings.google_model,
                 messages=[
                     {"role": "system", "content": _SYSTEM_PROMPT},
