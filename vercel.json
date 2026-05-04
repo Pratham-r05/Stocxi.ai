@@ -6,7 +6,8 @@
       "use": "@vercel/python",
       "config": {
         "runtime": "python3.12",
-        "maxLambdaSize": "50mb"
+        "maxLambdaSize": "50mb",
+        "includeFiles": "config/**"
       }
     }
   ],
@@ -15,14 +16,5 @@
       "src": "/(.*)",
       "dest": "backend/api/index.py"
     }
-  ],
-  "functions": {
-    "backend/api/index.py": {
-      "includeFiles": "config/**",
-      "excludeFiles": "{frontend/**,.venv/**,.venv312/**,.conda/**,stoxk/**,.claude/**,.git/**,reports/**,analysis-out/**,raw/**,docs/archive/**,docs/architecture/**,docs/progress/**,docs/superpowers/**,backend/tests/**,backend/test_*.py,backend/**/__pycache__/**,__pycache__/**,**/*.pyc,**/.DS_Store}"
-    },
-    "*.py": {
-      "includeFiles": "config/**"
-    }
-  }
+  ]
 }
