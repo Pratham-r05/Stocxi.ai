@@ -50,7 +50,7 @@ _GRAPH_DIR = Path(__file__).parents[2] / "graphify-out" / "stocks"
 
 # ── Config ─────────────────────────────────────────────────────────────────────
 
-_CONFIG_DIR = next((p / "config" for p in Path(__file__).resolve().parents if (p / "config").exists()), Path(__file__).resolve().parent.parent.parent / "config")
+_CONFIG_DIR = Path('/var/task/config') if Path('/var/task/config').exists() else Path(__file__).parents[2] / 'config'
 _VERSIONS   = yaml.safe_load((_CONFIG_DIR / "versions.yaml").read_text())
 
 _PROMPT_VER = _VERSIONS["prompt_version"]
