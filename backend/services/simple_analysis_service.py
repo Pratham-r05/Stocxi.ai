@@ -17,6 +17,7 @@ Risk → user_level mapping:
 
 from __future__ import annotations
 
+import os 
 import asyncio
 import logging
 import sys
@@ -27,9 +28,10 @@ from typing import Literal
 logger = logging.getLogger(__name__)
 
 _ROOT       = Path(__file__).parents[2]          # stocxi/
-_DATA_DIR   = _ROOT / "data"
-_OUT_DIR    = _ROOT / "analysis-out"
-
+# _DATA_DIR   = _ROOT / "data"
+# _OUT_DIR    = _ROOT / "analysis-out"
+_DATA_DIR   = Path(os.getenv("DATA_DIR",    str(_ROOT / "data")))
+_OUT_DIR    = Path(os.getenv("ANALYSIS_OUT_DIR", "/tmp/analysis-out"))
 DATA_FRESHNESS_H = 12   # re-fetch if data file is older than this
 
 UserLevel = Literal["beginner", "medium", "pro"]
