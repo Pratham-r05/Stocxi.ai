@@ -8,7 +8,6 @@
 .venv312
 .vscode
 stoxk
-frontend
 reports
 analysis-out
 raw
