@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 # ── Config ─────────────────────────────────────────────────────────────────────
 
-_CONFIG_DIR    = Path(__file__).parents[2] / "config"
+_CONFIG_DIR = next(p / "config" for p in Path(__file__).parents if (p / "config").exists())
 _VERSIONS      = yaml.safe_load((_CONFIG_DIR / "versions.yaml").read_text())
 _PROFILES      = yaml.safe_load((_CONFIG_DIR / "profiles.yaml").read_text())
 
