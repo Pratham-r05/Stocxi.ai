@@ -73,6 +73,12 @@ async def get_ratios(
 
     raw = dict(result.payload)
 
+    bse_snapshot: dict[str, Any] = {}
+    try:
+        bse_snapshot = await bse_client.fetch_results_snapshot(symbol)
+    except Exception as exc:
+        logger.debug("BSE results snapshot unavailable for %s: %s", symbol, exc)
+
     # Augment with BSE market cap (getScripTradingStats.MktCapFull) — more reliable than Screener.
     try:
         stats = await bse_client.fetch_trading_stats(symbol)
@@ -150,6 +156,18 @@ async def get_ratios(
 
     except Exception as exc:
         logger.debug("Screener ratio override failed for %s: %s", symbol, exc)
+
+    # Prefer exchange-reported latest-result margins over BSE meta ratios.
+    # BSE equityMetaInfo OPM/NPM can lag after fresh quarterly filings.
+    for period in bse_snapshot.get("periods", []):
+        if not isinstance(period, dict):
+            continue
+        if period.get("opm_pct") is not None:
+            raw["opm"] = period["opm_pct"]
+        if period.get("npm_pct") is not None:
+            raw["npm"] = period["npm_pct"]
+        if raw.get("opm") is not None and raw.get("npm") is not None:
+            break
 
     return _build_nodes(raw, symbol, as_of_date,
                         result.source_id, result.confidence,

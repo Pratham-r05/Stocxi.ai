@@ -22,8 +22,6 @@ import time
 from datetime import datetime, timezone
 from typing import Any
 
-import google.auth
-import google.auth.transport.requests
 from openai import OpenAI, RateLimitError, APIStatusError
 
 from config import settings
@@ -31,8 +29,17 @@ from config import settings
 logger = logging.getLogger(__name__)
 
 
-def _get_vertex_client():
-    """Return OpenAI-compatible client using Vertex AI ADC credentials."""
+def _get_openai_compatible_client():
+    """Return an OpenAI-compatible Gemini client."""
+    if settings.google_api_key:
+        return OpenAI(
+            api_key=settings.google_api_key,
+            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+        )
+
+    import google.auth
+    import google.auth.transport.requests
+
     credentials, _ = google.auth.default(
         scopes=["https://www.googleapis.com/auth/cloud-platform"]
     )
@@ -45,10 +52,16 @@ def _get_vertex_client():
 
 _client = None
 
+
+def _active_model_id() -> str:
+    if settings.google_api_key:
+        return settings.google_model.removeprefix("google/")
+    return settings.google_model
+
 def _get_client():
     global _client
     if _client is None:
-        _client = _get_vertex_client()
+        _client = _get_openai_compatible_client()
     return _client
 
 # ── Prompt builders ───────────────────────────────────────────────────────────
@@ -528,7 +541,7 @@ def _call_gemini_report(symbol: str, user_prompt: str) -> dict:
     for attempt in range(3):
         try:
             response = _get_client().chat.completions.create(
-                model=settings.google_model,
+                model=_active_model_id(),
                 messages=[
                     {"role": "system", "content": _REPORT_SYSTEM_PROMPT},
                     {"role": "user", "content": user_prompt},
@@ -630,7 +643,7 @@ def _call_gemini(symbol: str, user_prompt: str) -> dict:
     for attempt in range(3):
         try:
             response = _get_client().chat.completions.create(
-                model=settings.google_model,
+                model=_active_model_id(),
                 messages=[
                     {"role": "system", "content": _SYSTEM_PROMPT},
                     {"role": "user",   "content": user_prompt},

@@ -1,6 +1,6 @@
 ---
 symbol: ULTRACEMCO
-captured_at: 2026-05-03
+captured_at: 2026-05-04
 horizon: short
 sector: cement & cement products
 author: stocxi_phase1
@@ -9,231 +9,231 @@ contributor: stocxi
 
 # ULTRACEMCO — Stock Analysis Data
 
-ULTRACEMCO is a stock in the **cement & cement products** sector analyzed for a **short-term** investment horizon as of 2026-05-03. This document captures fundamentals, technical indicators, financial statements, announcements, news, and market context. Each section relates to others: Fundamentals drive valuation; Technical Indicators reflect price momentum; Balance Sheet underpins Debt_To_Equity and ROE; Profit Loss feeds EPS and PAT_TTM; Cash Flow validates Net Profit quality; Shareholding signals institutional confidence; Announcements and News capture recent events.
+ULTRACEMCO is a stock in the **cement & cement products** sector analyzed for a **short-term** investment horizon as of 2026-05-04. This document captures fundamentals, technical indicators, financial statements, announcements, news, and market context. Each section relates to others: Fundamentals drive valuation; Technical Indicators reflect price momentum; Balance Sheet underpins Debt_To_Equity and ROE; Profit Loss feeds EPS and PAT_TTM; Cash Flow validates Net Profit quality; Shareholding signals institutional confidence; Announcements and News capture recent events.
 
 ## Fundamentals
 
 ULTRACEMCO fundamentals provide valuation, profitability, and financial health metrics. PE_Ratio relates to EPS and Revenue_Growth_YoY. ROE depends on Net_Profit_Annual and Reserves. Operating_Cash_Flow relates to Free_Cashflow and Debt_To_Equity. Market_Cap relates to PE_Ratio and EPS.
 
 ### PE_Ratio
-**Value:** PE: 41.9 | **Sentiment:** ➡️ neutral
-**Analysis:** The high PE of 41.9 indicates the market expects strong growth, which is neutral for short-term momentum as it's already priced in. PE_Ratio relates to EPS, Revenue_Growth_YoY, Market_Cap.
+**Value:** PE: 42.3 | **Sentiment:** ➡️ neutral
+**Analysis:**  PE_Ratio relates to EPS, Revenue_Growth_YoY, Market_Cap.
 
 ### PB_Ratio
-**Value:** PB: 4.45 | **Sentiment:** ➡️ neutral
-**Analysis:** A PB ratio of 4.45 suggests the market values the company's assets at a premium, a neutral signal for short-term price action. PB_Ratio relates to Total_Assets, Reserves, Net_Worth.
+**Value:** PB: 4.52 | **Sentiment:** ➡️ neutral
+**Analysis:**  PB_Ratio relates to Total_Assets, Reserves, Net_Worth.
 
 ### ROE
 **Value:** ROE: 10.7% | **Sentiment:** ➡️ neutral
-**Analysis:** The ROE of 10.7% shows moderate profitability from shareholder funds, a neutral factor for short-term momentum. ROE relates to Net_Profit_Annual, Reserves, EPS.
+**Analysis:**  ROE relates to Net_Profit_Annual, Reserves, EPS.
 
 ### EPS
 **Value:** EPS: ₹277.10 | **Sentiment:** ➡️ neutral
-**Analysis:** The EPS of ₹277.10 represents the company's per-share profitability, a neutral data point without its growth trend. EPS relates to PE_Ratio, Net_Profit_Annual, Revenue_Annual.
+**Analysis:**  EPS relates to PE_Ratio, Net_Profit_Annual, Revenue_Annual.
 
 ### OPM
-**Value:** OPM: 19.2% | **Sentiment:** 📈 bullish
-**Analysis:** A strong operating margin of 19.2% indicates efficient core operations, which is a positive signal for investor confidence. OPM relates to Revenue_Annual, EBITDA_TTM, EBITDA_Margin.
+**Value:** OPM: 20.4% | **Sentiment:** 📈 bullish
+**Analysis:**  OPM relates to Revenue_Annual, EBITDA_TTM, EBITDA_Margin.
 
 ### NPM
-**Value:** NPM: 9.3% | **Sentiment:** ➡️ neutral
-**Analysis:** The net profit margin of 9.3% is decent but shows a significant drop from operating margins, making it a neutral signal. NPM relates to Revenue_Annual, Net_Profit_Annual, OPM.
+**Value:** NPM: 10.6% | **Sentiment:** 📈 bullish
+**Analysis:**  NPM relates to Revenue_Annual, Net_Profit_Annual, OPM.
 
 ### Market_Cap
-**Value:** Mkt Cap: ₹341,321 Cr | **Sentiment:** ➡️ neutral
-**Analysis:** With a market cap of ₹341,321 Cr, this is a large-cap stock, implying stability but neutral for short-term direction. Market_Cap relates to PE_Ratio, EPS, Revenue_Annual.
+**Value:** Mkt Cap: ₹346,382 Cr | **Sentiment:** ➡️ neutral
+**Analysis:**  Market_Cap relates to PE_Ratio, EPS, Revenue_Annual.
 
 ### Revenue_Quarterly
 **Value:** Q Revenue: ₹25,799 Cr (latest period: Mar 2026) | **Sentiment:** 📈 bullish
-**Analysis:** Strong quarterly revenue of ₹25,799 Cr indicates accelerating business momentum, a positive short-term catalyst.
+**Analysis:** 
 
 ### Net_Profit_Quarterly
 **Value:** Q PAT: ₹3,000 Cr (latest period: Mar 2026) | **Sentiment:** 📈 bullish
-**Analysis:** Robust quarterly net profit of ₹3,000 Cr shows an accelerating trend, which is positive for short-term sentiment.
+**Analysis:** 
 
 ### Revenue_Annual
 **Value:** FY Revenue: ₹88,512 Cr (Mar 2026) | **Sentiment:** 📈 bullish
-**Analysis:** Strong annual revenue of ₹88,512 Cr confirms an accelerating growth trajectory, a positive factor for investor confidence. Revenue_Annual relates to Revenue_Growth_YoY, Net_Profit_Annual, OPM.
+**Analysis:**  Revenue_Annual relates to Revenue_Growth_YoY, Net_Profit_Annual, OPM.
 
 ### Net_Profit_Annual
 **Value:** FY PAT: ₹8,188 Cr (Mar 2026) | **Sentiment:** 📈 bullish
-**Analysis:** Annual net profit of ₹8,188 Cr shows a solid, accelerating YoY trend, which is positive for the stock's momentum. Net_Profit_Annual relates to EPS, ROE, PAT_TTM.
+**Analysis:**  Net_Profit_Annual relates to EPS, ROE, PAT_TTM.
 
 ### Debt_To_Equity
 **Value:** D/E: 0.31 | **Sentiment:** 📈 bullish
-**Analysis:** The low Debt-to-Equity ratio of 0.31 indicates a strong balance sheet with low financial risk, a positive for investor sentiment. Debt_To_Equity relates to Borrowings, Interest_Coverage, Operating_Cash_Flow.
+**Analysis:**  Debt_To_Equity relates to Borrowings, Interest_Coverage, Operating_Cash_Flow.
 
 ### Operating_Cash_Flow
 **Value:** OCF: ₹15,316 Cr (Mar 2026) | **Sentiment:** 📈 bullish
-**Analysis:** Strong operating cash flow shows robust core business health, providing liquidity for growth and operations; a positive signal for short-term stability. Operating_Cash_Flow relates to Free_Cashflow, Net_Profit_Annual.
+**Analysis:**  Operating_Cash_Flow relates to Free_Cashflow, Net_Profit_Annual.
 
 ### Revenue_TTM
 **Value:** Rev TTM: ₹88,511 Cr (+16.5% YoY) | **Sentiment:** 📈 bullish
-**Analysis:** Accelerating YoY revenue growth demonstrates strong market demand and execution, a key positive driver for short-term investor sentiment and momentum.
+**Analysis:** 
 
 ### Revenue_Growth_YoY
 **Value:** Revenue YoY: +16.5% | **Sentiment:** 📈 bullish
-**Analysis:** The company's strong 16.5% YoY revenue growth indicates accelerating sales and market share gains, a very positive signal for short-term momentum.
+**Analysis:** 
 
 ### PAT_TTM
 **Value:** PAT TTM: ₹8,188 Cr (+35.6% YoY) | **Sentiment:** 📈 bullish
-**Analysis:** Profit after tax shows impressive YoY acceleration, indicating strong operational leverage and profitability, a highly positive factor for near-term valuation.
+**Analysis:** 
 
 ### PAT_Growth_YoY
 **Value:** PAT YoY: +35.6% | **Sentiment:** 📈 bullish
-**Analysis:** The exceptional 35.6% YoY profit growth, outpacing revenue, signals significant margin expansion and is a powerful positive catalyst for the stock price.
+**Analysis:** 
 
 ### EBITDA_TTM
 **Value:** EBITDA TTM: ₹17,005 Cr (+35.6% YoY) | **Sentiment:** 📈 bullish
-**Analysis:** Strong, accelerating YoY EBITDA growth reflects excellent core operational profitability and efficiency, a very positive indicator for short-term performance.
+**Analysis:** 
 
 ### EBITDA_Margin
 **Value:** EBITDA Margin: 22.0% | **Sentiment:** 📈 bullish
-**Analysis:** A robust 22% EBITDA margin, likely above the sector average, shows strong pricing power and cost efficiency, which is positive for investor confidence.
+**Analysis:** 
 
 ### Free_Cashflow
 **Value:** FCF: ₹5,805 Cr (Mar 2026) | **Sentiment:** 📈 bullish
-**Analysis:** Healthy free cash flow indicates strong financial discipline and provides flexibility for shareholder returns or growth, a positive sign of underlying health. Free_Cashflow relates to Operating_Cash_Flow, Debt_To_Equity, Borrowings.
+**Analysis:**  Free_Cashflow relates to Operating_Cash_Flow, Debt_To_Equity, Borrowings.
 
 ### Interest_Coverage
 **Value:** Interest Coverage: 9.1x | **Sentiment:** 📈 bullish
-**Analysis:** A high interest coverage ratio of 9.1x signifies a very strong ability to service debt, reducing financial risk and boosting investor confidence; positive. Interest_Coverage relates to Debt_To_Equity, Borrowings.
+**Analysis:**  Interest_Coverage relates to Debt_To_Equity, Borrowings.
 
 ### Total_Assets
 **Value:** Total Assets: ₹141,376 Cr (Mar 2026) | **Sentiment:** ➡️ neutral
-**Analysis:** The large asset base provides scale, but its absolute value is a neutral indicator for short-term momentum without context on asset efficiency or growth. Total_Assets relates to Total_Liabilities, Reserves, Borrowings.
+**Analysis:**  Total_Assets relates to Total_Liabilities, Reserves, Borrowings.
 
 ### Total_Liabilities
 **Value:** Total Assets: ₹141,376 Cr (Mar 2026) (incl. ₹76,624 Cr equity) | **Sentiment:** ➡️ neutral
-**Analysis:** The implied liability level suggests a moderate and stable capital structure, which is a neutral factor for short-term investors as it poses no immediate risk. Total_Liabilities relates to Total_Assets, Borrowings, Debt_To_Equity.
+**Analysis:**  Total_Liabilities relates to Total_Assets, Borrowings, Debt_To_Equity.
 
 ### Reserves
 **Value:** Reserves: ₹76,329 Cr (Mar 2026) | **Sentiment:** ➡️ neutral
-**Analysis:** A substantial reserve base reflects strong historical profitability but is a neutral signal for short-term momentum, being a lagging indicator of performance. Reserves relates to PB_Ratio, Net_Profit_Annual, Total_Assets.
+**Analysis:**  Reserves relates to PB_Ratio, Net_Profit_Annual, Total_Assets.
 
 ### Borrowings
 **Value:** Borrowings: ₹23,755 Cr (Mar 2026) (YoY: -1.4%) | **Sentiment:** 📈 bullish
-**Analysis:** The slight YoY decrease in borrowings indicates stable deleveraging, reducing financial risk, which is positive for short-term sentiment. Borrowings relates to Debt_To_Equity, Interest_Coverage, Free_Cashflow.
+**Analysis:**  Borrowings relates to Debt_To_Equity, Interest_Coverage, Free_Cashflow.
 
 ### Expenses_Quarterly
 **Value:** Q Expenses: ₹20,201 Cr (Mar 2026) | **Sentiment:** ➡️ neutral
-**Analysis:** Quarterly expenses are a key operational figure, neutral on its own without revenue context to assess efficiency.
+**Analysis:** 
 
 ### Operating_Profit_Quarterly
 **Value:** Q OP: ₹5,599 Cr (Mar 2026) | **Sentiment:** 📈 bullish
-**Analysis:** Strong quarterly operating profit indicates healthy core business performance, a positive driver for short-term momentum.
+**Analysis:** 
 
 ### OPM_Quarterly
 **Value:** Q OPM: 22.0% | **Sentiment:** 📈 bullish
-**Analysis:** A robust quarterly OPM of 22.0%, likely above sector average, signals strong pricing power and cost control, which is positive.
+**Analysis:** 
 
 ### Expenses_Annual
 **Value:** FY Expenses: ₹71,507 Cr (Mar 2026) | **Sentiment:** ➡️ neutral
-**Analysis:** Annual expenses represent the full-year cost base; this is a neutral data point without revenue and profit trends for context.
+**Analysis:** 
 
 ### Operating_Profit_Annual
 **Value:** FY OP: ₹17,004 Cr (Mar 2026) | **Sentiment:** 📈 bullish
-**Analysis:** A substantial annual operating profit confirms strong full-year business performance, supporting a positive short-term outlook.
+**Analysis:** 
 
 ### OPM_Annual
 **Value:** FY OPM: 19.0% | **Sentiment:** ➡️ neutral
-**Analysis:** The annual OPM of 19.0% is solid but lower than the recent quarter, indicating a neutral signal for near-term margin trends.
+**Analysis:** 
 
 ### EPS_Annual
 **Value:** FY EPS: ₹277.10 (Mar 2026) | **Sentiment:** 📈 bullish
-**Analysis:** A strong annual EPS reflects high profitability for shareholders, a key positive metric that can drive short-term investor interest.
+**Analysis:** 
 
 ### Cash_From_Investing
 **Value:** CFI: ₹-9,480 Cr (Mar 2026) | **Sentiment:** ➡️ neutral
-**Analysis:** Negative CFI indicates significant investment in assets for future growth, a neutral signal for short-term price momentum.
+**Analysis:** 
 
 ### Cash_From_Financing
 **Value:** CFF: ₹-5,954 Cr (Mar 2026) | **Sentiment:** ➡️ neutral
-**Analysis:** Negative CFF suggests cash outflow for debt repayment or dividends, a neutral signal reflecting capital management activities.
+**Analysis:** 
 
 ### Promoter_Holding
 **Value:** Promoter: 59.3% | **Sentiment:** 📈 bullish
-**Analysis:** A high promoter holding of 59.3% signals strong management confidence and skin in the game, a positive for investor sentiment.
+**Analysis:** 
 
 ### Public_Retail_Holding
 **Value:** Public/Retail: 40.5% | **Sentiment:** ➡️ neutral
-**Analysis:** The significant public and retail holding is a neutral factor, indicating broad market participation without a clear directional signal.
+**Analysis:** 
 
 ## Technical Indicators
 
 Technical indicators for ULTRACEMCO capture price momentum, trend strength, and market timing signals. RSI relates to overbought and oversold conditions. MACD relates to trend direction and Signal Line crossovers. SMA_20, SMA_50, and SMA_200 relate to short, medium, and long-term trend support. ADX relates to trend strength. ATR relates to volatility and risk.
 
 ### RSI_14
-**Value:** RSI: 47.5 | **Sentiment:** ➡️ neutral
-**Analysis:** RSI at 47.5 shows no overbought/oversold pressure, suggesting a lack of strong momentum for short-term directional trades.
+**Value:** RSI: 51.4 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### MACD
-**Value:** MACD: 102.31, Signal: 87.21 | **Sentiment:** 📈 bullish
-**Analysis:** The bullish MACD crossover suggests a potential start of an uptrend, a key positive signal for short-term momentum. MACD relates to Signal_Line, Trend_Direction, Price_Momentum.
+**Value:** MACD: 91.51, Signal: 88.07 | **Sentiment:** 📈 bullish
+**Analysis:**  MACD relates to Signal_Line, Trend_Direction, Price_Momentum.
 
 ### ADX_14
-**Value:** ADX: 22.6 (Weak Trend) | **Sentiment:** ➡️ neutral
-**Analysis:** ADX at 22.6 indicates a weak trend, warning short-term traders that price action may be range-bound and lack direction.
+**Value:** ADX: 21.4 (Weak Trend) | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### ATR_14
-**Value:** ATR: 325.82 (2.8%) | **Sentiment:** ➡️ neutral
-**Analysis:** ATR at 2.8% shows moderate daily volatility, helping short-term traders set realistic stop-losses and profit targets.
+**Value:** ATR: 317.69 (2.7%) | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### Bollinger_Bands
-**Value:** BB: 10706.0 | 11621.2 | 12536.4 | P: 11586.0 | **Sentiment:** ➡️ neutral
-**Analysis:** Price near the middle Bollinger Band suggests no immediate overbought/oversold condition, confirming a neutral short-term outlook.
+**Value:** BB: 10857.4 | 11673.4 | 12489.4 | P: 11758.0 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### EMA
-**Value:** EMA20: 11718.2 | EMA50: 11748.8 | EMA200: 11909.7 | **Sentiment:** 📉 bearish
-**Analysis:** Price below key EMAs (20, 50, 200) confirms a bearish trend, posing a risk for any short-term bullish expectations.
+**Value:** EMA20: 11722.0 | EMA50: 11749.2 | EMA200: 11908.2 | **Sentiment:** 📈 bullish
+**Analysis:** 
 
 ### SMA
-**Value:** SMA20: 11621.2 | SMA50: 11777.7 | SMA200: 12092.0 | **Sentiment:** 📉 bearish
-**Analysis:** Price trading below all key SMAs (20, 50, 200) strongly confirms the prevailing bearish trend for the short term.
+**Value:** SMA20: 11673.4 | SMA50: 11753.6 | SMA200: 12088.0 | **Sentiment:** 📉 bearish
+**Analysis:** 
 
 ### Ichimoku
-**Value:** Cloud: 11593.2–11710.0 | Price: 11586.0 | **Sentiment:** 📉 bearish
-**Analysis:** Price below the Ichimoku Cloud is a strong bearish signal, indicating significant overhead resistance for the near term.
+**Value:** Cloud: 11593.2–11710.0 | Price: 11758.0 | **Sentiment:** 📈 bullish
+**Analysis:** 
 
 ### Parabolic_SAR
-**Value:** PSAR: 12282.00, Price: 11586.00 | **Sentiment:** 📉 bearish
-**Analysis:** Parabolic SAR above the price gives a clear sell signal, confirming the current downtrend for short-term momentum traders.
+**Value:** PSAR: 12266.04, Price: 11758.00 | **Sentiment:** 📉 bearish
+**Analysis:** 
 
 ### Stochastic
-**Value:** Stoch %K: 30.4, %D: 46.3 | **Sentiment:** ➡️ neutral
-**Analysis:** Stochastic is not yet oversold but trending down, indicating weakening momentum without a clear short-term buy signal.
+**Value:** Stoch %K: 47.6, %D: 44.4 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### Williams_R
-**Value:** Williams %R: -69.6 | **Sentiment:** ➡️ neutral
-**Analysis:** Williams %R at -69.6 is in neutral territory, failing to signal an immediate oversold bounce for short-term traders.
+**Value:** Williams %R: -52.4 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### ROC
-**Value:** ROC: 0.73% | **Sentiment:** 📈 bullish
-**Analysis:** The slightly positive ROC indicates some recent upward price movement, but it's a weak signal against the broader downtrend.
+**Value:** ROC: -0.23% | **Sentiment:** 📉 bearish
+**Analysis:** 
 
 ### OBV
-**Value:** OBV: 2.4M, Trend: Bullish Confirmation | **Sentiment:** 📈 bullish
-**Analysis:** The rising OBV confirms strong buying pressure, suggesting the current upward price momentum is likely to continue short-term.
+**Value:** OBV: 2.8M, Trend: Bullish Confirmation | **Sentiment:** 📈 bullish
+**Analysis:** 
 
 ### VWAP
-**Value:** VWAP: 11863.75, Price: 11586.00 | **Sentiment:** 📉 bearish
-**Analysis:** The price is below the VWAP, signaling short-term bearish pressure and that VWAP may act as immediate resistance. VWAP relates to Price_Level, Volume, Intraday_Trend.
+**Value:** VWAP: 11874.53, Price: 11758.00 | **Sentiment:** 📉 bearish
+**Analysis:**  VWAP relates to Price_Level, Volume, Intraday_Trend.
 
 ### CMF
-**Value:** CMF: 0.027 | **Sentiment:** ➡️ neutral
-**Analysis:** CMF near zero indicates a neutral balance of money flow, showing market indecision and offering no clear short-term signal.
+**Value:** CMF: 0.105 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### MFI
-**Value:** MFI: 35.9 | **Sentiment:** ➡️ neutral
-**Analysis:** The MFI is in neutral territory, suggesting the stock is neither overbought nor oversold and has room to move either way.
+**Value:** MFI: 36.5 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### Volume_SMA20
-**Value:** Vol SMA20: 371960 | **Sentiment:** 📈 bullish
-**Analysis:** Recent trading volume is above its 20-day average, confirming strong market participation and adding validity to the price trend.
+**Value:** Vol SMA20: 373440 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### 52W_HL_Ratio
-**Value:** 52W: 10325–13110, CMP: 11586 (45%) | **Sentiment:** ➡️ neutral
-**Analysis:** The stock is trading near the midpoint of its 52-week range, which is not a key factor for short-term momentum trading.
+**Value:** 52W: 10325–13110, CMP: 11758 (51%) | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ## Balance Sheet
 
@@ -543,43 +543,43 @@ Recent corporate announcements from ULTRACEMCO signal strategic direction and ev
 
 ### Announcement 1: Board Meeting Intimation
 **Date:** 2026-04-27 | **Sentiment:** ➡️ neutral
-**Summary:** Company to hold a board meeting, likely for annual results and dividend. A routine procedural filing with neutral impact.
+**Summary:** UltraTech has scheduled a board meeting on April 27, 2026, to approve annual results and consider a dividend. This is a routine filing.
 
 ### Announcement 2: Financial Results/Dividend
 **Date:** 2026-04-27 | **Sentiment:** 📈 bullish
-**Summary:** Board declared a dividend, but the amount is not specified in the excerpt. Market impact will depend on the actual payout and yield.
+**Summary:** UltraTech announced its annual financial results and a dividend post its board meeting. Market impact will hinge on performance metrics and payout.
 
 ### Announcement 3: Board Meeting Intimation
 **Date:** 2026-01-24 | **Sentiment:** ➡️ neutral
-**Summary:** UltraTech scheduled a board meeting, presumably to approve Q3 financial results. This is a standard procedural announcement.
+**Summary:** The company informed the exchange of its board meeting on Jan 24, 2026, to approve Q3 financial results. A standard compliance filing.
 
 ### Announcement 4: Financial Results
 **Date:** 2026-01-24 | **Sentiment:** ➡️ neutral
-**Summary:** The company announced its Q3 financial results. Performance details are not in the excerpt, so market impact cannot be assessed.
+**Summary:** UltraTech announced its Q3 financial results. Stock performance will be contingent on the earnings quality and management commentary.
 
 ### Announcement 5: Board Meeting Intimation
 **Date:** 2025-10-18 | **Sentiment:** ➡️ neutral
-**Summary:** Company to hold a board meeting to approve Q2 financial results. A routine compliance filing with no immediate market impact.
+**Summary:** A board meeting is scheduled for October 18, 2025, to approve Q2 financial results. This is a standard procedural update for the market.
 
 ### Announcement 6: Financial Results
 **Date:** 2025-10-18 | **Sentiment:** ➡️ neutral
-**Summary:** UltraTech has published its Q2 financial results. Market reaction depends on performance figures, which are not provided.
+**Summary:** The board approved and released Q2 financial results. Market reaction will be tied to the company's performance versus analyst expectations.
 
 ### Announcement 7: Dividend - Rs 77.50 Per Sh
 **Date:** 2025-07-25 | **Sentiment:** 📈 bullish
-**Summary:** Company declared a substantial dividend of Rs 77.50 per share. This is a positive development for shareholders, likely boosting sentiment.
+**Summary:** UltraTech declared a substantial dividend of Rs 77.50 per share, signaling strong financial health and rewarding shareholders. Likely positive for the
 
 ### Announcement 8: Final Dividend - Rs. - 77.5000
 **Date:** 2025-07-25 | **Sentiment:** 📈 bullish
-**Summary:** The final dividend of Rs 77.50 per share is confirmed. This reinforces the positive shareholder payout and is good for market sentiment.
+**Summary:** The company confirmed a final dividend of Rs 77.50 per share. This strong payout is a positive catalyst, reflecting robust profitability.
 
 ### Announcement 9: Board Meeting Intimation
 **Date:** 2025-07-21 | **Sentiment:** ➡️ neutral
-**Summary:** Intimation of a board meeting to approve Q1 financial results. A standard procedural update with a neutral short-term impact.
+**Summary:** UltraTech scheduled a board meeting for July 21, 2025, to approve Q1 financial results. This is a standard regulatory compliance filing.
 
 ### Announcement 10: Financial Results
 **Date:** 2025-07-21 | **Sentiment:** ➡️ neutral
-**Summary:** The board has approved the Q1 financial results. Actual performance numbers, not available here, will determine the market's response.
+**Summary:** The company announced its Q1 financial results. Future stock movement will depend on these performance numbers and sector outlook.
 
 ## News
 
@@ -587,49 +587,81 @@ Recent news coverage of ULTRACEMCO captures market sentiment and external events
 
 ### News 1: Earnings Update: UltraTech Cement Limited (NSE:ULTRACEMCO) Just Reported Its Full-Year Results And Analysts Are Updating Their Forecasts - simplywall.st
 **Date:** 2026-04-30 | **Source:** simplywall.st | **Sentiment:** ➡️ neutral
-**Summary:** Post-earnings analysis indicates that analysts are revising their forecasts for UltraTech Cement following the company's full-year results. The direction of these revisions will be a key indicator of future market sentiment. This is a standard follow-up to an earnings release, reflecting Wall Street's digestion of the new data.
+**Summary:** UltraTech Cement has reported its full-year financial results for 2026.
+This has prompted analysts to review and update their future earnings forecasts.
+The new results provide a clearer picture of the company's annual performance.
+The market will now assess how updated analyst ratings affect the stock's valuation.
+This is a significant event following the end of the financial year.
 
-### News 2: UltraTech Cement delivers a Q4 beat; cost pressures keep analysts wary - Business Standard
+### News 2: UltraTech Cement Ltd stock (INE469A01017): Is capacity expansion strong enough to unlock new upside? - AD HOC NEWS
+**Date:** 2026-04-29 | **Source:** AD HOC NEWS | **Sentiment:** 📈 bullish
+**Summary:** This article analyzes UltraTech's significant capacity expansion strategy.
+It questions whether this expansion will be sufficient to drive future growth.
+This is a key long-term strategic initiative for the company.
+The market is assessing the potential return on this large capital investment.
+The outcome will impact future market share and profitability.
+
+### News 3: UltraTech Cement delivers a Q4 beat; cost pressures keep analysts wary - Business Standard
 **Date:** 2026-04-28 | **Source:** Business Standard | **Sentiment:** ➡️ neutral
-**Summary:** UltraTech Cement reported Q4 results that surpassed analyst expectations, delivering a 'beat'. However, the positive results are tempered by analyst concerns over persistent cost pressures. This suggests potential headwinds for future margin performance, creating a mixed but generally positive signal for the market.
+**Summary:** UltraTech Cement reported Q4 results that surpassed market expectations.
+Despite this positive earnings beat, analysts remain cautious.
+They have expressed concerns about rising cost pressures.
+These costs could potentially impact future profit margins.
+This creates a mixed outlook: strong results vs. future headwinds.
 
-### News 3: Ultratech Cement: Record Dividend Aur **200 MTPA** Capacity Cross! Analysts Bole 'Buy' - Whalesbook
+### News 4: Ultratech Cement: Record Dividend Aur **200 MTPA** Capacity Cross! Analysts Bole 'Buy' - Whalesbook
 **Date:** 2026-04-28 | **Source:** Whalesbook | **Sentiment:** 📈 bullish
-**Summary:** UltraTech announced a record dividend for shareholders alongside its strong results. The company also achieved a major operational milestone, crossing 200 MTPA in capacity. These combined positive factors have prompted analysts to issue 'Buy' recommendations, signaling strong fundamental and shareholder-friendly actions.
+**Summary:** UltraTech Cement announced a record dividend for its shareholders.
+The company also achieved a major milestone, crossing 200 MTPA capacity.
+Following these positive developments, analysts have issued 'Buy' ratings.
+This combination of shareholder return and strategic growth is viewed positively.
+The news is a strong positive signal for the market.
 
-### News 4: UltraTech Cement shares fall 1% despite strong Q4. Goldman Sachs, Citi, Nomura, others weigh in - The Economic Times
+### News 5: UltraTech Cement shares fall 1% despite strong Q4. Goldman Sachs, Citi, Nomura, others weigh in - The Economic Times
 **Date:** 2026-04-28 | **Source:** The Economic Times | **Sentiment:** ➡️ neutral
-**Summary:** Despite reporting strong Q4 results, UltraTech Cement's shares declined by 1%. This suggests a 'sell on news' reaction or that the positive outcome was already priced in. Major global banks like Goldman Sachs, Citi, and Nomura are now providing their analysis, indicating significant institutional focus on the results.
+**Summary:** Despite reporting strong Q4 financial results, UltraTech's stock fell 1%.
+This suggests a 'sell on news' reaction or that results were priced in.
+Major investment banks like Goldman Sachs, Citi, and Nomura weighed in.
+Their post-earnings analysis is now influencing investor sentiment.
+The muted stock reaction despite the beat is a key observation.
 
-### News 5: UltraTech Cement stock steady today after Q4 beat, brokerages retain bullish ratings; special dividend in... - Moneycontrol.com
+### News 6: UltraTech Cement stock steady today after Q4 beat, brokerages retain bullish ratings; special dividend in... - Moneycontrol.com
 **Date:** 2026-04-28 | **Source:** Moneycontrol.com | **Sentiment:** ➡️ neutral
-**Summary:** UltraTech's stock price remained stable following a Q4 earnings beat. The positive results were further supported by the announcement of a special dividend. Brokerages have largely maintained their bullish ratings, reinforcing the positive sentiment surrounding the company's performance and shareholder return policy.
+**Summary:** UltraTech Cement's stock remained stable after its Q4 earnings beat.
+Brokerage firms have maintained their bullish ratings on the company.
+The company also announced a special dividend for shareholders.
+This combination of strong performance and shareholder return is supporting the stock.
+The market has reacted positively to the overall announcement.
 
-### News 6: UltraTech Cement to Host Analyst Meet at Manufacturing Unit on 29 April - The Globe and Mail
-**Date:** 2026-04-27 | **Source:** The Globe and Mail | **Sentiment:** ➡️ neutral
-**Summary:** UltraTech Cement has scheduled an analyst meeting at one of its manufacturing units on April 29th. This event allows analysts direct access to management and operations. While routine, such meetings can provide deeper insights that may influence future ratings and long-term valuation models.
-
-### News 7: UltraTech Cement Posts 2026 Earnings Call Audio for Global Investors - TipRanks
-**Date:** 2026-04-27 | **Source:** TipRanks | **Sentiment:** ➡️ neutral
-**Summary:** UltraTech Cement has made the audio recording of its 2026 earnings call available for investors. This is a standard, procedural announcement aimed at ensuring transparency and accessibility for all stakeholders. The news itself contains no new financial information, as it only points to the availability of the recording.
-
-### News 8: UltraTech Cement Shares Steady After Q4 Profit In-Line - NDTV Profit
-**Date:** 2026-04-27 | **Source:** NDTV Profit | **Sentiment:** 📈 bullish
-**Summary:** UltraTech Cement's shares remained steady as the company reported Q4 profits that were in-line with market expectations. The neutral market reaction indicates that the results were largely anticipated and had already been priced into the stock. This signifies a predictable, non-surprising outcome for investors.
-
-### News 9: Ultratech Cement Q4 consol net profit at 29.83 billion rupees - marketscreener.com
-**Date:** 2026-04-27 | **Source:** marketscreener.com | **Sentiment:** ➡️ neutral
-**Summary:** UltraTech Cement reported a consolidated net profit of 29.83 billion rupees for Q4. This is the headline financial figure from the company's quarterly earnings announcement. This key data point forms the basis for all market analysis and reaction to the company's performance during the quarter.
-
-### News 10: UltraTech Cement Q4 results, dividend date & time - Stock up 10% in a month| Expectations - MSN
+### News 7: UltraTech Cement Q4 results, dividend date & time - Stock up 10% in a month| Expectations - MSN
 **Date:** 2026-04-27 | **Source:** MSN | **Sentiment:** ➡️ neutral
-**Summary:** This article serves as a preview for UltraTech's Q4 results and dividend announcement. It highlights that the stock has already appreciated by 10% in the preceding month. This run-up indicates high market expectations, setting a high bar for the company to meet or exceed to sustain positive momentum.
+**Summary:** This article sets expectations for UltraTech's upcoming Q4 results.
+It notes the stock had already rallied 10% in the month prior.
+This indicates high investor anticipation for a strong performance.
+The market was keenly awaiting the results and a potential dividend announcement.
+The pre-earnings rally put pressure on the company to deliver.
+
+### News 8: UltraTech Cement to Host Analyst Meet at Manufacturing Unit on 29 April - The Globe and Mail
+**Date:** 2026-04-27 | **Source:** The Globe and Mail | **Sentiment:** ➡️ neutral
+**Summary:** UltraTech Cement announced it will host an analyst meet on April 29.
+The meeting will take place at one of its manufacturing units.
+This provides analysts direct access to management and operations.
+Such events can influence analyst ratings by offering greater transparency.
+It is a routine but important investor relations activity.
+
+### News 9: UltraTech Cement Posts 2026 Earnings Call Audio for Global Investors - TipRanks
+**Date:** 2026-04-27 | **Source:** TipRanks | **Sentiment:** ➡️ neutral
+**Summary:** UltraTech Cement has made its 2026 earnings call audio available online.
+This allows global investors to hear management's discussion of the results.
+The recording includes the Q&A session with analysts.
+This is a standard corporate governance practice promoting transparency.
+It provides deeper context beyond the press release.
 
 ## Market Context
 
 Market context for ULTRACEMCO captures macro environment, sector trends, and market regime. Market Regime relates to Nifty 50 trend and overall equity direction. Sector Context relates to peer performance and sector rotation. These contextually relate to Fundamentals valuation and Technical Indicators trend.
 
 ### Market_Regime
-**Value:** Bear Market | **Sentiment:** 📉 bearish
-**Summary:** The overall market is in a downtrend, suggesting short-term investors should avoid new long positions due to high sellin…
-**Analysis:** The overall market is in a downtrend, suggesting short-term investors should avoid new long positions due to high selling pressure.
+**Value:** Sideways | **Sentiment:** ➡️ neutral
+**Summary:** Sideways
+**Analysis:** 

@@ -340,7 +340,7 @@ async def get_stock_overview(symbol: str):
     """
     requested_symbol = symbol.upper().strip()
     symbol = _SYMBOL_ALIASES.get(requested_symbol, requested_symbol)
-    cache_key = f"stock:overview:v9:{requested_symbol}"
+    cache_key = f"stock:overview:v10:{requested_symbol}"
 
     # ── Cache hit ─────────────────────────────────────────────────────────────
     cached = await cache_get(cache_key)
@@ -374,6 +374,12 @@ async def get_stock_overview(symbol: str):
     except Exception as e:
         logger.debug(f"BSE meta ratios failed for {symbol}: {e}")
 
+    bse_snapshot = {}
+    try:
+        bse_snapshot = await bse_client.fetch_results_snapshot(symbol)
+    except Exception as e:
+        logger.debug(f"BSE results snapshot failed for {symbol}: {e}")
+
     # ── Fetch technicals (optional — degrade gracefully) ─────────────────────
     technicals = {}
     try:
@@ -402,6 +408,16 @@ async def get_stock_overview(symbol: str):
 
     quarterly_table = screener_data.get("quarterly_results", {}) if isinstance(screener_data, dict) else {}
     annual_table = screener_data.get("annual_results", {}) if isinstance(screener_data, dict) else {}
+
+    def latest_bse_snapshot_value(*keys: str) -> float | None:
+        for period in bse_snapshot.get("periods", []):
+            if not isinstance(period, dict):
+                continue
+            for key in keys:
+                value = period.get(key)
+                if value is not None:
+                    return value
+        return None
 
     def first_available(*values):
         for value in values:
@@ -434,18 +450,20 @@ async def get_stock_overview(symbol: str):
         return None
 
     opm_value = first_available(
-        bse_meta.get("opm"),
+        latest_bse_snapshot_value("opm_pct"),
         latest_row_value(quarterly_table, "opm", "operating margin", "financing margin"),
         latest_row_value(annual_table, "opm", "operating margin", "financing margin"),
         computed_operating_margin(quarterly_table),
         computed_operating_margin(annual_table),
+        bse_meta.get("opm"),
     )
     npm_value = first_available(
-        bse_meta.get("npm"),
+        latest_bse_snapshot_value("npm_pct"),
         latest_row_value(quarterly_table, "npm", "net profit margin"),
         latest_row_value(annual_table, "npm", "net profit margin"),
         computed_margin(quarterly_table, ("net profit", "profit after tax", "pat")),
         computed_margin(annual_table, ("net profit", "profit after tax", "pat")),
+        bse_meta.get("npm"),
     )
 
     company_website = price_data.get("website") or screener_website
@@ -752,7 +770,7 @@ async def get_stock_announcements(
     Cached 2 hours.
     """
     symbol = symbol.upper().strip()
-    cache_key = f"stock:announcements:v12:{symbol}"
+    cache_key = f"stock:announcements:v14:{symbol}"
 
     cached = await cache_get(cache_key)
     if cached:
@@ -845,7 +863,10 @@ async def get_stock_announcements(
     def _sort_key(item: dict) -> datetime:
         return _announcement_sort_date(item.get("date") or "")
 
-    all_items = [item for item in all_items if item.get("pdf_url")]
+    all_items = [
+        item for item in all_items
+        if item.get("pdf_url") or item.get("filing_url")
+    ]
     all_items.sort(key=_sort_key, reverse=True)
 
     seen: set[tuple] = set()

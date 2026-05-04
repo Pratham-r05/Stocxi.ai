@@ -1,235 +1,239 @@
 ---
 symbol: COASTCORP
-captured_at: 2026-05-02
+captured_at: 2026-05-04
 horizon: long
-sector: diversified
+sector: seafood
 author: stocxi_phase1
 contributor: stocxi
 ---
 
 # COASTCORP — Stock Analysis Data
 
-COASTCORP is a stock in the **diversified** sector analyzed for a **long-term** investment horizon as of 2026-05-02. This document captures fundamentals, technical indicators, financial statements, announcements, news, and market context. Each section relates to others: Fundamentals drive valuation; Technical Indicators reflect price momentum; Balance Sheet underpins Debt_To_Equity and ROE; Profit Loss feeds EPS and PAT_TTM; Cash Flow validates Net Profit quality; Shareholding signals institutional confidence; Announcements and News capture recent events.
+COASTCORP is a stock in the **seafood** sector analyzed for a **long-term** investment horizon as of 2026-05-04. This document captures fundamentals, technical indicators, financial statements, announcements, news, and market context. Each section relates to others: Fundamentals drive valuation; Technical Indicators reflect price momentum; Balance Sheet underpins Debt_To_Equity and ROE; Profit Loss feeds EPS and PAT_TTM; Cash Flow validates Net Profit quality; Shareholding signals institutional confidence; Announcements and News capture recent events.
 
 ## Fundamentals
 
 COASTCORP fundamentals provide valuation, profitability, and financial health metrics. PE_Ratio relates to EPS and Revenue_Growth_YoY. ROE depends on Net_Profit_Annual and Reserves. Operating_Cash_Flow relates to Free_Cashflow and Debt_To_Equity. Market_Cap relates to PE_Ratio and EPS.
 
 ### PE_Ratio
-**Value:** PE: 16.9 | **Sentiment:** ➡️ neutral
-**Analysis:** The P/E of 16.9 suggests a moderate valuation, neither cheap nor expensive, which is a neutral signal for a long-term investor. PE_Ratio relates to EPS, Revenue_Growth_YoY, Market_Cap.
+**Value:** PE: 24.8 | **Sentiment:** ➡️ neutral
+**Analysis:**  PE_Ratio relates to EPS, Revenue_Growth_YoY, Market_Cap.
 
 ### PB_Ratio
-**Value:** PB: 1.32 | **Sentiment:** ➡️ neutral
-**Analysis:** A P/B of 1.32 indicates the stock is trading slightly above its book value, suggesting a reasonable valuation, which is a neutral signal. PB_Ratio relates to Total_Assets, Reserves, Net_Worth.
+**Value:** PB: 1.41 | **Sentiment:** ➡️ neutral
+**Analysis:**  PB_Ratio relates to Total_Assets, Reserves, Net_Worth.
 
 ### ROE
-**Value:** ROE: 4.9% | **Sentiment:** 📉 bearish
-**Analysis:** A low ROE of 4.9% signals inefficient use of shareholder funds and poor profitability, a negative indicator for long-term value creation. ROE relates to Net_Profit_Annual, Reserves, EPS.
+**Value:** ROE: 5.7% | **Sentiment:** 📉 bearish
+**Analysis:**  ROE relates to Net_Profit_Annual, Reserves, EPS.
 
 ### EPS
-**Value:** EPS: ₹3.37 | **Sentiment:** ➡️ neutral
-**Analysis:** The company's earnings per share of ₹3.37 provides a baseline for profitability; its trend over time will be the key driver for valuation. EPS relates to PE_Ratio, Net_Profit_Annual, Revenue_Annual.
+**Value:** EPS: ₹2.32 | **Sentiment:** ➡️ neutral
+**Analysis:**  EPS relates to PE_Ratio, Net_Profit_Annual, Revenue_Annual.
 
 ### OPM
 **Value:** OPM: 7.1% | **Sentiment:** ➡️ neutral
-**Analysis:** An operating margin of 7.1% reflects moderate core business profitability, a neutral signal without sector comparison to judge its efficiency. OPM relates to Revenue_Annual, EBITDA_TTM, EBITDA_Margin.
+**Analysis:**  OPM relates to Revenue_Annual, EBITDA_TTM, EBITDA_Margin.
 
 ### NPM
 **Value:** NPM: 1.6% | **Sentiment:** 📉 bearish
-**Analysis:** The very low net profit margin of 1.6% is a negative sign, indicating poor profitability and vulnerability to cost increases or sales declines. NPM relates to Revenue_Annual, Net_Profit_Annual, OPM.
+**Analysis:**  NPM relates to Revenue_Annual, Net_Profit_Annual, OPM.
+
+### Market_Cap
+**Value:** Mkt Cap: ₹381 Cr | **Sentiment:** ➡️ neutral
+**Analysis:**  Market_Cap relates to PE_Ratio, EPS, Revenue_Annual.
 
 ### Revenue_Quarterly
 **Value:** Q Revenue: ₹303 Cr (latest period: Dec 2025) | **Sentiment:** 📈 bullish
-**Analysis:** The latest quarterly revenue of ₹303 Cr is a positive sign of business demand; consistent YoY/QoQ growth would be crucial for long-term value.
+**Analysis:** 
 
 ### Net_Profit_Quarterly
 **Value:** Q PAT: ₹7 Cr (latest period: Dec 2025) | **Sentiment:** 📈 bullish
-**Analysis:** Achieving a quarterly net profit of ₹7 Cr is a positive, though its stability and YoY growth trend are more important for long-term investors.
+**Analysis:** 
 
 ### Revenue_Annual
 **Value:** FY Revenue: ₹803 Cr (TTM) | **Sentiment:** 📈 bullish
-**Analysis:** Annual TTM revenue of ₹803 Cr shows a decent business scale; a positive, accelerating YoY trend would be a strong indicator for growth. Revenue_Annual relates to Revenue_Growth_YoY, Net_Profit_Annual, OPM.
+**Analysis:**  Revenue_Annual relates to Revenue_Growth_YoY, Net_Profit_Annual, OPM.
 
 ### Net_Profit_Annual
 **Value:** FY PAT: ₹15 Cr (TTM) | **Sentiment:** 📈 bullish
-**Analysis:** The company is profitable with an annual TTM PAT of ₹15 Cr, a positive sign, but its low margin and YoY trend need careful monitoring. Net_Profit_Annual relates to EPS, ROE, PAT_TTM.
+**Analysis:**  Net_Profit_Annual relates to EPS, ROE, PAT_TTM.
 
 ### Debt_To_Equity
-**Value:** D/E: 32.08 | **Sentiment:** 📉 bearish
-**Analysis:** An extremely high Debt-to-Equity ratio of 32.08 is a major negative, indicating massive financial risk and a highly leveraged balance sheet. Debt_To_Equity relates to Borrowings, Interest_Coverage, Operating_Cash_Flow.
+**Value:** D/E: 1.54 | **Sentiment:** ➡️ neutral
+**Analysis:**  Debt_To_Equity relates to Borrowings, Interest_Coverage, Operating_Cash_Flow.
 
 ### Operating_Cash_Flow
 **Value:** OCF: ₹5 Cr (Mar 2025) | **Sentiment:** 📈 bullish
-**Analysis:** Generating positive operating cash flow of ₹5 Cr is a good sign, but it is lower than net profit, warranting a look into working capital. Operating_Cash_Flow relates to Free_Cashflow, Net_Profit_Annual.
+**Analysis:**  Operating_Cash_Flow relates to Free_Cashflow, Net_Profit_Annual.
 
 ### Revenue_TTM
 **Value:** Rev TTM: ₹803 Cr (+36.6% YoY) | **Sentiment:** 📈 bullish
-**Analysis:** Strong TTM revenue growth (+36.6% YoY) indicates robust demand and market expansion, a positive signal for long-term value creation.
+**Analysis:** 
 
 ### Revenue_Growth_YoY
 **Value:** Revenue YoY: +36.6% | **Sentiment:** 📈 bullish
-**Analysis:** The impressive 36.6% YoY revenue growth demonstrates strong execution and accelerating market share gains, a highly positive indicator for compounding.
+**Analysis:** 
 
 ### PAT_TTM
 **Value:** PAT TTM: ₹15 Cr (+2377.9% YoY) | **Sentiment:** 📈 bullish
-**Analysis:** A massive PAT jump to ₹15 Cr indicates a significant profitability turnaround from a low base, a very positive sign of improving operational efficiency.
+**Analysis:** 
 
 ### PAT_Growth_YoY
 **Value:** PAT YoY: +2377.9% | **Sentiment:** 📈 bullish
-**Analysis:** The extraordinary 2377.9% PAT growth signals a major profitability reversal, which is highly positive but needs scrutiny for future sustainability.
+**Analysis:** 
 
 ### EBITDA_TTM
 **Value:** EBITDA TTM: ₹49 Cr (+98.0% YoY) | **Sentiment:** 📈 bullish
-**Analysis:** EBITDA nearly doubling to ₹49 Cr shows strong operational leverage and improving core profitability, a positive sign for sustainable earnings growth.
+**Analysis:** 
 
 ### EBITDA_Margin
 **Value:** EBITDA Margin: 5.7% | **Sentiment:** ➡️ neutral
-**Analysis:** The 5.7% EBITDA margin is modest, suggesting low pricing power or high costs relative to the sector, making this a neutral signal pending comparison.
+**Analysis:** 
 
 ### Free_Cashflow
 **Value:** FCF: ₹-53 Cr (Mar 2025) | **Sentiment:** 📉 bearish
-**Analysis:** Negative free cash flow of ₹-53 Cr indicates cash burn, possibly for growth, but it's a key risk for liquidity and is negative for investors. Free_Cashflow relates to Operating_Cash_Flow, Debt_To_Equity, Borrowings.
+**Analysis:**  Free_Cashflow relates to Operating_Cash_Flow, Debt_To_Equity, Borrowings.
 
 ### Interest_Coverage
 **Value:** Interest Coverage: 1.7x | **Sentiment:** ➡️ neutral
-**Analysis:** An interest coverage ratio of 1.7x is low, indicating a limited buffer to service debt, posing a moderate financial risk; hence, it's a neutral signal. Interest_Coverage relates to Debt_To_Equity, Borrowings.
-
-### Market_Cap
-**Value:** Mkt Cap: ₹383 Cr | **Sentiment:** 📉 bearish
-**Analysis:** The ₹383 Cr market cap classifies it as a risky micro-cap stock with potential volatility and liquidity issues, a negative for risk-averse investors. Market_Cap relates to PE_Ratio, EPS, Revenue_Annual.
+**Analysis:**  Interest_Coverage relates to Debt_To_Equity, Borrowings.
 
 ### Total_Assets
 **Value:** Total Assets: ₹800 Cr (Sep 2025) | **Sentiment:** ➡️ neutral
-**Analysis:** Total assets of ₹800 Cr provide the scale of operations but are a neutral data point without assessing asset quality and return on assets. Total_Assets relates to Total_Liabilities, Reserves, Borrowings.
+**Analysis:**  Total_Assets relates to Total_Liabilities, Reserves, Borrowings.
 
 ### Total_Liabilities
-**Value:** Total Liabilities: ₹800 Cr (Sep 2025) | **Sentiment:** ➡️ neutral
-**Analysis:** Total liabilities of ₹800 Cr are high and concerningly equal to total assets, implying zero equity and potential insolvency, a highly negative signal. Total_Liabilities relates to Total_Assets, Borrowings, Debt_To_Equity.
+**Value:** Total Assets: ₹800 Cr (Sep 2025) (incl. ₹271 Cr equity) | **Sentiment:** ➡️ neutral
+**Analysis:**  Total_Liabilities relates to Total_Assets, Borrowings, Debt_To_Equity.
 
 ### Reserves
 **Value:** Reserves: ₹258 Cr (Sep 2025) | **Sentiment:** ➡️ neutral
-**Analysis:** Reserves of ₹258 Cr represent accumulated profits that strengthen the balance sheet, providing a buffer for future growth or downturns, a positive sign. Reserves relates to PB_Ratio, Net_Profit_Annual, Total_Assets.
+**Analysis:**  Reserves relates to PB_Ratio, Net_Profit_Annual, Total_Assets.
 
 ### Borrowings
 **Value:** Borrowings: ₹417 Cr (Sep 2025) (YoY: +1.5%) | **Sentiment:** ➡️ neutral
-**Analysis:** Stable borrowings with minimal YoY growth suggest prudent debt management, a neutral signal without further context on its capital structure. Borrowings relates to Debt_To_Equity, Interest_Coverage, Free_Cashflow.
+**Analysis:**  Borrowings relates to Debt_To_Equity, Interest_Coverage, Free_Cashflow.
 
 ### Expenses_Quarterly
 **Value:** Q Expenses: ₹286 Cr (Dec 2025) | **Sentiment:** 📉 bearish
-**Analysis:** Rising quarterly expenses are a concern as they can compress margins if not matched by accelerating revenue, a negative trend for profitability.
+**Analysis:** 
 
 ### Operating_Profit_Quarterly
 **Value:** Q OP: ₹17 Cr (Dec 2025) | **Sentiment:** 📈 bullish
-**Analysis:** The company is profitable at the core operational level this quarter, which is a fundamental positive for its business health and future earnings.
+**Analysis:** 
 
 ### OPM_Quarterly
 **Value:** Q OPM: 5.7% | **Sentiment:** ➡️ neutral
-**Analysis:** A quarterly OPM of 5.7% indicates modest operational efficiency, likely in line with its sector, which is a neutral signal for its pricing power.
+**Analysis:** 
 
 ### Expenses_Annual
 **Value:** FY Expenses: ₹754 Cr (TTM) | **Sentiment:** 📉 bearish
-**Analysis:** High annual expenses on a TTM basis are a red flag, suggesting potential inefficiencies that could drag on full-year profitability if not controlled.
+**Analysis:** 
 
 ### Operating_Profit_Annual
 **Value:** FY OP: ₹49 Cr (TTM) | **Sentiment:** 📈 bullish
-**Analysis:** The company maintains annual operational profitability, a positive sign of its ability to generate consistent earnings from its core business over time.
+**Analysis:** 
 
 ### OPM_Annual
 **Value:** FY OPM: 6.0% | **Sentiment:** ➡️ neutral
-**Analysis:** The annual OPM of 6.0% is modest and likely near the industry average, indicating stable but not superior operational efficiency, a neutral factor.
+**Analysis:** 
 
 ### EPS_Annual
 **Value:** FY EPS: ₹2.32 (TTM) | **Sentiment:** 📈 bullish
-**Analysis:** A positive TTM EPS demonstrates shareholder value creation, forming a solid foundation for future returns, which is a key positive for investors.
+**Analysis:** 
 
 ### Cash_From_Investing
 **Value:** CFI: ₹-54 Cr (Mar 2025) | **Sentiment:** ➡️ neutral
-**Analysis:** Negative CFI shows the company is investing in assets for future growth (capex), a neutral sign that requires monitoring for efficient capital use.
+**Analysis:** 
 
 ### Cash_From_Financing
 **Value:** CFF: ₹58 Cr (Mar 2025) | **Sentiment:** ➡️ neutral
-**Analysis:** Positive CFF indicates the company raised capital, possibly through debt, which is a neutral event pending details on its use and cost of funds.
+**Analysis:** 
 
 ### Promoter_Holding
 **Value:** Promoter: 42.3% | **Sentiment:** ➡️ neutral
-**Analysis:** A promoter holding of 42.3% ensures significant skin in the game, aligning their interests with shareholders, which is a broadly neutral to positive signal.
+**Analysis:** 
 
 ### Public_Retail_Holding
 **Value:** Public/Retail: 57.7% | **Sentiment:** ➡️ neutral
-**Analysis:** A majority public holding suggests good liquidity but can lead to higher volatility; it's a neutral factor without a deeper FII/DII ownership view.
+**Analysis:** 
 
 ## Technical Indicators
 
 Technical indicators for COASTCORP capture price momentum, trend strength, and market timing signals. RSI relates to overbought and oversold conditions. MACD relates to trend direction and Signal Line crossovers. SMA_20, SMA_50, and SMA_200 relate to short, medium, and long-term trend support. ADX relates to trend strength. ATR relates to volatility and risk.
 
 ### RSI_14
-**Value:** RSI: 68.0 | **Sentiment:** ➡️ neutral
-**Analysis:** RSI at 68 shows strong buying momentum, but it's less critical for long-term entry and warns of a possible short-term pullback.
+**Value:** RSI: 66.0 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### MACD
-**Value:** MACD: 3.20, Signal: 2.79 | **Sentiment:** 📈 bullish
-**Analysis:** The positive MACD crossover confirms a bullish trend, which is a key positive signal for a long-term investment horizon. MACD relates to Signal_Line, Trend_Direction, Price_Momentum.
+**Value:** MACD: 3.14, Signal: 2.86 | **Sentiment:** 📈 bullish
+**Analysis:**  MACD relates to Signal_Line, Trend_Direction, Price_Momentum.
 
 ### ADX_14
-**Value:** ADX: 40.8 (Strong Trend) | **Sentiment:** 📈 bullish
-**Analysis:** A strong ADX of 40.8 confirms the powerful uptrend, which is highly favorable for a long-term compounding strategy.
+**Value:** ADX: 41.0 (Strong Trend) | **Sentiment:** 📈 bullish
+**Analysis:** 
 
 ### ATR_14
-**Value:** ATR: 3.78 (6.6%) | **Sentiment:** 📉 bearish
-**Analysis:** High volatility (ATR 6.6%) indicates significant price swings, a key risk factor for a long-term investor to be aware of.
+**Value:** ATR: 3.66 (6.5%) | **Sentiment:** 📉 bearish
+**Analysis:** 
 
 ### Bollinger_Bands
-**Value:** BB: 43.9 | 51.8 | 59.7 | P: 57.2 | **Sentiment:** ➡️ neutral
-**Analysis:** Price trading in the upper Bollinger Band confirms the uptrend's strength, though it's not a primary long-term signal.
+**Value:** BB: 45.1 | 52.4 | 59.8 | P: 56.7 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### EMA
-**Value:** EMA20: 52.4 | EMA50: 47.9 | EMA200: 41.0 | **Sentiment:** 📈 bullish
-**Analysis:** The bullish stacking of EMAs (20>50>200) is a powerful confirmation of a healthy long-term uptrend for the stock.
+**Value:** EMA20: 52.9 | EMA50: 48.3 | EMA200: 41.4 | **Sentiment:** 📈 bullish
+**Analysis:** 
 
 ### SMA
-**Value:** SMA20: 51.8 | SMA50: 47.0 | SMA200: 39.6 | **Sentiment:** 📈 bullish
-**Analysis:** The bullish SMA alignment, with price well above the 200-day average, strongly validates the stock's long-term uptrend.
+**Value:** SMA20: 52.4 | SMA50: 47.3 | SMA200: 39.7 | **Sentiment:** 📈 bullish
+**Analysis:** 
 
 ### Ichimoku
-**Value:** Cloud: 50.9–54.0 | Price: 57.2 | **Sentiment:** 📈 bullish
-**Analysis:** Price trading above the Ichimoku cloud is a strong, comprehensive bullish signal, confirming the uptrend's health.
+**Value:** Cloud: 50.9–54.0 | Price: 56.7 | **Sentiment:** 📈 bullish
+**Analysis:** 
 
 ### Parabolic_SAR
-**Value:** PSAR: 54.16, Price: 57.19 | **Sentiment:** 📈 bullish
-**Analysis:** Parabolic SAR confirms the immediate uptrend but is more suited for short-term tactics, not long-term investment decisions.
+**Value:** PSAR: 55.00, Price: 56.68 | **Sentiment:** 📈 bullish
+**Analysis:** 
 
 ### Stochastic
-**Value:** Stoch %K: 60.7, %D: 57.7 | **Sentiment:** ➡️ neutral
-**Analysis:** The neutral Stochastic reading is a short-term signal with little relevance for a long-term investment strategy.
+**Value:** Stoch %K: 57.6, %D: 57.2 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### Williams_R
-**Value:** Williams %R: -39.3 | **Sentiment:** ➡️ neutral
-**Analysis:** The neutral Williams %R is a short-term oscillator signal that is not relevant for a 1-3 year investment horizon.
+**Value:** Williams %R: -42.4 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### ROC
-**Value:** ROC: 14.82% | **Sentiment:** 📈 bullish
-**Analysis:** The strong positive Rate of Change (14.82%) confirms powerful upward momentum, supporting the overall bullish trend.
+**Value:** ROC: 11.79% | **Sentiment:** 📈 bullish
+**Analysis:** 
 
 ### OBV
-**Value:** OBV: 4.7M, Trend: Bullish Confirmation | **Sentiment:** 📈 bullish
-**Analysis:** Strong buying volume (OBV) confirms the price uptrend, suggesting institutional interest, which is positive for long-term holders.
+**Value:** OBV: 4.3M, Trend: Bullish Confirmation | **Sentiment:** 📈 bullish
+**Analysis:** 
 
 ### VWAP
-**Value:** VWAP: 54.59, Price: 57.19 | **Sentiment:** 📈 bullish
-**Analysis:** Price trading above VWAP shows short-term bullishness, but this is less relevant for long-term investors than the primary trend. VWAP relates to Price_Level, Volume, Intraday_Trend.
+**Value:** VWAP: 55.02, Price: 56.68 | **Sentiment:** 📈 bullish
+**Analysis:**  VWAP relates to Price_Level, Volume, Intraday_Trend.
 
 ### CMF
-**Value:** CMF: -0.025 | **Sentiment:** ➡️ neutral
-**Analysis:** CMF near zero shows a balance in money flow, indicating consolidation, which is neutral but warrants monitoring for a new trend.
+**Value:** CMF: -0.015 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### MFI
-**Value:** MFI: 69.5 | **Sentiment:** ➡️ neutral
-**Analysis:** A high MFI reflects strong buying pressure but isn't overbought, confirming healthy momentum for a long-term uptrend.
+**Value:** MFI: 68.4 | **Sentiment:** ➡️ neutral
+**Analysis:** 
+
+### Volume_SMA20
+**Value:** Vol SMA20: 160229 | **Sentiment:** 📉 bearish
+**Analysis:** 
 
 ### 52W_HL_Ratio
-**Value:** 52W: 30–64, CMP: 57 (81%) | **Sentiment:** 📉 bearish
-**Analysis:** Trading near its 52-week high suggests limited short-term upside and poses a risk of buying at a cyclical peak for new investors.
+**Value:** 52W: 30–64, CMP: 57 (80%) | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ## Balance Sheet
 
@@ -527,43 +531,43 @@ Recent corporate announcements from COASTCORP signal strategic direction and eve
 
 ### Announcement 1: Board Meeting Intimation
 **Date:** 2026-02-12 | **Sentiment:** ➡️ neutral
-**Summary:** Board meeting scheduled for Feb 12, 2026, to discuss undisclosed matters. This is a standard procedural intimation; market awaits the outcome.
+**Summary:** Company informed the exchange of a board meeting on Feb 12, 2026, to discuss results. A standard procedural update with neutral impact.
 
 ### Announcement 2: Financial Results/Other business matters
 **Date:** 2026-02-12 | **Sentiment:** ➡️ neutral
-**Summary:** The board approved financial results on Feb 12, 2026. Market reaction will be based on the performance metrics within the results.
+**Summary:** Board approved financial results on Feb 12, 2026. Market reaction depends on the actual performance figures not detailed in this filing.
 
 ### Announcement 3: Board Meeting Intimation
 **Date:** 2025-11-10 | **Sentiment:** ➡️ neutral
-**Summary:** Board meeting scheduled for Nov 10, 2025. This is a standard procedural intimation, with the market awaiting the meeting's outcome.
+**Summary:** Board meeting scheduled for Nov 10, 2025, to consider financial results. A routine compliance filing with neutral short-term impact.
 
 ### Announcement 4: Financial Results/Other business matters
 **Date:** 2025-11-10 | **Sentiment:** ➡️ neutral
-**Summary:** The board approved financial results on Nov 10, 2025. Stock movement will depend on the actual profit and revenue figures declared.
+**Summary:** Board approved financial results on Nov 10, 2025. As a standard disclosure, market impact is contingent on the actual performance metrics.
 
 ### Announcement 5: Dividend - Rs 0.22 Per Share
 **Date:** 2025-09-19 | **Sentiment:** 📈 bullish
-**Summary:** The company declared a dividend of ₹0.22 per share. This is a positive for shareholders and may provide short-term support to the stock price.
+**Summary:** Company declared a dividend of Rs 0.22 per share. This is a positive for shareholders, indicating profit sharing and could boost sentiment.
 
 ### Announcement 6: Dividend - Rs. - 0.2200
 **Date:** 2025-09-19 | **Sentiment:** 📈 bullish
-**Summary:** A dividend of ₹0.22 per share has been confirmed. This is a positive development for shareholders, reinforcing investor confidence.
+**Summary:** Reiteration of the Rs 0.22 per share dividend declaration. This confirms the shareholder payout, reinforcing positive market sentiment.
 
 ### Announcement 7: COASTAL CORPORATION LIMITED has informed the Exchange about Board Meeting to be held on 14-Aug-2025 to inter-alia consider and approve the Unaudited Financial results of the Company for the Quarterly ended June 2025 .
 **Date:** 2025-08-14 | **Sentiment:** ➡️ neutral
-**Summary:** Board meeting set for Aug 14, 2025, to approve quarterly unaudited financial results. This is a routine pre-results announcement.
+**Summary:** Intimation of a board meeting on Aug 14, 2025, to approve quarterly unaudited results. A standard procedural update for investors.
 
 ### Announcement 8: Financial Results
 **Date:** 2025-08-14 | **Sentiment:** ➡️ neutral
-**Summary:** The board approved quarterly financial results on Aug 14, 2025. Stock performance will now hinge on the reported profit and revenue figures.
+**Summary:** Board approved quarterly financial results on Aug 14, 2025. Market impact will be determined by the actual profit and revenue figures.
 
 ### Announcement 9: Board Meeting Intimation
 **Date:** 2025-05-29 | **Sentiment:** ➡️ neutral
-**Summary:** Board meeting scheduled for May 29, 2025. This is a standard procedural intimation; market awaits the outcome.
+**Summary:** Company to hold a board meeting on May 29, 2025, to consider results and a dividend. This signals potential shareholder rewards.
 
 ### Announcement 10: Financial Results/Dividend/Other business matters
 **Date:** 2025-05-29 | **Sentiment:** 📈 bullish
-**Summary:** Board approved financial results and recommended a dividend. Market will react to the results and the quantum of the dividend declared.
+**Summary:** Board approved financial results and declared a dividend on May 29, 2025. This is typically viewed positively, signaling financial health.
 
 ## News
 
@@ -574,6 +578,6 @@ Recent news coverage of COASTCORP captures market sentiment and external events.
 Market context for COASTCORP captures macro environment, sector trends, and market regime. Market Regime relates to Nifty 50 trend and overall equity direction. Sector Context relates to peer performance and sector rotation. These contextually relate to Fundamentals valuation and Technical Indicators trend.
 
 ### Market_Regime
-**Value:** Bear Market | **Sentiment:** 📉 bearish
-**Summary:** Broad market pessimism in a bear phase allows long-term investors to build positions in strong companies at discounted v…
-**Analysis:** Broad market pessimism in a bear phase allows long-term investors to build positions in strong companies at discounted valuations.
+**Value:** Sideways | **Sentiment:** ➡️ neutral
+**Summary:** Sideways
+**Analysis:** 

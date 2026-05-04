@@ -70,7 +70,7 @@ if OpenAI is not None and getattr(settings, "google_api_key", None):
     try:
         _ai_client = OpenAI(
             api_key=settings.google_api_key,
-            base_url=settings.google_base_url,
+            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
         )
     except Exception as e:
         logger.warning(f"Sentiment AI client init failed: {e}")
@@ -658,7 +658,7 @@ def _build_ai_summary_lines(
 
     try:
         resp = _ai_client.chat.completions.create(
-            model=settings.google_model,
+            model=settings.google_model.removeprefix("google/"),
             messages=[
                 {"role": "system", "content": "You are a precise market summary assistant. Output strict JSON array only."},
                 {"role": "user", "content": prompt},

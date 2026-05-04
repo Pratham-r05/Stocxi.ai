@@ -118,20 +118,27 @@ async def _summarize_announcements(items: list[dict], symbol: str) -> list[dict]
     )
 
     try:
-        import google.auth
-        import google.auth.transport.requests
         from openai import OpenAI
 
-        credentials, _ = google.auth.default(
-            scopes=["https://www.googleapis.com/auth/cloud-platform"]
-        )
-        credentials.refresh(google.auth.transport.requests.Request())
-        client = OpenAI(
-            api_key=credentials.token,
-            base_url=settings.google_base_url,
-        )
-
         model_id = yaml_cfg.versions.get("llm", {}).get("active", "google/gemini-2.5-pro")
+        if settings.google_api_key:
+            client = OpenAI(
+                api_key=settings.google_api_key,
+                base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+            )
+            model_id = model_id.removeprefix("google/")
+        else:
+            import google.auth
+            import google.auth.transport.requests
+
+            credentials, _ = google.auth.default(
+                scopes=["https://www.googleapis.com/auth/cloud-platform"]
+            )
+            credentials.refresh(google.auth.transport.requests.Request())
+            client = OpenAI(
+                api_key=credentials.token,
+                base_url=settings.google_base_url,
+            )
 
         response = client.chat.completions.create(
             model=model_id,
@@ -648,7 +655,9 @@ async def _enrich_with_pdf_text(items: list[dict]) -> list[dict]:
     texts = await asyncio.gather(*tasks, return_exceptions=True)
     for item, text in zip(items, texts):
         if text == _INVALID_PDF:
+            original_url = item.get("pdf_url") or ""
             item["pdf_url"] = ""
+            item["filing_url"] = item.get("filing_url") or original_url
             item["invalid_pdf"] = True
             item["pdf_text"] = ""
         else:

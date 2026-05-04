@@ -63,21 +63,43 @@ _JINJA_ENV     = Environment(
 _TEMPLATE      = _JINJA_ENV.get_template("prompt_template.jinja")
 
 
-def _get_llm_client():
-    """Return OpenAI-compatible client using Vertex AI ADC credentials."""
-    import google.auth
-    import google.auth.transport.requests
+def _gemini_api_model(model_id: str) -> str:
+    """Map Vertex model ids to Gemini API model names."""
+    return model_id.removeprefix("google/")
+
+
+def _get_llm_client_and_model():
+    """Return OpenAI-compatible client and matching model id."""
     from openai import OpenAI
     from config import settings
 
-    credentials, _ = google.auth.default(
-        scopes=["https://www.googleapis.com/auth/cloud-platform"]
-    )
-    credentials.refresh(google.auth.transport.requests.Request())
-    return OpenAI(
-        api_key=credentials.token,
-        base_url=settings.google_base_url,
-    )
+    if settings.google_api_key:
+        return (
+            OpenAI(
+                api_key=settings.google_api_key,
+                base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+            ),
+            _gemini_api_model(_MODEL_ID),
+        )
+
+    import google.auth
+    import google.auth.transport.requests
+
+    try:
+        credentials, _ = google.auth.default(
+            scopes=["https://www.googleapis.com/auth/cloud-platform"]
+        )
+        credentials.refresh(google.auth.transport.requests.Request())
+        return (
+            OpenAI(
+                api_key=credentials.token,
+                base_url=settings.google_base_url,
+            ),
+            _MODEL_ID,
+        )
+    except Exception as exc:
+        logger.error("agent_analysis: Vertex auth failed and no Gemini API key is configured: %s", exc)
+        raise
 
 
 # ── Category weight lookup ─────────────────────────────────────────────────────
@@ -214,9 +236,7 @@ def _repair_truncated_json(raw: str) -> dict[str, Any] | None:
 def _call_llm(prompt: str) -> tuple[dict[str, Any], str]:
     """Synchronous LLM call. Returns (parsed_dict, raw_response_str).
     Retries once on JSON parse failure. Re-raises all other exceptions immediately."""
-    client = _get_llm_client()
-
-    model = _MODEL_ID
+    client, model = _get_llm_client_and_model()
 
     system_msg = (
         "You are a strict financial data analysis engine. "
