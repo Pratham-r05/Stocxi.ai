@@ -12,8 +12,11 @@ from __future__ import annotations
 
 import asyncio
 import html
+import importlib
 import logging
+import os
 import re
+import sys
 from datetime import date
 from io import BytesIO
 from pathlib import Path
@@ -27,15 +30,24 @@ from reportlab.pdfgen import canvas
 from agents.orchestrator import run as orch_run, InsufficientDataError
 from agents.agent_report import build_report
 from schemas.messages import FetchRequest, UserProfile, Horizon, Risk
-from services.simple_analysis_service import generate as simple_generate
+from services.simple_analysis_service import (
+    _run_fetch_phase1 as simple_fetch_phase1,
+    generate as simple_generate,
+)
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v2/analysis", tags=["AI Analysis v2"])
 
-_GRAPH_DIR = Path(__file__).parents[2] / "graphify-out" / "stocks"
-_ROOT = Path(__file__).parents[2]
-_DATA_DIR = _ROOT / "data"
+_ROOT = Path(os.getenv("APP_ROOT", str(Path(__file__).parents[2])))
+_DEFAULT_DATA_DIR = "/tmp/data" if os.getenv("VERCEL") else str(_ROOT / "data")
+_DEFAULT_GRAPH_DIR = (
+    "/tmp/graphify-out/stocks"
+    if os.getenv("VERCEL")
+    else str(_ROOT / "graphify-out" / "stocks")
+)
+_DATA_DIR = Path(os.getenv("DATA_DIR", _DEFAULT_DATA_DIR))
+_GRAPH_DIR = Path(os.getenv("GRAPH_DIR", _DEFAULT_GRAPH_DIR))
 _GRAPH_BUILD_TIMEOUT_S = 90
 
 # Risk param → PDF risk_level string
@@ -117,32 +129,30 @@ async def _run_graph_builder(symbol: str) -> Path:
             f"Knowledge data not found for {safe_symbol}. Run analysis first."
         )
 
-    proc = await asyncio.create_subprocess_exec(
-        "python3",
-        str(_ROOT / "build_knowledge_graph.py"),
-        safe_symbol,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-        cwd=str(_ROOT),
-    )
-    try:
-        _stdout, stderr = await asyncio.wait_for(
-            proc.communicate(),
-            timeout=_GRAPH_BUILD_TIMEOUT_S,
+    def build() -> Path:
+        backend_root = Path(__file__).parents[1]
+        for path in (str(backend_root), str(_ROOT)):
+            if path not in sys.path:
+                sys.path.insert(0, path)
+
+        bkg = importlib.import_module("build_knowledge_graph")
+        meta, nodes = bkg.parse_md(data_path)
+        graph_data = bkg.build_graph_data(safe_symbol, meta, nodes)
+        date_name = meta.get("captured_at", "unknown")
+
+        out_dir = _GRAPH_DIR / safe_symbol
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out_path = out_dir / f"{date_name}.html"
+        out_path.write_text(
+            bkg.render_html(safe_symbol, meta, graph_data),
+            encoding="utf-8",
         )
-    except asyncio.TimeoutError:
-        proc.kill()
-        await proc.wait()
-        raise TimeoutError("Knowledge graph generation timed out")
+        return out_path
 
-    if proc.returncode != 0:
-        msg = stderr.decode(errors="replace")[-1000:]
-        raise RuntimeError(f"Knowledge graph generation failed: {msg}")
-
-    latest = _latest_graph_path(safe_symbol)
-    if not latest:
-        raise FileNotFoundError("Knowledge graph builder finished without HTML output")
-    return latest
+    return await asyncio.wait_for(
+        asyncio.to_thread(build),
+        timeout=_GRAPH_BUILD_TIMEOUT_S,
+    )
 
 
 async def _resolve_graph_path(symbol: str, as_of_date: str = "") -> Path:
@@ -156,7 +166,13 @@ async def _resolve_graph_path(symbol: str, as_of_date: str = "") -> Path:
     if latest:
         return latest
 
-    return await _run_graph_builder(safe_symbol)
+    try:
+        return await _run_graph_builder(safe_symbol)
+    except FileNotFoundError as exc:
+        if "Knowledge data not found" not in str(exc):
+            raise
+        await simple_fetch_phase1(safe_symbol, "short")
+        return await _run_graph_builder(safe_symbol)
 
 
 @router.get("/{symbol}")
