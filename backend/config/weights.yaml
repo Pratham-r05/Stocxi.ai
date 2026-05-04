@@ -1,0 +1,345 @@
+# weights.yaml — Signal weight table v1 (bootstrap)
+#
+# VERSION: 2026.04 (hand-picked — see ARCHITECTURE.md §7)
+# RULE: After v1, weights are ONLY updated by backend/calibration/refit_weights.py
+#       using backtest outcomes. Never hand-edit this file past the first backtest run.
+#
+# Structure: each indicator has weight_short (short-term investor) and weight_long
+# (long-term investor). Weights within a category × horizon are normalized to sum=1.0
+# at load time by the config loader — don't worry about making them sum exactly here.
+#
+# Signal definitions per indicator are in backend/agents/agent_technical.py
+
+version: "2026.04"
+
+# ── Technical Indicators ──────────────────────────────────────────────────────
+# short = weight when investor profile is short-term
+# long  = weight when investor profile is long-term
+
+technical:
+
+  # Trend (4 indicators)
+  sma:
+    short: 0.05
+    long:  0.08
+    description: "Simple Moving Average — trend direction over time"
+
+  ema:
+    short: 0.06
+    long:  0.07
+    description: "Exponential Moving Average — more weight to recent prices"
+
+  ichimoku:
+    short: 0.05
+    long:  0.05
+    description: "Ichimoku Cloud — support/resistance, trend, momentum combined"
+
+  parabolic_sar:
+    short: 0.04
+    long:  0.02
+    description: "Parabolic SAR — trend reversal detection"
+
+  # Momentum (5 indicators)
+  rsi:
+    short: 0.08
+    long:  0.04
+    description: "RSI — overbought (>70) / oversold (<30) momentum"
+
+  macd:
+    short: 0.08
+    long:  0.06
+    description: "MACD — bullish/bearish crossover signal"
+
+  stochastic:
+    short: 0.05
+    long:  0.02
+    description: "Stochastic Oscillator — momentum vs recent range"
+
+  williams_r:
+    short: 0.04
+    long:  0.01
+    description: "Williams %R — overbought/oversold"
+
+  roc:
+    short: 0.04
+    long:  0.02
+    description: "Rate of Change — speed of price movement"
+
+  # Volatility (2 indicators)
+  bollinger_bands:
+    short: 0.06
+    long:  0.03
+    description: "Bollinger Bands — price at upper/lower = high volatility signal"
+
+  atr:
+    short: 0.05
+    long:  0.02
+    description: "Average True Range — raw volatility magnitude"
+
+  # Volume (4 indicators)
+  obv:
+    short: 0.06
+    long:  0.05
+    description: "On-Balance Volume — divergence with price = key signal"
+
+  vwap:
+    short: 0.06
+    long:  0.01
+    description: "VWAP — intraday reference price; low relevance for long-term"
+
+  cmf:
+    short: 0.05
+    long:  0.04
+    description: "Chaikin Money Flow — buying/selling pressure from volume"
+
+  mfi:
+    short: 0.05
+    long:  0.03
+    description: "Money Flow Index — RSI + volume combined"
+
+  # Strength (2 indicators)
+  adx:
+    short: 0.06
+    long:  0.05
+    description: "ADX — trend strength (not direction); >25 = strong trend"
+
+  week_52_ratio:
+    short: 0.04
+    long:  0.06
+    description: "52-Week High/Low Ratio — where price sits in yearly range"
+
+# ── Fundamental Data Points ───────────────────────────────────────────────────
+# Same structure: short / long weights
+
+fundamental:
+
+  revenue_growth_yoy:
+    short: 0.08
+    long:  0.18
+    description: "Revenue growth year-over-year — core business momentum"
+
+  profit_growth_yoy:
+    short: 0.08
+    long:  0.18
+    description: "Net profit growth YoY — bottom-line health"
+
+  roce:
+    short: 0.04
+    long:  0.14
+    description: "Return on Capital Employed — capital efficiency"
+
+  roe:
+    short: 0.04
+    long:  0.12
+    description: "Return on Equity — shareholder return efficiency"
+
+  debt_equity:
+    short: 0.05
+    long:  0.12
+    description: "Debt-to-Equity ratio — leverage risk (lower is safer)"
+
+  valuation:        # covers PE / EV-EBITDA / PEG as a group
+    short: 0.06
+    long:  0.10
+    description: "Valuation ratios — is the stock cheap or expensive vs peers/history"
+
+  promoter_pledging:
+    short: 0.10
+    long:  0.12
+    description: "Promoter pledging % — HIGH or RISING is a red flag (debt risk)"
+
+  promoter_holding_trend:
+    short: 0.05
+    long:  0.08
+    description: "Promoter buying own shares = confidence; selling = flag"
+
+  fii_holding_trend:
+    short: 0.06
+    long:  0.08
+    description: "FII holding change — smart money direction"
+
+  dii_mf_holding_trend:
+    short: 0.05
+    long:  0.07
+    description: "DII + MF holding change — domestic institutional view"
+
+  cash_flow_ops:
+    short: 0.04
+    long:  0.10
+    description: "Operating cash flow — profit quality check (cash vs accounting)"
+
+# ── Announcement Weights ─────────────────────────────────────────────────────
+# Keyed by classification (matched inside _item_to_node via purpose text).
+# horizon: which investor profile this is most relevant for.
+# short/long: raw weight before normalization.
+#
+# Impact rationale (highest → lowest):
+#   SEBI/legal action > fraud/forensic > promoter trade > leadership change >
+#   credit rating change > buyback/M&A > dividend > bonus/split >
+#   board meeting (results) > rights issue > AGM/EGM >
+#   board meeting (generic) > generic filing
+
+announcement:
+
+  sebi_action:
+    short: 0.90
+    long:  0.85
+    horizon: both
+    signal: negative
+    description: "SEBI notice, investigation, penalty, show-cause — highest risk flag"
+
+  fraud_allegation:
+    short: 0.82
+    long:  0.82
+    horizon: both
+    signal: negative
+    description: "Forensic audit, accounting fraud allegation, audit qualification"
+
+  promoter_trade:
+    short: 0.72
+    long:  0.78
+    horizon: both
+    signal: context_dependent
+    description: "Promoter buying (positive) or selling/pledging (negative)"
+
+  leadership_change:
+    short: 0.65
+    long:  0.72
+    horizon: long
+    signal: neutral
+    description: "CEO/CFO/MD/Director appointment or resignation"
+
+  credit_rating:
+    short: 0.62
+    long:  0.68
+    horizon: long
+    signal: context_dependent
+    description: "CRISIL/ICRA/CARE credit rating upgrade or downgrade"
+
+  ma_event:
+    short: 0.60
+    long:  0.68
+    horizon: long
+    signal: neutral
+    description: "Merger, acquisition, demerger, major joint venture"
+
+  buyback:
+    short: 0.62
+    long:  0.55
+    horizon: both
+    signal: positive
+    description: "Share buyback — management confidence signal"
+
+  dividend_declared:
+    short: 0.55
+    long:  0.42
+    horizon: short
+    signal: positive
+    description: "Interim/final dividend declaration — income signal"
+
+  bonus_split:
+    short: 0.42
+    long:  0.32
+    horizon: short
+    signal: positive
+    description: "Bonus issue or stock split — confidence signal, no fundamental change"
+
+  board_meeting_results:
+    short: 0.40
+    long:  0.44
+    horizon: both
+    signal: neutral
+    description: "Board meeting to consider financial results — watch signal"
+
+  rights_issue:
+    short: 0.38
+    long:  0.44
+    horizon: long
+    signal: neutral
+    description: "Rights issue — potential dilution, depends on pricing"
+
+  agm_egm:
+    short: 0.18
+    long:  0.22
+    horizon: long
+    signal: neutral
+    description: "Annual/extraordinary general meeting — procedural"
+
+  board_meeting_generic:
+    short: 0.14
+    long:  0.10
+    horizon: short
+    signal: neutral
+    description: "Board meeting without result agenda — low information content"
+
+  nse_filing_generic:
+    short: 0.07
+    long:  0.04
+    horizon: both
+    signal: neutral
+    description: "Routine regulatory filing — compliance only, minimal signal"
+
+# ── News Signal Classes ───────────────────────────────────────────────────────
+# News nodes aren't weighted individually — they're bucketed by signal class.
+# Higher class = more weight. Override the default category weight.
+
+news_signal_classes:
+  regulatory_sebi_action:
+    weight_multiplier: 2.0
+    description: "SEBI investigation, penalty, ban — highest priority signal"
+
+  fraud_allegation:
+    weight_multiplier: 1.8
+    description: "Fraud or accounting irregularity allegation"
+
+  credit_rating_change:
+    weight_multiplier: 1.5
+    description: "Downgrade or upgrade by CRISIL, ICRA, CARE, Fitch"
+
+  earnings_result:
+    weight_multiplier: 1.4
+    description: "Quarterly/annual earnings results — high relevance for all horizons"
+
+  leadership_change:
+    weight_multiplier: 1.3
+    description: "CEO/CFO/MD change or board restructuring"
+
+  ma_event:
+    weight_multiplier: 1.3
+    description: "Merger, acquisition, demerger, major JV"
+
+  analyst_action:
+    weight_multiplier: 1.2
+    description: "Analyst upgrade/downgrade, target price change, rating revision"
+
+  major_contract:
+    weight_multiplier: 1.1
+    description: "Material contract win or loss"
+
+  dividend_or_buyback:
+    weight_multiplier: 1.0
+    description: "Dividend declaration, buyback announcement"
+
+  sector_policy:
+    weight_multiplier: 0.9
+    description: "Sector-level policy change, regulation, government scheme"
+
+  generic_positive:
+    weight_multiplier: 0.8
+    description: "Positive sector/policy news without direct company impact"
+
+  generic_negative:
+    weight_multiplier: 0.8
+    description: "Negative sector/macro news without direct company impact"
+
+# ── Contradiction Hierarchy ───────────────────────────────────────────────────
+# When signals conflict, higher tier wins. Ties broken by node weight, then recency.
+# Matches ARCHITECTURE.md §9.
+
+contradiction_tiers:
+  1: "regulatory_sebi_legal"     # SEBI action, legal investigation, court order
+  2: "promoter_pledging_rising"  # Promoter pledging increasing OR promoter selling
+  3: "fundamental_deterioration" # Revenue down, debt rising, cash flow negative
+  4: "leadership_audit_credit"   # CEO change, audit qualification, credit downgrade
+  5: "technical_divergence"      # Price vs OBV/volume divergence
+  6: "news_sentiment"            # News signal alone, lowest priority

@@ -1,0 +1,15 @@
+# screener_slugs.yaml — NSE symbol → Screener.in company slug overrides
+#
+# Used when the Screener search API cannot resolve an NSE ticker directly
+# (e.g. rebranded companies, subsidiaries listed under a different name).
+#
+# Format:
+#   NSE_SYMBOL: screener_slug
+#
+# Find the slug from: https://www.screener.in/api/company/search/?q=<company name>&v=3&fts=1
+# or the URL: https://www.screener.in/company/<SLUG>/
+#
+# Verified: 2026-04-26
+
+TATAMOTORS: TMCV          # Tata Motors Ltd — Screener uses TMCV (commercial vehicle entity)
+ZOMATO: eternal           # Rebranded to Eternal Ltd on Screener
