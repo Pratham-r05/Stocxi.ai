@@ -21,6 +21,7 @@ import os
 import asyncio
 import logging
 import sys
+import json
 from datetime import date, datetime
 from pathlib import Path
 from typing import Literal
@@ -120,9 +121,15 @@ def _analysis_html_template(md_text: str, symbol: str, horizon: Horizon, level: 
 async def _run_fetch_phase1(symbol: str, horizon: Horizon) -> None:
     """Run fetch_phase1_data.py as a subprocess. Raises RuntimeError on failure."""
     logger.info("simple_analysis: running fetch_phase1_data for %s (%s)", symbol, horizon)
+    script_path = _ROOT / "fetch_phase1_data.py"
+    if not script_path.exists():
+        logger.warning("simple_analysis: fetch_phase1_data.py missing, using service fallback")
+        await _write_fallback_data_file(symbol, horizon)
+        return
+
     proc = await asyncio.create_subprocess_exec(
         sys.executable,
-        str(_ROOT / "fetch_phase1_data.py"),
+        str(script_path),
         symbol.upper(), horizon,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
@@ -135,8 +142,161 @@ async def _run_fetch_phase1(symbol: str, horizon: Horizon) -> None:
         raise RuntimeError("fetch_phase1_data timed out after 6 minutes")
     if proc.returncode != 0:
         msg = stderr.decode(errors="replace")[-800:]
+        if "fetch_phase1_data.py" in msg and "No such file" in msg:
+            logger.warning("simple_analysis: fetch_phase1_data unavailable, using service fallback")
+            await _write_fallback_data_file(symbol, horizon)
+            return
         raise RuntimeError(f"fetch_phase1_data failed (exit {proc.returncode}): {msg}")
     logger.info("simple_analysis: fetch_phase1_data complete for %s", symbol)
+
+
+def _compact(value: object, limit: int = 600) -> str:
+    text = json.dumps(value, ensure_ascii=True, default=str)
+    return text[:limit] + ("..." if len(text) > limit else "")
+
+
+def _signal(value: object, bullish_high: bool = True) -> str:
+    try:
+        number = float(str(value).replace(",", "").replace("%", ""))
+    except Exception:
+        return "neutral"
+    if bullish_high:
+        if number > 0:
+            return "bullish"
+        if number < 0:
+            return "bearish"
+    else:
+        if number > 0:
+            return "bearish"
+        if number < 0:
+            return "bullish"
+    return "neutral"
+
+
+def _node(title: str, value: object, sentiment: str, analysis: str) -> str:
+    return (
+        f"### {title}\n"
+        f"**Value:** {value} | **Sentiment:** {sentiment}\n"
+        f"**Analysis:** {analysis}\n"
+    )
+
+
+def _as_dict(value: object) -> dict:
+    return value if isinstance(value, dict) else {}
+
+
+def _as_list(value: object) -> list:
+    if isinstance(value, list):
+        return value
+    if isinstance(value, dict):
+        for key in ("announcements", "items", "results", "news"):
+            items = value.get(key)
+            if isinstance(items, list):
+                return items
+    return []
+
+
+async def _write_fallback_data_file(symbol: str, horizon: Horizon) -> None:
+    """Create the analysis markdown directly from backend services."""
+    if str(_ROOT) not in sys.path:
+        sys.path.insert(0, str(_ROOT))
+    if str(_ROOT / "backend") not in sys.path:
+        sys.path.insert(0, str(_ROOT / "backend"))
+
+    from services.yfinance_service import get_price_and_fundamentals
+    from services.technicals_service import calculate_technicals
+    from services.screener_service import get_financials
+    from services.news_service import get_news
+    from fetchers import nse_client
+
+    overview, technicals, financials, news, announcements = await asyncio.gather(
+        get_price_and_fundamentals(symbol),
+        calculate_technicals(symbol),
+        get_financials(symbol),
+        get_news(symbol),
+        nse_client.fetch_announcements(symbol, limit=5),
+        return_exceptions=True,
+    )
+
+    if isinstance(overview, Exception):
+        overview = {}
+    if isinstance(technicals, Exception):
+        technicals = {}
+    if isinstance(financials, Exception):
+        financials = {}
+    if isinstance(news, Exception):
+        news = []
+    if isinstance(announcements, Exception):
+        announcements = []
+
+    overview_d = _as_dict(overview)
+    technicals_d = _as_dict(technicals)
+    financials_d = _as_dict(financials)
+    news_l = _as_list(news)
+    announcements_l = _as_list(announcements)
+
+    sector = str(overview_d.get("sector") or overview_d.get("industry") or "unknown")
+    today = str(date.today())
+
+    lines: list[str] = [
+        "---",
+        f"symbol: {symbol.upper()}",
+        f"captured_at: {today}",
+        f"horizon: {horizon}",
+        f"sector: {sector}",
+        "author: stocxi_service_fallback",
+        "---",
+        "",
+        f"# {symbol.upper()} - Stock Analysis Data",
+        "",
+        "## Fundamentals",
+        _node("Price", overview_d.get("price"), "neutral", "Price relates to Market_Cap, PE_Ratio, EPS."),
+        _node("Market_Cap", overview_d.get("market_cap"), "neutral", "Market_Cap relates to Price, PE_Ratio, Revenue_Annual."),
+        _node("PE_Ratio", overview_d.get("pe_ratio"), "neutral", "PE_Ratio relates to EPS and valuation."),
+        _node("PB_Ratio", overview_d.get("pb_ratio"), "neutral", "PB_Ratio relates to book value and valuation."),
+        _node("ROE", overview_d.get("roe"), _signal(overview_d.get("roe")), "ROE relates to profitability and capital efficiency."),
+        _node("EPS", overview_d.get("eps"), _signal(overview_d.get("eps")), "EPS relates to PE_Ratio and earnings quality."),
+        "",
+        "## Technical Indicators",
+    ]
+
+    for key, value in technicals_d.items():
+        if key.endswith("_signal"):
+            continue
+        signal = technicals_d.get(f"{key}_signal", "neutral")
+        lines.append(_node(key.upper(), value, str(signal), f"{key.upper()} relates to price momentum and trend quality."))
+
+    lines.extend(["", "## Balance Sheet"])
+    lines.append(_node("Balance_Sheet", _compact(financials_d.get("balance_sheet", {})), "neutral", "Balance sheet relates to debt, assets, and net worth."))
+    lines.extend(["", "## Profit and Loss"])
+    lines.append(_node("Profit_Loss", _compact(financials_d.get("profit_loss", {})), "neutral", "Profit and loss relates to sales, expenses, margins, and earnings."))
+    lines.extend(["", "## Cash Flow"])
+    lines.append(_node("Cash_Flow", _compact(financials_d.get("cash_flow", {})), "neutral", "Cash flow relates to earnings quality and reinvestment ability."))
+    lines.extend(["", "## Quarterly Results"])
+    lines.append(_node("Quarterly_Results", _compact(financials_d.get("quarterly_results", {})), "neutral", "Quarterly results relate to recent growth and margin direction."))
+    lines.extend(["", "## Shareholding Pattern"])
+    lines.append(_node("Shareholding", _compact(financials_d.get("shareholding", {})), "neutral", "Shareholding relates to promoter, FII, DII, and public ownership."))
+
+    lines.extend(["", "## News"])
+    for idx, item in enumerate(news_l[:8], start=1):
+        item = _as_dict(item)
+        title = item.get("title") or item.get("headline") or f"News_{idx}"
+        summary = item.get("summary") or item.get("description") or title
+        lines.append(_node(f"News_{idx}", title, "neutral", str(summary)))
+
+    lines.extend(["", "## Announcements"])
+    for idx, item in enumerate(announcements_l[:5], start=1):
+        item = _as_dict(item)
+        title = item.get("desc") or item.get("title") or item.get("subject") or f"Announcement_{idx}"
+        lines.append(_node(f"Announcement_{idx}", title, "neutral", _compact(item, 300)))
+
+    lines.extend(["", "## Market Context"])
+    lines.append(_node("Sector", sector, "neutral", "Sector context relates to peer performance and demand cycle."))
+
+    data_path = _data_path(symbol)
+    data_path.parent.mkdir(parents=True, exist_ok=True)
+    data_path.write_text("\n".join(lines), encoding="utf-8")
+    logger.info("simple_analysis: fallback data file written: %s", data_path)
 
 
 # ── Knowledge graph builder ───────────────────────────────────────────────────
