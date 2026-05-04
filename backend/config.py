@@ -23,6 +23,8 @@ import os as _os
 from pathlib import Path
 from typing import Any
 
+import json as _json
+import tempfile as _tempfile
 import yaml as _yaml
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -76,7 +78,13 @@ class Settings(BaseSettings):
 settings = Settings()
 
 # Propagate credentials path so google.auth.default() finds it.
-if settings.google_application_credentials:
+_creds_json = _os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+if _creds_json:
+    _tmp = _tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False)
+    _tmp.write(_creds_json)
+    _tmp.flush()
+    _os.environ.setdefault("GOOGLE_APPLICATION_CREDENTIALS", _tmp.name)
+elif settings.google_application_credentials:
     _creds = settings.google_application_credentials
     if not _os.path.isabs(_creds):
         _creds = str((_BACKEND_DIR / _creds).resolve())

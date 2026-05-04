@@ -18,9 +18,7 @@ Risk → user_level mapping:
 from __future__ import annotations
 
 import asyncio
-import html
 import logging
-import re
 import sys
 from datetime import date, datetime
 from pathlib import Path
@@ -31,10 +29,8 @@ logger = logging.getLogger(__name__)
 _ROOT       = Path(__file__).parents[2]          # stocxi/
 _DATA_DIR   = _ROOT / "data"
 _OUT_DIR    = _ROOT / "analysis-out"
-_GRAPHIFY_DIR = _ROOT / "graphify-out" / "stocks"
 
 DATA_FRESHNESS_H = 12   # re-fetch if data file is older than this
-ANALYSIS_TEMPLATE_VERSION = "v4"
 
 UserLevel = Literal["beginner", "medium", "pro"]
 Horizon   = Literal["short", "medium", "long"]
@@ -56,7 +52,7 @@ def _out_paths(symbol: str, horizon: Horizon, level: UserLevel, today: str) -> t
     """Return (analysis_html_path, kg_html_path)."""
     sym_dir = _OUT_DIR / symbol.upper()
     sym_dir.mkdir(parents=True, exist_ok=True)
-    analysis = sym_dir / f"{horizon}_{level}_{ANALYSIS_TEMPLATE_VERSION}_{today}.html"
+    analysis = sym_dir / f"{horizon}_{level}_{today}.html"
     kg        = sym_dir / f"kg_{horizon}_{today}.html"
     return analysis, kg
 
@@ -68,215 +64,50 @@ def _is_fresh(path: Path, max_age_h: float) -> bool:
     return age_h < max_age_h
 
 
-def _inline_markdown(text: str) -> str:
-    escaped = html.escape(text, quote=False)
-    escaped = re.sub(r"`([^`]+)`", r"<code>\1</code>", escaped)
-    escaped = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", escaped)
-    escaped = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', escaped)
-    return escaped
-
-
-def _render_markdown(md_text: str) -> str:
-    """Render the fixed Gemini Markdown subset without runtime JS."""
-    parts: list[str] = []
-    paragraph: list[str] = []
-    list_tag: str | None = None
-    in_code = False
-    code_lines: list[str] = []
-    table_lines: list[str] = []
-
-    def flush_paragraph() -> None:
-        nonlocal paragraph
-        if paragraph:
-            body = " ".join(line.strip() for line in paragraph).strip()
-            if body:
-                parts.append(f"<p>{_inline_markdown(body)}</p>")
-            paragraph = []
-
-    def close_list() -> None:
-        nonlocal list_tag
-        if list_tag:
-            parts.append(f"</{list_tag}>")
-            list_tag = None
-
-    def is_table_row(value: str) -> bool:
-        return value.startswith("|") and value.endswith("|") and value.count("|") >= 2
-
-    def is_separator_row(value: str) -> bool:
-        cells = [cell.strip() for cell in value.strip("|").split("|")]
-        return bool(cells) and all(re.fullmatch(r":?-{3,}:?", cell or "") for cell in cells)
-
-    def flush_table() -> None:
-        nonlocal table_lines
-        if len(table_lines) < 2:
-            for row in table_lines:
-                parts.append(f"<p>{_inline_markdown(row)}</p>")
-            table_lines = []
-            return
-
-        rows = [[cell.strip() for cell in row.strip("|").split("|")] for row in table_lines]
-        header = rows[0]
-        body_rows = rows[2:] if len(rows) > 1 and is_separator_row(table_lines[1]) else rows[1:]
-        parts.append("<div class=\"table-wrap\"><table>")
-        parts.append("<thead><tr>" + "".join(f"<th>{_inline_markdown(cell)}</th>" for cell in header) + "</tr></thead>")
-        parts.append("<tbody>")
-        for row in body_rows:
-            padded = row + [""] * max(0, len(header) - len(row))
-            parts.append("<tr>" + "".join(f"<td>{_inline_markdown(cell)}</td>" for cell in padded[:len(header)]) + "</tr>")
-        parts.append("</tbody></table></div>")
-        table_lines = []
-
-    for raw in md_text.splitlines():
-        line = raw.rstrip()
-        stripped = line.strip()
-
-        if stripped.startswith("```"):
-            if in_code:
-                parts.append(f"<pre><code>{html.escape(chr(10).join(code_lines))}</code></pre>")
-                code_lines = []
-                in_code = False
-            else:
-                flush_paragraph()
-                close_list()
-                in_code = True
-            continue
-
-        if in_code:
-            code_lines.append(line)
-            continue
-
-        if not stripped:
-            flush_paragraph()
-            close_list()
-            flush_table()
-            continue
-
-        if is_table_row(stripped):
-            flush_paragraph()
-            close_list()
-            table_lines.append(stripped)
-            continue
-
-        flush_table()
-
-        heading = re.match(r"^(#{1,4})\s+(.+)$", stripped)
-        if heading:
-            flush_paragraph()
-            close_list()
-            level = len(heading.group(1))
-            parts.append(f"<h{level}>{_inline_markdown(heading.group(2).strip())}</h{level}>")
-            continue
-
-        bullet = re.match(r"^[-*]\s+(.+)$", stripped)
-        ordered = re.match(r"^\d+\.\s+(.+)$", stripped)
-        if bullet or ordered:
-            flush_paragraph()
-            next_tag = "ul" if bullet else "ol"
-            if list_tag != next_tag:
-                close_list()
-                list_tag = next_tag
-                parts.append(f"<{list_tag}>")
-            item = (bullet or ordered).group(1)
-            parts.append(f"<li>{_inline_markdown(item)}</li>")
-            continue
-
-        close_list()
-        paragraph.append(stripped)
-
-    flush_paragraph()
-    close_list()
-    flush_table()
-    if in_code:
-        parts.append(f"<pre><code>{html.escape(chr(10).join(code_lines))}</code></pre>")
-    return "\n".join(parts)
-
-
 def _analysis_html_template(md_text: str, symbol: str, horizon: Horizon, level: UserLevel) -> str:
     """Wrap Gemini Markdown in a styled, self-contained HTML page."""
     label_h = {"short": "Short-Term (1–3M)", "medium": "Medium-Term (3M–1Y)", "long": "Long-Term (1–5Y)"}
-    report_html = _render_markdown(md_text)
+    # Escape backticks so the JS template literal is safe
+    safe_md = md_text.replace("`", "\\`").replace("${", "\\${")
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{symbol.upper()} — {label_h[horizon]} Analysis ({level.capitalize()})</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
-    :root {{ color-scheme: dark; background: #000; }}
-    * {{ box-sizing: border-box; }}
-    html, body {{ width: 100%; min-height: 100%; margin: 0; background: #000; }}
-    body {{
-      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      color: #d4d4d8;
-      line-height: 1.75;
-      font-size: 16px;
-      overflow: hidden;
-    }}
-    #content {{ width: 100%; max-width: 100%; padding: 2px 0 48px; }}
-    h1 {{
-      color: #fff;
-      border-bottom: 1px solid #27272a;
-      padding-bottom: 18px;
-      margin: 0 0 34px;
-      font-size: 2.1rem;
-      font-weight: 800;
-      letter-spacing: 0;
-      line-height: 1.15;
-    }}
-    h2 {{
-      color: #f4f4f5;
-      margin: 48px 0 14px;
-      font-size: 1.35rem;
-      font-weight: 700;
-      letter-spacing: 0;
-      line-height: 1.25;
-    }}
-    h3 {{ color: #e4e4e7; font-size: 1.1rem; font-weight: 650; margin: 28px 0 10px; }}
-    h4 {{ color: #e4e4e7; font-weight: 650; margin: 22px 0 8px; }}
-    p {{ margin: 0 0 18px; }}
-    .table-wrap {{
-      width: 100%;
-      max-width: 100%;
-      margin: 24px 0;
-      overflow-x: auto;
-      border: 1px solid #27272a;
-      border-radius: 8px;
-    }}
-    table {{
-      border-collapse: collapse;
-      width: 100%;
-      font-size: 0.95em;
-    }}
-    th {{ background: #18181b; color: #f4f4f5; padding: 12px; text-align: left; border: 1px solid #27272a; }}
-    td {{ padding: 12px; border: 1px solid #27272a; color: #d4d4d8; }}
+    body {{ font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+           max-width: 900px; margin: 16px auto; padding: 0 16px;
+           background: #09090b; color: #d4d4d8; line-height: 1.8; font-size: 16px; }}
+    h1   {{ color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 10px; font-size: 2.25rem; font-weight: 800; letter-spacing: -0.025em; }}
+    h2   {{ color: #f4f4f5; margin-top: 2.5em; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.025em; }}
+    h3   {{ color: #e4e4e7; font-size: 1.25rem; font-weight: 600; margin-top: 2em; }}
+    h4   {{ color: #e4e4e7; font-weight: 600; }}
+    p    {{ margin: 1.25em 0; }}
+    table {{ border-collapse: collapse; width: 100%; margin: 2em 0; font-size: 0.95em; }}
+    th   {{ background: #18181b; color: #f4f4f5; padding: 12px; text-align: left; border: 1px solid #27272a; }}
+    td   {{ padding: 12px; border: 1px solid #27272a; }}
     tr:hover td {{ background: #18181b; }}
-    code {{ background: #18181b; padding: 3px 6px; border-radius: 6px; font-size: 0.88em; color: #c4b5fd; border: 1px solid #27272a; }}
-    pre {{ background: #09090b; padding: 20px; border-radius: 8px; overflow-x: auto; border: 1px solid #27272a; }}
-    blockquote {{ border-left: 3px solid #71717a; padding-left: 18px; color: #a1a1aa; margin: 22px 0; font-style: italic; }}
-    a {{ color: #a5b4fc; text-decoration: none; overflow-wrap: anywhere; }}
+    code {{ background: #18181b; padding: 3px 6px; border-radius: 6px; font-size: 0.88em; color: #a78bfa; border: 1px solid #27272a; }}
+    pre  {{ background: #000000; padding: 20px; border-radius: 12px; overflow-x: auto; border: 1px solid #27272a; }}
+    blockquote {{ border-left: 4px solid #6366f1; padding-left: 20px; color: #a1a1aa; margin: 1.5em 0; font-style: italic; }}
+    a    {{ color: #818cf8; text-decoration: none; }}
     a:hover {{ text-decoration: underline; }}
-    strong {{ color: #fff; font-weight: 650; }}
-    ul, ol {{ padding-left: 1.35em; margin: 14px 0 20px; }}
-    li {{ margin: 8px 0; }}
-    hr {{ border: none; border-top: 1px solid #27272a; margin: 40px 0; }}
-    @media (max-width: 640px) {{
-      body {{ font-size: 15px; }}
-      h1 {{ font-size: 1.65rem; }}
-      h2 {{ font-size: 1.18rem; }}
-      th, td {{ padding: 10px; }}
-    }}
+    strong {{ color: #ffffff; font-weight: 600; }}
+    ul, ol {{ padding-left: 1.5em; margin: 1.25em 0; }}
+    li   {{ margin: 0.5em 0; }}
+    hr   {{ border: none; border-top: 1px solid #27272a; margin: 3em 0; }}
   </style>
 </head>
 <body>
-  <article id="content">{report_html}</article>
+  <div id="content"></div>
+  <script>
+    const md = `{safe_md}`;
+    document.getElementById('content').innerHTML = marked.parse(md);
+  </script>
 </body>
 </html>"""
-
-
-def _clean_markdown(md_text: str) -> str:
-    """Normalize Gemini markdown so it renders cleanly in HTML."""
-    from analysis.gemini_analysis import standardize_report_markdown
-    return standardize_report_markdown(md_text)
 
 
 # ── Subprocess: fetch_phase1_data.py ─────────────────────────────────────────
@@ -333,7 +164,7 @@ def _run_gemini_sync(symbol: str, horizon: Horizon, level: UserLevel, kg_link: s
     if str(_ROOT / "backend") not in sys.path:
         sys.path.insert(0, str(_ROOT / "backend"))
 
-    from analysis.gemini_analysis import run_analysis  # type: ignore
+    from backend.analysis.gemini_analysis import run_analysis  # type: ignore
     return run_analysis(symbol.upper(), horizon, level, kg_link=kg_link)
 
 
@@ -403,9 +234,6 @@ async def generate(
     try:
         kg_html = await _build_kg_html(symbol)
         kg_p.write_text(kg_html, encoding="utf-8")
-        graph_dir = _GRAPHIFY_DIR / symbol.upper()
-        graph_dir.mkdir(parents=True, exist_ok=True)
-        (graph_dir / f"{today}.html").write_text(kg_html, encoding="utf-8")
         logger.info("simple_analysis: KG HTML saved → %s", kg_p)
     except Exception as kg_exc:
         logger.warning("simple_analysis: KG build failed (non-fatal) — %s", kg_exc)
@@ -413,8 +241,7 @@ async def generate(
 
     # ── Step 3: Gemini analysis ───────────────────────────────────────────────
     report_md = await _run_gemini(symbol, horizon, level, kg_link)
-    cleaned_md = _clean_markdown(report_md)
-    analysis_html = _analysis_html_template(cleaned_md, symbol, horizon, level)
+    analysis_html = _analysis_html_template(report_md, symbol, horizon, level)
     ana_p.write_text(analysis_html, encoding="utf-8")
     logger.info("simple_analysis: analysis HTML saved → %s", ana_p)
 
