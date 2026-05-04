@@ -16,7 +16,9 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
@@ -31,7 +33,107 @@ _DATA_DIR = Path(os.getenv("DATA_DIR", _DEFAULT_DATA_DIR))
 sys.path.insert(0, str(_PROJECT_ROOT))
 
 from config import settings, yaml_cfg       # type: ignore
-from build_knowledge_graph import parse_md, ParsedNode  # type: ignore
+try:
+    from build_knowledge_graph import parse_md, ParsedNode  # type: ignore
+except ModuleNotFoundError:
+    @dataclass
+    class ParsedNode:
+        label: str
+        category: str
+        group: str | None
+        signal: str
+        value_text: str
+        summary: str
+        context: str
+        relates: list[str]
+        date: str
+
+    _SECTION_MAP: dict[str, tuple[str, str | None]] = {
+        "Fundamentals": ("fundamental", None),
+        "Technical Indicators": ("technical", None),
+        "Balance Sheet": ("financial", "Balance Sheet"),
+        "Profit and Loss": ("financial", "P&L"),
+        "Cash Flow": ("financial", "Cash Flow"),
+        "Quarterly Results": ("financial", "Quarterly Result"),
+        "Shareholding Pattern": ("financial", "Share Holding"),
+        "Announcements": ("announcement", None),
+        "News": ("news", None),
+        "Market Context": ("market_context", None),
+    }
+
+    def _field(content: str, *names: str) -> str:
+        for name in names:
+            match = re.search(rf"\*\*{re.escape(name)}:\*\*\s*(.+?)(?=\n\*\*|\Z)", content, re.DOTALL)
+            if match:
+                return match.group(1).strip()
+        return ""
+
+    def _extract_value(content: str) -> str:
+        match = re.search(r"\*\*Values:\*\*\s*(.+?)(?=\n|$)", content)
+        if match:
+            return match.group(1).strip()
+        match = re.search(r"\*\*Value:\*\*\s*(.+?)(?:\s*\|\s*\*\*Sentiment|\n|$)", content)
+        return match.group(1).strip() if match else ""
+
+    def _extract_signal(content: str) -> str:
+        match = re.search(r"\*\*Sentiment:\*\*\s*([^\n|]+)", content)
+        text = match.group(1).lower() if match else ""
+        if "bullish" in text:
+            return "positive"
+        if "bearish" in text:
+            return "negative"
+        if "mixed" in text:
+            return "mixed"
+        return "neutral"
+
+    def _extract_relates(content: str) -> list[str]:
+        results: list[str] = []
+        for match in re.finditer(r"relates?\s+to\s+([A-Za-z_0-9,\s]+?)(?=[.\n]|$)", content, re.IGNORECASE):
+            for part in re.split(r",\s*|\s+and\s+", match.group(1)):
+                label = part.strip().rstrip(".")
+                if label and re.match(r"^[A-Za-z_0-9]+$", label):
+                    results.append(label)
+        return list(dict.fromkeys(results))
+
+    def parse_md(md_path: Path) -> tuple[dict[str, str], list[ParsedNode]]:
+        content = md_path.read_text(encoding="utf-8")
+        frontmatter = re.match(r"^---\n(.+?)\n---\n", content, re.DOTALL)
+        meta: dict[str, str] = {}
+        if frontmatter:
+            for line in frontmatter.group(1).splitlines():
+                if ": " in line:
+                    key, value = line.split(": ", 1)
+                    meta[key.strip()] = value.strip()
+
+        date = meta.get("captured_at", "unknown")
+        nodes: list[ParsedNode] = []
+        parts = re.split(r"^## (.+)$", content, flags=re.MULTILINE)
+        index = 1
+        while index < len(parts) - 1:
+            section_name = parts[index].strip()
+            section_content = parts[index + 1]
+            index += 2
+            if section_name not in _SECTION_MAP:
+                continue
+            category, group = _SECTION_MAP[section_name]
+            node_parts = re.split(r"^### (.+)$", section_content, flags=re.MULTILINE)
+            node_index = 1
+            while node_index < len(node_parts) - 1:
+                label = node_parts[node_index].strip()
+                body = node_parts[node_index + 1]
+                node_index += 2
+                nodes.append(ParsedNode(
+                    label=label,
+                    category=category,
+                    group=group,
+                    signal=_extract_signal(body),
+                    value_text=_extract_value(body),
+                    summary=_field(body, "Summary"),
+                    context=_field(body, "Analysis", "Trend", "Performance"),
+                    relates=_extract_relates(body),
+                    date=date,
+                ))
+        return meta, nodes
 
 logger = logging.getLogger(__name__)
 
