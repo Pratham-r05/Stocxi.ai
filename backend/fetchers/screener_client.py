@@ -35,7 +35,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from backend.services import screener_service
+from services import screener_service
 
 logger = logging.getLogger(__name__)
 

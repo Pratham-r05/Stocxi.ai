@@ -22,8 +22,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from backend.backtest.runner import BacktestRun
-    from backend.backtest.metrics import BacktestReport
+    from backtest.runner import BacktestRun
+    from backtest.metrics import BacktestReport
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +61,7 @@ def save_runs(runs: list[BacktestRun], run_id: str | None = None) -> Path:
 
 def load_runs(path: Path) -> list[BacktestRun]:
     """Load all BacktestRuns from a JSONL file (for calibration input)."""
-    from backend.backtest.runner import BacktestRun
+    from backtest.runner import BacktestRun
 
     runs: list[BacktestRun] = []
     try:

@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 
-from backend.util.ist_calendar import is_trading_day, last_trading_day
+from util.ist_calendar import is_trading_day, last_trading_day
 
 
 MIN_HISTORY_DAYS = 30   # minimum days of history a signal_date must have before today

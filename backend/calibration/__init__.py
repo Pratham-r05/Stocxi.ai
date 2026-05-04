@@ -9,11 +9,11 @@ Public API:
     run_calibration        — full pipeline (load → fit → write)
 
 Usage:
-    from backend.calibration import run_calibration
+    from calibration import run_calibration
     result = run_calibration(dry_run=True)
 """
 
-from backend.calibration.refit_weights import (
+from calibration.refit_weights import (
     load_all_runs,
     fit_platt_scaling,
     apply_calibration,

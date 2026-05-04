@@ -20,7 +20,7 @@ from google import genai
 from google.genai import types as genai_types
 
 try:
-    from backend.config import settings  # type: ignore
+    from config import settings  # type: ignore
 except ImportError:
     from config import settings  # type: ignore
 

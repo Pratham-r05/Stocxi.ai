@@ -9,7 +9,7 @@ import logging
 import sys
 import os
 sys.path.append('/Users/prathamraj/Documents/Placement-Prep/10.Projects/stocxi')
-from backend.services.news_service import get_news
+from services.news_service import get_news
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

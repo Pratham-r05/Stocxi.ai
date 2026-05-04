@@ -26,22 +26,22 @@ from typing import Any
 
 import yaml
 
-from backend.agents import (
+from agents import (
     agent_announcement,
     agent_context,
     agent_fundamental,
     agent_news,
     agent_technical,
 )
-from backend.agents import agent_analysis, agent_verifier, formatter
-from backend.audit.audit_log import compute_data_hash, log_analysis
-from backend.cache.redis_client import TTL_ANALYSIS_RESULT, cache_get, cache_set
-from backend.calibration import apply_calibration
-from backend.schemas.messages import AnalysisResult, FetchFailure, FetchRequest
-from backend.schemas.node import Node
-from backend.util.sanitizer import AnonMap, build_anon_map, scrub_text
-from backend.graph.stocxi_knowledge_graph import StocxiKnowledgeGraph
-from backend.graph.knowledge_graph import build_graph, render_3d_html
+from agents import agent_analysis, agent_verifier, formatter
+from audit.audit_log import compute_data_hash, log_analysis
+from cache.redis_client import TTL_ANALYSIS_RESULT, cache_get, cache_set
+from calibration import apply_calibration
+from schemas.messages import AnalysisResult, FetchFailure, FetchRequest
+from schemas.node import Node
+from util.sanitizer import AnonMap, build_anon_map, scrub_text
+from graph.stocxi_knowledge_graph import StocxiKnowledgeGraph
+from graph.knowledge_graph import build_graph, render_3d_html
 
 logger = logging.getLogger(__name__)
 

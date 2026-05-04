@@ -14,10 +14,10 @@ import asyncio
 import logging
 from typing import Literal
 
-from backend.schemas.messages import FetchDomain, FetchFailure, FetchRequest
-from backend.schemas.node import Node
-from backend.services.context_generator import generate_technical_context
-from backend.services.technicals_service import get_technicals
+from schemas.messages import FetchDomain, FetchFailure, FetchRequest
+from schemas.node import Node
+from services.context_generator import generate_technical_context
+from services.technicals_service import get_technicals
 
 logger = logging.getLogger(__name__)
 

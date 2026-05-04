@@ -30,12 +30,12 @@ import logging
 from datetime import date, datetime
 from typing import Any
 
-from backend.fetchers import bse_client, screener_client
-from backend.fetchers.base import waterfall, WaterfallFailure
-from backend.schemas.node import Node, NodeCategory, NodeSignal, HorizonRelevance
-from backend.schemas.messages import UserProfile
-from backend.config import yaml_cfg
-from backend.util.ist_calendar import now_ist
+from fetchers import bse_client, screener_client
+from fetchers.base import waterfall, WaterfallFailure
+from schemas.node import Node, NodeCategory, NodeSignal, HorizonRelevance
+from schemas.messages import UserProfile
+from config import yaml_cfg
+from util.ist_calendar import now_ist
 
 logger = logging.getLogger(__name__)
 

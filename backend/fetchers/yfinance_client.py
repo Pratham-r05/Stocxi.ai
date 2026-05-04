@@ -29,7 +29,7 @@ from typing import Any
 
 import yfinance as yf  # type: ignore
 
-from backend.config import yaml_cfg
+from config import yaml_cfg
 
 logger = logging.getLogger(__name__)
 

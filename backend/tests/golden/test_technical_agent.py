@@ -29,10 +29,10 @@ from datetime import date
 # Allow running directly from backend/
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 
-from backend.agents.agent_technical import run
-from backend.schemas.messages import FetchRequest, Horizon, Risk, UserProfile
-from backend.schemas.node import NodeCategory, NodeSignal
-from backend.util.ist_calendar import as_of_date_for_fetch
+from agents.agent_technical import run
+from schemas.messages import FetchRequest, Horizon, Risk, UserProfile
+from schemas.node import NodeCategory, NodeSignal
+from util.ist_calendar import as_of_date_for_fetch
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 

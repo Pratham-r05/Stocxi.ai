@@ -26,7 +26,7 @@ from typing import Any
 import yaml
 from jinja2 import Environment, FileSystemLoader
 
-from backend.schemas.messages import (
+from schemas.messages import (
     AnalysisDraft,
     AgreementLink,
     Claim,
@@ -34,8 +34,8 @@ from backend.schemas.messages import (
     FetchRequest,
     Verdict,
 )
-from backend.schemas.node import Node, NodeCategory
-from backend.analysis.output_instructions import load_shorthand_book, load_horizon_instructions
+from schemas.node import Node, NodeCategory
+from analysis.output_instructions import load_shorthand_book, load_horizon_instructions
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ def _get_llm_client():
     import google.auth
     import google.auth.transport.requests
     from openai import OpenAI
-    from backend.config import settings
+    from config import settings
 
     credentials, _ = google.auth.default(
         scopes=["https://www.googleapis.com/auth/cloud-platform"]

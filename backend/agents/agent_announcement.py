@@ -14,11 +14,11 @@ import asyncio
 import logging
 from datetime import date
 
-from backend.schemas.messages import FetchDomain, FetchFailure, FetchRequest
-from backend.schemas.node import Node
-from backend.services.announcements_service import get_announcements
-from backend.services.context_generator import apply_announcement_context
-from backend.util.ist_calendar import now_ist
+from schemas.messages import FetchDomain, FetchFailure, FetchRequest
+from schemas.node import Node
+from services.announcements_service import get_announcements
+from services.context_generator import apply_announcement_context
+from util.ist_calendar import now_ist
 
 logger = logging.getLogger(__name__)
 

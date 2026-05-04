@@ -711,7 +711,7 @@ def _fetch_from_groww(symbol: str) -> dict:
     try:
         from fetchers.groww_client import get_quote
     except ModuleNotFoundError:
-        from backend.fetchers.groww_client import get_quote
+        from fetchers.groww_client import get_quote
 
     q = get_quote(symbol)
     if not q or not q.get("last_price"):

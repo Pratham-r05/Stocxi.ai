@@ -19,13 +19,13 @@ from unittest.mock import MagicMock, patch
 import pandas as pd
 import pytest
 
-from backend.backtest.schedule import generate_backtest_dates, _quarter_end, _prev_quarter_end
-from backend.backtest.universe import UNIVERSE, get_universe, get_universe_by_sector, SURVIVORSHIP_BIAS_DISCLAIMER
-from backend.backtest.outcomes import fetch_outcome, signal_is_correct, _fetch_close
-from backend.backtest.runner import BacktestRun, BacktestConfig
-from backend.backtest.paper_trade import simulate_trades, PaperTradeResult
-from backend.backtest.metrics import compute_metrics, BacktestReport, ConfidenceBin
-from backend.backtest.storage import save_runs, load_runs, save_report, list_run_files
+from backtest.schedule import generate_backtest_dates, _quarter_end, _prev_quarter_end
+from backtest.universe import UNIVERSE, get_universe, get_universe_by_sector, SURVIVORSHIP_BIAS_DISCLAIMER
+from backtest.outcomes import fetch_outcome, signal_is_correct, _fetch_close
+from backtest.runner import BacktestRun, BacktestConfig
+from backtest.paper_trade import simulate_trades, PaperTradeResult
+from backtest.metrics import compute_metrics, BacktestReport, ConfidenceBin
+from backtest.storage import save_runs, load_runs, save_report, list_run_files
 
 
 # ─────────────────────────────── universe tests ───────────────────────────────
@@ -85,7 +85,7 @@ def test_generate_backtest_dates_ascending():
 
 
 def test_generate_backtest_dates_all_weekdays():
-    from backend.util.ist_calendar import is_trading_day
+    from util.ist_calendar import is_trading_day
     dates = generate_backtest_dates(n=8, ref_date=date(2025, 4, 1))
     for d in dates:
         assert is_trading_day(d), f"{d} is not a trading day"
@@ -236,7 +236,7 @@ def test_simulate_trades_win_rate():
 
 def test_simulate_trades_max_position_cap():
     """Single trade should not exceed MAX_POSITION_PCT of starting capital."""
-    from backend.backtest.paper_trade import MAX_POSITION_PCT
+    from backtest.paper_trade import MAX_POSITION_PCT
     runs = [_make_run(actual_return=50.0, confidence=0.99)]
     result = simulate_trades(runs, starting_capital=10_000)
     if result.trades:

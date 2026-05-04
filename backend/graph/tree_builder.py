@@ -19,7 +19,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-from backend.schemas.node import Node
+from schemas.node import Node
 
 logger = logging.getLogger(__name__)
 

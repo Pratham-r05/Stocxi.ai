@@ -26,8 +26,8 @@ from typing import Any
 
 import feedparser  # type: ignore
 
-from backend.config import yaml_cfg
-from backend.fetchers.http_client import get as http_get
+from config import yaml_cfg
+from fetchers.http_client import get as http_get
 
 logger = logging.getLogger(__name__)
 

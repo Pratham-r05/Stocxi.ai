@@ -30,7 +30,7 @@ import logging
 import re
 from typing import Any
 
-from backend.schemas.node import Node, NodeCategory
+from schemas.node import Node, NodeCategory
 
 logger = logging.getLogger(__name__)
 
@@ -423,7 +423,7 @@ def _call_gemini_batch(
         import google.auth.transport.requests
         from openai import OpenAI
 
-        from backend.config import settings, yaml_cfg
+        from config import settings, yaml_cfg
 
         credentials, _ = google.auth.default(
             scopes=["https://www.googleapis.com/auth/cloud-platform"]

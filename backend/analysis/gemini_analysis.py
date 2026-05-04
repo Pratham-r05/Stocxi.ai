@@ -27,7 +27,7 @@ from google.genai import types as genai_types
 _PROJECT_ROOT = Path(__file__).parents[2]          # backend/analysis/ → stocxi/
 sys.path.insert(0, str(_PROJECT_ROOT))
 
-from backend.config import settings, yaml_cfg       # type: ignore
+from config import settings, yaml_cfg       # type: ignore
 from build_knowledge_graph import parse_md, ParsedNode  # type: ignore
 
 logger = logging.getLogger(__name__)

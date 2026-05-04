@@ -16,7 +16,7 @@ from datetime import date, datetime
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 
-from backend.schemas.messages import UserProfile, Horizon, Risk
+from schemas.messages import UserProfile, Horizon, Risk
 
 SYMBOL  = "DRREDDY"
 AS_OF   = date.today()
@@ -46,7 +46,7 @@ async def main() -> None:
     # ── 1. Price ──────────────────────────────────────────────────────────────
     print("Fetching price...", flush=True)
     try:
-        from backend.services.price_service import get_price
+        from services.price_service import get_price
         nodes = await get_price(SYMBOL, AS_OF, PROFILE)
         output["components"]["price"] = {
             "node_count": len(nodes),
@@ -60,7 +60,7 @@ async def main() -> None:
     # ── 2. OHLCV ─────────────────────────────────────────────────────────────
     print("Fetching OHLCV...", flush=True)
     try:
-        from backend.services.ohlcv_service import get_ohlcv
+        from services.ohlcv_service import get_ohlcv
         df = await get_ohlcv(SYMBOL, AS_OF)
         # Store last 30 rows for review (full 268 rows is too verbose)
         tail = df.tail(30).reset_index()
@@ -91,7 +91,7 @@ async def main() -> None:
     # ── 3. Key Ratios ─────────────────────────────────────────────────────────
     print("Fetching ratios...", flush=True)
     try:
-        from backend.services.ratios_service import get_ratios
+        from services.ratios_service import get_ratios
         nodes = await get_ratios(SYMBOL, AS_OF, PROFILE)
         output["components"]["key_ratios"] = {
             "node_count": len(nodes),
@@ -105,7 +105,7 @@ async def main() -> None:
     # ── 4. Financial Statements ───────────────────────────────────────────────
     print("Fetching financials...", flush=True)
     try:
-        from backend.services.financials_service import get_financials
+        from services.financials_service import get_financials
         nodes = await get_financials(SYMBOL, AS_OF, PROFILE)
         output["components"]["financial_statements"] = {
             "node_count": len(nodes),
@@ -119,7 +119,7 @@ async def main() -> None:
     # ── 5. Shareholding ───────────────────────────────────────────────────────
     print("Fetching shareholding...", flush=True)
     try:
-        from backend.services.shareholding_service import get_shareholding
+        from services.shareholding_service import get_shareholding
         nodes = await get_shareholding(SYMBOL, AS_OF, PROFILE)
         output["components"]["shareholding"] = {
             "node_count": len(nodes),
@@ -133,7 +133,7 @@ async def main() -> None:
     # ── 6. Technical Indicators ───────────────────────────────────────────────
     print("Fetching technicals...", flush=True)
     try:
-        from backend.services.technicals_service import get_technicals
+        from services.technicals_service import get_technicals
         nodes = await get_technicals(SYMBOL, as_of_date=AS_OF, profile=PROFILE)
         output["components"]["technicals"] = {
             "node_count": len(nodes),
@@ -147,7 +147,7 @@ async def main() -> None:
     # ── 7. Announcements ──────────────────────────────────────────────────────
     print("Fetching announcements...", flush=True)
     try:
-        from backend.services.announcements_service import get_announcements
+        from services.announcements_service import get_announcements
         nodes = await get_announcements(SYMBOL, AS_OF, PROFILE)
         output["components"]["announcements"] = {
             "node_count": len(nodes),

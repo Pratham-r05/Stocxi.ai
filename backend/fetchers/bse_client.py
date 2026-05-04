@@ -36,7 +36,7 @@ from typing import Any
 
 from bse import BSE  # type: ignore
 
-from backend.config import yaml_cfg
+from config import yaml_cfg
 
 logger = logging.getLogger(__name__)
 

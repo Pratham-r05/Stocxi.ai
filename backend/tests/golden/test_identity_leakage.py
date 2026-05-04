@@ -12,8 +12,8 @@ from datetime import date, datetime, timezone
 
 import pytest
 
-from backend.schemas.node import HorizonRelevance, Node, NodeCategory, NodeSignal
-from backend.util.sanitizer import AnonMap, build_anon_map, restore_text, scrub_text
+from schemas.node import HorizonRelevance, Node, NodeCategory, NodeSignal
+from util.sanitizer import AnonMap, build_anon_map, restore_text, scrub_text
 
 _TODAY = date.today()
 _NOW   = datetime.now(timezone.utc)

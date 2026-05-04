@@ -21,7 +21,7 @@ from datetime import date
 
 from pydantic import BaseModel
 
-from backend.backtest.runner import BacktestRun
+from backtest.runner import BacktestRun
 
 
 MAX_POSITION_PCT = 0.20     # max 20% of capital per trade

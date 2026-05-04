@@ -38,7 +38,7 @@ _AUDIT_DIR = Path(__file__).parent / "runs"
 
 
 def _today_log_path() -> Path:
-    from backend.util.ist_calendar import now_ist
+    from util.ist_calendar import now_ist
     _AUDIT_DIR.mkdir(parents=True, exist_ok=True)
     today = now_ist().strftime("%Y-%m-%d")
     return _AUDIT_DIR / f"{today}.jsonl"

@@ -18,7 +18,7 @@ from typing import Any
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 
-from backend.schemas.messages import UserProfile, Horizon, Risk
+from schemas.messages import UserProfile, Horizon, Risk
 
 PROFILE  = UserProfile(horizon=Horizon.short, risk=Risk.moderate)
 AS_OF    = date.today()
@@ -42,44 +42,44 @@ COL_W = 22   # column width for service columns
 
 
 async def run_price(symbol: str) -> dict:
-    from backend.services.price_service import get_price
+    from services.price_service import get_price
     nodes = await get_price(symbol, AS_OF, PROFILE)
     return {"count": len(nodes), "source": nodes[0].source if nodes else "—"}
 
 
 async def run_ohlcv(symbol: str) -> dict:
     import pandas as pd
-    from backend.services.ohlcv_service import get_ohlcv
+    from services.ohlcv_service import get_ohlcv
     df = await get_ohlcv(symbol, AS_OF)
     return {"count": len(df), "source": "nse/yf" if not df.empty else "—"}
 
 
 async def run_ratios(symbol: str) -> dict:
-    from backend.services.ratios_service import get_ratios
+    from services.ratios_service import get_ratios
     nodes = await get_ratios(symbol, AS_OF, PROFILE)
     return {"count": len(nodes), "source": nodes[0].source if nodes else "—"}
 
 
 async def run_financials(symbol: str) -> dict:
-    from backend.services.financials_service import get_financials
+    from services.financials_service import get_financials
     nodes = await get_financials(symbol, AS_OF, PROFILE)
     return {"count": len(nodes), "source": nodes[0].source if nodes else "—"}
 
 
 async def run_shareholding(symbol: str) -> dict:
-    from backend.services.shareholding_service import get_shareholding
+    from services.shareholding_service import get_shareholding
     nodes = await get_shareholding(symbol, AS_OF, PROFILE)
     return {"count": len(nodes), "source": nodes[0].source if nodes else "—"}
 
 
 async def run_technicals(symbol: str) -> dict:
-    from backend.services.technicals_service import get_technicals
+    from services.technicals_service import get_technicals
     nodes = await get_technicals(symbol, as_of_date=AS_OF, profile=PROFILE)
     return {"count": len(nodes), "source": "ta_lib" if nodes else "—"}
 
 
 async def run_announcements(symbol: str) -> dict:
-    from backend.services.announcements_service import get_announcements
+    from services.announcements_service import get_announcements
     nodes = await get_announcements(symbol, AS_OF, PROFILE)
     return {"count": len(nodes), "source": "nse+bse" if nodes else "—"}
 

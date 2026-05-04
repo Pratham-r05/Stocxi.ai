@@ -30,8 +30,8 @@ for _p in (_BACKEND, _ROOT):
         sys.path.insert(0, _s)
 
 # ── Imports after path is set ─────────────────────────────────────────────────
-from backend.schemas.messages import AnalysisResult, UserProfile, Horizon, Risk
-from backend.agents.agent_report import (
+from schemas.messages import AnalysisResult, UserProfile, Horizon, Risk
+from agents.agent_report import (
     _build_report_payload,
     _build_minimal_snapshot,
     build_report,

@@ -29,9 +29,9 @@ from typing import Any
 
 import pandas as pd
 
-from backend.fetchers import nse_client, yfinance_client
-from backend.fetchers.base import waterfall, WaterfallFailure
-from backend.util.ist_calendar import today_ist
+from fetchers import nse_client, yfinance_client
+from fetchers.base import waterfall, WaterfallFailure
+from util.ist_calendar import today_ist
 
 logger = logging.getLogger(__name__)
 

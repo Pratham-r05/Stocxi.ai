@@ -406,7 +406,7 @@ def _resolve_screener_slug(symbol: str) -> str:
 
     # 3. Fallback: look up NSE company name and search by that
     try:
-        from backend.fetchers.nse_client import _get_nse, _run_sync
+        from fetchers.nse_client import _get_nse, _run_sync
         import asyncio
         loop = asyncio.get_event_loop()
         nse = _get_nse()

@@ -275,7 +275,7 @@ def _analysis_html_template(md_text: str, symbol: str, horizon: Horizon, level: 
 
 def _clean_markdown(md_text: str) -> str:
     """Normalize Gemini markdown so it renders cleanly in HTML."""
-    from backend.analysis.gemini_analysis import standardize_report_markdown
+    from analysis.gemini_analysis import standardize_report_markdown
     return standardize_report_markdown(md_text)
 
 
@@ -333,7 +333,7 @@ def _run_gemini_sync(symbol: str, horizon: Horizon, level: UserLevel, kg_link: s
     if str(_ROOT / "backend") not in sys.path:
         sys.path.insert(0, str(_ROOT / "backend"))
 
-    from backend.analysis.gemini_analysis import run_analysis  # type: ignore
+    from analysis.gemini_analysis import run_analysis  # type: ignore
     return run_analysis(symbol.upper(), horizon, level, kg_link=kg_link)
 
 

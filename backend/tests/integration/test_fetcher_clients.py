@@ -49,7 +49,7 @@ class TestWaterfallRunner:
 
     @pytest.mark.asyncio
     async def test_waterfall_returns_first_ok(self):
-        from backend.fetchers.base import waterfall, FetchResult
+        from fetchers.base import waterfall, FetchResult
 
         async def good():
             return {"key": "value"}
@@ -66,7 +66,7 @@ class TestWaterfallRunner:
 
     @pytest.mark.asyncio
     async def test_waterfall_skips_failed_levels(self):
-        from backend.fetchers.base import waterfall, FetchResult
+        from fetchers.base import waterfall, FetchResult
 
         call_order = []
 
@@ -89,7 +89,7 @@ class TestWaterfallRunner:
 
     @pytest.mark.asyncio
     async def test_waterfall_raises_when_all_fail(self):
-        from backend.fetchers.base import waterfall, WaterfallFailure
+        from fetchers.base import waterfall, WaterfallFailure
 
         async def fail():
             raise ValueError("always fails")
@@ -106,7 +106,7 @@ class TestWaterfallRunner:
 
     @pytest.mark.asyncio
     async def test_fetch_result_success_factory(self):
-        from backend.fetchers.base import FetchResult
+        from fetchers.base import FetchResult
 
         r = FetchResult.success("nse_library", 1.0, {"a": 1}, request_id="r1")
         assert r.ok is True
@@ -118,7 +118,7 @@ class TestWaterfallRunner:
 
     @pytest.mark.asyncio
     async def test_fetch_result_failure_factory(self):
-        from backend.fetchers.base import FetchResult
+        from fetchers.base import FetchResult
 
         r = FetchResult.failure("bse_library", 1.0, "timeout")
         assert r.ok is False
@@ -134,7 +134,7 @@ class TestNseClient:
     @pytest.mark.asyncio
     @pytest.mark.parametrize("symbol", TEST_STOCKS)
     async def test_fetch_quote(self, symbol: str):
-        from backend.fetchers import nse_client
+        from fetchers import nse_client
 
         result = await nse_client.fetch_quote(symbol)
 
@@ -146,7 +146,7 @@ class TestNseClient:
     @pytest.mark.asyncio
     @pytest.mark.parametrize("symbol", ["RELIANCE", "IRCTC"])
     async def test_fetch_ohlcv(self, symbol: str):
-        from backend.fetchers import nse_client
+        from fetchers import nse_client
 
         result = await nse_client.fetch_ohlcv(symbol, FROM_DATE, TODAY)
 
@@ -164,7 +164,7 @@ class TestNseClient:
     @pytest.mark.asyncio
     @pytest.mark.parametrize("symbol", ["RELIANCE", "TCS"])
     async def test_fetch_shareholding(self, symbol: str):
-        from backend.fetchers import nse_client
+        from fetchers import nse_client
 
         result = await nse_client.fetch_shareholding(symbol)
 
@@ -174,7 +174,7 @@ class TestNseClient:
 
     @pytest.mark.asyncio
     async def test_fetch_announcements_reliance(self):
-        from backend.fetchers import nse_client
+        from fetchers import nse_client
 
         result = await nse_client.fetch_announcements("RELIANCE")
 
@@ -184,7 +184,7 @@ class TestNseClient:
 
     @pytest.mark.asyncio
     async def test_fetch_board_meetings_reliance(self):
-        from backend.fetchers import nse_client
+        from fetchers import nse_client
 
         result = await nse_client.fetch_board_meetings("RELIANCE")
 
@@ -193,7 +193,7 @@ class TestNseClient:
 
     @pytest.mark.asyncio
     async def test_fetch_actions_reliance(self):
-        from backend.fetchers import nse_client
+        from fetchers import nse_client
 
         result = await nse_client.fetch_actions("RELIANCE")
 
@@ -209,7 +209,7 @@ class TestBseClient:
     @pytest.mark.asyncio
     @pytest.mark.parametrize("symbol", TEST_STOCKS)
     async def test_resolve_scrip_code(self, symbol: str):
-        from backend.fetchers import bse_client
+        from fetchers import bse_client
 
         code = await bse_client.resolve_scrip_code(symbol)
 
@@ -219,7 +219,7 @@ class TestBseClient:
     @pytest.mark.asyncio
     @pytest.mark.parametrize("symbol", ["RELIANCE", "IRCTC"])
     async def test_fetch_quote(self, symbol: str):
-        from backend.fetchers import bse_client
+        from fetchers import bse_client
 
         result = await bse_client.fetch_quote(symbol)
 
@@ -231,7 +231,7 @@ class TestBseClient:
     @pytest.mark.asyncio
     @pytest.mark.parametrize("symbol", ["RELIANCE", "IRCTC"])
     async def test_fetch_meta_info(self, symbol: str):
-        from backend.fetchers import bse_client
+        from fetchers import bse_client
 
         result = await bse_client.fetch_meta_info(symbol)
 
@@ -244,7 +244,7 @@ class TestBseClient:
 
     @pytest.mark.asyncio
     async def test_fetch_weekly_hl_reliance(self):
-        from backend.fetchers import bse_client
+        from fetchers import bse_client
 
         result = await bse_client.fetch_weekly_hl("RELIANCE")
 
@@ -255,7 +255,7 @@ class TestBseClient:
 
     @pytest.mark.asyncio
     async def test_fetch_results_snapshot_reliance(self):
-        from backend.fetchers import bse_client
+        from fetchers import bse_client
 
         result = await bse_client.fetch_results_snapshot("RELIANCE")
 
@@ -265,7 +265,7 @@ class TestBseClient:
 
     @pytest.mark.asyncio
     async def test_fetch_result_calendar(self):
-        from backend.fetchers import bse_client
+        from fetchers import bse_client
 
         result = await bse_client.fetch_result_calendar()
 
@@ -282,7 +282,7 @@ class TestScreenerClient:
     @pytest.mark.asyncio
     @pytest.mark.parametrize("symbol", TEST_STOCKS)
     async def test_fetch_financials_has_key_sections(self, symbol: str):
-        from backend.fetchers import screener_client
+        from fetchers import screener_client
 
         result = await screener_client.fetch_financials(symbol)
 
@@ -299,7 +299,7 @@ class TestScreenerClient:
         QUESTCAP is the canonical edge case — consolidated has Dec 2020 data
         while standalone has current quarterly results. Verify we pick standalone.
         """
-        from backend.fetchers import screener_client
+        from fetchers import screener_client
 
         result = await screener_client.fetch_financials("QUESTCAP")
 
@@ -312,7 +312,7 @@ class TestScreenerClient:
     @pytest.mark.asyncio
     async def test_screener_raises_for_unknown_symbol(self):
         """Unknown symbols should raise ValueError (not silently return empty dict)."""
-        from backend.fetchers import screener_client
+        from fetchers import screener_client
 
         with pytest.raises(ValueError, match="no usable financial data"):
             await screener_client.fetch_financials("FAKESYMBOL999XYZ")
@@ -326,7 +326,7 @@ class TestYfinanceClient:
     @pytest.mark.asyncio
     @pytest.mark.parametrize("symbol", ["RELIANCE", "IRCTC"])
     async def test_fetch_ohlcv(self, symbol: str):
-        from backend.fetchers import yfinance_client
+        from fetchers import yfinance_client
 
         result = await yfinance_client.fetch_ohlcv(symbol, FROM_DATE, TODAY)
 
@@ -343,7 +343,7 @@ class TestYfinanceClient:
     @pytest.mark.asyncio
     async def test_alt_ticker_zomato(self):
         """ZOMATO → ETERNAL.NS is in alt_tickers.yaml — verify fallback works."""
-        from backend.fetchers import yfinance_client
+        from fetchers import yfinance_client
 
         result = await yfinance_client.fetch_ohlcv("ZOMATO", FROM_DATE, TODAY)
 
@@ -354,7 +354,7 @@ class TestYfinanceClient:
 
     @pytest.mark.asyncio
     async def test_raises_for_bogus_symbol(self):
-        from backend.fetchers import yfinance_client
+        from fetchers import yfinance_client
 
         with pytest.raises(ValueError):
             await yfinance_client.fetch_ohlcv("FAKESYMBOL999XYZ", FROM_DATE, TODAY)
@@ -368,7 +368,7 @@ class TestNewsClient:
     @pytest.mark.asyncio
     @pytest.mark.parametrize("symbol", ["RELIANCE", "TCS"])
     async def test_fetch_news_returns_items(self, symbol: str):
-        from backend.fetchers import news_client
+        from fetchers import news_client
 
         result = await news_client.fetch_news(
             symbol=symbol,
@@ -391,7 +391,7 @@ class TestNewsClient:
     @pytest.mark.asyncio
     async def test_fetch_news_no_html_in_items(self):
         """News items must not contain raw HTML tags."""
-        from backend.fetchers import news_client
+        from fetchers import news_client
         import re
 
         result = await news_client.fetch_news("INFY", max_items=5)
@@ -404,7 +404,7 @@ class TestNewsClient:
     @pytest.mark.asyncio
     async def test_fetch_news_returns_empty_for_unknown(self):
         """Unknown symbols should return empty items, not raise."""
-        from backend.fetchers import news_client
+        from fetchers import news_client
 
         result = await news_client.fetch_news("FAKESYMBOL999XYZ", max_items=5)
 

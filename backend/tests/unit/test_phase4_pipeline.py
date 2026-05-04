@@ -24,7 +24,7 @@ import unittest
 from datetime import date, datetime, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from backend.schemas.messages import (
+from schemas.messages import (
     AnalysisDraft,
     AnalysisResult,
     AgreementLink,
@@ -39,7 +39,7 @@ from backend.schemas.messages import (
     VerifiedAnalysis,
     Verdict,
 )
-from backend.schemas.node import HorizonRelevance, Node, NodeCategory, NodeSignal
+from schemas.node import HorizonRelevance, Node, NodeCategory, NodeSignal
 
 
 # ── Shared helpers ─────────────────────────────────────────────────────────────
@@ -148,7 +148,7 @@ class TestFetchFailureHandling(unittest.TestCase):
 
     def test_run_agent_safe_returns_empty_on_fetch_failure(self):
         """_run_agent_safe should return (name, []) when module.run() returns FetchFailure."""
-        from backend.agents.orchestrator import _run_agent_safe
+        from agents.orchestrator import _run_agent_safe
 
         failure = FetchFailure(
             domain=FetchDomain.technical,
@@ -168,7 +168,7 @@ class TestFetchFailureHandling(unittest.TestCase):
 
     def test_run_agent_safe_returns_empty_on_timeout_error(self):
         """_run_agent_safe should return (name, []) when asyncio.wait_for raises TimeoutError."""
-        from backend.agents.orchestrator import _run_agent_safe
+        from agents.orchestrator import _run_agent_safe
 
         mock_module = MagicMock()
         # Simulate a coroutine that never finishes — wait_for fires TimeoutError
@@ -183,7 +183,7 @@ class TestFetchFailureHandling(unittest.TestCase):
 
     def test_run_agent_safe_returns_nodes_on_success(self):
         """_run_agent_safe should return (name, nodes) when module.run() succeeds."""
-        from backend.agents.orchestrator import _run_agent_safe
+        from agents.orchestrator import _run_agent_safe
 
         expected_nodes = _make_technical_nodes(3)
 
@@ -204,7 +204,7 @@ class TestInsufficientDataGate(unittest.TestCase):
 
     def test_raises_when_technical_below_threshold(self):
         """InsufficientDataError raised when technical nodes < 10."""
-        from backend.agents.orchestrator import InsufficientDataError, _check_sufficient
+        from agents.orchestrator import InsufficientDataError, _check_sufficient
 
         nodes = (
             _make_technical_nodes(9)       # one short of 10
@@ -217,7 +217,7 @@ class TestInsufficientDataGate(unittest.TestCase):
 
     def test_raises_when_fundamental_below_threshold(self):
         """InsufficientDataError raised when fundamental nodes < 8."""
-        from backend.agents.orchestrator import InsufficientDataError, _check_sufficient
+        from agents.orchestrator import InsufficientDataError, _check_sufficient
 
         nodes = (
             _make_technical_nodes(10)
@@ -230,7 +230,7 @@ class TestInsufficientDataGate(unittest.TestCase):
 
     def test_raises_when_announcement_below_threshold(self):
         """InsufficientDataError raised when announcement nodes < 3."""
-        from backend.agents.orchestrator import InsufficientDataError, _check_sufficient
+        from agents.orchestrator import InsufficientDataError, _check_sufficient
 
         nodes = (
             _make_technical_nodes(10)
@@ -243,7 +243,7 @@ class TestInsufficientDataGate(unittest.TestCase):
 
     def test_returns_counts_when_all_thresholds_met(self):
         """_check_sufficient returns a counts dict when all categories pass."""
-        from backend.agents.orchestrator import _check_sufficient
+        from agents.orchestrator import _check_sufficient
 
         nodes = _sufficient_node_set()
         counts = _check_sufficient(nodes)
@@ -261,12 +261,12 @@ class TestNodeSanitization(unittest.TestCase):
 
     def _make_anon_map(self) -> object:
         """Build a real AnonMap for RELIANCE."""
-        from backend.util.sanitizer import build_anon_map
+        from util.sanitizer import build_anon_map
         return build_anon_map(stock="RELIANCE", sector="energy")
 
     def test_already_sanitized_nodes_pass_through_unchanged(self):
         """Nodes with sanitized=True must not be modified."""
-        from backend.agents.orchestrator import _sanitize_nodes
+        from agents.orchestrator import _sanitize_nodes
 
         node = _make_node(NodeCategory.technical, "RSI_14", sanitized=True)
         original_value = node.value
@@ -280,7 +280,7 @@ class TestNodeSanitization(unittest.TestCase):
 
     def test_unsanitized_nodes_are_scrubbed(self):
         """Nodes with sanitized=False should be scrubbed and flagged sanitized=True."""
-        from backend.agents.orchestrator import _sanitize_nodes
+        from agents.orchestrator import _sanitize_nodes
 
         # Use a value that won't contain real names (plain indicator text)
         node = _make_node(NodeCategory.news, "Headline", sanitized=False)
@@ -297,7 +297,7 @@ class TestNodeSanitization(unittest.TestCase):
 
     def test_sanitize_does_not_mutate_originals(self):
         """_sanitize_nodes must return a new list; originals must not be changed."""
-        from backend.agents.orchestrator import _sanitize_nodes
+        from agents.orchestrator import _sanitize_nodes
 
         node = _make_node(NodeCategory.announcement, "Corp_Action", sanitized=False)
         original_sanitized_flag = node.sanitized
@@ -319,7 +319,7 @@ class TestVerifier(unittest.TestCase):
 
     def test_claims_with_zero_valid_node_ids_are_stripped(self):
         """Claims referencing nonexistent node_ids must be stripped."""
-        from backend.agents import agent_verifier
+        from agents import agent_verifier
 
         claim = Claim(text="Some claim.", node_ids=["nonexistent-id-1", "nonexistent-id-2"])
         draft = _make_minimal_draft(claims=[claim])
@@ -332,7 +332,7 @@ class TestVerifier(unittest.TestCase):
 
     def test_claims_with_valid_node_id_are_kept_and_trimmed(self):
         """Claims with at least one valid node_id are kept; invalid ids are removed."""
-        from backend.agents import agent_verifier
+        from agents import agent_verifier
 
         good_node = _make_node(NodeCategory.technical, "RSI_14")
         valid_id = good_node.node_id
@@ -354,8 +354,8 @@ class TestVerifier(unittest.TestCase):
 
     def test_low_fidelity_flag_set_when_strip_count_exceeds_threshold(self):
         """stripped_claims > LOW_FIDELITY_THRESHOLD should set low_fidelity=True."""
-        from backend.agents import agent_verifier
-        from backend.agents.agent_verifier import LOW_FIDELITY_THRESHOLD
+        from agents import agent_verifier
+        from agents.agent_verifier import LOW_FIDELITY_THRESHOLD
 
         # Build (threshold + 1) claims all referencing nonexistent ids
         bad_claims = [
@@ -372,7 +372,7 @@ class TestVerifier(unittest.TestCase):
 
     def test_agreement_links_with_invalid_node_ids_removed(self):
         """AgreementLinks where either node_id is not in the node set must be removed."""
-        from backend.agents import agent_verifier
+        from agents import agent_verifier
 
         good_node_a = _make_node(NodeCategory.technical, "RSI_14")
         good_node_b = _make_node(NodeCategory.fundamental, "PE_Ratio")
@@ -398,7 +398,7 @@ class TestVerifier(unittest.TestCase):
 
     def test_contradiction_links_with_invalid_node_ids_removed(self):
         """ContradictionLinks where either node_id is absent must be removed."""
-        from backend.agents import agent_verifier
+        from agents import agent_verifier
 
         pos_node = _make_node(NodeCategory.technical, "MACD", NodeSignal.positive)
         neg_node = _make_node(NodeCategory.fundamental, "Revenue", NodeSignal.negative)
@@ -431,7 +431,7 @@ class TestFormatter(unittest.TestCase):
     """Tests for formatter.format_result and formatter._build_data_disclosure."""
 
     def _make_anon_map(self):
-        from backend.util.sanitizer import build_anon_map
+        from util.sanitizer import build_anon_map
         return build_anon_map(stock="INFY", sector="technology")
 
     def _make_verified(self) -> VerifiedAnalysis:
@@ -445,7 +445,7 @@ class TestFormatter(unittest.TestCase):
 
     def test_format_result_returns_tuple_of_analysis_result_and_dict(self):
         """format_result must return a (AnalysisResult, dict) tuple."""
-        from backend.agents import formatter
+        from agents import formatter
 
         request = _make_fetch_request("INFY")
         verified = self._make_verified()
@@ -469,7 +469,7 @@ class TestFormatter(unittest.TestCase):
 
     def test_disclaimer_is_always_non_empty(self):
         """AnalysisResult.disclaimer must never be empty or None."""
-        from backend.agents import formatter
+        from agents import formatter
 
         request = _make_fetch_request("INFY")
         verified = self._make_verified()
@@ -488,7 +488,7 @@ class TestFormatter(unittest.TestCase):
 
     def test_build_data_disclosure_includes_node_counts(self):
         """_build_data_disclosure should embed each category's count in the string."""
-        from backend.agents.formatter import _build_data_disclosure
+        from agents.formatter import _build_data_disclosure
 
         node_counts = {
             "technical": 17,
@@ -505,7 +505,7 @@ class TestFormatter(unittest.TestCase):
 
     def test_admin_view_contains_required_keys(self):
         """admin_view must have analysis_id, model_id, verdicts, overall_signal, stripped_claims."""
-        from backend.agents import formatter
+        from agents import formatter
 
         request = _make_fetch_request("INFY")
         verified = self._make_verified()
@@ -534,7 +534,7 @@ class TestAnalysisDraftParsing(unittest.TestCase):
 
     def test_strip_fences_removes_json_code_block(self):
         """_strip_fences must strip ```json ... ``` wrapper."""
-        from backend.agents.agent_analysis import _strip_fences
+        from agents.agent_analysis import _strip_fences
 
         fenced = '```json\n{"key": "value"}\n```'
         result = _strip_fences(fenced)
@@ -542,7 +542,7 @@ class TestAnalysisDraftParsing(unittest.TestCase):
 
     def test_strip_fences_passes_plain_json_unchanged(self):
         """_strip_fences must leave bare JSON unmodified."""
-        from backend.agents.agent_analysis import _strip_fences
+        from agents.agent_analysis import _strip_fences
 
         plain = '{"overall_signal": "neutral"}'
         result = _strip_fences(plain)
@@ -550,7 +550,7 @@ class TestAnalysisDraftParsing(unittest.TestCase):
 
     def test_repair_truncated_json_closes_open_brackets(self):
         """_repair_truncated_json should return a parsed dict for truncated JSON."""
-        from backend.agents.agent_analysis import _repair_truncated_json
+        from agents.agent_analysis import _repair_truncated_json
 
         # Simulate truncated JSON — top-level object cut off mid-array
         truncated = '{"key": [1, 2, 3'
@@ -563,7 +563,7 @@ class TestAnalysisDraftParsing(unittest.TestCase):
 
     def test_repair_truncated_json_returns_none_on_non_json(self):
         """_repair_truncated_json must return None if input doesn't start with {."""
-        from backend.agents.agent_analysis import _repair_truncated_json
+        from agents.agent_analysis import _repair_truncated_json
 
         self.assertIsNone(_repair_truncated_json("not json at all"))
         self.assertIsNone(_repair_truncated_json("[1, 2, 3"))
@@ -577,7 +577,7 @@ class TestCacheKey(unittest.TestCase):
 
     def test_cache_key_includes_stock_profile_and_data_hash(self):
         """_cache_key must embed stock ticker, profile bucket, and data_hash."""
-        from backend.agents.orchestrator import _cache_key
+        from agents.orchestrator import _cache_key
 
         key = _cache_key("RELIANCE", "long_moderate", "abc123")
 
@@ -587,7 +587,7 @@ class TestCacheKey(unittest.TestCase):
 
     def test_different_stock_produces_different_cache_key(self):
         """Two stocks with same profile and data_hash must yield different keys."""
-        from backend.agents.orchestrator import _cache_key
+        from agents.orchestrator import _cache_key
 
         key_a = _cache_key("RELIANCE", "long_moderate", "abc123")
         key_b = _cache_key("INFY", "long_moderate", "abc123")

@@ -19,7 +19,7 @@ from __future__ import annotations
 import logging
 from datetime import date
 
-from backend.schemas.node import Node
+from schemas.node import Node
 
 logger = logging.getLogger(__name__)
 

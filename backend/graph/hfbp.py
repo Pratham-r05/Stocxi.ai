@@ -41,8 +41,8 @@ import math
 from pathlib import Path
 from typing import Any
 
-from backend.graph.builder import Edge, EDGE_MODIFIERS, EDGE_WEIGHT_PRIORS, _weight_key
-from backend.schemas.node import Node, NodeCategory, NodeSignal
+from graph.builder import Edge, EDGE_MODIFIERS, EDGE_WEIGHT_PRIORS, _weight_key
+from schemas.node import Node, NodeCategory, NodeSignal
 
 logger = logging.getLogger(__name__)
 

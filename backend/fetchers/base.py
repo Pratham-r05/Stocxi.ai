@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Awaitable, Callable
 
-from backend.util.ist_calendar import now_ist
+from util.ist_calendar import now_ist
 
 logger = logging.getLogger(__name__)
 

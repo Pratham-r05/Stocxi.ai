@@ -12,7 +12,7 @@ Success bar (ARCHITECTURE §12):
   - Nifty-excess return > 0 net of costs
 
 Usage:
-    from backend.calibration.refit_weights import run_calibration
+    from calibration.refit_weights import run_calibration
     result = run_calibration(dry_run=True)
 """
 
@@ -66,7 +66,7 @@ def load_all_runs(results_dir: Path | None = None) -> list:
     Load all JSONL run files from backend/backtest/results/.
     Returns [] if no files found or on any error.
     """
-    from backend.backtest.runner import BacktestRun
+    from backtest.runner import BacktestRun
 
     base = results_dir or _RESULTS_DIR
     runs: list[BacktestRun] = []

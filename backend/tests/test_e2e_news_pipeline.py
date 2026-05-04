@@ -6,8 +6,8 @@ from datetime import date
 
 sys.path.insert(0, ".")
 
-from backend.agents.agent_news import news_agent
-from backend.schemas.messages import FetchRequest, UserProfile
+from agents.agent_news import news_agent
+from schemas.messages import FetchRequest, UserProfile
 
 
 async def main():

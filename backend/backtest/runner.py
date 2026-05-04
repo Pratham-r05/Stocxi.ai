@@ -33,9 +33,9 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from backend.schemas.messages import FetchRequest, Horizon, Risk, UserProfile
-from backend.backtest.outcomes import fetch_outcome, signal_is_correct
-from backend.agents.orchestrator import InsufficientDataError
+from schemas.messages import FetchRequest, Horizon, Risk, UserProfile
+from backtest.outcomes import fetch_outcome, signal_is_correct
+from agents.orchestrator import InsufficientDataError
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +85,7 @@ async def _run_one(
     sem: asyncio.Semaphore,
 ) -> BacktestRun:
     """Run one (stock, date) pair. Never raises — captures errors in BacktestRun.error."""
-    from backend.agents.orchestrator import run as orch_run
+    from agents.orchestrator import run as orch_run
 
     async with sem:
         analysis_id = str(uuid.uuid4())

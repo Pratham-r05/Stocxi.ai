@@ -22,9 +22,9 @@ from unittest.mock import patch
 
 import pytest
 
-from backend.agents import agent_verifier, formatter
-from backend.audit import audit_log
-from backend.schemas.messages import (
+from agents import agent_verifier, formatter
+from audit import audit_log
+from schemas.messages import (
     AnalysisDraft,
     AgreementLink,
     Claim,
@@ -36,8 +36,8 @@ from backend.schemas.messages import (
     VerifiedAnalysis,
     Verdict,
 )
-from backend.schemas.node import HorizonRelevance, Node, NodeCategory, NodeSignal
-from backend.util.sanitizer import build_anon_map
+from schemas.node import HorizonRelevance, Node, NodeCategory, NodeSignal
+from util.sanitizer import build_anon_map
 
 # ── Shared fixtures ────────────────────────────────────────────────────────────
 
@@ -312,7 +312,7 @@ class TestAgentAnalysis:
 
     @pytest.mark.asyncio
     async def test_parses_llm_output_into_draft(self):
-        from backend.agents import agent_analysis
+        from agents import agent_analysis
 
         nodes   = _make_nodes()
         request = _make_request()
@@ -329,7 +329,7 @@ class TestAgentAnalysis:
 
     @pytest.mark.asyncio
     async def test_rejects_unsanitized_nodes(self):
-        from backend.agents import agent_analysis
+        from agents import agent_analysis
 
         dirty_node = Node(
             stock=_STOCK, category=NodeCategory.news, name="headline",
@@ -345,7 +345,7 @@ class TestAgentAnalysis:
 
     @pytest.mark.asyncio
     async def test_invalid_overall_signal_defaults_to_neutral(self):
-        from backend.agents import agent_analysis
+        from agents import agent_analysis
 
         bad_response = dict(self._MOCK_LLM_RESPONSE)
         bad_response["overall_signal"] = "VERY_BULLISH"   # not a valid enum value
@@ -361,7 +361,7 @@ class TestAgentAnalysis:
     @pytest.mark.asyncio
     async def test_json_fence_stripped(self):
         """_call_llm returning a valid dict (after fence stripping) should parse correctly."""
-        from backend.agents import agent_analysis
+        from agents import agent_analysis
 
         nodes   = _make_nodes()
         request = _make_request()

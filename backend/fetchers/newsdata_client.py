@@ -24,8 +24,8 @@ from typing import Any
 
 import requests
 
-from backend.config import settings
-from backend.fetchers.base import FetchResult
+from config import settings
+from fetchers.base import FetchResult
 
 logger = logging.getLogger(__name__)
 

@@ -14,9 +14,9 @@ from __future__ import annotations
 import pytest
 from datetime import date, datetime, timezone
 
-from backend.schemas.node import Node, NodeCategory, NodeSignal, HorizonRelevance
-from backend.graph.scorer import recency_factor, score_node, score_all, top_nodes
-from backend.graph.builder import build_edges, Edge
+from schemas.node import Node, NodeCategory, NodeSignal, HorizonRelevance
+from graph.scorer import recency_factor, score_node, score_all, top_nodes
+from graph.builder import build_edges, Edge
 
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────

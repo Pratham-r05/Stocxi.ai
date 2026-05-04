@@ -14,8 +14,8 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
-from backend.backtest.runner import BacktestRun
-from backend.backtest.universe import SURVIVORSHIP_BIAS_DISCLAIMER
+from backtest.runner import BacktestRun
+from backtest.universe import SURVIVORSHIP_BIAS_DISCLAIMER
 
 
 # ── Confidence bins for calibration ───────────────────────────────────────────

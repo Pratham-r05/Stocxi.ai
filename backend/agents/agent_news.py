@@ -27,12 +27,12 @@ from typing import Any
 
 import yaml
 
-from backend.schemas.messages import FetchDomain, FetchFailure, FetchRequest
-from backend.schemas.node import HorizonRelevance, Node, NodeCategory, NodeSignal
-from backend.services.context_generator import apply_news_context
-from backend.services.news_service import get_news
-from backend.util.ist_calendar import now_ist
-from backend.util.sanitizer import strip_html, strip_imperative_sentences
+from schemas.messages import FetchDomain, FetchFailure, FetchRequest
+from schemas.node import HorizonRelevance, Node, NodeCategory, NodeSignal
+from services.context_generator import apply_news_context
+from services.news_service import get_news
+from util.ist_calendar import now_ist
+from util.sanitizer import strip_html, strip_imperative_sentences
 
 logger = logging.getLogger(__name__)
 

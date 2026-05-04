@@ -23,8 +23,8 @@ import os
 from datetime import date
 from typing import Any
 
-from backend.graph.builder import Edge
-from backend.schemas.node import Node
+from graph.builder import Edge
+from schemas.node import Node
 
 logger = logging.getLogger(__name__)
 

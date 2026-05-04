@@ -27,10 +27,10 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 
-from backend.agents import agent_fundamental, agent_news, agent_announcement, agent_context
-from backend.schemas.messages import FetchRequest, Horizon, Risk, UserProfile
-from backend.schemas.node import NodeCategory, NodeSignal
-from backend.util.ist_calendar import as_of_date_for_fetch
+from agents import agent_fundamental, agent_news, agent_announcement, agent_context
+from schemas.messages import FetchRequest, Horizon, Risk, UserProfile
+from schemas.node import NodeCategory, NodeSignal
+from util.ist_calendar import as_of_date_for_fetch
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 

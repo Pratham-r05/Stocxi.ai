@@ -32,11 +32,11 @@ import ta.trend      as ta_trend
 import ta.volatility as ta_volatility
 import ta.volume     as ta_volume
 
-from backend.services.ohlcv_service import get_ohlcv
-from backend.schemas.node import Node, NodeCategory, NodeSignal, HorizonRelevance
-from backend.schemas.messages import UserProfile, Horizon, Risk
-from backend.config import yaml_cfg
-from backend.util.ist_calendar import now_ist, today_ist
+from services.ohlcv_service import get_ohlcv
+from schemas.node import Node, NodeCategory, NodeSignal, HorizonRelevance
+from schemas.messages import UserProfile, Horizon, Risk
+from config import yaml_cfg
+from util.ist_calendar import now_ist, today_ist
 
 logger = logging.getLogger(__name__)
 

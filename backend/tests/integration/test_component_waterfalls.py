@@ -45,7 +45,7 @@ SMALL_CAP   = "QUESTCAP"
 TEST_STOCKS = [LARGE_CAP, MID_CAP, SMALL_CAP]
 AS_OF       = date.today()
 
-from backend.schemas.messages import UserProfile, Horizon, Risk
+from schemas.messages import UserProfile, Horizon, Risk
 
 PROFILE = UserProfile(horizon=Horizon.short, risk=Risk.moderate)
 
@@ -54,7 +54,7 @@ PROFILE = UserProfile(horizon=Horizon.short, risk=Risk.moderate)
 
 def _assert_node_list(nodes: list, label: str = "") -> None:
     """Assert every element is a Node with required fields populated."""
-    from backend.schemas.node import Node
+    from schemas.node import Node
     tag = f" for {label}" if label else ""
     assert isinstance(nodes, list), f"Expected list[Node], got {type(nodes)}"
     assert len(nodes) > 0, f"Node list is empty{tag}"
@@ -79,14 +79,14 @@ class TestPriceService:
     @pytest.mark.parametrize("symbol", TEST_STOCKS)
     async def test_get_price_returns_nodes(self, symbol: str) -> None:
         """get_price returns non-empty list[Node] with valid schema."""
-        from backend.services.price_service import get_price
+        from services.price_service import get_price
         nodes = await get_price(symbol, AS_OF, PROFILE, request_id=f"test:{symbol}")
         _assert_node_list(nodes, symbol)
 
     @pytest.mark.asyncio
     async def test_get_price_nodes_contain_price_node(self) -> None:
         """At least one node with name='Price' must be present."""
-        from backend.services.price_service import get_price
+        from services.price_service import get_price
         nodes = await get_price(LARGE_CAP, AS_OF, PROFILE)
         names = {n.name for n in nodes}
         assert "Price" in names, f"Price node missing. Got names: {names}"
@@ -94,8 +94,8 @@ class TestPriceService:
     @pytest.mark.asyncio
     async def test_price_waterfall_fallback_to_bse(self) -> None:
         """When NSE equityQuote raises, BSE quote supplies the result."""
-        from backend.services.price_service import get_price
-        from backend.fetchers import nse_client
+        from services.price_service import get_price
+        from fetchers import nse_client
 
         with patch.object(nse_client, "fetch_quote", new=AsyncMock(side_effect=Exception("NSE down"))):
             nodes = await get_price(LARGE_CAP, AS_OF, PROFILE, request_id="test:fallback:price")
@@ -108,8 +108,8 @@ class TestPriceService:
     @pytest.mark.asyncio
     async def test_price_waterfall_fallback_to_yfinance(self) -> None:
         """When both NSE and BSE raise, yfinance supplies the result."""
-        from backend.services.price_service import get_price
-        from backend.fetchers import nse_client, bse_client
+        from services.price_service import get_price
+        from fetchers import nse_client, bse_client
 
         with (
             patch.object(nse_client, "fetch_quote", new=AsyncMock(side_effect=Exception("NSE down"))),
@@ -134,7 +134,7 @@ class TestOhlcvService:
     async def test_get_ohlcv_returns_dataframe(self, symbol: str) -> None:
         """get_ohlcv returns a non-empty DataFrame with standard OHLCV columns."""
         import pandas as pd
-        from backend.services.ohlcv_service import get_ohlcv
+        from services.ohlcv_service import get_ohlcv
         df = await get_ohlcv(symbol, AS_OF)
         assert isinstance(df, pd.DataFrame), f"Expected DataFrame, got {type(df)}"
         assert not df.empty, f"OHLCV DataFrame empty for {symbol}"
@@ -145,7 +145,7 @@ class TestOhlcvService:
     async def test_ohlcv_index_is_datetime(self) -> None:
         """DataFrame must have DatetimeIndex ascending."""
         import pandas as pd
-        from backend.services.ohlcv_service import get_ohlcv
+        from services.ohlcv_service import get_ohlcv
         df = await get_ohlcv(LARGE_CAP, AS_OF)
         assert isinstance(df.index, pd.DatetimeIndex), "Index must be DatetimeIndex"
         assert df.index.is_monotonic_increasing, "Index must be ascending"
@@ -154,8 +154,8 @@ class TestOhlcvService:
     async def test_ohlcv_waterfall_fallback_to_yfinance(self) -> None:
         """When NSE historical fetch raises, yfinance supplies OHLCV."""
         import pandas as pd
-        from backend.services.ohlcv_service import get_ohlcv
-        from backend.fetchers import nse_client
+        from services.ohlcv_service import get_ohlcv
+        from fetchers import nse_client
 
         with patch.object(nse_client, "fetch_ohlcv", new=AsyncMock(side_effect=Exception("NSE OHLCV down"))):
             df = await get_ohlcv(LARGE_CAP, AS_OF)
@@ -167,8 +167,8 @@ class TestOhlcvService:
     async def test_ohlcv_total_failure_returns_empty_dataframe(self) -> None:
         """When all sources fail, returns empty DataFrame without raising."""
         import pandas as pd
-        from backend.services.ohlcv_service import get_ohlcv
-        from backend.fetchers import nse_client, yfinance_client
+        from services.ohlcv_service import get_ohlcv
+        from fetchers import nse_client, yfinance_client
 
         with (
             patch.object(nse_client, "fetch_ohlcv", new=AsyncMock(side_effect=Exception("NSE down"))),
@@ -191,15 +191,15 @@ class TestRatiosService:
     @pytest.mark.parametrize("symbol", [LARGE_CAP, MID_CAP])
     async def test_get_ratios_returns_nodes(self, symbol: str) -> None:
         """get_ratios returns non-empty list[Node] with valid schema."""
-        from backend.services.ratios_service import get_ratios
+        from services.ratios_service import get_ratios
         nodes = await get_ratios(symbol, AS_OF, PROFILE)
         _assert_node_list(nodes, symbol)
 
     @pytest.mark.asyncio
     async def test_ratios_waterfall_fallback_to_screener(self) -> None:
         """When BSE equityMetaInfo raises, Screener top-ratios supplies data."""
-        from backend.services.ratios_service import get_ratios
-        from backend.fetchers import bse_client
+        from services.ratios_service import get_ratios
+        from fetchers import bse_client
 
         with patch.object(bse_client, "fetch_meta_info", new=AsyncMock(side_effect=Exception("BSE down"))):
             nodes = await get_ratios(LARGE_CAP, AS_OF, PROFILE, request_id="test:fallback:ratios")
@@ -211,8 +211,8 @@ class TestRatiosService:
     @pytest.mark.asyncio
     async def test_ratios_total_failure_returns_empty_list(self) -> None:
         """When all ratio sources fail, returns [] without raising."""
-        from backend.services.ratios_service import get_ratios
-        from backend.fetchers import bse_client, screener_client
+        from services.ratios_service import get_ratios
+        from fetchers import bse_client, screener_client
 
         with (
             patch.object(bse_client, "fetch_meta_info", new=AsyncMock(side_effect=Exception("BSE down"))),
@@ -234,15 +234,15 @@ class TestFinancialsService:
     @pytest.mark.parametrize("symbol", TEST_STOCKS)
     async def test_get_financials_returns_nodes(self, symbol: str) -> None:
         """get_financials returns non-empty list[Node] with valid schema."""
-        from backend.services.financials_service import get_financials
+        from services.financials_service import get_financials
         nodes = await get_financials(symbol, AS_OF, PROFILE)
         _assert_node_list(nodes, symbol)
 
     @pytest.mark.asyncio
     async def test_financials_waterfall_fallback_to_bse(self) -> None:
         """When Screener raises, BSE resultsSnapshot provides financial data."""
-        from backend.services.financials_service import get_financials
-        from backend.fetchers import screener_client
+        from services.financials_service import get_financials
+        from fetchers import screener_client
 
         with patch.object(screener_client, "fetch_financials", new=AsyncMock(side_effect=Exception("Screener down"))):
             nodes = await get_financials(LARGE_CAP, AS_OF, PROFILE, request_id="test:fallback:financials")
@@ -256,7 +256,7 @@ class TestFinancialsService:
     @pytest.mark.asyncio
     async def test_financials_screener_preferred_over_bse(self) -> None:
         """Primary source for financials is Screener (higher recency coverage)."""
-        from backend.services.financials_service import get_financials
+        from services.financials_service import get_financials
         nodes = await get_financials(LARGE_CAP, AS_OF, PROFILE)
         sources = {n.source for n in nodes}
         # Screener wins for large caps — it should be in the source set
@@ -274,14 +274,14 @@ class TestShareholdingService:
     @pytest.mark.parametrize("symbol", [LARGE_CAP, MID_CAP])
     async def test_get_shareholding_returns_nodes(self, symbol: str) -> None:
         """get_shareholding returns non-empty list[Node] with valid schema."""
-        from backend.services.shareholding_service import get_shareholding
+        from services.shareholding_service import get_shareholding
         nodes = await get_shareholding(symbol, AS_OF, PROFILE)
         _assert_node_list(nodes, symbol)
 
     @pytest.mark.asyncio
     async def test_shareholding_contains_promoter_node(self) -> None:
         """Promoter_Holding node must be present for large caps."""
-        from backend.services.shareholding_service import get_shareholding
+        from services.shareholding_service import get_shareholding
         nodes = await get_shareholding(LARGE_CAP, AS_OF, PROFILE)
         names = {n.name for n in nodes}
         assert "Promoter_Holding" in names, f"Promoter_Holding missing. Got names: {names}"
@@ -289,8 +289,8 @@ class TestShareholdingService:
     @pytest.mark.asyncio
     async def test_shareholding_waterfall_fallback_to_screener(self) -> None:
         """When NSE shareholding raises, Screener provides the data."""
-        from backend.services.shareholding_service import get_shareholding
-        from backend.fetchers import nse_client
+        from services.shareholding_service import get_shareholding
+        from fetchers import nse_client
 
         with patch.object(nse_client, "fetch_shareholding", new=AsyncMock(side_effect=Exception("NSE down"))):
             nodes = await get_shareholding(LARGE_CAP, AS_OF, PROFILE, request_id="test:fallback:holding")
@@ -312,29 +312,29 @@ class TestTechnicalsService:
     @pytest.mark.parametrize("symbol", [LARGE_CAP, MID_CAP])
     async def test_get_technicals_returns_nodes(self, symbol: str) -> None:
         """get_technicals returns list[Node] with valid schema."""
-        from backend.services.technicals_service import get_technicals
+        from services.technicals_service import get_technicals
         nodes = await get_technicals(symbol, as_of_date=AS_OF, profile=PROFILE)
         _assert_node_list(nodes, symbol)
 
     @pytest.mark.asyncio
     async def test_technicals_node_count(self) -> None:
         """Large cap with full history should produce close to 17 indicator nodes."""
-        from backend.services.technicals_service import get_technicals
+        from services.technicals_service import get_technicals
         nodes = await get_technicals(LARGE_CAP, as_of_date=AS_OF, profile=PROFILE)
         assert len(nodes) >= 10, f"Expected >= 10 indicator nodes, got {len(nodes)}"
 
     @pytest.mark.asyncio
     async def test_technicals_accepts_none_profile(self) -> None:
         """get_technicals must not raise when profile=None (uses default)."""
-        from backend.services.technicals_service import get_technicals
+        from services.technicals_service import get_technicals
         nodes = await get_technicals(LARGE_CAP, profile=None)
         assert isinstance(nodes, list)
 
     @pytest.mark.asyncio
     async def test_technicals_ohlcv_failure_returns_empty(self) -> None:
         """When OHLCV is unavailable, get_technicals returns [] without raising."""
-        from backend.services.technicals_service import get_technicals
-        from backend.services import ohlcv_service
+        from services.technicals_service import get_technicals
+        from services import ohlcv_service
         import pandas as pd
 
         with patch.object(ohlcv_service, "get_ohlcv", new=AsyncMock(return_value=pd.DataFrame())):
@@ -345,8 +345,8 @@ class TestTechnicalsService:
     @pytest.mark.asyncio
     async def test_technicals_all_nodes_have_category_technical(self) -> None:
         """Every node returned by technicals service must be category=technical."""
-        from backend.services.technicals_service import get_technicals
-        from backend.schemas.node import NodeCategory
+        from services.technicals_service import get_technicals
+        from schemas.node import NodeCategory
         nodes = await get_technicals(LARGE_CAP, as_of_date=AS_OF, profile=PROFILE)
         for node in nodes:
             assert node.category == NodeCategory.technical, (
@@ -365,15 +365,15 @@ class TestAnnouncementsService:
     @pytest.mark.parametrize("symbol", [LARGE_CAP, MID_CAP])
     async def test_get_announcements_returns_nodes(self, symbol: str) -> None:
         """get_announcements returns non-empty list[Node] with valid schema."""
-        from backend.services.announcements_service import get_announcements
+        from services.announcements_service import get_announcements
         nodes = await get_announcements(symbol, AS_OF, PROFILE)
         _assert_node_list(nodes, symbol)
 
     @pytest.mark.asyncio
     async def test_announcements_nse_failure_bse_fills(self) -> None:
         """When NSE announcements fail, BSE actions still populate nodes."""
-        from backend.services.announcements_service import get_announcements
-        from backend.services.announcements_service import _fetch_nse  # noqa: F401
+        from services.announcements_service import get_announcements
+        from services.announcements_service import _fetch_nse  # noqa: F401
 
         # Patch _fetch_nse to simulate NSE failure (returns exception)
         with patch(
@@ -389,7 +389,7 @@ class TestAnnouncementsService:
     @pytest.mark.asyncio
     async def test_announcements_bse_failure_nse_fills(self) -> None:
         """When BSE actions fail, NSE board meetings + actions still populate nodes."""
-        from backend.services.announcements_service import get_announcements
+        from services.announcements_service import get_announcements
 
         with patch(
             "backend.services.announcements_service._fetch_bse",
@@ -403,7 +403,7 @@ class TestAnnouncementsService:
     @pytest.mark.asyncio
     async def test_announcements_deduplication(self) -> None:
         """Nodes must not have duplicate node_id (same event from NSE+BSE must be collapsed)."""
-        from backend.services.announcements_service import get_announcements
+        from services.announcements_service import get_announcements
         nodes = await get_announcements(LARGE_CAP, AS_OF, PROFILE)
         # node_id is deterministic: {stock}|{category}|{name}|{as_of_date}
         seen: set[str] = set()
@@ -414,7 +414,7 @@ class TestAnnouncementsService:
     @pytest.mark.asyncio
     async def test_announcements_both_fail_returns_empty(self) -> None:
         """When both NSE and BSE fail, returns [] without raising."""
-        from backend.services.announcements_service import get_announcements
+        from services.announcements_service import get_announcements
 
         with (
             patch(
@@ -444,13 +444,13 @@ class TestNodeSchemaInvariants:
         Run all 6 node-returning services for RELIANCE and assert every node passes
         the pydantic model validation (no raw dict leakage, all required fields set).
         """
-        from backend.schemas.node import Node
-        from backend.services.price_service import get_price
-        from backend.services.ratios_service import get_ratios
-        from backend.services.financials_service import get_financials
-        from backend.services.shareholding_service import get_shareholding
-        from backend.services.technicals_service import get_technicals
-        from backend.services.announcements_service import get_announcements
+        from schemas.node import Node
+        from services.price_service import get_price
+        from services.ratios_service import get_ratios
+        from services.financials_service import get_financials
+        from services.shareholding_service import get_shareholding
+        from services.technicals_service import get_technicals
+        from services.announcements_service import get_announcements
 
         all_nodes: list[Node] = []
         all_nodes += await get_price(LARGE_CAP, AS_OF, PROFILE)

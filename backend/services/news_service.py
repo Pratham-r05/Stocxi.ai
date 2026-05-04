@@ -32,8 +32,8 @@ import requests
 import yaml
 from gnews import GNews
 
-from backend.fetchers.newsdata_client import fetch_stock_news
-from backend.util.article_extractor import derive_stock_impact, extract_key_sentence
+from fetchers.newsdata_client import fetch_stock_news
+from util.article_extractor import derive_stock_impact, extract_key_sentence
 
 logger = logging.getLogger(__name__)
 
@@ -602,7 +602,7 @@ def _summarize_articles(
         import google.auth.transport.requests
         from openai import OpenAI
 
-        from backend.config import settings, yaml_cfg
+        from config import settings, yaml_cfg
 
         credentials, _ = google.auth.default(
             scopes=["https://www.googleapis.com/auth/cloud-platform"]

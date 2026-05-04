@@ -7,7 +7,7 @@ Tier mapping (matches existing report_service.py):
   apex    → 3-page pro report (formerly "Pro tier")
 
 Usage:
-    from backend.agents.agent_report import build_report
+    from agents.agent_report import build_report
     pdf_bytes = build_report(result, tier="apex", risk_level="medium")
 """
 
@@ -16,8 +16,8 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from backend.schemas.messages import AnalysisResult
-from backend.services.report_service import build_stock_report_pdf, _build_minimal_pdf
+from schemas.messages import AnalysisResult
+from services.report_service import build_stock_report_pdf, _build_minimal_pdf
 
 logger = logging.getLogger(__name__)
 

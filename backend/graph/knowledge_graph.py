@@ -20,13 +20,13 @@ import math
 from pathlib import Path
 from typing import Any, Sequence
 
-from backend.schemas.node import Node
+from schemas.node import Node
 
 logger = logging.getLogger(__name__)
 
 # New hierarchical tree builder + renderer (Phase 1 rebuild)
-from backend.graph.tree_builder import NodeTree
-from backend.graph.kg_renderer import render_knowledge_graph
+from graph.tree_builder import NodeTree
+from graph.kg_renderer import render_knowledge_graph
 
 _FINANCIAL_NODE_GROUPS: dict[str, str] = {
     "Debt_To_Equity": "Balance Sheet",
@@ -234,7 +234,7 @@ def serialize_for_llm(
     """Serialize the knowledge graph as structured text for the LLM prompt."""
     if not nodes:
         return "(empty graph)"
-    from backend.graph.stocxi_knowledge_graph import StocxiKnowledgeGraph
+    from graph.stocxi_knowledge_graph import StocxiKnowledgeGraph
     kg = StocxiKnowledgeGraph(ticker=ticker, horizon=horizon)
     kg._nodes = list(nodes)
     kg._edges = list(edges) if edges else []

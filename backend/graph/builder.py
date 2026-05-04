@@ -35,7 +35,7 @@ import logging
 from dataclasses import dataclass
 from typing import Literal
 
-from backend.schemas.node import Node, NodeCategory, NodeSignal
+from schemas.node import Node, NodeCategory, NodeSignal
 
 logger = logging.getLogger(__name__)
 

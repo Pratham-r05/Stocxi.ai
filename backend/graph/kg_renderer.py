@@ -9,7 +9,7 @@ Generates self-contained HTML files with:
   - Bloomberg-terminal aesthetic
 
 Usage:
-    from backend.graph.kg_renderer import render_knowledge_graph
+    from graph.kg_renderer import render_knowledge_graph
     html = render_knowledge_graph(tree_data, title="RELIANCE", horizon="short")
 """
 

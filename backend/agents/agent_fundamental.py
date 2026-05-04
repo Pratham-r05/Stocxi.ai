@@ -17,15 +17,15 @@ import asyncio
 import logging
 from datetime import date
 
-from backend.schemas.messages import FetchDomain, FetchFailure, FetchRequest
-from backend.schemas.node import Node
-from backend.services.context_generator import (
+from schemas.messages import FetchDomain, FetchFailure, FetchRequest
+from schemas.node import Node
+from services.context_generator import (
     generate_financial_context,
     generate_fundamental_context,
 )
-from backend.services.financials_service import get_financials
-from backend.services.ratios_service import get_ratios
-from backend.services.shareholding_service import get_shareholding
+from services.financials_service import get_financials
+from services.ratios_service import get_ratios
+from services.shareholding_service import get_shareholding
 
 logger = logging.getLogger(__name__)
 

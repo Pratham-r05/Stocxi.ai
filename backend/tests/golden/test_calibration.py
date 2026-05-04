@@ -19,8 +19,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from backend.backtest.runner import BacktestRun
-from backend.calibration.refit_weights import (
+from backtest.runner import BacktestRun
+from calibration.refit_weights import (
     apply_calibration,
     fit_platt_scaling,
     load_all_runs,

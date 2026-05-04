@@ -20,13 +20,13 @@ from __future__ import annotations
 
 import logging
 
-from backend.schemas.messages import (
+from schemas.messages import (
     AnalysisDraft,
     Claim,
     Verdict,
     VerifiedAnalysis,
 )
-from backend.schemas.node import Node
+from schemas.node import Node
 
 logger = logging.getLogger(__name__)
 
@@ -120,7 +120,7 @@ def run(draft: AnalysisDraft, nodes: list[Node]) -> VerifiedAnalysis:
         )
 
     # Build clean draft (same shape, updated claim lists + filtered verdicts)
-    from backend.schemas.messages import AnalysisDraft as AD
+    from schemas.messages import AnalysisDraft as AD
     clean_draft = AD(
         what_data_suggests=wds,
         signals_in_favor=favor,

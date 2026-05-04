@@ -30,10 +30,10 @@ import logging
 from datetime import date
 from typing import Any
 
-from backend.graph.builder import Edge, build_edges
-from backend.graph.hfbp import HFBPGraph
-from backend.graph.scorer import score_all
-from backend.schemas.node import Node, NodeCategory, NodeSignal
+from graph.builder import Edge, build_edges
+from graph.hfbp import HFBPGraph
+from graph.scorer import score_all
+from schemas.node import Node, NodeCategory, NodeSignal
 
 logger = logging.getLogger(__name__)
 
@@ -473,7 +473,7 @@ def _category_tag(node: Node) -> str:
     cat = cat.upper()
 
     if cat == "TECHNICAL":
-        from backend.graph.hfbp import (
+        from graph.hfbp import (
             _MOMENTUM_TECH, _TREND_TECH, _VOLUME_TECH, _VOLATILITY_TECH,
         )
         if node.name in _MOMENTUM_TECH:
@@ -487,7 +487,7 @@ def _category_tag(node: Node) -> str:
         return "TECHNICAL"
 
     if cat == "FUNDAMENTAL":
-        from backend.graph.hfbp import _FINANCIAL_NODE_NAMES
+        from graph.hfbp import _FINANCIAL_NODE_NAMES
         if node.name in _FINANCIAL_NODE_NAMES:
             return "FINANCIAL_STATEMENT"
         return "FUNDAMENTAL_RATIO"

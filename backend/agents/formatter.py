@@ -20,9 +20,9 @@ import uuid
 from datetime import date, datetime
 from typing import Any
 
-from backend.schemas.messages import AnalysisResult, FetchRequest, VerifiedAnalysis
-from backend.schemas.node import Node
-from backend.util.sanitizer import AnonMap, restore_text
+from schemas.messages import AnalysisResult, FetchRequest, VerifiedAnalysis
+from schemas.node import Node
+from util.sanitizer import AnonMap, restore_text
 
 logger = logging.getLogger(__name__)
 

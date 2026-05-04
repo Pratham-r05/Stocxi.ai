@@ -72,7 +72,7 @@ class Settings(BaseSettings):
         return ["*"] if raw == "*" else [o.strip() for o in raw.split(",")]
 
 
-# Singleton — import as `from backend.config import settings`
+# Singleton — import as `from config import settings`
 settings = Settings()
 
 # Propagate credentials path so google.auth.default() finds it.
@@ -123,7 +123,7 @@ class YamlConfig:
     Import the module-level singleton `yaml_cfg` — do not instantiate this class directly.
 
     Usage:
-        from backend.config import yaml_cfg
+        from config import yaml_cfg
         ttl = yaml_cfg.sources["technical"][0]["ttl_seconds"]
         model_id = yaml_cfg.versions["llm"]["active"]
         w = yaml_cfg.weights["technical"]["rsi"]["short"]
@@ -270,5 +270,5 @@ class YamlConfig:
                     )
 
 
-# Singleton — import as `from backend.config import yaml_cfg`
+# Singleton — import as `from config import yaml_cfg`
 yaml_cfg = YamlConfig()
