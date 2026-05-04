@@ -136,7 +136,7 @@ export interface AIAnalysis {
 
 // AI Analysis v2
 export interface V2UserProfile {
-  horizon: "short" | "long";
+  horizon: "short" | "medium" | "long";
   risk: "conservative" | "moderate" | "aggressive";
   sector: string;
   bucket: string;

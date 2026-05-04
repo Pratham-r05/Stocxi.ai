@@ -3,10 +3,11 @@
 // AnalysisClient — fetches the simple Gemini analysis and renders HTML inline.
 // KG button opens the knowledge graph page for this symbol.
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Network, RefreshCw, AlertCircle, Loader2, Clock } from "lucide-react";
-import { fetchSimpleAnalysis, type SimpleAnalysisResult } from "@/lib/api";
+import { Network, RefreshCw, AlertCircle, Loader2, Clock, ShieldCheck, TrendingUp, TrendingDown } from "lucide-react";
+import { fetchAIAnalysisV2 } from "@/lib/api";
+import type { V2AnalysisResult } from "@/lib/types";
 import DownloadReportButton from "@/components/stock/DownloadReportButton";
 
 interface Props {
@@ -83,35 +84,36 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
 }
 
 export default function AnalysisClient({ symbol, horizon, risk, sector: _sector }: Props) {
-  const [result, setResult]   = useState<SimpleAnalysisResult | null>(null);
+  const [result, setResult]   = useState<V2AnalysisResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [failed,  setFailed]  = useState(false);
   const sectorLabel = _sector.trim();
   const graphParams = new URLSearchParams({ horizon, risk });
   if (sectorLabel) graphParams.set("sector", sectorLabel);
 
-  const run = useCallback(async () => {
+  async function run() {
     setLoading(true);
     setFailed(false);
-    const r = await fetchSimpleAnalysis(symbol, horizon, risk);
+    const r = await fetchAIAnalysisV2(symbol, horizon, risk, sectorLabel);
     if (r) { setResult(r); setFailed(false); }
     else   { setFailed(true); }
     setLoading(false);
-  }, [symbol, horizon, risk]);
+  }
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      void run();
+      const load = async () => {
+        setLoading(true);
+        setFailed(false);
+        const r = await fetchAIAnalysisV2(symbol, horizon, risk, sectorLabel);
+        if (r) { setResult(r); setFailed(false); }
+        else   { setFailed(true); }
+        setLoading(false);
+      };
+      void load();
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [run]);
-
-  const reportHtml = useMemo(() => {
-    if (!result?.analysis_html) return "";
-    if (typeof window === "undefined") return result.analysis_html;
-    const doc = new DOMParser().parseFromString(result.analysis_html, "text/html");
-    return doc.body.innerHTML || result.analysis_html;
-  }, [result?.analysis_html]);
+  }, [symbol, horizon, risk, sectorLabel]);
 
   return (
     <div className="space-y-6">
@@ -122,7 +124,7 @@ export default function AnalysisClient({ symbol, horizon, risk, sector: _sector 
           <p className="text-xs text-zinc-500 mt-0.5">
             {symbol} · {HORIZON_LABEL[horizon]} · {risk.charAt(0).toUpperCase() + risk.slice(1)}
             {sectorLabel && ` · ${sectorLabel}`}
-            {result?.cached && (
+            {result?.cache_hit && (
               <span className="ml-2 text-zinc-600">(cached)</span>
             )}
           </p>
@@ -153,25 +155,53 @@ export default function AnalysisClient({ symbol, horizon, risk, sector: _sector 
       ) : failed || !result ? (
         <ErrorState onRetry={run} />
       ) : (
-        <article
-          className="analysis-report w-full max-w-none text-zinc-300 leading-7
-            [&_a]:text-indigo-300 [&_a]:break-words [&_a:hover]:underline
-            [&_blockquote]:my-6 [&_blockquote]:border-l-2 [&_blockquote]:border-zinc-600 [&_blockquote]:pl-5 [&_blockquote]:text-zinc-400
-            [&_code]:rounded-md [&_code]:border [&_code]:border-zinc-800 [&_code]:bg-zinc-950 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-violet-200
-            [&_h1]:mb-8 [&_h1]:border-b [&_h1]:border-zinc-800 [&_h1]:pb-5 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:leading-tight [&_h1]:text-white
-            [&_h2]:mb-4 [&_h2]:mt-12 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:leading-tight [&_h2]:text-white
-            [&_h3]:mb-3 [&_h3]:mt-8 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-zinc-100
-            [&_h4]:mb-2 [&_h4]:mt-6 [&_h4]:font-semibold [&_h4]:text-zinc-100
-            [&_hr]:my-10 [&_hr]:border-zinc-800
-            [&_li]:my-2 [&_ol]:my-5 [&_ol]:pl-6 [&_p]:mb-5
-            [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:border [&_pre]:border-zinc-800 [&_pre]:bg-zinc-950 [&_pre]:p-4
-            [&_strong]:font-semibold [&_strong]:text-white
-            [&_table]:my-6 [&_table]:block [&_table]:w-full [&_table]:overflow-x-auto [&_table]:border-collapse
-            [&_td]:border [&_td]:border-zinc-800 [&_td]:p-3 [&_td]:text-zinc-300
-            [&_th]:border [&_th]:border-zinc-800 [&_th]:bg-zinc-900 [&_th]:p-3 [&_th]:text-left [&_th]:text-zinc-100
-            [&_ul]:my-5 [&_ul]:pl-6"
-          dangerouslySetInnerHTML={{ __html: reportHtml }}
-        />
+        <article className="space-y-6">
+          <section className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-medium uppercase text-zinc-300">
+                {result.overall_signal}
+              </span>
+              {result.calibrated_confidence != null && (
+                <span className="text-xs text-zinc-500">
+                  Confidence {(result.calibrated_confidence * 100).toFixed(0)}%
+                </span>
+              )}
+            </div>
+            <h2 className="mt-5 text-2xl font-semibold text-white">What the Data Suggests</h2>
+            <p className="mt-3 text-sm leading-7 text-zinc-300">{result.what_data_suggests}</p>
+          </section>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <section className="rounded-2xl border border-emerald-900/60 bg-emerald-950/20 p-5">
+              <h3 className="flex items-center gap-2 text-sm font-semibold text-emerald-200">
+                <TrendingUp className="h-4 w-4" />
+                Signals In Favor
+              </h3>
+              <ul className="mt-4 space-y-3 text-sm leading-6 text-zinc-300">
+                {result.signals_in_favor.map((item, i) => <li key={i}>{item}</li>)}
+              </ul>
+            </section>
+
+            <section className="rounded-2xl border border-red-900/60 bg-red-950/20 p-5">
+              <h3 className="flex items-center gap-2 text-sm font-semibold text-red-200">
+                <TrendingDown className="h-4 w-4" />
+                Signals Against
+              </h3>
+              <ul className="mt-4 space-y-3 text-sm leading-6 text-zinc-300">
+                {result.signals_against.map((item, i) => <li key={i}>{item}</li>)}
+              </ul>
+            </section>
+          </div>
+
+          <section className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+            <h3 className="flex items-center gap-2 text-sm font-semibold text-zinc-100">
+              <ShieldCheck className="h-4 w-4 text-indigo-300" />
+              Data Disclosure
+            </h3>
+            <p className="mt-3 text-sm leading-6 text-zinc-400">{result.data_disclosure}</p>
+            <p className="mt-4 text-xs leading-5 text-zinc-600">{result.disclaimer}</p>
+          </section>
+        </article>
       )}
     </div>
   );

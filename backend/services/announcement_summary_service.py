@@ -93,43 +93,44 @@ def _fallback_summary(item: dict) -> str:
     pdf_text = _meaningful_pdf_snippet(item.get("pdf_text") or "")
     details = _clean_summary_text(item.get("details") or "", 220)
     context = " ".join(part for part in (subject, category, pdf_text, details) if part)
+    specific = _clean_summary_text(pdf_text or details or subject, 100).rstrip(" .;:")
 
     low = context.lower()
     if "dividend" in low:
         amount = _extract_dividend_amount(context)
         if amount:
-            return _clean_summary_text(f"Dividend filing: board declared {amount} dividend.")
-        return _clean_summary_text(f"Dividend filing: board disclosed dividend details for investors.")
+            return _clean_summary_text(f"Dividend filing: board declared {amount} dividend; {specific}.")
+        return _clean_summary_text(f"Dividend filing: {specific}.")
     if "fund raising" in low or "fundraising" in low or "raising of funds" in low:
-        return _clean_summary_text("Fund-raising filing: board shared capital raising plans.")
+        return _clean_summary_text(f"Fund-raising filing: {specific}.")
     if "financial result" in low or "result" in low:
         if "dividend" in low:
-            return _clean_summary_text("Results and dividend filing: board filed earnings and dividend outcome.")
-        return _clean_summary_text("Results filing: company reported quarterly earnings and board outcome.")
+            return _clean_summary_text(f"Results and dividend filing: {specific}.")
+        return _clean_summary_text(f"Results filing: {specific}.")
     if "bonus" in low:
-        return _clean_summary_text("Bonus issue filing: company disclosed bonus share terms.")
+        return _clean_summary_text(f"Bonus issue filing: {specific}.")
     if "board meeting" in low or "board meeting" in category.lower():
         if "dividend" in low and ("consider" in low or "approve" in low):
-            return _clean_summary_text("Board meeting notice: board will consider results and dividend.")
+            return _clean_summary_text(f"Board meeting notice: {specific}.")
         if "result" in low:
-            return _clean_summary_text("Board meeting notice: board will consider financial results.")
-        return _clean_summary_text("Board meeting notice: board scheduled a meeting for corporate matters.")
+            return _clean_summary_text(f"Board meeting notice: {specific}.")
+        return _clean_summary_text(f"Board meeting notice: {specific}.")
     if "investor meet" in low or "analyst" in low:
-        return _clean_summary_text("Investor meet filing: company shared analyst or investor meeting updates.")
+        return _clean_summary_text(f"Investor meet filing: {specific}.")
     if "investor presentation" in low:
-        return _clean_summary_text("Investor presentation: company shared updated business and financial details.")
+        return _clean_summary_text(f"Investor presentation: {specific}.")
     if "press release" in low or "media release" in low:
-        return _clean_summary_text("Press release filing: company issued an exchange-filed business update.")
+        return _clean_summary_text(f"Press release filing: {specific}.")
     if "annual general meeting" in low or " agm" in low:
-        return _clean_summary_text("AGM filing: company disclosed annual general meeting schedule details.")
+        return _clean_summary_text(f"AGM filing: {specific}.")
     if "record date" in low:
-        return _clean_summary_text("Record date filing: company disclosed eligibility date for shareholders.")
+        return _clean_summary_text(f"Record date filing: {specific}.")
     if "appointment" in low or "re-appointment" in low or "resignation" in low:
-        return _clean_summary_text("Leadership filing: company disclosed director or management changes.")
+        return _clean_summary_text(f"Leadership filing: {specific}.")
     if "regulation 30" in low or "lodr" in low:
-        return _clean_summary_text("Regulation 30 filing: company disclosed a material corporate update.")
+        return _clean_summary_text(f"Regulation 30 filing: {specific}.")
     if "certificate under reg. 74" in low or "74 (5)" in low:
-        return _clean_summary_text("Compliance filing: company submitted demat compliance certificate.")
+        return _clean_summary_text(f"Compliance filing: {specific}.")
 
     if pdf_text:
         return _clean_summary_text(f"Filing update: {pdf_text}", 140)
@@ -159,6 +160,10 @@ def _is_generic_summary(text: str) -> bool:
         " on 20",
     )
     return any(token in low for token in generic)
+
+
+def _summary_key(text: str) -> str:
+    return re.sub(r"[^a-z0-9]+", " ", str(text or "").lower()).strip()
 
 
 def _parse_summaries(text: str, n: int) -> list[str]:
@@ -226,10 +231,22 @@ async def summarise_announcements(
         logger.warning("announcement_summary: Gemini call failed for %s — %s", symbol, exc)
         summaries = [""] * len(items)
 
-    result = []
+    prepared: list[str] = []
     for item, summary in zip(items, summaries):
         final_summary = _clean_summary_text(summary.strip())
         if not final_summary or _is_generic_summary(final_summary):
+            final_summary = _fallback_summary(item)
+        prepared.append(final_summary)
+
+    counts: dict[str, int] = {}
+    for summary in prepared:
+        key = _summary_key(summary)
+        if key:
+            counts[key] = counts.get(key, 0) + 1
+
+    result = []
+    for item, final_summary in zip(items, prepared):
+        if counts.get(_summary_key(final_summary), 0) > 1:
             final_summary = _fallback_summary(item)
         result.append({**item, "summary": final_summary})
     return result

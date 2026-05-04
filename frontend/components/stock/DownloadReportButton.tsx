@@ -24,7 +24,7 @@ export default function DownloadReportButton({
     const encoded = encodeURIComponent(symbol.toUpperCase());
     const params = new URLSearchParams({ horizon, risk });
     const path = type === "analysis"
-      ? `/api/v2/analysis/${encoded}/generate/report?${params.toString()}`
+      ? `/api/v2/analysis/${encoded}/report?${params.toString()}`
       : `/api/v2/analysis/${encoded}/graph/report`;
 
     setLoading(true);

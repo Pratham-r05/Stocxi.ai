@@ -752,7 +752,7 @@ async def get_stock_announcements(
     Cached 2 hours.
     """
     symbol = symbol.upper().strip()
-    cache_key = f"stock:announcements:v11:{symbol}"
+    cache_key = f"stock:announcements:v12:{symbol}"
 
     cached = await cache_get(cache_key)
     if cached:
@@ -861,7 +861,6 @@ async def get_stock_announcements(
     # Gemini Flash: add a 1-sentence investor-relevant summary for each item
     if unique:
         unique = await enrich_announcements_with_pdf_text(unique)
-        unique = [it for it in unique if it.get("pdf_url")]
         unique = await summarise_announcements(symbol, unique)
 
     for item in unique:
