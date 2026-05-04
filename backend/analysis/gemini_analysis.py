@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import sys
 from pathlib import Path
 from typing import Literal
@@ -24,7 +25,9 @@ from google.genai import types as genai_types
 
 # ── Project root resolution ───────────────────────────────────────────────────
 
-_PROJECT_ROOT = Path(__file__).parents[2]          # backend/analysis/ → stocxi/
+_PROJECT_ROOT = Path(os.getenv("APP_ROOT", str(Path(__file__).parents[2])))          # backend/analysis/ → stocxi/
+_DEFAULT_DATA_DIR = "/tmp/data" if os.getenv("VERCEL") else str(_PROJECT_ROOT / "data")
+_DATA_DIR = Path(os.getenv("DATA_DIR", _DEFAULT_DATA_DIR))
 sys.path.insert(0, str(_PROJECT_ROOT))
 
 from config import settings, yaml_cfg       # type: ignore
@@ -323,7 +326,7 @@ def run_analysis(
         google.api_core.exceptions.GoogleAPIError: on Gemini API failure.
     """
     # 1. Parse stock data
-    data_path = _PROJECT_ROOT / "data" / f"{symbol.upper()}_data.md"
+    data_path = _DATA_DIR / f"{symbol.upper()}_data.md"
     if not data_path.exists():
         raise FileNotFoundError(
             f"Stock data file not found: {data_path}\n"

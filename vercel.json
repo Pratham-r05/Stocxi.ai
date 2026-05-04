@@ -7,7 +7,7 @@
       "config": {
         "runtime": "python3.12",
         "maxLambdaSize": "50mb",
-        "includeFiles": "backend/config/**,fetch_phase1_data.py,build_knowledge_graph.py,data/**"
+        "includeFiles": "backend/config/**,fetch_phase1_data.py,build_knowledge_graph.py,data/**,docs/output/**"
       }
     }
   ],

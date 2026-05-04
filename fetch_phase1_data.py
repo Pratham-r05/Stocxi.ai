@@ -26,6 +26,7 @@ import asyncio
 import datetime
 import importlib
 import json
+import os
 import re
 import sys
 import time
@@ -917,8 +918,9 @@ def _build_markdown(data: dict) -> str:
 
 # ── 6. Write output ────────────────────────────────────────────────────────────
 print("[5/6] Writing output file...")
-data_dir = ROOT / "data"
-data_dir.mkdir(exist_ok=True)
+default_data_dir = "/tmp/data" if os.getenv("VERCEL") else str(ROOT / "data")
+data_dir = Path(os.getenv("DATA_DIR", default_data_dir))
+data_dir.mkdir(parents=True, exist_ok=True)
 
 md_path = data_dir / f"{SYMBOL}_data.md"
 md_path.write_text(_build_markdown(output), encoding="utf-8")

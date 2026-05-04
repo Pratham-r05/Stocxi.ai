@@ -31,7 +31,8 @@ logger = logging.getLogger(__name__)
 # _DATA_DIR   = _ROOT / "data"
 # _OUT_DIR    = _ROOT / "analysis-out"
 _ROOT = Path(os.getenv("APP_ROOT", str(Path(__file__).parents[2])))
-_DATA_DIR   = Path(os.getenv("DATA_DIR",    str(_ROOT / "data")))
+_DEFAULT_DATA_DIR = "/tmp/data" if os.getenv("VERCEL") else str(_ROOT / "data")
+_DATA_DIR   = Path(os.getenv("DATA_DIR", _DEFAULT_DATA_DIR))
 _OUT_DIR    = Path(os.getenv("ANALYSIS_OUT_DIR", "/tmp/analysis-out"))
 DATA_FRESHNESS_H = 12   # re-fetch if data file is older than this
 
