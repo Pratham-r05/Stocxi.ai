@@ -502,4 +502,4 @@ def _normalize_bse_attachment(name: Any) -> str:
         return clean
     if clean.startswith("//"):
         return f"https:{clean}"
-    return f"https://www.bseindia.com/xml-data/corpfiling/AttachLive/{clean.lstrip('/')}"
+    return f"https://www.bseindia.com/xml-data/corpfiling/AttachHis/{clean.lstrip('/')}"

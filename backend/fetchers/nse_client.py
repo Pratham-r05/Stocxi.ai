@@ -425,7 +425,7 @@ async def fetch_announcements(symbol: str, limit: int = 20) -> dict[str, Any]:
             "title":    a.get("desc") or a.get("attchmntText") or "",
             "date":     a.get("dt") or a.get("date") or "",
             "category": a.get("desc") or "",
-            "pdf_url":  _normalize_pdf_url(str(raw_url)),
+            "pdf_url":  _normalize_pdf_url(str(raw_url)) if str(raw_url).lower().endswith(".pdf") else "",
             "symbol":   symbol,
             "source":   SOURCE_ID,
         })
@@ -473,7 +473,7 @@ async def fetch_board_meetings(symbol: str) -> dict[str, Any]:
         meetings.append({
             "date":    item.get("bm_date") or item.get("meetingDate") or "",
             "purpose": item.get("bm_purpose") or item.get("purpose") or "",
-            "pdf_url": _normalize_pdf_url(str(raw_url)),
+            "pdf_url": _normalize_pdf_url(str(raw_url)) if str(raw_url).lower().endswith(".pdf") else "",
             "symbol":  symbol,
         })
 
