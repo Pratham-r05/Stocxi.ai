@@ -31,8 +31,18 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 # ── Paths ─────────────────────────────────────────────────────────────────────
 
 _BACKEND_DIR = Path(__file__).parent
-_CONFIG_DIR  = _BACKEND_DIR.parent / "config"
-_ENV_FILE    = _BACKEND_DIR / ".env"
+_CONFIG_CANDIDATES = [
+    Path(_os.environ["CONFIG_DIR"]) if _os.getenv("CONFIG_DIR") else None,
+    _BACKEND_DIR / "config",
+    _BACKEND_DIR.parent / "config",
+    Path("/var/task/backend/config"),
+    Path("/var/task/config"),
+]
+_CONFIG_DIR = next(
+    (path for path in _CONFIG_CANDIDATES if path is not None and path.exists()),
+    _BACKEND_DIR.parent / "config",
+)
+_ENV_FILE = _BACKEND_DIR / ".env"
 
 
 # ── 1. Env Settings ───────────────────────────────────────────────────────────
