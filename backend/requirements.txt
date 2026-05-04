@@ -45,3 +45,4 @@ vaderSentiment==3.3.2      # Offline sentiment scoring — no API key needed
 google-auth
 gnews
 google-genai
+jinja2
