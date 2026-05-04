@@ -209,7 +209,14 @@ def load_horizon_instructions(horizon: Horizon) -> str:
         return _instruction_cache[horizon]
 
     fname = HORIZON_FILE[horizon]
-    path  = _PROJECT_ROOT / fname
+    path_candidates = [
+        _PROJECT_ROOT / fname,
+        Path("/var/task/backend") / fname,
+        Path("/var/task") / fname,
+        Path.cwd() / fname,
+        Path.cwd().parent / fname,
+    ]
+    path = next((candidate for candidate in path_candidates if candidate.exists()), path_candidates[0])
     if not path.exists():
         raise FileNotFoundError(
             f"Horizon instruction file not found: {path}\n"
