@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 # ── Config load ────────────────────────────────────────────────────────────────
 
-_CONFIG_DIR = next((p / "config" for p in Path(__file__).parents if (p / "config").exists()), Path("config").resolve())
+_CONFIG_DIR = next((p / "config" for p in Path(__file__).resolve().parents if (p / "config").exists()), Path(__file__).resolve().parent.parent.parent / "config")
 _WEIGHTS_RAW   = yaml.safe_load((_CONFIG_DIR / "weights.yaml").read_text())
 _NEWS_CLASSES  = _WEIGHTS_RAW["news_signal_classes"]
 _PROFILES      = yaml.safe_load((_CONFIG_DIR / "profiles.yaml").read_text())
