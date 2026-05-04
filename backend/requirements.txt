@@ -43,3 +43,4 @@ vaderSentiment==3.3.2      # Offline sentiment scoring — no API key needed
 #   pipx install rdt-cli      (rdt command)
 #   pipx install twitter-cli  (twitter command)
 google-auth
+gnews
