@@ -123,19 +123,29 @@ def _analysis_html_template(md_text: str, symbol: str, horizon: Horizon, level: 
 async def _run_fetch_phase1(symbol: str, horizon: Horizon) -> None:
     """Run fetch_phase1_data.py as a subprocess. Raises RuntimeError on failure."""
     logger.info("simple_analysis: running fetch_phase1_data for %s (%s)", symbol, horizon)
-    script_path = _ROOT / "fetch_phase1_data.py"
-    if not script_path.exists():
-        logger.warning("simple_analysis: fetch_phase1_data.py missing, using service fallback")
+    # Search multiple candidates — on Vercel _ROOT resolves to /var (wrong parent depth),
+    # so check /var/task and cwd explicitly in addition to _ROOT.
+    _candidates = [
+        _ROOT / "fetch_phase1_data.py",
+        Path("/var/task") / "fetch_phase1_data.py",
+        Path(__file__).parent.parent / "fetch_phase1_data.py",
+        Path.cwd() / "fetch_phase1_data.py",
+    ]
+    script_path = next((p for p in _candidates if p.exists()), None)
+    if script_path is None:
+        logger.warning("simple_analysis: fetch_phase1_data.py not found in any candidate path, using service fallback")
         await _write_fallback_data_file(symbol, horizon)
         return
 
+    # Run from the directory that contains fetch_phase1_data.py so its relative imports work.
+    run_cwd = str(script_path.parent)
     proc = await asyncio.create_subprocess_exec(
         sys.executable,
         str(script_path),
         symbol.upper(), horizon,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
-        cwd=str(_ROOT),
+        cwd=run_cwd,
     )
     try:
         _, stderr = await asyncio.wait_for(proc.communicate(), timeout=360)
@@ -155,6 +165,37 @@ async def _run_fetch_phase1(symbol: str, horizon: Horizon) -> None:
 def _compact(value: object, limit: int = 600) -> str:
     text = json.dumps(value, ensure_ascii=True, default=str)
     return text[:limit] + ("..." if len(text) > limit else "")
+
+
+def _expand_table_nodes(lines: list[str], table: dict, section_context: str) -> None:
+    """Expand a screener {headers, rows} table into one node per metric row.
+
+    Each row becomes a ### Metric node with the two most recent period values
+    so the knowledge graph has the same per-metric granularity as the full
+    fetch_phase1_data pipeline.  Falls back gracefully if the table is empty.
+    """
+    headers = table.get("headers", [])
+    rows = table.get("rows", [])
+    if not rows or not headers:
+        return
+    # Keep only the two most recent periods for the value label
+    n_recent = min(2, len(headers))
+    recent_hdrs = headers[-n_recent:]
+    for row in rows:
+        label = str(row.get("label") or "").strip()
+        values = row.get("values") or []
+        if not label or not values:
+            continue
+        recent_vals = values[-n_recent:] if len(values) >= n_recent else values
+        parts = [
+            f"{h}: {v:,.2f}".rstrip("0").rstrip(".")
+            for h, v in zip(recent_hdrs, recent_vals)
+            if v is not None
+        ]
+        val_str = " | ".join(parts) if parts else "N/A"
+        key = label.replace(" ", "_").replace("/", "_").replace("-", "_")
+        lines.append(_node(key, val_str, "neutral",
+                           f"{key} is part of {section_context} and relates to financial performance."))
 
 
 def _signal(value: object, bullish_high: bool = True) -> str:
@@ -269,15 +310,20 @@ async def _write_fallback_data_file(symbol: str, horizon: Horizon) -> None:
         lines.append(_node(key.upper(), value, str(signal), f"{key.upper()} relates to price momentum and trend quality."))
 
     lines.extend(["", "## Balance Sheet"])
-    lines.append(_node("Balance_Sheet", _compact(financials_d.get("balance_sheet", {})), "neutral", "Balance sheet relates to debt, assets, and net worth."))
+    _expand_table_nodes(lines, _as_dict(financials_d.get("balance_sheet", {})),
+                        "balance sheet — relates to debt, assets, and net worth")
     lines.extend(["", "## Profit and Loss"])
-    lines.append(_node("Profit_Loss", _compact(financials_d.get("profit_loss", {})), "neutral", "Profit and loss relates to sales, expenses, margins, and earnings."))
+    _expand_table_nodes(lines, _as_dict(financials_d.get("annual_results") or financials_d.get("profit_loss", {})),
+                        "profit and loss — relates to sales, expenses, margins, and earnings")
     lines.extend(["", "## Cash Flow"])
-    lines.append(_node("Cash_Flow", _compact(financials_d.get("cash_flow", {})), "neutral", "Cash flow relates to earnings quality and reinvestment ability."))
+    _expand_table_nodes(lines, _as_dict(financials_d.get("cash_flow", {})),
+                        "cash flow — relates to earnings quality and reinvestment ability")
     lines.extend(["", "## Quarterly Results"])
-    lines.append(_node("Quarterly_Results", _compact(financials_d.get("quarterly_results", {})), "neutral", "Quarterly results relate to recent growth and margin direction."))
+    _expand_table_nodes(lines, _as_dict(financials_d.get("quarterly_results", {})),
+                        "quarterly results — relates to recent growth and margin direction")
     lines.extend(["", "## Shareholding Pattern"])
-    lines.append(_node("Shareholding", _compact(financials_d.get("shareholding", {})), "neutral", "Shareholding relates to promoter, FII, DII, and public ownership."))
+    _expand_table_nodes(lines, _as_dict(financials_d.get("shareholding", {})),
+                        "shareholding — relates to promoter, FII, DII, and public ownership")
 
     lines.extend(["", "## News"])
     for idx, item in enumerate(news_l[:8], start=1):
