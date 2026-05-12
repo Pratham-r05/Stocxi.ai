@@ -1,7 +1,7 @@
 ---
 symbol: COALINDIA
-captured_at: 2026-05-04
-horizon: medium
+captured_at: 2026-05-12
+horizon: long
 sector: coal
 author: stocxi_phase1
 contributor: stocxi
@@ -9,231 +9,231 @@ contributor: stocxi
 
 # COALINDIA — Stock Analysis Data
 
-COALINDIA is a stock in the **coal** sector analyzed for a **medium-term** investment horizon as of 2026-05-04. This document captures fundamentals, technical indicators, financial statements, announcements, news, and market context. Each section relates to others: Fundamentals drive valuation; Technical Indicators reflect price momentum; Balance Sheet underpins Debt_To_Equity and ROE; Profit Loss feeds EPS and PAT_TTM; Cash Flow validates Net Profit quality; Shareholding signals institutional confidence; Announcements and News capture recent events.
+COALINDIA is a stock in the **coal** sector analyzed for a **long-term** investment horizon as of 2026-05-12. This document captures fundamentals, technical indicators, financial statements, announcements, news, and market context. Each section relates to others: Fundamentals drive valuation; Technical Indicators reflect price momentum; Balance Sheet underpins Debt_To_Equity and ROE; Profit Loss feeds EPS and PAT_TTM; Cash Flow validates Net Profit quality; Shareholding signals institutional confidence; Announcements and News capture recent events.
 
 ## Fundamentals
 
 COALINDIA fundamentals provide valuation, profitability, and financial health metrics. PE_Ratio relates to EPS and Revenue_Growth_YoY. ROE depends on Net_Profit_Annual and Reserves. Operating_Cash_Flow relates to Free_Cashflow and Debt_To_Equity. Market_Cap relates to PE_Ratio and EPS.
 
 ### PE_Ratio
-**Value:** PE: 9.5 | **Sentiment:** ➡️ neutral
-**Analysis:** The low PE of 9.5 suggests the stock may be undervalued, but without sector comparison, this is a neutral signal for a medium-term investor. PE_Ratio relates to EPS, Revenue_Growth_YoY, Market_Cap.
+**Value:** PE: 9.2 | **Sentiment:** ➡️ neutral
+**Analysis:**  PE_Ratio relates to EPS, Revenue_Growth_YoY, Market_Cap.
 
 ### PB_Ratio
-**Value:** PB: 2.49 | **Sentiment:** ➡️ neutral
-**Analysis:** A PB ratio of 2.49 indicates a moderate valuation relative to its net assets, presenting a neutral signal without sector context. PB_Ratio relates to Total_Assets, Reserves, Net_Worth.
+**Value:** PB: 2.41 | **Sentiment:** ➡️ neutral
+**Analysis:**  PB_Ratio relates to Total_Assets, Reserves, Net_Worth.
 
 ### ROE
 **Value:** ROE: 26.1% | **Sentiment:** 📈 bullish
-**Analysis:** The high ROE of 26.1% shows excellent profitability and efficient use of shareholder funds, which is a strong positive signal. ROE relates to Net_Profit_Annual, Reserves, EPS.
+**Analysis:**  ROE relates to Net_Profit_Annual, Reserves, EPS.
 
 ### EPS
 **Value:** EPS: ₹50.46 | **Sentiment:** ➡️ neutral
-**Analysis:** The annual EPS of ₹50.46 provides a baseline for earnings, but its trend is key; on its own, this is a neutral data point. EPS relates to PE_Ratio, Net_Profit_Annual, Revenue_Annual.
+**Analysis:**  EPS relates to PE_Ratio, Net_Profit_Annual, Revenue_Annual.
 
 ### OPM
-**Value:** OPM: 28.0% | **Sentiment:** 📈 bullish
-**Analysis:** A robust Operating Profit Margin of 28.0% highlights strong core operational efficiency, a positive indicator for profitability. OPM relates to Revenue_Annual, EBITDA_TTM, EBITDA_Margin.
+**Value:** OPM: 1203.4% | **Sentiment:** 📈 bullish
+**Analysis:**  OPM relates to Revenue_Annual, EBITDA_TTM, EBITDA_Margin.
 
 ### NPM
-**Value:** NPM: 21.1% | **Sentiment:** 📈 bullish
-**Analysis:** The high Net Profit Margin of 21.1% demonstrates strong overall profitability after all costs, which is a positive signal. NPM relates to Revenue_Annual, Net_Profit_Annual, OPM.
+**Value:** NPM: 1128.9% | **Sentiment:** 📈 bullish
+**Analysis:**  NPM relates to Revenue_Annual, Net_Profit_Annual, OPM.
 
 ### Market_Cap
-**Value:** Mkt Cap: ₹296,643 Cr | **Sentiment:** ➡️ neutral
-**Analysis:** Its large market cap of ₹296,643 Cr signifies a stable, well-established company, which is a neutral factor for medium-term trends. Market_Cap relates to PE_Ratio, EPS, Revenue_Annual.
+**Value:** Mkt Cap: ₹286,567 Cr | **Sentiment:** ➡️ neutral
+**Analysis:**  Market_Cap relates to PE_Ratio, EPS, Revenue_Annual.
 
 ### Revenue_Quarterly
 **Value:** Q Revenue: ₹46,490 Cr (latest period: Mar 2026) | **Sentiment:** 📈 bullish
-**Analysis:** Quarterly revenue shows an accelerating YoY trend, indicating robust business momentum, which is positive for the medium term.
+**Analysis:** 
 
 ### Net_Profit_Quarterly
 **Value:** Q PAT: ₹10,908 Cr (latest period: Mar 2026) | **Sentiment:** 📈 bullish
-**Analysis:** Quarterly net profit is accelerating on a YoY basis, reflecting strong earnings growth and operational leverage, a clear positive.
+**Analysis:** 
 
 ### Revenue_Annual
 **Value:** FY Revenue: ₹168,400 Cr (Mar 2026) | **Sentiment:** 📈 bullish
-**Analysis:** Annual revenue shows a stable YoY growth trend, confirming sustained business demand and a positive outlook for the company's scale. Revenue_Annual relates to Revenue_Growth_YoY, Net_Profit_Annual, OPM.
+**Analysis:**  Revenue_Annual relates to Revenue_Growth_YoY, Net_Profit_Annual, OPM.
 
 ### Net_Profit_Annual
 **Value:** FY PAT: ₹31,071 Cr (Mar 2026) | **Sentiment:** 📉 bearish
-**Analysis:** Despite revenue growth, the annual net profit trend is decelerating YoY, signaling potential margin pressure or rising costs, a negative concern. Net_Profit_Annual relates to EPS, ROE, PAT_TTM.
+**Analysis:**  Net_Profit_Annual relates to EPS, ROE, PAT_TTM.
 
 ### Debt_To_Equity
 **Value:** D/E: 0.12 | **Sentiment:** 📈 bullish
-**Analysis:** A very low Debt-to-Equity ratio of 0.12 indicates a strong balance sheet with minimal financial risk, which is highly positive. Debt_To_Equity relates to Borrowings, Interest_Coverage, Operating_Cash_Flow.
+**Analysis:**  Debt_To_Equity relates to Borrowings, Interest_Coverage, Operating_Cash_Flow.
 
 ### Operating_Cash_Flow
 **Value:** OCF: ₹43,215 Cr (Mar 2026) | **Sentiment:** 📈 bullish
-**Analysis:** Strong operating cash flow of ₹43,215 Cr shows the company's core business is highly cash-generative, which is a significant positive. Operating_Cash_Flow relates to Free_Cashflow, Net_Profit_Annual.
+**Analysis:**  Operating_Cash_Flow relates to Free_Cashflow, Net_Profit_Annual.
 
 ### Revenue_TTM
 **Value:** Rev TTM: ₹147,443 Cr (+3.6% YoY) | **Sentiment:** ➡️ neutral
-**Analysis:** TTM revenue grew a modest 3.6% YoY to ₹147,443 Cr, indicating stable but decelerating top-line growth, which is a neutral signal.
+**Analysis:** 
 
 ### Revenue_Growth_YoY
 **Value:** Revenue YoY: +3.6% | **Sentiment:** ➡️ neutral
-**Analysis:** The 3.6% YoY revenue growth is sluggish, suggesting a decelerating trend and a neutral outlook for top-line expansion in the medium term.
+**Analysis:** 
 
 ### PAT_TTM
 **Value:** PAT TTM: ₹31,071 Cr (-12.0% YoY) | **Sentiment:** 📉 bearish
-**Analysis:** TTM PAT fell 12.0% YoY to ₹31,071 Cr, indicating a sharp reversal in profitability and a clear negative for investor sentiment.
+**Analysis:** 
 
 ### PAT_Growth_YoY
 **Value:** PAT YoY: -12.0% | **Sentiment:** 📉 bearish
-**Analysis:** A 12.0% YoY decline in PAT signals significant pressure on profitability, a strong negative factor for the company's earnings outlook.
+**Analysis:** 
 
 ### EBITDA_TTM
 **Value:** EBITDA TTM: ₹41,241 Cr (-12.4% YoY) | **Sentiment:** 📉 bearish
-**Analysis:** TTM EBITDA declined 12.4% YoY to ₹41,241 Cr, showing the drop in profitability stems from core operational weakness, a negative trend.
+**Analysis:** 
 
 ### EBITDA_Margin
 **Value:** EBITDA Margin: 27.0% | **Sentiment:** 📈 bullish
-**Analysis:** An EBITDA margin of 27.0% remains robust, indicating strong pricing power or cost efficiency despite falling profits, which is a positive signal.
+**Analysis:** 
 
 ### Free_Cashflow
 **Value:** FCF: ₹31,191 Cr (Mar 2026) | **Sentiment:** 📈 bullish
-**Analysis:** A very strong free cash flow of ₹31,191 Cr provides ample liquidity for expansion, dividends, or debt reduction, a major positive for the firm. Free_Cashflow relates to Operating_Cash_Flow, Debt_To_Equity, Borrowings.
+**Analysis:**  Free_Cashflow relates to Operating_Cash_Flow, Debt_To_Equity, Borrowings.
 
 ### Interest_Coverage
 **Value:** Interest Coverage: 33.9x | **Sentiment:** 📈 bullish
-**Analysis:** An excellent interest coverage ratio of 33.9x indicates extremely low financial risk and a very strong ability to service its debt, a clear positive. Interest_Coverage relates to Debt_To_Equity, Borrowings.
+**Analysis:**  Interest_Coverage relates to Debt_To_Equity, Borrowings.
 
 ### Total_Assets
 **Value:** Total Assets: ₹285,660 Cr (Mar 2026) | **Sentiment:** ➡️ neutral
-**Analysis:** The company's large asset base of ₹285,660 Cr reflects its significant scale, which is a neutral factor without context on asset efficiency. Total_Assets relates to Total_Liabilities, Reserves, Borrowings.
+**Analysis:**  Total_Assets relates to Total_Liabilities, Reserves, Borrowings.
 
 ### Total_Liabilities
 **Value:** Total Assets: ₹285,660 Cr (Mar 2026) (incl. ₹119,102 Cr equity) | **Sentiment:** ➡️ neutral
-**Analysis:** With total liabilities comprising about 58% of assets, the company maintains a moderate leverage level, which is a neutral position for its capital structure. Total_Liabilities relates to Total_Assets, Borrowings, Debt_To_Equity.
+**Analysis:**  Total_Liabilities relates to Total_Assets, Borrowings, Debt_To_Equity.
 
 ### Reserves
 **Value:** Reserves: ₹112,939 Cr (Mar 2026) | **Sentiment:** 📈 bullish
-**Analysis:** Substantial reserves of ₹112,939 Cr indicate a strong history of retained earnings, providing a solid financial cushion, which is a definite positive. Reserves relates to PB_Ratio, Net_Profit_Annual, Total_Assets.
+**Analysis:**  Reserves relates to PB_Ratio, Net_Profit_Annual, Total_Assets.
 
 ### Borrowings
 **Value:** Borrowings: ₹14,072 Cr (Mar 2026) (YoY: +53.9%) | **Sentiment:** 📉 bearish
-**Analysis:** A sharp 53.9% YoY acceleration in borrowings to ₹14,072 Cr increases financial risk and interest costs, which is negative for the medium term. Borrowings relates to Debt_To_Equity, Interest_Coverage, Free_Cashflow.
+**Analysis:**  Borrowings relates to Debt_To_Equity, Interest_Coverage, Free_Cashflow.
 
 ### Expenses_Quarterly
 **Value:** Q Expenses: ₹33,817 Cr (Mar 2026) | **Sentiment:** 📉 bearish
-**Analysis:** High quarterly expenses of ₹33,817 Cr could pressure margins if not managed effectively, posing a negative risk to near-term profitability.
+**Analysis:** 
 
 ### Operating_Profit_Quarterly
 **Value:** Q OP: ₹12,673 Cr (Mar 2026) | **Sentiment:** 📈 bullish
-**Analysis:** The company generated a strong quarterly operating profit of ₹12,673 Cr, indicating robust core business performance, which is a positive sign.
+**Analysis:** 
 
 ### OPM_Quarterly
 **Value:** Q OPM: 27.0% | **Sentiment:** 📈 bullish
-**Analysis:** A robust quarterly OPM of 27.0%, likely above the sector average, shows excellent operational efficiency and pricing power, a clear positive.
+**Analysis:** 
 
 ### Expenses_Annual
 **Value:** FY Expenses: ₹127,158 Cr (Mar 2026) | **Sentiment:** 📉 bearish
-**Analysis:** High annual expenses of ₹127,158 Cr are a concern for full-year profitability and represent a negative drag on the bottom line.
+**Analysis:** 
 
 ### Operating_Profit_Annual
 **Value:** FY OP: ₹41,242 Cr (Mar 2026) | **Sentiment:** 📉 bearish
-**Analysis:** The annual operating profit of ₹41,242 Cr likely reflects a decelerating YoY trend, signaling weakening core business performance, which is negative.
+**Analysis:** 
 
 ### OPM_Annual
 **Value:** FY OPM: 24.0% | **Sentiment:** 📈 bullish
-**Analysis:** An annual OPM of 24.0%, while potentially lower than the quarterly figure, remains healthy and is a positive indicator of resilient profitability.
+**Analysis:** 
 
 ### EPS_Annual
 **Value:** FY EPS: ₹50.46 (Mar 2026) | **Sentiment:** 📉 bearish
-**Analysis:** A declining annual EPS of ₹50.46 indicates a negative trend in shareholder earnings, directly impacting valuation and investor sentiment.
+**Analysis:** 
 
 ### Cash_From_Investing
 **Value:** CFI: ₹-33,955 Cr (Mar 2026) | **Sentiment:** ➡️ neutral
-**Analysis:** The large negative CFI of ₹-33,955 Cr indicates significant investment in assets for future growth, which is neutral for the medium-term outlook.
+**Analysis:** 
 
 ### Cash_From_Financing
 **Value:** CFF: ₹-11,801 Cr (Mar 2026) | **Sentiment:** ➡️ neutral
-**Analysis:** A negative CFF of ₹-11,801 Cr suggests cash was used for activities like debt repayment or dividends, which is a neutral signal for investors.
+**Analysis:** 
 
 ### Promoter_Holding
 **Value:** Promoter: 63.1% | **Sentiment:** 📈 bullish
-**Analysis:** A high promoter holding of 63.1% indicates strong management conviction and aligns their interests with shareholders, which is a positive sign.
+**Analysis:** 
 
 ### Public_Retail_Holding
 **Value:** Public/Retail: 36.9% | **Sentiment:** ➡️ neutral
-**Analysis:** The public and retail holding of 36.9% ensures sufficient market liquidity without indicating excessive speculative interest, a neutral factor.
+**Analysis:** 
 
 ## Technical Indicators
 
 Technical indicators for COALINDIA capture price momentum, trend strength, and market timing signals. RSI relates to overbought and oversold conditions. MACD relates to trend direction and Signal Line crossovers. SMA_20, SMA_50, and SMA_200 relate to short, medium, and long-term trend support. ADX relates to trend strength. ATR relates to volatility and risk.
 
 ### RSI_14
-**Value:** RSI: 68.7 | **Sentiment:** ➡️ neutral
-**Analysis:** RSI at 68.7 shows strong buying momentum, but its proximity to 70 signals a potential short-term pullback risk.
+**Value:** RSI: 54.4 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### MACD
-**Value:** MACD: 6.55, Signal: 2.60 | **Sentiment:** 📈 bullish
-**Analysis:** The positive MACD crossover confirms a strong bullish trend, supporting a positive medium-term outlook for the stock. MACD relates to Signal_Line, Trend_Direction, Price_Momentum.
+**Value:** MACD: 5.87, Signal: 5.80 | **Sentiment:** 📈 bullish
+**Analysis:**  MACD relates to Signal_Line, Trend_Direction, Price_Momentum.
 
 ### ADX_14
-**Value:** ADX: 21.4 (Weak Trend) | **Sentiment:** ➡️ neutral
-**Analysis:** ADX at 21.4 indicates a weak trend, raising a risk that the current price move lacks the strength to sustain itself.
+**Value:** ADX: 21.7 (Weak Trend) | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### ATR_14
-**Value:** ATR: 12.68 (2.6%) | **Sentiment:** ➡️ neutral
-**Analysis:** ATR at 2.6% shows moderate daily volatility, useful for setting stop-losses and managing risk over the holding period.
+**Value:** ATR: 12.43 (2.7%) | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
-### Bollinger_Upper
-**Value:** BB: 423.6 | 450.9 | 478.2 | P: 481.4 | **Sentiment:** 📉 bearish
-**Analysis:** Price trading above the upper Bollinger Band signals overbought conditions, increasing the risk of a short-term pullback.
+### Bollinger_Bands
+**Value:** BB: 422.7 | 455.2 | 487.6 | P: 464.4 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### EMA
-**Value:** EMA20: 454.3 | EMA50: 445.1 | EMA200: 417.3 | **Sentiment:** 📈 bullish
-**Analysis:** The bullish alignment of EMAs (20>50>200) confirms a strong, established uptrend, relevant for a medium-term view.
+**Value:** EMA20: 460.2 | EMA50: 449.9 | EMA200: 418.9 | **Sentiment:** 📈 bullish
+**Analysis:** 
 
 ### SMA
-**Value:** SMA20: 450.9 | SMA50: 444.8 | SMA200: 406.4 | **Sentiment:** 📈 bullish
-**Analysis:** The bullish SMA structure (20>50>200) strongly confirms the medium-term uptrend, with SMAs acting as key support.
+**Value:** SMA20: 455.2 | SMA50: 450.8 | SMA200: 408.9 | **Sentiment:** 📈 bullish
+**Analysis:** 
 
 ### Ichimoku
-**Value:** Cloud: 448.9–460.8 | Price: 481.4 | **Sentiment:** 📈 bullish
-**Analysis:** Price above the Ichimoku Cloud is a strong bullish signal, confirming the trend and providing a key support zone.
+**Value:** Cloud: 452.9–465.7 | Price: 464.4 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### Parabolic_SAR
-**Value:** PSAR: 437.44, Price: 481.45 | **Sentiment:** 📈 bullish
-**Analysis:** Parabolic SAR below the price confirms the ongoing uptrend and provides a trailing stop-loss reference point.
+**Value:** PSAR: 490.52, Price: 464.45 | **Sentiment:** 📉 bearish
+**Analysis:** 
 
 ### Stochastic
-**Value:** Stoch %K: 84.6, %D: 86.6 | **Sentiment:** 📉 bearish
-**Analysis:** The bearish stochastic crossover in the overbought zone signals waning momentum and a high risk of a near-term pullback.
+**Value:** Stoch %K: 45.7, %D: 48.4 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### Williams_R
-**Value:** Williams %R: -15.4 | **Sentiment:** 📉 bearish
-**Analysis:** Williams %R in the overbought zone (-15.4) confirms the stock is overextended, signaling a risk of price reversal.
+**Value:** Williams %R: -54.3 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### ROC
-**Value:** ROC: 10.65% | **Sentiment:** 📈 bullish
-**Analysis:** A strong positive ROC (10.65%) confirms powerful upward momentum, supporting the bullish trend for a medium-term view.
+**Value:** ROC: 4.57% | **Sentiment:** 📈 bullish
+**Analysis:** 
 
 ### OBV
-**Value:** OBV: 299.1M, Trend: Bullish Confirmation | **Sentiment:** 📈 bullish
-**Analysis:** A rising OBV confirms the uptrend with strong volume, suggesting smart money accumulation relevant for a medium-term hold.
+**Value:** OBV: 274.0M, Trend: Bullish Confirmation | **Sentiment:** 📈 bullish
+**Analysis:** 
 
 ### VWAP
-**Value:** VWAP: 451.99, Price: 481.45 | **Sentiment:** 📈 bullish
-**Analysis:** Price trading above VWAP indicates bullish intraday strength, which supports a positive medium-term outlook if sustained. VWAP relates to Price_Level, Volume, Intraday_Trend.
+**Value:** VWAP: 465.26, Price: 464.45 | **Sentiment:** 📉 bearish
+**Analysis:**  VWAP relates to Price_Level, Volume, Intraday_Trend.
 
 ### CMF
-**Value:** CMF: -0.023 | **Sentiment:** ➡️ neutral
-**Analysis:** A slightly negative CMF suggests minor distribution, a mild risk that contradicts the price uptrend for a medium-term view.
+**Value:** CMF: -0.060 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### MFI
-**Value:** MFI: 66.7 | **Sentiment:** ➡️ neutral
-**Analysis:** MFI shows strong buying pressure but is nearing overbought levels, signaling a potential pullback risk for medium-term entries.
+**Value:** MFI: 60.0 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### Volume_SMA20
-**Value:** Vol SMA20: 13548750 | **Sentiment:** ➡️ neutral
-**Analysis:** The 20-day average volume provides a baseline; compare daily volume to it to confirm trend strength or spot reversals.
+**Value:** Vol SMA20: 13253120 | **Sentiment:** 📉 bearish
+**Analysis:** 
 
 ### 52W_HL_Ratio
-**Value:** 52W: 369–491, CMP: 481 (92%) | **Sentiment:** 📉 bearish
-**Analysis:** Trading near its 52-week high confirms a strong uptrend but poses a risk of reversal or profit-booking at this key level.
+**Value:** 52W: 369–491, CMP: 464 (78%) | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ## Balance Sheet
 
@@ -537,83 +537,87 @@ Recent corporate announcements from COALINDIA signal strategic direction and eve
 
 ### Announcement 1: Board Meeting Intimation
 **Date:** 2026-04-27 | **Sentiment:** ➡️ neutral
-**Summary:** Coal India has scheduled a board meeting, a routine procedural update with no immediate market impact until the outcome is announced.
+**Summary:** Coal India has scheduled a board meeting, likely to approve annual financial results and consider a final dividend, setting market expectations.
 
 ### Announcement 2: Financial Results/Dividend
 **Date:** 2026-04-27 | **Sentiment:** 📈 bullish
-**Summary:** The company filed an intimation that its upcoming board meeting will consider financial results and a dividend, a standard regulatory requirement.
+**Summary:** A routine procedural filing intimating the board meeting to consider annual results and a potential dividend, which is neutral for the market.
 
 ### Announcement 3: Interim Dividend - Rs 5.50 Per Share
 **Date:** 2026-02-18 | **Sentiment:** 📈 bullish
-**Summary:** Coal India declared a second interim dividend of ₹5.50/share, a positive for shareholders reflecting strong cash flows and likely boosting sentiment.
+**Summary:** Board declared an interim dividend of ₹5.50 per share. This is positive for investors, reflecting strong cash flow and shareholder return policy.
 
 ### Announcement 4: Interim Dividend - Rs. - 5.5000
 **Date:** 2026-02-18 | **Sentiment:** 📈 bullish
-**Summary:** The company confirmed a second interim dividend of ₹5.50 per share, reinforcing its high dividend-yield status and positive for investor returns.
+**Summary:** An interim dividend of ₹5.50 per share was announced, a positive signal of the company's financial stability and commitment to shareholders.
 
 ### Announcement 5: Board Meeting Intimation
 **Date:** 2026-02-12 | **Sentiment:** ➡️ neutral
-**Summary:** Coal India informed exchanges of an upcoming board meeting, a standard procedural step before announcing results or corporate actions like dividends.
+**Summary:** Intimation of a board meeting to consider Q3 financial results and an interim dividend, creating positive anticipation among investors.
 
 ### Announcement 6: Financial Results/Dividend
 **Date:** 2026-02-12 | **Sentiment:** 📈 bullish
-**Summary:** The company notified that its board will meet to consider Q3 results and an interim dividend, setting market expectations for a potential payout.
+**Summary:** Formal stock exchange intimation for a board meeting to approve quarterly results and consider an interim dividend, a standard procedural update.
 
 ### Announcement 7: Interim Dividend - Rs 10.25 Per Share
 **Date:** 2025-11-04 | **Sentiment:** 📈 bullish
-**Summary:** Coal India announced a substantial first interim dividend of ₹10.25/share, a highly positive move for investors, signaling strong profitability.
+**Summary:** A significant interim dividend of ₹10.25 per share was declared, a highly positive move signaling robust profitability and rewarding shareholders.
 
 ### Announcement 8: Interim Dividend - Rs. - 10.2500
 **Date:** 2025-11-04 | **Sentiment:** 📈 bullish
-**Summary:** The company declared a first interim dividend of ₹10.25 per share, reinforcing its status as a high-yield PSU stock and boosting shareholder returns.
+**Summary:** The company announced a substantial interim dividend of ₹10.25 per share, boosting investor sentiment with a strong payout.
 
 ### Announcement 9: Board Meeting Intimation
 **Date:** 2025-10-29 | **Sentiment:** ➡️ neutral
-**Summary:** Coal India has scheduled a board meeting, a routine announcement that precedes the release of quarterly results and potential dividend declarations.
+**Summary:** Coal India informed exchanges of an upcoming board meeting, likely to approve Q2 results and declare an interim dividend, building market anticipation
 
 ### Announcement 10: Financial Results/Dividend
 **Date:** 2025-10-29 | **Sentiment:** 📈 bullish
-**Summary:** The company informed exchanges that its board will consider Q2 results and an interim dividend, a standard procedural filing ahead of the actual meeti
+**Summary:** A routine filing intimating a board meeting to consider financial results and a dividend, in line with standard compliance procedures.
 
 ## News
 
 Recent news coverage of COALINDIA captures market sentiment and external events. News items relate to stock price reaction, sector developments, and investor confidence. Bullish news conceptually relates to positive price momentum and increased buying interest. Bearish news conceptually relates to selling pressure and reduced confidence.
 
-### News 1: Coal India share jumps post Q4 FY26 results: Brokerage’s view on CIL stock - MSN
-**Date:** 2026-05-02 | **Source:** MSN | **Sentiment:** ➡️ neutral
-**Summary:** Following strong Q4 FY26 results, Coal India's stock price jumped. Brokerages are providing their analysis and views on the stock's future performance. The positive sentiment is driven by the recent earnings beat and dividend announcement. This reinforces the positive market reaction to the company's performance.
+### News 1: Coal India Dissolves Wholly Owned Subsidiary CIL Solar PV Limited - TipRanks
+**Date:** 2026-05-12 | **Source:** TipRanks | **Sentiment:** ➡️ neutral
+**Summary:** Coal India has dissolved its wholly-owned subsidiary, CIL Solar PV Limited. This move indicates a change or consolidation in the company's renewable energy strategy. While the immediate financial impact is likely negligible, it marks a strategic shift away from this specific solar venture, potentially to refocus on core operations or other green initiatives.
 
-### News 2: 'Buy' Coal India: 'Rising heat, rising demand' - Check share price target - MSN
-**Date:** 2026-04-29 | **Source:** MSN | **Sentiment:** 📈 bullish
-**Summary:** An analyst has issued a 'Buy' recommendation for Coal India stock. The rationale is based on the expectation of increased coal demand due to rising heat. The report likely includes a specific share price target. This suggests a positive outlook for the company's sales and profitability in the near term.
+### News 2: Stocks to buy for short term: From Coal India to Torrent Pharma - Experts suggest 6 stock picks for next 1-2 weeks - Mint
+**Date:** 2026-05-12 | **Source:** Mint | **Sentiment:** ➡️ neutral
+**Summary:** Coal India has been recommended by market experts as a short-term 'buy' pick. The suggestion is for a trading horizon of the next 1-2 weeks. This is based on technical analysis or expected short-term momentum, rather than a fundamental change in the company's outlook. It is one of six stocks recommended in the report.
 
-### News 3: Is Coal India Stock Headed Towards Rs 600? - Equitymaster
-**Date:** 2026-04-29 | **Source:** Equitymaster | **Sentiment:** ➡️ neutral
-**Summary:** An analysis piece questions if Coal India's stock price could reach Rs 600. This suggests a very bullish outlook is being considered by some market commentators. The article likely explores the fundamental and technical factors that could drive such a significant rally, following recent strong performance and positive news flow.
+### News 3: Coal India shares up 5% after Q4 results, dividend; target prices for PSU stock - MSN
+**Date:** 2026-05-11 | **Source:** MSN | **Sentiment:** ➡️ neutral
+**Summary:** Coal India's stock price surged by 5% following the announcement of its Q4 results and a dividend. The market reacted positively to the strong earnings report and the shareholder payout. Consequently, several analysts are revising their target prices upwards for the public sector undertaking (PSU) stock, reflecting improved sentiment.
 
-### News 4: Indian shares extend gains led by Coal India; state banks cap rise - MSN
-**Date:** 2026-04-28 | **Source:** MSN | **Sentiment:** 📉 bearish
-**Summary:** Coal India was a leading contributor to gains in the broader Indian stock market. The stock's strong performance helped lift indices, although gains were partially offset by weakness in state-owned banks. This highlights the significant positive market reaction to Coal India's recent news, likely its strong Q4 results.
+### News 4: CMPDI shares make a weak stock market debut; Coal India arm lists at 7% discount - MSN
+**Date:** 2026-05-11 | **Source:** MSN | **Sentiment:** 📉 bearish
+**Summary:** Central Mine Planning & Design Institute (CMPDI), a subsidiary of Coal India, experienced a weak stock market debut. The shares listed at a 7% discount to the issue price, indicating subdued investor demand. This poor listing performance for the arm could create minor negative sentiment for the parent company, Coal India.
 
-### News 5: Coal India shares jump on Q4 earnings beat and dividend - MSN
-**Date:** 2026-04-28 | **Source:** MSN | **Sentiment:** 📈 bullish
-**Summary:** Coal India's shares experienced a significant jump. The rally was directly attributed to the company reporting Q4 earnings that surpassed market expectations. Additionally, the announcement of a dividend further boosted investor sentiment. This combination of strong results and shareholder returns is a clear positive catalyst.
+### News 5: Should you buy Coal India shares for dividend rewards? What yield, history suggest - Experts share targets - MSN
+**Date:** 2026-05-10 | **Source:** MSN | **Sentiment:** 📈 bullish
+**Summary:** The article discusses Coal India's attractiveness as a dividend investment. It analyzes the company's historical dividend payments and current yield to assess if it's a worthwhile purchase for income-seeking investors. Experts have provided their target prices based on this dividend-centric investment thesis, reiterating its status as a high-yield stock.
 
-### News 6: Coal India shares rise over 3% after Q4 results: What Jefferies, Morgan Stanley, HSBC and others are sayin - The Economic Times
-**Date:** 2026-04-28 | **Source:** The Economic Times | **Sentiment:** ➡️ neutral
-**Summary:** Coal India's stock rose over 3% following its Q4 results announcement. Major brokerages including Jefferies, Morgan Stanley, and HSBC have weighed in with their analysis. The article compiles these expert opinions, which are likely positive given the strong results, providing investors with institutional perspectives on the stock's outlook.
+### News 6: Coal India falls as markets drop on weak global cues - MSN
+**Date:** 2026-05-08 | **Source:** MSN | **Sentiment:** 📉 bearish
+**Summary:** Coal India's stock price declined in line with a broader market downturn. The fall was attributed to weak global macroeconomic cues and overall negative market sentiment. This movement was not caused by any company-specific negative news, but rather by external market-wide factors affecting most equities.
 
-### News 7: Coal India stock jumps 4% post Q4 results, brokerages positive on dividend support despite mixed outlook - Moneycontrol.com
-**Date:** 2026-04-28 | **Source:** Moneycontrol.com | **Sentiment:** ➡️ neutral
-**Summary:** Coal India's stock surged 4% after its Q4 results. Brokerages are reportedly positive, highlighting the attractive dividend as a key support for the stock. This positive view persists despite what is described as a "mixed outlook" on other operational aspects. The dividend is a key factor in the positive analyst sentiment.
+### News 7: Coal India share jumps post Q4 FY26 results: Brokerage’s view on CIL stock - MSN
+**Date:** 2026-05-08 | **Source:** MSN | **Sentiment:** ➡️ neutral
+**Summary:** Following strong Q4 FY26 results, Coal India's share price saw a significant jump. The positive earnings report has prompted favorable commentary from brokerage firms. Analysts are expressing a bullish view on the stock's prospects, reinforcing the positive market reaction to the company's financial performance.
 
-### News 8: Coal India Q4 Results: Profit Rises 11%, Revenue Beats Estimates; Dividend Declared - NDTV Profit
-**Date:** 2026-04-27 | **Source:** NDTV Profit | **Sentiment:** 📈 bullish
-**Summary:** Coal India reported its Q4 FY26 results, showing an 11% rise in profit. The company's revenue also surpassed analyst estimates, indicating strong operational performance. Alongside the positive earnings, the board has declared a dividend for shareholders. This is a highly positive result for the company.
+### News 8: Coal India, Crompton Greaves, CG Power: Stocks to trade — check targets, stop loss & more - MSN
+**Date:** 2026-05-08 | **Source:** MSN | **Sentiment:** 📉 bearish
+**Summary:** Coal India is highlighted as a stock for short-term trading. The analysis provides specific entry levels, target prices, and stop-loss recommendations for traders. This is a technical call based on chart patterns and momentum indicators, aimed at capturing short-term price movements rather than long-term value.
 
-### News 9: Coal India dividend 2026: Cash reward by PSU stock in Q4 results FY26; board meeting next week - MSN
-**Date:** 2026-04-27 | **Source:** MSN | **Sentiment:** ➡️ neutral
-**Summary:** This article, published before the results, anticipates a dividend announcement from Coal India. It notes that a "cash reward" is expected to be part of the Q4 FY26 results. The board meeting to decide on the results and dividend is scheduled for the following week. This sets up investor expectations for a payout.
+### News 9: Coal India shares fall 3% after report says govt likely to sell Rs 10,000-crore stake via OFS - The Economic Times
+**Date:** 2026-05-07 | **Source:** The Economic Times | **Sentiment:** 📉 bearish
+**Summary:** Coal India shares dropped 3% following a report that the government is considering selling a stake worth Rs 10,000 crore through an Offer for Sale (OFS). An OFS increases the public float of shares, which can create short-term downward pressure on the stock price due to the increased supply. This is a significant potential overhang for the stock.
+
+### News 10: 'No coal shortage in India!' Coal India Chairman P.M. Shri Sairam tells Nigel Dsouza that stock levels remain comfortable. He highlighted that thermal power plants are maintaining over 50 million tonnes of coal stock, while Coal India holds over 120 million ton - LinkedIn
+**Date:** 2026-05-06 | **Source:** LinkedIn | **Sentiment:** ➡️ neutral
+**Summary:** Coal India's Chairman, P.M. Shri Sairam, has officially stated that there is no coal shortage in the country. He assured that inventory levels are comfortable, with over 50 million tonnes at thermal power plants and over 120 million tonnes held by Coal India itself. This statement is intended to allay fears of a power crisis and is a positive operational update.
 
 ## Market Context
 
@@ -621,5 +625,5 @@ Market context for COALINDIA captures macro environment, sector trends, and mark
 
 ### Market_Regime
 **Value:** Bear Market | **Sentiment:** 📉 bearish
-**Summary:** A bear market signals broad investor pessimism, with major indices like Nifty/Sensex showing a sustained downward trend.
-**Analysis:** A bear market signals broad investor pessimism, with major indices like Nifty/Sensex showing a sustained downward trend. This environment warrants caution; even strong stocks may decline, so new long 
+**Summary:** Bear Market
+**Analysis:** 

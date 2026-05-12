@@ -195,7 +195,11 @@ Your standards:
 
 # ── Gemini client init ────────────────────────────────────────────────────────
 
-_client = genai.Client(api_key=settings.google_api_key)
+_client = genai.Client(
+    vertexai=True,
+    project=settings.google_cloud_project,
+    location=settings.vertex_location,
+)
 
 
 # ── Instruction loader ────────────────────────────────────────────────────────

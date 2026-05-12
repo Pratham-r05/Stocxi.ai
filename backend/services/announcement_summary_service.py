@@ -27,7 +27,11 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 _FLASH_MODEL = "gemini-2.5-flash"
-_client      = genai.Client(api_key=settings.google_api_key)
+_client = genai.Client(
+    vertexai=True,
+    project=settings.google_cloud_project,
+    location=settings.vertex_location,
+)
 
 _SYSTEM = (
     "You are a concise Indian equity analyst assistant. "

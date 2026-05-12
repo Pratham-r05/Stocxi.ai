@@ -68,11 +68,18 @@ except ImportError:
 
 
 _ai_client = None
-if OpenAI is not None and getattr(settings, "google_api_key", None):
+if OpenAI is not None:
     try:
+        import google.auth
+        import google.auth.transport.requests
+
+        _creds, _ = google.auth.default(
+            scopes=["https://www.googleapis.com/auth/cloud-platform"]
+        )
+        _creds.refresh(google.auth.transport.requests.Request())
         _ai_client = OpenAI(
-            api_key=settings.google_api_key,
-            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+            api_key=_creds.token,
+            base_url=settings.google_base_url,
         )
     except Exception as e:
         logger.warning(f"Sentiment AI client init failed: {e}")

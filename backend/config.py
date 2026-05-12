@@ -8,13 +8,15 @@ Two distinct concerns:
      config/ directory. Loaded once at startup and shared across the application.
 
 Required .env keys:
-  REDIS_URL       — Upstash rediss:// URL
-  GOOGLE_API_KEY  — Google Gemini API key
+  REDIS_URL               — Upstash rediss:// URL
+  GOOGLE_CLOUD_PROJECT    — GCP project ID for Vertex AI (e.g. stocxi-analysis)
 
 Optional .env keys:
-  ALLOWED_ORIGINS — Comma-separated CORS origins (default: * for dev)
-  ENVIRONMENT     — "development" | "production" (default: development)
-  GOOGLE_APPLICATION_CREDENTIALS — path to Vertex AI service-account JSON
+  ALLOWED_ORIGINS                  — Comma-separated CORS origins (default: * for dev)
+  ENVIRONMENT                      — "development" | "production" (default: development)
+  VERTEX_LOCATION                  — Vertex AI region (default: us-central1)
+  GOOGLE_APPLICATION_CREDENTIALS  — path to Vertex AI service-account JSON
+  GOOGLE_API_KEY                   — Gemini API key (deprecated; leave blank to use Vertex AI)
 """
 
 from __future__ import annotations
@@ -61,21 +63,29 @@ class Settings(BaseSettings):
     )
 
     # Required
-    redis_url:       str
-    google_api_key:  str
+    redis_url:            str
+    google_cloud_project: str = "stocxi-analysis"  # GOOGLE_CLOUD_PROJECT env var
 
     # Optional with safe defaults
     environment:         str = "development"
     allowed_origins_raw: str = "*"
     newsdata_api_key:    str = ""   # newsdata.io — optional, falls back to RSS if absent
 
-    # Google Vertex AI / Gemini
-    google_base_url: str = (
-        "https://us-central1-aiplatform.googleapis.com/v1beta1/"
-        "projects/stocxi-analysis/locations/us-central1/endpoints/openapi/"
-    )
-    google_model: str = "google/gemini-2.5-pro"
+    # Google Vertex AI
+    vertex_location: str = "us-central1"
+    google_model:    str = "google/gemini-2.5-pro"
     google_application_credentials: str | None = None
+
+    # Deprecated — kept for OpenAI-compat fallback only; leave blank to use Vertex AI
+    google_api_key: str = ""
+
+    @property
+    def google_base_url(self) -> str:
+        """Vertex AI OpenAI-compatible endpoint for this project/region."""
+        return (
+            f"https://{self.vertex_location}-aiplatform.googleapis.com/v1beta1/"
+            f"projects/{self.google_cloud_project}/locations/{self.vertex_location}/endpoints/openapi/"
+        )
 
     @property
     def allowed_origins(self) -> list[str]:
