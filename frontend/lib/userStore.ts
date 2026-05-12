@@ -133,7 +133,7 @@ export async function recordUserStockSearch(email: string, symbol: string): Prom
   const userIndex = users.findIndex(
     (u) => u.email.toLowerCase() === normalizedEmail
   );
-  if (userIndex === -1) return false;
+  if (userIndex === -1) return true; // user missing from store (Redis blip) — degrade silently
 
   const user = users[userIndex];
   const searches = [...(user.searchedStocks ?? [])];
