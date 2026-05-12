@@ -24,6 +24,8 @@ from typing import Any
 
 import httpx
 
+from services.symbol_service import canonicalize_symbol
+
 logger = logging.getLogger(__name__)
 
 
@@ -47,7 +49,7 @@ def _fetch_from_nse(symbol: str) -> dict:
     # Import here so startup doesn't fail if package has issues
     from nsepython import nse_eq  # type: ignore
 
-    symbol = symbol.upper().strip()
+    symbol = canonicalize_symbol(symbol)
     raw = nse_eq(symbol)  # raises if symbol not found on NSE
 
     price_info  = raw.get("priceInfo", {})
@@ -273,7 +275,7 @@ async def get_history(symbol: str, period: str = "1y") -> dict:
     import pandas as pd
     from datetime import date, datetime, timedelta, timezone
 
-    symbol = symbol.upper().strip()
+    symbol = canonicalize_symbol(symbol)
     valid_periods = {"1d", "1w", "1mo", "3mo", "6mo", "1y", "2y", "5y"}
     if period not in valid_periods:
         period = "1y"
@@ -760,7 +762,7 @@ async def get_price_and_fundamentals(symbol: str) -> dict:
     """
     from fetchers.nse_client import fetch_quote as nse_fetch_quote
 
-    symbol = symbol.upper().strip()
+    symbol = canonicalize_symbol(symbol)
 
     # Stage 1: NseIndiaApi (BennyThadikaran/NseIndiaApi git repo) — accurate, full data
     try:

@@ -1,6 +1,6 @@
 ---
 symbol: BAJFINANCE
-captured_at: 2026-05-04
+captured_at: 2026-05-12
 horizon: long
 sector: non banking financial company (nbfc)
 author: stocxi_phase1
@@ -9,18 +9,18 @@ contributor: stocxi
 
 # BAJFINANCE — Stock Analysis Data
 
-BAJFINANCE is a stock in the **non banking financial company (nbfc)** sector analyzed for a **long-term** investment horizon as of 2026-05-04. This document captures fundamentals, technical indicators, financial statements, announcements, news, and market context. Each section relates to others: Fundamentals drive valuation; Technical Indicators reflect price momentum; Balance Sheet underpins Debt_To_Equity and ROE; Profit Loss feeds EPS and PAT_TTM; Cash Flow validates Net Profit quality; Shareholding signals institutional confidence; Announcements and News capture recent events.
+BAJFINANCE is a stock in the **non banking financial company (nbfc)** sector analyzed for a **long-term** investment horizon as of 2026-05-12. This document captures fundamentals, technical indicators, financial statements, announcements, news, and market context. Each section relates to others: Fundamentals drive valuation; Technical Indicators reflect price momentum; Balance Sheet underpins Debt_To_Equity and ROE; Profit Loss feeds EPS and PAT_TTM; Cash Flow validates Net Profit quality; Shareholding signals institutional confidence; Announcements and News capture recent events.
 
 ## Fundamentals
 
 BAJFINANCE fundamentals provide valuation, profitability, and financial health metrics. PE_Ratio relates to EPS and Revenue_Growth_YoY. ROE depends on Net_Profit_Annual and Reserves. Operating_Cash_Flow relates to Free_Cashflow and Debt_To_Equity. Market_Cap relates to PE_Ratio and EPS.
 
 ### PE_Ratio
-**Value:** PE: 31.1 | **Sentiment:** ➡️ neutral
+**Value:** PE: 30.1 | **Sentiment:** ➡️ neutral
 **Analysis:**  PE_Ratio relates to EPS, Revenue_Growth_YoY, Market_Cap.
 
 ### PB_Ratio
-**Value:** PB: 5.19 | **Sentiment:** 📉 bearish
+**Value:** PB: 5.03 | **Sentiment:** 📉 bearish
 **Analysis:**  PB_Ratio relates to Total_Assets, Reserves, Net_Worth.
 
 ### ROE
@@ -31,12 +31,8 @@ BAJFINANCE fundamentals provide valuation, profitability, and financial health m
 **Value:** EPS: ₹30.57 | **Sentiment:** ➡️ neutral
 **Analysis:**  EPS relates to PE_Ratio, Net_Profit_Annual, Revenue_Annual.
 
-### NPM
-**Value:** NPM: 23.5% | **Sentiment:** 📈 bullish
-**Analysis:**  NPM relates to Revenue_Annual, Net_Profit_Annual, OPM.
-
 ### Market_Cap
-**Value:** Mkt Cap: ₹591,590 Cr | **Sentiment:** ➡️ neutral
+**Value:** Mkt Cap: ₹573,753 Cr | **Sentiment:** ➡️ neutral
 **Analysis:**  Market_Cap relates to PE_Ratio, EPS, Revenue_Annual.
 
 ### Revenue_Quarterly
@@ -124,75 +120,75 @@ BAJFINANCE fundamentals provide valuation, profitability, and financial health m
 Technical indicators for BAJFINANCE capture price momentum, trend strength, and market timing signals. RSI relates to overbought and oversold conditions. MACD relates to trend direction and Signal Line crossovers. SMA_20, SMA_50, and SMA_200 relate to short, medium, and long-term trend support. ADX relates to trend strength. ATR relates to volatility and risk.
 
 ### RSI_14
-**Value:** RSI: 60.7 | **Sentiment:** ➡️ neutral
+**Value:** RSI: 52.4 | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### MACD
-**Value:** MACD: 11.23, Signal: 5.98 | **Sentiment:** 📈 bullish
+**Value:** MACD: 15.52, Signal: 12.89 | **Sentiment:** 📈 bullish
 **Analysis:**  MACD relates to Signal_Line, Trend_Direction, Price_Momentum.
 
 ### ADX_14
-**Value:** ADX: 18.3 (Weak Trend) | **Sentiment:** ➡️ neutral
+**Value:** ADX: 20.8 (Weak Trend) | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### ATR_14
-**Value:** ATR: 28.24 (3.0%) | **Sentiment:** ➡️ neutral
+**Value:** ATR: 26.91 (2.9%) | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### Bollinger_Bands
-**Value:** BB: 848.7 | 909.8 | 970.8 | P: 950.2 | **Sentiment:** ➡️ neutral
+**Value:** BB: 889.7 | 932.4 | 975.2 | P: 936.0 | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### EMA
-**Value:** EMA20: 915.5 | EMA50: 918.9 | EMA200: 943.8 | **Sentiment:** 📈 bullish
+**Value:** EMA20: 932.7 | EMA50: 926.4 | EMA200: 943.7 | **Sentiment:** 📈 bullish
 **Analysis:** 
 
 ### SMA
-**Value:** SMA20: 909.8 | SMA50: 920.0 | SMA200: 961.8 | **Sentiment:** 📉 bearish
+**Value:** SMA20: 932.4 | SMA50: 914.1 | SMA200: 962.6 | **Sentiment:** 📉 bearish
 **Analysis:** 
 
 ### Ichimoku
-**Value:** Cloud: 911.5–917.0 | Price: 950.2 | **Sentiment:** 📈 bullish
+**Value:** Cloud: 917.0–922.8 | Price: 936.0 | **Sentiment:** 📈 bullish
 **Analysis:** 
 
 ### Parabolic_SAR
-**Value:** PSAR: 901.00, Price: 950.20 | **Sentiment:** 📈 bullish
+**Value:** PSAR: 992.25, Price: 936.05 | **Sentiment:** 📉 bearish
 **Analysis:** 
 
 ### Stochastic
-**Value:** Stoch %K: 73.6, %D: 69.4 | **Sentiment:** ➡️ neutral
+**Value:** Stoch %K: 33.1, %D: 57.9 | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### Williams_R
-**Value:** Williams %R: -26.4 | **Sentiment:** ➡️ neutral
+**Value:** Williams %R: -66.9 | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### ROC
-**Value:** ROC: 4.06% | **Sentiment:** 📈 bullish
+**Value:** ROC: 0.14% | **Sentiment:** 📈 bullish
 **Analysis:** 
 
 ### OBV
-**Value:** OBV: 152.1M, Trend: Bullish Confirmation | **Sentiment:** 📈 bullish
+**Value:** OBV: 149.9M, Trend: Bullish Confirmation | **Sentiment:** 📈 bullish
 **Analysis:** 
 
 ### VWAP
-**Value:** VWAP: 926.31, Price: 950.20 | **Sentiment:** 📈 bullish
+**Value:** VWAP: 943.72, Price: 936.05 | **Sentiment:** 📉 bearish
 **Analysis:**  VWAP relates to Price_Level, Volume, Intraday_Trend.
 
 ### CMF
-**Value:** CMF: 0.088 | **Sentiment:** ➡️ neutral
+**Value:** CMF: -0.083 | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### MFI
-**Value:** MFI: 66.3 | **Sentiment:** ➡️ neutral
+**Value:** MFI: 72.7 | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### Volume_SMA20
-**Value:** Vol SMA20: 9376225 | **Sentiment:** ➡️ neutral
+**Value:** Vol SMA20: 8256228 | **Sentiment:** 📉 bearish
 **Analysis:** 
 
 ### 52W_HL_Ratio
-**Value:** 52W: 788–1102, CMP: 950 (52%) | **Sentiment:** ➡️ neutral
+**Value:** 52W: 788–1102, CMP: 936 (47%) | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ## Balance Sheet
@@ -515,93 +511,93 @@ Recent corporate announcements from BAJFINANCE signal strategic direction and ev
 
 ### Announcement 1: Dividend - Rs 6 Per Share
 **Date:** 2026-06-30 | **Sentiment:** 📈 bullish
-**Summary:** Bajaj Finance declared a dividend of Rs 6 per share, a positive signal for shareholders that could support the stock price.
+**Summary:** Bajaj Finance declared a final dividend of Rs 6 per share, a positive signal for investors indicating strong financial health and profitability.
 
-### Announcement 2: Fund Raising
+### Announcement 2: Final Dividend - Rs. - 6.0000
+**Date:** 2026-06-30 | **Sentiment:** 📈 bullish
+**Summary:** The company confirmed a final dividend of Rs 6 per share, rewarding shareholders and reflecting confidence in its financial position.
+
+### Announcement 3: Fund Raising
 **Date:** 2026-04-29 | **Sentiment:** ➡️ neutral
-**Summary:** The board will meet to consider fundraising, a move that could fuel growth but may also lead to equity dilution, creating mixed sentiment.
+**Summary:** The board will meet to consider raising funds, a key event that could impact capital structure and lead to equity dilution or higher leverage.
 
-### Announcement 3: Board Meeting Intimation
+### Announcement 4: Board Meeting Intimation
 **Date:** 2026-04-29 | **Sentiment:** ➡️ neutral
-**Summary:** A routine board meeting has been scheduled for April 29. Market impact will depend on the specific agenda items to be discussed.
+**Summary:** Bajaj Finance has scheduled a board meeting. This is a routine compliance filing; market reaction will await the meeting's specific agenda and outcome
 
-### Announcement 4: Financial Results/Dividend
+### Announcement 5: Financial Results/Dividend
 **Date:** 2026-04-29 | **Sentiment:** 📈 bullish
-**Summary:** The board will meet to approve financial results and consider a dividend, a key event that could positively impact the stock if results are strong.
+**Summary:** The board will meet to approve financial results and consider a dividend. Positive results and a good payout could boost investor confidence.
 
-### Announcement 5: Board Meeting Intimation
+### Announcement 6: Board Meeting Intimation
 **Date:** 2026-02-03 | **Sentiment:** ➡️ neutral
-**Summary:** A board meeting has been scheduled for Feb 3, likely to approve quarterly results. This is a standard procedural update.
+**Summary:** The company has scheduled a board meeting, likely to approve quarterly results. This is a standard pre-results notification for the market.
 
-### Announcement 6: Financial Results
+### Announcement 7: Financial Results
 **Date:** 2026-02-03 | **Sentiment:** ➡️ neutral
-**Summary:** The company has announced its financial results. The market's reaction will be driven by how these numbers compare to analyst expectations.
+**Summary:** The board has approved the financial results. The market's reaction will depend entirely on whether the performance met or beat expectations.
 
-### Announcement 7: Board Meeting Intimation
+### Announcement 8: Board Meeting Intimation
 **Date:** 2025-11-10 | **Sentiment:** ➡️ neutral
-**Summary:** A board meeting is scheduled for Nov 10, likely to discuss quarterly financial results. This is a routine corporate filing.
+**Summary:** Bajaj Finance has intimated a board meeting to approve quarterly financial results. This is a routine compliance filing ahead of the earnings release.
 
-### Announcement 8: Financial Results
+### Announcement 9: Financial Results
 **Date:** 2025-11-10 | **Sentiment:** ➡️ neutral
-**Summary:** The company has released its financial results. The stock's performance will now hinge on these numbers and the management's outlook.
+**Summary:** The company announced its financial results post-board meeting. Stock performance will now hinge on the actual profit and AUM growth figures.
 
-### Announcement 9: Board Meeting Intimation
+### Announcement 10: Board Meeting Intimation
 **Date:** 2025-07-24 | **Sentiment:** ➡️ neutral
-**Summary:** A board meeting has been announced for July 24, expected to approve Q1 financial results. This is a standard procedural update.
-
-### Announcement 10: Other business matters
-**Date:** 2025-07-24 | **Sentiment:** ➡️ neutral
-**Summary:** The board will discuss unspecified 'other business matters' on July 24, creating some uncertainty until the agenda is clarified.
+**Summary:** The company has scheduled a board meeting, typically for approving quarterly results. This is a standard procedural update for investors.
 
 ## News
 
 Recent news coverage of BAJFINANCE captures market sentiment and external events. News items relate to stock price reaction, sector developments, and investor confidence. Bullish news conceptually relates to positive price momentum and increased buying interest. Bearish news conceptually relates to selling pressure and reduced confidence.
 
 ### News 1: Bajaj Finance share price target 2026 post Q4 results | Buy, sell, or hold? - MSN
-**Date:** 2026-05-04 | **Source:** MSN | **Sentiment:** ➡️ neutral
-**Summary:** Post-Q4 results, analysts are re-evaluating Bajaj Finance's share price target for 2026. The article discusses whether to buy, sell, or hold the stock based on its recent performance and future outlook. This reflects market sentiment and analyst expectations following the earnings announcement. The key question is if future growth can be justified.
+**Date:** 2026-05-11 | **Source:** MSN | **Sentiment:** ➡️ neutral
+**Summary:** Analyst commentary discusses Bajaj Finance's share price targets for 2026 following its Q4 results. The article speculates on whether to buy, sell, or hold the stock. This reflects market sentiment and analyst expectations based on recent performance. The focus is on future valuation and potential stock movement, which can influence investor sentiment.
 
-### News 2: Bajaj Finance vs Jio Financial Services: Which stock to buy after Q4 results 2026? - Mint
-**Date:** 2026-05-04 | **Source:** Mint | **Sentiment:** ➡️ neutral
-**Summary:** A comparative analysis of Bajaj Finance and Jio Financial Services following their Q4 2026 results. The article weighs the pros and cons of each stock for potential investors. It assesses their performance, valuation, and growth prospects to determine which is a better buy in the current market environment. This is a sector-level competitive analysis.
+### News 2: Bajaj Finance: Eight days of rally amid Q4 earnings; price targets signal record high breach? - MSN
+**Date:** 2026-05-11 | **Source:** MSN | **Sentiment:** 📈 bullish
+**Summary:** Bajaj Finance stock has rallied for eight consecutive days, driven by positive sentiment around its Q4 earnings. Analysts are setting price targets that suggest the stock could breach its previous record highs. This reflects strong investor confidence and positive momentum following the recent financial results announcement, indicating a bullish short-term outlook.
 
-### News 3: Bajaj Finance, Waaree Engineering & more: Top stocks to watch today - The Times of India
-**Date:** 2026-05-04 | **Source:** The Times of India | **Sentiment:** ➡️ neutral
-**Summary:** Bajaj Finance is highlighted as one of the top stocks to watch, likely due to increased market activity and investor interest following its recent Q4 results announcement. The stock is in focus for potential price movements, making it relevant for traders and short-term investors monitoring daily market trends.
+### News 3: Bajaj Finance shares up 15% in a month - Q4 results, dividend amount 2026 announcement date, time | Expectations - MSN
+**Date:** 2026-05-11 | **Source:** MSN | **Sentiment:** ➡️ neutral
+**Summary:** Bajaj Finance shares have surged 15% in the past month ahead of its Q4 results and dividend announcement. The market has high expectations for the company's performance. This article builds anticipation for the upcoming financial disclosures, which will be critical in justifying the recent stock price rally. A strong result is expected by the market.
 
-### News 4: Bajaj Finance rallies Thursday, outperforms market - MarketWatch
-**Date:** 2026-04-30 | **Source:** MarketWatch | **Sentiment:** ➡️ neutral
-**Summary:** Bajaj Finance's stock rallied on Thursday, outperforming the broader market. This positive price movement reflects strong investor sentiment, likely a continued positive reaction to its recently announced Q4 financial results. The outperformance indicates specific strength in the stock compared to the general market trend.
+### News 4: BAJAJ HOUSING FINANCE Share News Today | BAJAJ HOUSING FINANCE Stock Latest News | Analysis | Ep.362 (osJsiE696I) - fathomjournal.org
+**Date:** 2026-05-11 | **Source:** fathomjournal.org | **Sentiment:** ➡️ neutral
+**Summary:** This article provides general news and analysis on Bajaj Housing Finance, a key subsidiary of Bajaj Finance. It discusses the latest stock movements and market updates for the housing finance arm. The performance of this subsidiary can have an indirect but notable impact on the valuation and consolidated earnings of the parent company, Bajaj Finance.
 
-### News 5: Bajaj Finance stock jumps over 3% after Q4; brokerages stay largely bullish despite slight miss on key... - Moneycontrol.com
-**Date:** 2026-04-30 | **Source:** Moneycontrol.com | **Sentiment:** ➡️ neutral
-**Summary:** Bajaj Finance stock surged over 3% following its Q4 results announcement. Despite a slight miss on some key metrics, brokerage firms have maintained a largely bullish outlook on the company. This indicates underlying confidence in the company's long-term growth story, overshadowing minor shortfalls in the quarterly performance.
+### News 5: Bajaj Finance slips Monday, underperforms market - MarketWatch
+**Date:** 2026-05-11 | **Source:** MarketWatch | **Sentiment:** ➡️ neutral
+**Summary:** On Monday, Bajaj Finance's stock price declined, underperforming the broader market index. This single-day price movement represents a short-term dip in the stock's value. No specific reason for the decline is provided in the headline, suggesting it could be part of normal market volatility or minor profit-taking after a recent rally.
 
-### News 6: Bajaj Finance Q4 Results: Profit Surges 22%, Asset Quality Sours - NDTV Profit
-**Date:** 2026-04-29 | **Source:** NDTV Profit | **Sentiment:** ➡️ neutral
-**Summary:** Bajaj Finance reported a strong 22% surge in profit for Q4. However, this positive was tempered by a deterioration in asset quality, indicating a potential rise in bad loans. This mixed result presents a nuanced picture for investors, balancing strong profitability against increasing credit risk in its loan portfolio.
+### News 6: Bajaj Finance Q4 results 2026 expectations: Can earnings justify recent stock recovery? - MSN
+**Date:** 2026-05-11 | **Source:** MSN | **Sentiment:** ➡️ neutral
+**Summary:** This article focuses on the market's expectations for Bajaj Finance's upcoming Q4 2026 results. It questions whether the anticipated earnings will be strong enough to validate the stock's recent price recovery. The focus is on the pressure for the company to deliver strong numbers to maintain its current valuation and investor confidence. The outcome is a key short-term catalyst.
 
-### News 7: Bajaj Finance Q4 Results: Profit rises 22% YoY to Rs 5,553 crore; co declares Rs 6/share final dividend - The Economic Times
-**Date:** 2026-04-29 | **Source:** The Economic Times | **Sentiment:** 📈 bullish
-**Summary:** Bajaj Finance announced its Q4 results, posting a 22% year-over-year profit increase to Rs 5,553 crore. The company's board also declared a final dividend of Rs 6 per share for the financial year. This strong earnings growth and dividend declaration are positive signals for shareholders, reflecting the company's robust financial health.
+### News 7: Bajaj Housing Finance Q4 Results 2026 | Bajaj Housing Finance Results Today | Bajaj Housing Finance (TSrvYX9ipb) - fathomjournal.org
+**Date:** 2026-05-10 | **Source:** fathomjournal.org | **Sentiment:** ➡️ neutral
+**Summary:** This news covers the Q4 2026 financial results for Bajaj Housing Finance, a key subsidiary of Bajaj Finance. The performance of the housing finance arm is a significant contributor to the parent company's consolidated earnings. Strong or weak results from this subsidiary will directly impact Bajaj Finance's overall financial health and stock valuation.
 
-### News 8: Bajaj Finance advances Wednesday, underperforms market - MarketWatch
-**Date:** 2026-04-29 | **Source:** MarketWatch | **Sentiment:** ➡️ neutral
-**Summary:** On Wednesday, Bajaj Finance's stock price advanced but underperformed the broader market index. This suggests that while the stock saw some gains, investor enthusiasm was muted compared to the overall market sentiment on that day. This could reflect a mixed reaction to the Q4 earnings report released around the same time.
+### News 8: Bajaj Housing Finance Share News Today | Bajaj Housing Finance Share Latest News | Stock Market (Ymu31XJ2Xe) - fathomjournal.org
+**Date:** 2026-05-10 | **Source:** fathomjournal.org | **Sentiment:** ➡️ neutral
+**Summary:** This article provides general news and analysis on Bajaj Housing Finance, a subsidiary of Bajaj Finance. It discusses the latest stock movements and market updates for the housing finance arm. The performance of this key subsidiary can have an indirect impact on the valuation and sentiment of the parent company, Bajaj Finance, affecting both short and long-term views.
 
-### News 9: Bajaj Finance Q4 results 2026 expectations: Can earnings justify recent stock recovery? - MSN
-**Date:** 2026-04-29 | **Source:** MSN | **Sentiment:** ➡️ neutral
-**Summary:** This article, published before the Q4 results, discusses market expectations for Bajaj Finance's earnings. It questions whether the anticipated financial performance can justify the stock's recent price recovery. This sets the stage for the earnings announcement, highlighting the pressure on the company to deliver strong numbers.
+### News 9: Bajaj Housing Finance Share Price & IPO Listing Highlights | Bajaj Finance | IPO (w8ghXknMf3) - fathomjournal.org
+**Date:** 2026-05-09 | **Source:** fathomjournal.org | **Sentiment:** ➡️ neutral
+**Summary:** The article discusses the potential Initial Public Offering (IPO) of Bajaj Housing Finance, a subsidiary of Bajaj Finance. An IPO would lead to significant value unlocking for the parent company and bring greater market focus to the housing finance business. This is a major corporate development with long-term implications for Bajaj Finance's structure and valuation.
 
-### News 10: Bajaj Finance Q4 Results: Date, Dividend News, Earnings Call Details And More - NDTV Profit
-**Date:** 2026-04-28 | **Source:** NDTV Profit | **Sentiment:** ➡️ neutral
-**Summary:** This is a procedural announcement ahead of the Q4 results. It provides key logistical details for investors, including the date of the results declaration, potential dividend news, and information about the subsequent earnings conference call. It serves as a heads-up for an impending material event for the stock.
+### News 10: ⚠️Market Crash வருமா? | War? | Bajaj Finance | MCX | Cochin | Weekly Profit #stockstamil #marketnews (c1vexE95mf) - fathomjournal.org
+**Date:** 2026-05-08 | **Source:** fathomjournal.org | **Sentiment:** ➡️ neutral
+**Summary:** This is a general market commentary piece discussing broad market risks like a potential crash or war. Bajaj Finance is mentioned alongside other stocks as part of a wider market analysis. The information is not specific to the company's fundamentals and is more about macroeconomic sentiment affecting the entire market, thus having low direct relevance.
 
 ## Market Context
 
 Market context for BAJFINANCE captures macro environment, sector trends, and market regime. Market Regime relates to Nifty 50 trend and overall equity direction. Sector Context relates to peer performance and sector rotation. These contextually relate to Fundamentals valuation and Technical Indicators trend.
 
 ### Market_Regime
-**Value:** Sideways | **Sentiment:** ➡️ neutral
-**Summary:** Sideways
+**Value:** Bear Market | **Sentiment:** 📉 bearish
+**Summary:** Bear Market
 **Analysis:** 

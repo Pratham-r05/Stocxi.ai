@@ -34,6 +34,7 @@ from gnews import GNews
 
 from fetchers.newsdata_client import fetch_stock_news
 from util.article_extractor import derive_stock_impact, extract_key_sentence
+from services.symbol_service import canonicalize_symbol
 
 logger = logging.getLogger(__name__)
 
@@ -111,7 +112,7 @@ def _get_news_sync(symbol: str, company_name: str) -> list[dict[str, Any]]:
     Returns:
         Enriched article list (max 10) with LLM summaries where available.
     """
-    symbol = symbol.upper().strip()
+    symbol = canonicalize_symbol(symbol)
 
     # L1: gnews (free, no API key, reliable for Indian stocks)
     raw_articles = _fetch_gnews(symbol, company_name)
@@ -334,7 +335,9 @@ _COMPANY_NAMES: dict[str, str] = {
     "TATACOMM": "Tata Communications",
     "TATACONSUM": "Tata Consumer Products",
     "TATAELXSI": "Tata Elxsi",
-    "TATAMOTORS": "Tata Motors",
+    "TATAMOTORS": "Tata Motors Passenger Vehicles",
+    "TMCV": "Tata Motors",
+    "TMPV": "Tata Motors Passenger Vehicles",
     "TATAPOWER": "Tata Power",
     "TATASTEEL": "Tata Steel",
     "TCS": "Tata Consultancy Services",

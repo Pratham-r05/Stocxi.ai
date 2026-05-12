@@ -1,7 +1,7 @@
 ---
 symbol: TITAN
-captured_at: 2026-05-04
-horizon: medium
+captured_at: 2026-05-07
+horizon: short
 sector: gems jewellery and watches
 author: stocxi_phase1
 contributor: stocxi
@@ -9,18 +9,18 @@ contributor: stocxi
 
 # TITAN — Stock Analysis Data
 
-TITAN is a stock in the **gems jewellery and watches** sector analyzed for a **medium-term** investment horizon as of 2026-05-04. This document captures fundamentals, technical indicators, financial statements, announcements, news, and market context. Each section relates to others: Fundamentals drive valuation; Technical Indicators reflect price momentum; Balance Sheet underpins Debt_To_Equity and ROE; Profit Loss feeds EPS and PAT_TTM; Cash Flow validates Net Profit quality; Shareholding signals institutional confidence; Announcements and News capture recent events.
+TITAN is a stock in the **gems jewellery and watches** sector analyzed for a **short-term** investment horizon as of 2026-05-07. This document captures fundamentals, technical indicators, financial statements, announcements, news, and market context. Each section relates to others: Fundamentals drive valuation; Technical Indicators reflect price momentum; Balance Sheet underpins Debt_To_Equity and ROE; Profit Loss feeds EPS and PAT_TTM; Cash Flow validates Net Profit quality; Shareholding signals institutional confidence; Announcements and News capture recent events.
 
 ## Fundamentals
 
 TITAN fundamentals provide valuation, profitability, and financial health metrics. PE_Ratio relates to EPS and Revenue_Growth_YoY. ROE depends on Net_Profit_Annual and Reserves. Operating_Cash_Flow relates to Free_Cashflow and Debt_To_Equity. Market_Cap relates to PE_Ratio and EPS.
 
 ### PE_Ratio
-**Value:** PE: 81.7 | **Sentiment:** ➡️ neutral
+**Value:** PE: 81.2 | **Sentiment:** ➡️ neutral
 **Analysis:**  PE_Ratio relates to EPS, Revenue_Growth_YoY, Market_Cap.
 
 ### PB_Ratio
-**Value:** PB: 30.41 | **Sentiment:** 📉 bearish
+**Value:** PB: 30.22 | **Sentiment:** 📉 bearish
 **Analysis:**  PB_Ratio relates to Total_Assets, Reserves, Net_Worth.
 
 ### ROE
@@ -36,11 +36,11 @@ TITAN fundamentals provide valuation, profitability, and financial health metric
 **Analysis:**  OPM relates to Revenue_Annual, EBITDA_TTM, EBITDA_Margin.
 
 ### NPM
-**Value:** NPM: 6.3% | **Sentiment:** ➡️ neutral
+**Value:** NPM: 6.5% | **Sentiment:** ➡️ neutral
 **Analysis:**  NPM relates to Revenue_Annual, Net_Profit_Annual, OPM.
 
 ### Market_Cap
-**Value:** Mkt Cap: ₹389,379 Cr | **Sentiment:** ➡️ neutral
+**Value:** Mkt Cap: ₹386,919 Cr | **Sentiment:** ➡️ neutral
 **Analysis:**  Market_Cap relates to PE_Ratio, EPS, Revenue_Annual.
 
 ### Revenue_Quarterly
@@ -164,75 +164,75 @@ TITAN fundamentals provide valuation, profitability, and financial health metric
 Technical indicators for TITAN capture price momentum, trend strength, and market timing signals. RSI relates to overbought and oversold conditions. MACD relates to trend direction and Signal Line crossovers. SMA_20, SMA_50, and SMA_200 relate to short, medium, and long-term trend support. ADX relates to trend strength. ATR relates to volatility and risk.
 
 ### RSI_14
-**Value:** RSI: 52.6 | **Sentiment:** ➡️ neutral
+**Value:** RSI: 50.6 | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### MACD
-**Value:** MACD: 64.71, Signal: 77.23 | **Sentiment:** 📉 bearish
+**Value:** MACD: 41.50, Signal: 62.73 | **Sentiment:** 📉 bearish
 **Analysis:**  MACD relates to Signal_Line, Trend_Direction, Price_Momentum.
 
 ### ADX_14
-**Value:** ADX: 14.4 (Weak Trend) | **Sentiment:** ➡️ neutral
+**Value:** ADX: 12.9 (Weak Trend) | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### ATR_14
-**Value:** ATR: 104.52 (2.4%) | **Sentiment:** ➡️ neutral
+**Value:** ATR: 104.23 (2.4%) | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### Bollinger_Bands
-**Value:** BB: 4139.5 | 4401.2 | 4662.9 | P: 4385.2 | **Sentiment:** ➡️ neutral
+**Value:** BB: 4298.7 | 4435.5 | 4572.4 | P: 4359.6 | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### EMA
-**Value:** EMA20: 4379.9 | EMA50: 4272.2 | EMA200: 3927.0 | **Sentiment:** 📈 bullish
+**Value:** EMA20: 4376.1 | EMA50: 4282.7 | EMA200: 3947.5 | **Sentiment:** 📈 bullish
 **Analysis:** 
 
 ### SMA
-**Value:** SMA20: 4401.2 | SMA50: 4255.6 | SMA200: 3868.8 | **Sentiment:** 📈 bullish
+**Value:** SMA20: 4435.5 | SMA50: 4265.6 | SMA200: 3883.2 | **Sentiment:** 📈 bullish
 **Analysis:** 
 
 ### Ichimoku
-**Value:** Cloud: 4189.5–4321.5 | Price: 4385.2 | **Sentiment:** 📈 bullish
+**Value:** Cloud: 4189.5–4312.9 | Price: 4359.6 | **Sentiment:** 📈 bullish
 **Analysis:** 
 
 ### Parabolic_SAR
-**Value:** PSAR: 4539.05, Price: 4385.20 | **Sentiment:** 📉 bearish
+**Value:** PSAR: 4505.80, Price: 4359.60 | **Sentiment:** 📉 bearish
 **Analysis:** 
 
 ### Stochastic
-**Value:** Stoch %K: 24.6, %D: 39.2 | **Sentiment:** ➡️ neutral
+**Value:** Stoch %K: 24.3, %D: 19.5 | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### Williams_R
-**Value:** Williams %R: -75.4 | **Sentiment:** ➡️ neutral
+**Value:** Williams %R: -75.7 | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### ROC
-**Value:** ROC: -1.22% | **Sentiment:** 📉 bearish
+**Value:** ROC: -3.67% | **Sentiment:** 📉 bearish
 **Analysis:** 
 
 ### OBV
-**Value:** OBV: 25.5M, Trend: Bullish Confirmation | **Sentiment:** 📈 bullish
+**Value:** OBV: 23.1M, Trend: Bullish Confirmation | **Sentiment:** 📈 bullish
 **Analysis:** 
 
 ### VWAP
-**Value:** VWAP: 4463.32, Price: 4385.20 | **Sentiment:** 📉 bearish
+**Value:** VWAP: 4439.57, Price: 4359.60 | **Sentiment:** 📉 bearish
 **Analysis:**  VWAP relates to Price_Level, Volume, Intraday_Trend.
 
 ### CMF
-**Value:** CMF: 0.353 | **Sentiment:** 📈 bullish
+**Value:** CMF: 0.219 | **Sentiment:** 📈 bullish
 **Analysis:** 
 
 ### MFI
-**Value:** MFI: 39.0 | **Sentiment:** ➡️ neutral
+**Value:** MFI: 21.9 | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### Volume_SMA20
-**Value:** Vol SMA20: 1234551 | **Sentiment:** ➡️ neutral
+**Value:** Vol SMA20: 1181785 | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### 52W_HL_Ratio
-**Value:** 52W: 3246–4554, CMP: 4385 (87%) | **Sentiment:** 📉 bearish
+**Value:** 52W: 3246–4554, CMP: 4360 (85%) | **Sentiment:** 📉 bearish
 **Analysis:** 
 
 ## Balance Sheet
@@ -543,97 +543,93 @@ Recent corporate announcements from TITAN signal strategic direction and events.
 
 ### Announcement 1: Board Meeting Intimation
 **Date:** 2026-05-08 | **Sentiment:** ➡️ neutral
-**Summary:** Board meeting: Board Meeting Intimation on 2026-05-08
+**Summary:** Titan has scheduled a board meeting on May 8, 2026, likely to approve annual results and consider a dividend. Market will await the outcome.
 
 ### Announcement 2: Financial Results/Dividend
 **Date:** 2026-05-08 | **Sentiment:** 📈 bullish
-**Summary:** Dividend declared, ex-date 2026-05-08 | Filing: Titan Company Limited  
-`INTEGRITY` #193  Veerasandra   Electronics City P.O.  Off Hosur Main Road, Ba
+**Summary:** The Board approved annual financial results and declared a dividend on May 8, 2026. The specific figures will drive the market's reaction.
 
 ### Announcement 3: Board Meeting Intimation
 **Date:** 2026-02-10 | **Sentiment:** ➡️ neutral
-**Summary:** Board meeting: Board Meeting Intimation on 2026-02-10
+**Summary:** A board meeting is scheduled for Feb 10, 2026, to consider and approve the Q3 financial results. This is a routine corporate filing.
 
 ### Announcement 4: Financial Results
 **Date:** 2026-02-10 | **Sentiment:** ➡️ neutral
-**Summary:** Board meeting: Financial Results on 2026-02-10 | Filing: Titan Company Limited  
-`INTEGRITY` #193  Veerasandra   Electronics City P.O.  Off Hosur Main
+**Summary:** The Board approved and released the Q3 financial results on Feb 10, 2026. Stock performance will depend on how the results compare to estimates.
 
 ### Announcement 5: Board Meeting Intimation
 **Date:** 2025-11-03 | **Sentiment:** ➡️ neutral
-**Summary:** Board meeting: Board Meeting Intimation on 2025-11-03
+**Summary:** Titan informed the exchange of a board meeting on Nov 3, 2025, to approve the Q2 financial results. This is a standard procedural update.
 
 ### Announcement 6: Financial Results
 **Date:** 2025-11-03 | **Sentiment:** ➡️ neutral
-**Summary:** Board meeting: Financial Results on 2025-11-03 | Filing: Titan Company Limited  
-`INTEGRITY` #193  Veerasandra   Electronics City P.O.  Off Hosur Main
+**Summary:** The company's Board approved the Q2 financial results on Nov 3, 2025. Market reaction will be based on performance versus expectations.
 
 ### Announcement 7: Board Meeting Intimation
 **Date:** 2025-08-07 | **Sentiment:** ➡️ neutral
-**Summary:** Board meeting: Board Meeting Intimation on 2025-08-07
+**Summary:** Titan has scheduled a board meeting for Aug 7, 2025, to consider and approve its Q1 financial results. This is a routine compliance filing.
 
 ### Announcement 8: Financial Results
 **Date:** 2025-08-07 | **Sentiment:** ➡️ neutral
-**Summary:** Board meeting: Financial Results on 2025-08-07 | Filing: Titan Company Limited  
-`INTEGRITY` #193  Veerasandra  Electronics City P.O.  Off Hosur Main 
+**Summary:** The Board approved the Q1 financial results on Aug 7, 2025. The stock's movement will be guided by the earnings report and management commentary.
 
 ### Announcement 9: Dividend - Rs 11 Per Share
 **Date:** 2025-07-08 | **Sentiment:** 📈 bullish
-**Summary:** Dividend: ₹1.0/share, ex-date 2025-07-08
+**Summary:** Titan declared a dividend of Rs 11 per equity share. This is a positive development for shareholders, reflecting the company's profitability.
 
 ### Announcement 10: Dividend - Rs. - 11.0000
 **Date:** 2025-07-08 | **Sentiment:** 📈 bullish
-**Summary:** Dividend declared, ex-date 2025-07-08
+**Summary:** The company confirmed a dividend payout of Rs 11.00 per share. This shareholder reward is likely to be viewed positively by the market.
 
 ## News
 
 Recent news coverage of TITAN captures market sentiment and external events. News items relate to stock price reaction, sector developments, and investor confidence. Bullish news conceptually relates to positive price momentum and increased buying interest. Bearish news conceptually relates to selling pressure and reduced confidence.
 
-### News 1: Titan International (NYSE:TWI) Posts Earnings Results, Misses Expectations By $0.39 EPS - MarketBeat
-**Date:** 2026-05-02 | **Source:** MarketBeat | **Sentiment:** ➡️ neutral
-**Summary:** Titan International (NYSE:TWI) Posts Earnings Results, Misses Expectations By $0.39 EPS  MarketBeat
+### News 1: Titan Co. slips Wednesday, underperforms market - MarketWatch
+**Date:** 2026-05-06 | **Source:** MarketWatch | **Sentiment:** ➡️ neutral
+**Summary:** Reports a single-day stock price decline for Titan Co. on a Wednesday, where it underperformed the broader market. This is a routine price movement update with no specific causal information provided. The impact is minimal as it reflects daily market volatility rather than a fundamental change in the company's outlook or business operations.
 
-### News 2: Titan International (NYSE:TWI) Downgraded to "Sell" Rating by Wall Street Zen - MarketBeat
-**Date:** 2026-05-02 | **Source:** MarketBeat | **Sentiment:** 📉 bearish
-**Summary:** Titan International (NYSE:TWI) Downgraded to "Sell" Rating by Wall Street Zen  MarketBeat
+### News 2: BEL, Tata Steel, Titan: Sensex stocks rise up to 56% in a year; book profit or more gains ahead? - MSN
+**Date:** 2026-05-05 | **Source:** MSN | **Sentiment:** 📈 bullish
+**Summary:** Highlights Titan's strong stock performance over the past year, with gains up to 56%, alongside other Sensex stocks. The article discusses whether investors should book profits or hold for further gains. This reflects positive investor sentiment based on strong past performance and is a common form of market commentary, not new fundamental information.
 
-### News 3: Stocks making big moves this week: Comfort Systems, Customers Bancorp, Sprouts, Titan International, and Crown Holdings - StockStory
-**Date:** 2026-05-01 | **Source:** StockStory | **Sentiment:** 📉 bearish
-**Summary:** Stocks making big moves this week: Comfort Systems, Customers Bancorp, Sprouts, Titan International, and Crown Holdings  StockStory
+### News 3: TII Stock Price, Quote & Chart | TITAN MINING CORP (NYSEARCA:TII) - ChartMill
+**Date:** 2026-05-04 | **Source:** ChartMill | **Sentiment:** ➡️ neutral
+**Summary:** Reports that Titan Company was on the 'buy' list for mutual funds in March. This indicates positive institutional investor sentiment and accumulation. Such buying activity can provide price support and signals confidence in the company's fundamentals from large investors. It is a positive data point for those tracking institutional flows.
 
-### News 4: Why Titan International (TWI) Shares Are Falling Today - TradingView
-**Date:** 2026-04-30 | **Source:** TradingView | **Sentiment:** ➡️ neutral
-**Summary:** Why Titan International (TWI) Shares Are Falling Today  TradingView
+### News 4: Titan (TWI) Q1 2026 Results: Revenue Beats but Earnings Miss, Stock Falls 4% - News and Statistics - IndexBox
+**Date:** 2026-05-03 | **Source:** IndexBox | **Sentiment:** 📉 bearish
+**Summary:** Reports a single-day stock price decline for Titan Co. on a Thursday, where it underperformed the broader market. This is a routine price movement update with no specific causal information provided. The impact is minimal as it reflects daily market volatility rather than a fundamental change in the company's outlook or business operations.
 
-### News 5: Tata Motors, Trent, Tata Power, TCS, Titan: Tata shares on MF 'buy' list in March - MSN
+### News 5: BTTC Stock Price, Quote & Chart | BLACK TITAN CORP (NASDAQ:BTTC) - ChartMill
+**Date:** 2026-05-01 | **Source:** ChartMill | **Sentiment:** ➡️ neutral
+**Summary:** BTTC Stock Price, Quote & Chart | BLACK TITAN CORP (NASDAQ:BTTC)  ChartMill
+
+### News 6: Why Titan International (TWI) Shares Are Falling Today - The Globe and Mail
+**Date:** 2026-04-30 | **Source:** The Globe and Mail | **Sentiment:** ➡️ neutral
+**Summary:** Why Titan International (TWI) Shares Are Falling Today  The Globe and Mail
+
+### News 7: Tata Motors, Trent, Tata Power, TCS, Titan: Tata shares on MF 'buy' list in March - MSN
 **Date:** 2026-04-30 | **Source:** MSN | **Sentiment:** ➡️ neutral
 **Summary:** Tata Motors, Trent, Tata Power, TCS, Titan: Tata shares on MF 'buy' list in March  MSN
 
-### News 6: Titan Co. falls Thursday, underperforms market - MarketWatch
+### News 8: Titan Co. falls Thursday, underperforms market - MarketWatch
 **Date:** 2026-04-30 | **Source:** MarketWatch | **Sentiment:** ➡️ neutral
 **Summary:** Titan Co. falls Thursday, underperforms market  MarketWatch
 
-### News 7: Titan to close Tennessee plant, keeps full-year sales outlook - Stock Titan
+### News 9: Titan to close Tennessee plant, keeps full-year sales outlook - Stock Titan
 **Date:** 2026-04-30 | **Source:** Stock Titan | **Sentiment:** ➡️ neutral
 **Summary:** Titan to close Tennessee plant, keeps full-year sales outlook  Stock Titan
 
-### News 8: Titan Mining will post Q1 results before market open on May 13 - Stock Titan
-**Date:** 2026-04-30 | **Source:** Stock Titan | **Sentiment:** ➡️ neutral
-**Summary:** Titan Mining will post Q1 results before market open on May 13  Stock Titan
-
-### News 9: Restructuring charges drive Titan International (NYSE: TWI) Q1 2026 loss - Stock Titan
+### News 10: Restructuring charges drive Titan International (NYSE: TWI) Q1 2026 loss - Stock Titan
 **Date:** 2026-04-29 | **Source:** Stock Titan | **Sentiment:** 📉 bearish
 **Summary:** Restructuring charges drive Titan International (NYSE: TWI) Q1 2026 loss  Stock Titan
-
-### News 10: TI.CA Stock Price, Quote & Chart | TITAN MINING CORP (TSX:TI) - ChartMill
-**Date:** 2026-04-28 | **Source:** ChartMill | **Sentiment:** ➡️ neutral
-**Summary:** TI.CA Stock Price, Quote & Chart | TITAN MINING CORP (TSX:TI)  ChartMill
 
 ## Market Context
 
 Market context for TITAN captures macro environment, sector trends, and market regime. Market Regime relates to Nifty 50 trend and overall equity direction. Sector Context relates to peer performance and sector rotation. These contextually relate to Fundamentals valuation and Technical Indicators trend.
 
 ### Market_Regime
-**Value:** Bear Market | **Sentiment:** 📉 bearish
-**Summary:** Bear Market
+**Value:** Sideways | **Sentiment:** ➡️ neutral
+**Summary:** Sideways
 **Analysis:** 

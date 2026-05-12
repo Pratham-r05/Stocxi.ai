@@ -15,8 +15,16 @@ ZOMATO:
   bo: "ETERNAL.BO"
 
 TATAMOTORS:
-  ns: "TATAMOTORS.NS"       # Occasionally delisted on Yahoo — retry with .BO
+  ns: "TMPV.NS"             # Old Tata Motors ticker now maps to TMPV
   bo: "500570.BO"           # BSE code as ticker works when symbol fails
+
+TMPV:
+  ns: "TMPV.NS"
+  bo: "500570.BO"
+
+TMCV:
+  ns: "TMCV.NS"
+  bo: "544569.BO"
 
 TATAMTRDVR:
   ns: "TATAMTRDVR.NS"

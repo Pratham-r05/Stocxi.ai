@@ -20,7 +20,7 @@ const STOCK_POOL = [
   "BHARTIARTL",
   "HINDUNILVR",
   "BAJFINANCE",
-  "TATAMOTORS",
+  "TMPV",
   "SUNPHARMA",
   "AXISBANK",
   "M&M",

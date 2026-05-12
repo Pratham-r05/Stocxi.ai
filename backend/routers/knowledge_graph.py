@@ -17,6 +17,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from services.knowledge_graph_service import build_knowledge_graph
 from services.yfinance_service import get_price_and_fundamentals
 from services.technicals_service import calculate_technicals
+from services.symbol_service import canonicalize_symbol
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +46,7 @@ async def fetch_all_data(symbol: str) -> dict:
 async def get_knowledge_graph(symbol: str):
     """Get knowledge graph for a stock symbol."""
     try:
-        analysis_data = await fetch_all_data(symbol.upper())
+        analysis_data = await fetch_all_data(canonicalize_symbol(symbol))
         
         if not analysis_data:
             raise HTTPException(status_code=404, detail=f"No analysis data found for {symbol}")

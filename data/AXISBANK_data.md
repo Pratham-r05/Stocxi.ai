@@ -1,7 +1,7 @@
 ---
 symbol: AXISBANK
-captured_at: 2026-05-04
-horizon: short
+captured_at: 2026-05-11
+horizon: long
 sector: private sector bank
 author: stocxi_phase1
 contributor: stocxi
@@ -9,7 +9,7 @@ contributor: stocxi
 
 # AXISBANK — Stock Analysis Data
 
-AXISBANK is a stock in the **private sector bank** sector analyzed for a **short-term** investment horizon as of 2026-05-04. This document captures fundamentals, technical indicators, financial statements, announcements, news, and market context. Each section relates to others: Fundamentals drive valuation; Technical Indicators reflect price momentum; Balance Sheet underpins Debt_To_Equity and ROE; Profit Loss feeds EPS and PAT_TTM; Cash Flow validates Net Profit quality; Shareholding signals institutional confidence; Announcements and News capture recent events.
+AXISBANK is a stock in the **private sector bank** sector analyzed for a **long-term** investment horizon as of 2026-05-11. This document captures fundamentals, technical indicators, financial statements, announcements, news, and market context. Each section relates to others: Fundamentals drive valuation; Technical Indicators reflect price momentum; Balance Sheet underpins Debt_To_Equity and ROE; Profit Loss feeds EPS and PAT_TTM; Cash Flow validates Net Profit quality; Shareholding signals institutional confidence; Announcements and News capture recent events.
 
 ## Fundamentals
 
@@ -32,11 +32,11 @@ AXISBANK fundamentals provide valuation, profitability, and financial health met
 **Analysis:**  EPS relates to PE_Ratio, Net_Profit_Annual, Revenue_Annual.
 
 ### NPM
-**Value:** NPM: 19.2% | **Sentiment:** 📈 bullish
+**Value:** NPM: 21.6% | **Sentiment:** 📈 bullish
 **Analysis:**  NPM relates to Revenue_Annual, Net_Profit_Annual, OPM.
 
 ### Market_Cap
-**Value:** Mkt Cap: ₹396,358 Cr | **Sentiment:** ➡️ neutral
+**Value:** Mkt Cap: ₹396,953 Cr | **Sentiment:** ➡️ neutral
 **Analysis:**  Market_Cap relates to PE_Ratio, EPS, Revenue_Annual.
 
 ### Revenue_Quarterly
@@ -128,71 +128,71 @@ Technical indicators for AXISBANK capture price momentum, trend strength, and ma
 **Analysis:** 
 
 ### MACD
-**Value:** MACD: 4.80, Signal: 14.33 | **Sentiment:** 📉 bearish
+**Value:** MACD: -3.65, Signal: 4.93 | **Sentiment:** 📉 bearish
 **Analysis:**  MACD relates to Signal_Line, Trend_Direction, Price_Momentum.
 
 ### ADX_14
-**Value:** ADX: 19.8 (Weak Trend) | **Sentiment:** ➡️ neutral
+**Value:** ADX: 17.3 (Weak Trend) | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### ATR_14
-**Value:** ATR: 35.56 (2.8%) | **Sentiment:** ➡️ neutral
+**Value:** ATR: 34.37 (2.7%) | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### Bollinger_Bands
-**Value:** BB: 1220.5 | 1320.7 | 1420.9 | P: 1275.1 | **Sentiment:** ➡️ neutral
+**Value:** BB: 1245.4 | 1325.1 | 1404.9 | P: 1268.3 | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### EMA
-**Value:** EMA20: 1309.4 | EMA50: 1300.7 | EMA200: 1247.1 | **Sentiment:** 📉 bearish
+**Value:** EMA20: 1299.3 | EMA50: 1297.4 | EMA200: 1245.8 | **Sentiment:** 📉 bearish
 **Analysis:** 
 
 ### SMA
-**Value:** SMA20: 1320.7 | SMA50: 1302.4 | SMA200: 1225.1 | **Sentiment:** 📈 bullish
+**Value:** SMA20: 1325.1 | SMA50: 1295.7 | SMA200: 1227.3 | **Sentiment:** 📈 bullish
 **Analysis:** 
 
 ### Ichimoku
-**Value:** Cloud: 1278.0–1297.4 | Price: 1275.1 | **Sentiment:** 📉 bearish
+**Value:** Cloud: 1278.0–1280.2 | Price: 1268.3 | **Sentiment:** 📉 bearish
 **Analysis:** 
 
 ### Parabolic_SAR
-**Value:** PSAR: 1368.96, Price: 1275.10 | **Sentiment:** 📉 bearish
+**Value:** PSAR: 1330.75, Price: 1268.30 | **Sentiment:** 📉 bearish
 **Analysis:** 
 
 ### Stochastic
-**Value:** Stoch %K: 13.3, %D: 12.4 | **Sentiment:** 📈 bullish
+**Value:** Stoch %K: 11.7, %D: 23.8 | **Sentiment:** 📈 bullish
 **Analysis:** 
 
 ### Williams_R
-**Value:** Williams %R: -86.7 | **Sentiment:** 📈 bullish
+**Value:** Williams %R: -88.3 | **Sentiment:** 📈 bullish
 **Analysis:** 
 
 ### ROC
-**Value:** ROC: -5.93% | **Sentiment:** 📉 bearish
+**Value:** ROC: -7.94% | **Sentiment:** 📉 bearish
 **Analysis:** 
 
 ### OBV
-**Value:** OBV: 31.8M, Trend: Bullish Confirmation | **Sentiment:** 📈 bullish
+**Value:** OBV: 21.3M, Trend: Bearish Confirmation | **Sentiment:** 📉 bearish
 **Analysis:** 
 
 ### VWAP
-**Value:** VWAP: 1323.61, Price: 1275.10 | **Sentiment:** 📉 bearish
+**Value:** VWAP: 1303.12, Price: 1268.30 | **Sentiment:** 📉 bearish
 **Analysis:**  VWAP relates to Price_Level, Volume, Intraday_Trend.
 
 ### CMF
-**Value:** CMF: 0.167 | **Sentiment:** ➡️ neutral
+**Value:** CMF: -0.061 | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### MFI
-**Value:** MFI: 43.5 | **Sentiment:** ➡️ neutral
+**Value:** MFI: 35.7 | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### Volume_SMA20
-**Value:** Vol SMA20: 7749672 | **Sentiment:** ➡️ neutral
+**Value:** Vol SMA20: 7273079 | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### 52W_HL_Ratio
-**Value:** 52W: 1042–1418, CMP: 1275 (62%) | **Sentiment:** ➡️ neutral
+**Value:** 52W: 1042–1418, CMP: 1268 (60%) | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ## Balance Sheet
@@ -509,83 +509,83 @@ Recent corporate announcements from AXISBANK signal strategic direction and even
 
 ### Announcement 1: Board Meeting Intimation
 **Date:** 2026-04-25 | **Sentiment:** ➡️ neutral
-**Summary:** Axis Bank has scheduled a board meeting on April 25, 2026, likely to approve Q4/FY26 results and consider a dividend. Neutral impact expected.
+**Summary:** Axis Bank scheduled a board meeting on April 25, 2026, to approve Q4 results and consider a dividend. Neutral impact until the outcome is known.
 
 ### Announcement 2: Financial Results/Dividend/Fund Raising
 **Date:** 2026-04-25 | **Sentiment:** 📈 bullish
-**Summary:** The board approved financial results and declared a dividend on April 25, 2026. This is positive for shareholders, pending details on the amount.
+**Summary:** The board approved financial results and declared a dividend. The stock's reaction will depend on the actual earnings and dividend amount announced.
 
 ### Announcement 3: Board Meeting Intimation
 **Date:** 2026-01-26 | **Sentiment:** ➡️ neutral
-**Summary:** The bank has informed of a board meeting on January 26, 2026, to consider and approve Q3 FY26 financial results. This is a routine compliance.
+**Summary:** The bank will hold a board meeting on Jan 26, 2026, to approve Q3 financial results. This is a standard procedural intimation.
 
 ### Announcement 4: Financial Results
 **Date:** 2026-01-26 | **Sentiment:** ➡️ neutral
-**Summary:** Axis Bank's board approved the Q3 FY26 financial results on January 26, 2026. Market reaction will depend on performance vs. expectations.
+**Summary:** Axis Bank announced its Q3 financial results. Market reaction will be based on performance versus analyst expectations for profit and asset quality.
 
 ### Announcement 5: Board Meeting Intimation
 **Date:** 2025-10-15 | **Sentiment:** ➡️ neutral
-**Summary:** A board meeting is scheduled for October 15, 2025, to approve the Q2 FY26 financial results. This is a standard procedural announcement.
+**Summary:** A board meeting is scheduled for Oct 15, 2025, to approve Q2 financial results. This is a routine compliance filing with no immediate impact.
 
 ### Announcement 6: Financial Results
 **Date:** 2025-10-15 | **Sentiment:** ➡️ neutral
-**Summary:** The board approved the Q2 FY26 financial results on October 15, 2025. Stock performance will hinge on the results versus market forecasts.
+**Summary:** The board approved and announced the Q2 financial results. The stock will react to the earnings quality, loan growth, and NPA figures.
 
 ### Announcement 7: Board Meeting Intimation
 **Date:** 2025-07-17 | **Sentiment:** ➡️ neutral
-**Summary:** The bank will hold a board meeting on July 17, 2025, to consider and approve Q1 FY26 financial results. This is a routine corporate filing.
+**Summary:** The bank will hold a board meeting on July 17, 2025, to consider and approve its Q1 financial results. This is a standard procedural announcement.
 
 ### Announcement 8: Financial Results
 **Date:** 2025-07-17 | **Sentiment:** ➡️ neutral
-**Summary:** Axis Bank's board approved the Q1 FY26 financial results on July 17, 2025. The market's reaction will be based on the actual performance figures.
+**Summary:** Axis Bank has declared its Q1 financial results. Future stock performance will hinge on these numbers and management's growth outlook.
 
 ### Announcement 9: Dividend - Re 1 Per Sh
 **Date:** 2025-07-04 | **Sentiment:** 📈 bullish
-**Summary:** Axis Bank declared a dividend of Re 1 per equity share. This is a positive development for shareholders, confirming a return on their investment.
+**Summary:** The bank declared a dividend of Re 1 per equity share. This is a positive for shareholders, though the impact may be muted depending on the yield.
 
 ### Announcement 10: Final Dividend - Rs. - 1.0000
 **Date:** 2025-07-04 | **Sentiment:** 📈 bullish
-**Summary:** The bank announced a final dividend of Re 1 per share. This is a positive signal of financial health and shareholder value distribution.
+**Summary:** A final dividend of Rs. 1 per share was announced, rewarding shareholders. This is a positive signal, reflecting confidence in the bank's profitabilit
 
 ## News
 
 Recent news coverage of AXISBANK captures market sentiment and external events. News items relate to stock price reaction, sector developments, and investor confidence. Bullish news conceptually relates to positive price momentum and increased buying interest. Bearish news conceptually relates to selling pressure and reduced confidence.
 
-### News 1: Axis Bank Q4 profit inches up 1.9%, staff down 3,000 in FY26: Stock in news - MSN
-**Date:** 2026-05-03 | **Source:** MSN | **Sentiment:** 📉 bearish
-**Summary:** Axis Bank reported a marginal 1.9% increase in its Q4 profit for FY26. This muted growth is a key takeaway for investors. The bank also reduced its workforce by 3,000 employees during the fiscal year, indicating a focus on cost optimization. The weak profit growth could negatively impact short-term sentiment. This is a significant earnings update.
+### News 1: Axis Bank shares fall almost 2% — should you buy, sell or hold? - MSN
+**Date:** 2026-05-10 | **Source:** MSN | **Sentiment:** 📉 bearish
+**Summary:** Axis Bank's share price declined by nearly 2%, prompting investor questions on whether to buy, sell, or hold. The movement is a reaction to recent market events or company performance, likely the Q4 results. The article is a commentary on the negative price action and resulting market sentiment, rather than providing new fundamental information.
 
-### News 2: Should you buy HDFC Bank, ICICI Bank, Axis Bank stocks ahead of Q4 earnings? - MSN
-**Date:** 2026-05-03 | **Source:** MSN | **Sentiment:** 📉 bearish
-**Summary:** This article is a speculative analysis discussing the investment case for major private banks, including Axis Bank, ahead of their Q4 earnings announcements. It does not contain any new, concrete information about Axis Bank's performance or operations. It is generic market commentary rather than specific news, offering little value for informed investors.
+### News 2: Why is Axis Bank share price falling? What happened in Q4 results? - MSN
+**Date:** 2026-05-10 | **Source:** MSN | **Sentiment:** 📉 bearish
+**Summary:** Axis Bank's share price is falling, with the decline directly attributed to its recent Q4 results. The market's negative reaction suggests the earnings report may have missed expectations or contained concerning guidance. This has created bearish sentiment around the stock, prompting analysis of the bank's quarterly performance.
 
-### News 3: Stocks to buy, sell or hold today, April 27: Reliance Industries, Vedanta, Paytm, Axis Bank, Shriram Finance and others - MSN
-**Date:** 2026-05-02 | **Source:** MSN | **Sentiment:** 📉 bearish
-**Summary:** This is a daily stock recommendation list that includes Axis Bank among several other companies. It provides a 'buy, sell, or hold' view for short-term traders. The article offers a general market perspective for the day's trading session and lacks in-depth analysis specific to Axis Bank's fundamentals. It is routine market chatter.
+### News 3: Axis Bank Q4 Results 2026 | Axis Bank Results Today | Axis Bank Share News Today (GyrKfeEwiy) - Fathom Journal
+**Date:** 2026-05-09 | **Source:** Fathom Journal | **Sentiment:** 📉 bearish
+**Summary:** This article announces the release of Axis Bank's Q4 2026 financial results. It highlights the earnings report as a key market event for the day, set to influence the bank's share price and investor sentiment. The focus is on the availability of new financial data for market scrutiny to assess the bank's performance.
 
-### News 4: Axis Bank posts Q4 and FY26 earnings call transcript for investors - TipRanks
-**Date:** 2026-04-30 | **Source:** TipRanks | **Sentiment:** 📉 bearish
-**Summary:** Axis Bank has made the transcript of its Q4 and full-year FY26 earnings call available to investors. This provides detailed insights from the management regarding the financial results, operational performance, and future outlook. While key numbers are known, the transcript offers crucial context and qualitative information for deep analysis.
+### News 4: Axis Bank shares near key support levels; should investors buy the stock? - Business Standard
+**Date:** 2026-05-08 | **Source:** Business Standard | **Sentiment:** 📉 bearish
+**Summary:** Following a price decline, Axis Bank's shares are approaching key technical support levels. This has triggered discussions among analysts about whether the current price represents a good buying opportunity. The article focuses on technical chart patterns to guide investment decisions, suggesting a potential inflection point for the stock.
 
-### News 5: Axis Bank Ltd stock (INE238A01034): Is digital transformation strong enough to unlock new upside? - AD HOC NEWS
-**Date:** 2026-04-29 | **Source:** AD HOC NEWS | **Sentiment:** 📉 bearish
-**Summary:** This article analyzes Axis Bank's ongoing digital transformation efforts. It questions whether these strategic initiatives are sufficient to drive future growth and unlock further value for the stock. This is a forward-looking, opinion-based piece focusing on the bank's long-term strategy rather than on immediate financial results or new events.
+### News 5: Axis Bank, HDFC Bank, other bank stocks drop up to 2%, Nifty Bank falls 440 points. What lies ahead? - The Economic Times
+**Date:** 2026-05-08 | **Source:** The Economic Times | **Sentiment:** 📉 bearish
+**Summary:** Axis Bank's stock fell by up to 2% as part of a broader sell-off in the banking sector. The Nifty Bank index dropped significantly, indicating widespread negative sentiment affecting major banks. This suggests the decline is driven by sector-wide concerns or macroeconomic factors, not just issues isolated to Axis Bank.
 
-### News 6: Nifty Losers: Axis Bank, Maruti, HCL Tech Drag Indices Lower - HDFC Sky
-**Date:** 2026-04-29 | **Source:** HDFC Sky | **Sentiment:** 📉 bearish
-**Summary:** This article reports on daily market movements, highlighting that Axis Bank was among the top losing stocks in the Nifty index on a specific trading day. This is a description of past price action and market sentiment. It does not provide any new fundamental reason for the decline, serving only as a simple market report of a past event.
+### News 6: Spillover effect: Axis Bank, ICICI Bank shares fall as investors give a thumbs down to HDFC Bank stock - MSN
+**Date:** 2026-05-08 | **Source:** MSN | **Sentiment:** 📉 bearish
+**Summary:** Axis Bank shares declined due to a negative spillover effect from HDFC Bank. A poor market reaction to HDFC Bank's stock led to a sell-off that extended to other major private banks. This indicates the negative sentiment was sector-wide, triggered by concerns surrounding a key industry player rather than an issue specific to Axis Bank.
 
-### News 7: Price Action: Maruti, Eternal rally up to 4%; ICICI Bank, Axis Bank, metal stocks lag - TradingView
-**Date:** 2026-04-29 | **Source:** TradingView | **Sentiment:** 📉 bearish
-**Summary:** This is a market update noting that Axis Bank's stock, along with other banking and metal stocks, underperformed on a particular day. It describes the stock's price action relative to the broader market. No new fundamental information is presented; it is a summary of daily trading activity and sector trends.
+### News 7: Axis Bank Allots 355,074 Shares Under Employee Stock Schemes - TipRanks
+**Date:** 2026-05-05 | **Source:** TipRanks | **Sentiment:** 📉 bearish
+**Summary:** Axis Bank has allotted 355,074 equity shares to employees under its Employee Stock Option Schemes (ESOS). This is a routine corporate action for employee compensation and retention, resulting in a minor dilution of existing share capital. Such actions are common and are generally not considered material for the stock's valuation.
 
-### News 8: Axis Bank board approves dividend, plans $4.2B fundraise By Investing.com - Investing.com Australia
-**Date:** 2026-04-28 | **Source:** Investing.com Australia | **Sentiment:** 📉 bearish
-**Summary:** Axis Bank's board has approved a dividend for shareholders, a routine positive event. More significantly, the board also approved a substantial fundraising plan of approximately $4.2 billion. This large capital raise is a material event that could fund future growth but may also lead to equity dilution. The plan has long-term implications for the bank's strategy.
+### News 8: Axis Bank Shares Jump: Exploring the Reasons Behind the Sudden Market Momentum - vocal.media
+**Date:** 2026-05-05 | **Source:** vocal.media | **Sentiment:** 📉 bearish
+**Summary:** Axis Bank's shares experienced a significant jump, prompting an analysis of the reasons for the sudden positive market momentum. This upward movement, occurring before the Q4 results, could be driven by positive market sentiment or specific news. It highlights the stock's volatility leading up to the earnings announcement.
 
-### News 9: Axis Bank subsidiary raises funds from Kedaara investors By Investing.com - Investing.com Nigeria
-**Date:** 2026-04-28 | **Source:** Investing.com Nigeria | **Sentiment:** 📉 bearish
-**Summary:** A subsidiary of Axis Bank has successfully raised funds from private equity firm Kedaara. This indicates investor confidence in the subsidiary's business model and growth prospects. The capital infusion will likely be used to fuel the subsidiary's expansion. This is a positive development for the business unit and reflects well on the parent company.
+### News 9: Akshay Tritiya 2026 stock picks: Expert says market sideways but bullish; Axis Bank, Infosys, Coromandel, Trent, BEL & others in focus - MSN
+**Date:** 2026-05-05 | **Source:** MSN | **Sentiment:** 📉 bearish
+**Summary:** An expert has recommended Axis Bank as a potential stock pick for Akshay Tritiya 2026, including it in a list of other prominent companies. This recommendation comes amidst a market described as sideways but with a bullish outlook. Such analyst mentions can positively influence retail investor sentiment towards the stock.
 
 ## Market Context
 

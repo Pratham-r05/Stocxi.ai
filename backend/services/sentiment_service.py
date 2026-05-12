@@ -32,6 +32,8 @@ from xml.etree import ElementTree as ET
 
 import requests
 
+from services.symbol_service import canonicalize_symbol
+
 logger = logging.getLogger(__name__)
 
 TTL_SENTIMENT = 3600  # 1 hour
@@ -133,18 +135,17 @@ def _run_cli(cmd: list[str], retries: int = _MAX_RETRIES) -> str | None:
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
+_KNOWN_COMPANY_NAMES = {
+    "HINDUNILVR": "Hindustan Unilever",
+    "TMCV": "Tata Motors",
+    "TMPV": "Tata Motors Passenger Vehicles",
+}
+
+
 def _get_company_name(symbol: str) -> str:
-    """Resolves NSE symbol → company name via yfinance; returns symbol on fail."""
-    try:
-        import yfinance as yf
-        ticker = yf.Ticker(f"{symbol}.NS")
-        name = (
-            getattr(ticker.fast_info, "company_name", None)
-            or ticker.info.get("longName")
-        )
-        return name.strip() if name else symbol
-    except Exception:
-        return symbol
+    """Return known company name without Yahoo quoteSummary calls."""
+    symbol = canonicalize_symbol(symbol)
+    return _KNOWN_COMPANY_NAMES.get(symbol, symbol)
 
 
 def _score_posts(posts: list[dict]) -> float:
@@ -998,7 +999,7 @@ async def get_sentiment(symbol: str, force_refresh: bool = False) -> dict:
     Caches results per source. Returns combined sentiment dict.
     NEVER raises — returns valid fallback structure on any/all errors.
     """
-    symbol = symbol.upper().strip()
+    symbol = canonicalize_symbol(symbol)
 
     # ── Cache check ───────────────────────────────────────────────────────────
     reddit_key  = f"stock:sentiment:reddit:v5:{symbol}"

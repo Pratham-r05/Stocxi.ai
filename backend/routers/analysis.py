@@ -30,17 +30,13 @@ from services.screener_service import get_financials
 from services.technicals_service import calculate_technicals
 from services.news_service import get_news
 from services.announcements_service import get_announcements
+from services.symbol_service import canonicalize_symbol
 from services.ai_service import analyse, generate_report_payload
 from services.report_service import build_stock_report_pdf
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/analysis", tags=["AI Analysis"])
-
-_SYMBOL_ALIASES = {
-    "ZOMATO": "ETERNAL",
-}
-
 
 def _safe_float(value: Any) -> float | None:
     """Convert arbitrary value to float for safe numeric operations."""
@@ -251,7 +247,7 @@ def _compact_announcements(items: list[dict], limit: int = 5) -> list[dict]:
 def _resolve_symbol(symbol: str) -> tuple[str, str]:
     """Resolve requested symbol to canonical symbol for provider compatibility."""
     requested = symbol.upper().strip()
-    canonical = _SYMBOL_ALIASES.get(requested, requested)
+    canonical = canonicalize_symbol(requested)
     return requested, canonical
 
 
@@ -489,7 +485,7 @@ async def get_analysis(
     """
     requested_symbol, symbol = _resolve_symbol(symbol)
     risk_level = risk_level.lower().strip()
-    cache_key  = f"analysis:v3:{requested_symbol}:{risk_level}"
+    cache_key  = f"analysis:v4:{requested_symbol}:{symbol}:{risk_level}"
 
     # ── Cache hit ─────────────────────────────────────────────────────────────
     cached = await cache_get(cache_key)

@@ -30,6 +30,7 @@ from schemas.node import Node, NodeCategory, NodeSignal, HorizonRelevance
 from schemas.messages import UserProfile
 from config import yaml_cfg
 from util.ist_calendar import now_ist
+from services.symbol_service import canonicalize_symbol
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +54,7 @@ async def get_ratios(
         list[Node] with PE, PB, ROE, EPS, OPM, NPM, ROCE, Dividend_Yield nodes.
         Nodes for missing ratios are omitted (never emits a null-value node).
     """
-    symbol = symbol.upper().strip()
+    symbol = canonicalize_symbol(symbol)
 
     async def _bse() -> dict[str, Any]:
         return await bse_client.fetch_meta_info(symbol)
@@ -103,10 +104,9 @@ async def get_ratios(
         except Exception as exc2:
             logger.debug("BSE meta info also unavailable for %s: %s", symbol, exc2)
 
-    # Recompute EPS/OPM/NPM/PB/ROE/PE from Screener quarterly + balance sheet data.
-    # BSE equityMetaInfo precomputed ratios go stale after equity dilution events
-    # (rights issue, QIP) because BSE doesn't update EPS/share-count immediately.
-    # Screener scrapes the latest filed data, so these computed values are more accurate.
+    # Recompute EPS/PB/ROE/PE from Screener quarterly + balance sheet data.
+    # OPM/NPM are NOT computed here — BSE exchange data (snapshot then meta) is used
+    # exclusively to avoid stale or wrong-period Screener-computed margins.
     try:
         sc_full = await screener_client.fetch_financials(symbol)
         qr = sc_full.get("quarterly_results", {})
@@ -121,18 +121,6 @@ async def get_ratios(
 
         if len(eps_q) >= 4:
             raw["eps"] = round(sum(eps_q[:4]), 2)
-
-        if len(rev_q) >= 4 and len(op_q) >= 4:
-            rev_ttm = sum(rev_q[:4])
-            op_ttm  = sum(op_q[:4])
-            if rev_ttm > 0:
-                raw["opm"] = round(op_ttm / rev_ttm * 100, 1)
-
-        if len(rev_q) >= 4 and len(pat_q) >= 4:
-            rev_ttm = sum(rev_q[:4])
-            pat_ttm = sum(pat_q[:4])
-            if rev_ttm > 0:
-                raw["npm"] = round(pat_ttm / rev_ttm * 100, 1)
 
         net_worth = (eq_bs[0] if eq_bs else 0.0) + (res_bs[0] if res_bs else 0.0)
         if net_worth > 0:
@@ -157,17 +145,16 @@ async def get_ratios(
     except Exception as exc:
         logger.debug("Screener ratio override failed for %s: %s", symbol, exc)
 
-    # Prefer exchange-reported latest-result margins over BSE meta ratios.
-    # BSE equityMetaInfo OPM/NPM can lag after fresh quarterly filings.
-    for period in bse_snapshot.get("periods", []):
-        if not isinstance(period, dict):
-            continue
-        if period.get("opm_pct") is not None:
-            raw["opm"] = period["opm_pct"]
-        if period.get("npm_pct") is not None:
-            raw["npm"] = period["npm_pct"]
-        if raw.get("opm") is not None and raw.get("npm") is not None:
-            break
+    # Override OPM/NPM with BSE results snapshot most-recent period (index 0).
+    # BSE periods are newest-first; iterating all periods risks overwriting a
+    # newer value with a stale one, so only the first period is used.
+    bse_periods = bse_snapshot.get("periods", [])
+    if bse_periods and isinstance(bse_periods[0], dict):
+        first = bse_periods[0]
+        if first.get("opm_pct") is not None:
+            raw["opm"] = first["opm_pct"]
+        if first.get("npm_pct") is not None:
+            raw["npm"] = first["npm_pct"]
 
     return _build_nodes(raw, symbol, as_of_date,
                         result.source_id, result.confidence,

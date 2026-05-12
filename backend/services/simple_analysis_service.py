@@ -26,6 +26,8 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Literal
 
+from services.symbol_service import canonicalize_symbol
+
 logger = logging.getLogger(__name__)
 
 # _ROOT       = Path(__file__).parents[2]          # stocxi/
@@ -365,7 +367,7 @@ async def generate(
         FileNotFoundError: if data file can't be created.
         RuntimeError: if fetch_phase1 or Gemini fails.
     """
-    symbol  = symbol.upper().strip()
+    symbol  = canonicalize_symbol(symbol)
     horizon = horizon.lower()
     risk    = risk.lower()
 

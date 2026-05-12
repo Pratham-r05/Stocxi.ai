@@ -11,5 +11,7 @@
 #
 # Verified: 2026-04-26
 
-TATAMOTORS: TMCV          # Tata Motors Ltd — Screener uses TMCV (commercial vehicle entity)
+TATAMOTORS: TMPV          # Old Tata Motors ticker now maps to passenger vehicles
+TMPV: TMPV                # Tata Motors Passenger Vehicles Ltd
+TMCV: TMCV                # Tata Motors commercial vehicle entity
 ZOMATO: eternal           # Rebranded to Eternal Ltd on Screener

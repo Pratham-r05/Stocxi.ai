@@ -38,6 +38,8 @@ import requests
 import yaml
 from bs4 import BeautifulSoup
 
+from services.symbol_service import canonicalize_symbol
+
 logger = logging.getLogger(__name__)
 
 # Screener blocks requests with default Python UA; this mimics a real browser
@@ -371,7 +373,7 @@ def _resolve_screener_slug(symbol: str) -> str:
     Returns:
         Screener URL slug string (e.g. "TMCV", "eternal").
     """
-    symbol = symbol.upper().strip()
+    symbol = canonicalize_symbol(symbol)
 
     # 1. Static overrides
     overrides = _load_screener_slug_overrides()
@@ -437,7 +439,7 @@ def _fetch_screener(symbol: str) -> dict:
                             cash_flow, shareholding, mf_holdings.
     Returns empty sub-dicts on any failure (never raises).
     """
-    symbol = symbol.upper().strip()
+    symbol = canonicalize_symbol(symbol)
     slug = _resolve_screener_slug(symbol)
 
     # Fetch BOTH consolidated and standalone, then pick the one with more recent data.

@@ -31,6 +31,7 @@ from schemas.node import Node, NodeCategory, NodeSignal, HorizonRelevance
 from schemas.messages import UserProfile
 from config import yaml_cfg
 from util.ist_calendar import now_ist
+from services.symbol_service import canonicalize_symbol
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +54,7 @@ async def get_shareholding(
     Returns:
         list[Node] with up to 5 shareholding nodes.
     """
-    symbol = symbol.upper().strip()
+    symbol = canonicalize_symbol(symbol)
 
     async def _nse() -> dict[str, Any]:
         return await nse_client.fetch_shareholding(symbol)

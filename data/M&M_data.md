@@ -1,26 +1,26 @@
 ---
-symbol: MARUTI
-captured_at: 2026-05-04
+symbol: M&M
+captured_at: 2026-05-07
 horizon: long
 sector: passenger cars & utility vehicles
 author: stocxi_phase1
 contributor: stocxi
 ---
 
-# MARUTI — Stock Analysis Data
+# M&M — Stock Analysis Data
 
-MARUTI is a stock in the **passenger cars & utility vehicles** sector analyzed for a **long-term** investment horizon as of 2026-05-04. This document captures fundamentals, technical indicators, financial statements, announcements, news, and market context. Each section relates to others: Fundamentals drive valuation; Technical Indicators reflect price momentum; Balance Sheet underpins Debt_To_Equity and ROE; Profit Loss feeds EPS and PAT_TTM; Cash Flow validates Net Profit quality; Shareholding signals institutional confidence; Announcements and News capture recent events.
+M&M is a stock in the **passenger cars & utility vehicles** sector analyzed for a **long-term** investment horizon as of 2026-05-07. This document captures fundamentals, technical indicators, financial statements, announcements, news, and market context. Each section relates to others: Fundamentals drive valuation; Technical Indicators reflect price momentum; Balance Sheet underpins Debt_To_Equity and ROE; Profit Loss feeds EPS and PAT_TTM; Cash Flow validates Net Profit quality; Shareholding signals institutional confidence; Announcements and News capture recent events.
 
 ## Fundamentals
 
-MARUTI fundamentals provide valuation, profitability, and financial health metrics. PE_Ratio relates to EPS and Revenue_Growth_YoY. ROE depends on Net_Profit_Annual and Reserves. Operating_Cash_Flow relates to Free_Cashflow and Debt_To_Equity. Market_Cap relates to PE_Ratio and EPS.
+M&M fundamentals provide valuation, profitability, and financial health metrics. PE_Ratio relates to EPS and Revenue_Growth_YoY. ROE depends on Net_Profit_Annual and Reserves. Operating_Cash_Flow relates to Free_Cashflow and Debt_To_Equity. Market_Cap relates to PE_Ratio and EPS.
 
 ### PE_Ratio
-**Value:** PE: 29.1 | **Sentiment:** ➡️ neutral
+**Value:** PE: 7.1 | **Sentiment:** ➡️ neutral
 **Analysis:**  PE_Ratio relates to EPS, Revenue_Growth_YoY, Market_Cap.
 
 ### PB_Ratio
-**Value:** PB: 3.99 | **Sentiment:** ➡️ neutral
+**Value:** PB: 3.83 | **Sentiment:** ➡️ neutral
 **Analysis:**  PB_Ratio relates to Total_Assets, Reserves, Net_Worth.
 
 ### ROE
@@ -32,15 +32,15 @@ MARUTI fundamentals provide valuation, profitability, and financial health metri
 **Analysis:**  EPS relates to PE_Ratio, Net_Profit_Annual, Revenue_Annual.
 
 ### OPM
-**Value:** OPM: 12.7% | **Sentiment:** ➡️ neutral
+**Value:** OPM: 15.5% | **Sentiment:** 📈 bullish
 **Analysis:**  OPM relates to Revenue_Annual, EBITDA_TTM, EBITDA_Margin.
 
 ### NPM
-**Value:** NPM: 6.8% | **Sentiment:** ➡️ neutral
+**Value:** NPM: 9.4% | **Sentiment:** ➡️ neutral
 **Analysis:**  NPM relates to Revenue_Annual, Net_Profit_Annual, OPM.
 
 ### Market_Cap
-**Value:** Mkt Cap: ₹427,017 Cr | **Sentiment:** ➡️ neutral
+**Value:** Mkt Cap: ₹410,365 Cr | **Sentiment:** ➡️ neutral
 **Analysis:**  Market_Cap relates to PE_Ratio, EPS, Revenue_Annual.
 
 ### Revenue_Quarterly
@@ -152,92 +152,92 @@ MARUTI fundamentals provide valuation, profitability, and financial health metri
 **Analysis:** 
 
 ### Promoter_Holding
-**Value:** Promoter: 58.5% | **Sentiment:** 📈 bullish
+**Value:** Promoter: 18.4% | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### Public_Retail_Holding
-**Value:** Public/Retail: 41.5% | **Sentiment:** ➡️ neutral
+**Value:** Public/Retail: 78.0% | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ## Technical Indicators
 
-Technical indicators for MARUTI capture price momentum, trend strength, and market timing signals. RSI relates to overbought and oversold conditions. MACD relates to trend direction and Signal Line crossovers. SMA_20, SMA_50, and SMA_200 relate to short, medium, and long-term trend support. ADX relates to trend strength. ATR relates to volatility and risk.
+Technical indicators for M&M capture price momentum, trend strength, and market timing signals. RSI relates to overbought and oversold conditions. MACD relates to trend direction and Signal Line crossovers. SMA_20, SMA_50, and SMA_200 relate to short, medium, and long-term trend support. ADX relates to trend strength. ATR relates to volatility and risk.
 
 ### RSI_14
-**Value:** RSI: 55.4 | **Sentiment:** ➡️ neutral
+**Value:** RSI: 58.8 | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### MACD
-**Value:** MACD: -23.26, Signal: -79.25 | **Sentiment:** 📈 bullish
+**Value:** MACD: 0.88, Signal: -15.67 | **Sentiment:** 📈 bullish
 **Analysis:**  MACD relates to Signal_Line, Trend_Direction, Price_Momentum.
 
 ### ADX_14
-**Value:** ADX: 18.5 (Weak Trend) | **Sentiment:** ➡️ neutral
+**Value:** ADX: 13.0 (Weak Trend) | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### ATR_14
-**Value:** ATR: 395.32 (2.9%) | **Sentiment:** ➡️ neutral
+**Value:** ATR: 97.95 (3.0%) | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### Bollinger_Bands
-**Value:** BB: 12642.0 | 13244.5 | 13847.1 | P: 13580.0 | **Sentiment:** ➡️ neutral
+**Value:** BB: 3003.7 | 3165.3 | 3326.9 | P: 3300.8 | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### EMA
-**Value:** EMA20: 13251.7 | EMA50: 13628.6 | EMA200: 14236.7 | **Sentiment:** 📉 bearish
+**Value:** EMA20: 3156.3 | EMA50: 3217.0 | EMA200: 3312.3 | **Sentiment:** 📈 bullish
 **Analysis:** 
 
 ### SMA
-**Value:** SMA20: 13244.5 | SMA50: 13552.2 | SMA200: 14805.7 | **Sentiment:** 📉 bearish
+**Value:** SMA20: 3165.3 | SMA50: 3189.8 | SMA200: 3436.7 | **Sentiment:** 📉 bearish
 **Analysis:** 
 
 ### Ichimoku
-**Value:** Cloud: 13245.2–13830.0 | Price: 13580.0 | **Sentiment:** ➡️ neutral
+**Value:** Cloud: 3147.9–3222.8 | Price: 3300.8 | **Sentiment:** 📈 bullish
 **Analysis:** 
 
 ### Parabolic_SAR
-**Value:** PSAR: 12828.00, Price: 13580.00 | **Sentiment:** 📈 bullish
+**Value:** PSAR: 3032.20, Price: 3300.80 | **Sentiment:** 📈 bullish
 **Analysis:** 
 
 ### Stochastic
-**Value:** Stoch %K: 65.5, %D: 53.3 | **Sentiment:** ➡️ neutral
+**Value:** Stoch %K: 94.7, %D: 62.8 | **Sentiment:** 📉 bearish
 **Analysis:** 
 
 ### Williams_R
-**Value:** Williams %R: -34.5 | **Sentiment:** ➡️ neutral
+**Value:** Williams %R: -5.3 | **Sentiment:** 📉 bearish
 **Analysis:** 
 
 ### ROC
-**Value:** ROC: 2.19% | **Sentiment:** 📈 bullish
+**Value:** ROC: 3.14% | **Sentiment:** 📈 bullish
 **Analysis:** 
 
 ### OBV
-**Value:** OBV: 11.1M, Trend: Bullish Confirmation | **Sentiment:** 📈 bullish
+**Value:** OBV: 9.5M, Trend: Bullish Confirmation | **Sentiment:** 📈 bullish
 **Analysis:** 
 
 ### VWAP
-**Value:** VWAP: 13281.39, Price: 13580.00 | **Sentiment:** 📈 bullish
+**Value:** VWAP: 3162.66, Price: 3300.80 | **Sentiment:** 📈 bullish
 **Analysis:**  VWAP relates to Price_Level, Volume, Intraday_Trend.
 
 ### CMF
-**Value:** CMF: -0.069 | **Sentiment:** ➡️ neutral
+**Value:** CMF: 0.137 | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### MFI
-**Value:** MFI: 46.1 | **Sentiment:** ➡️ neutral
+**Value:** MFI: 54.9 | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ### Volume_SMA20
-**Value:** Vol SMA20: 583661 | **Sentiment:** ➡️ neutral
+**Value:** Vol SMA20: 3257624 | **Sentiment:** 📈 bullish
 **Analysis:** 
 
 ### 52W_HL_Ratio
-**Value:** 52W: 11289–17370, CMP: 13580 (38%) | **Sentiment:** ➡️ neutral
+**Value:** 52W: 2887–3840, CMP: 3301 (43%) | **Sentiment:** ➡️ neutral
 **Analysis:** 
 
 ## Balance Sheet
 
-The Balance Sheet tracks MARUTI's assets, liabilities, and net worth over time. Total Assets relates to Total Liabilities and Net Worth. Borrowings drives Debt_To_Equity and Interest Coverage. Reserves relates to Net Worth and PB_Ratio. Fixed Assets relates to Capital Expenditure and Revenue capacity.
+The Balance Sheet tracks M&M's assets, liabilities, and net worth over time. Total Assets relates to Total Liabilities and Net Worth. Borrowings drives Debt_To_Equity and Interest Coverage. Reserves relates to Net Worth and PB_Ratio. Fixed Assets relates to Capital Expenditure and Revenue capacity.
 
 ### Equity Capital
 **Values:** Mar 2026: 157.0 | Mar 2025: 157.0 | Mar 2024: 157.0 | Mar 2023: 151.0 | Mar 2022: 151.0
@@ -301,7 +301,7 @@ The Balance Sheet tracks MARUTI's assets, liabilities, and net worth over time. 
 
 ## Profit and Loss
 
-The Profit and Loss statement for MARUTI tracks revenue, expenses, and net profit over time. Revenue relates to Revenue_Annual and Revenue_Growth_YoY. Operating Profit relates to OPM and EBITDA. Net Profit relates to EPS and ROE. EPS relates to PE_Ratio and Market_Cap valuation.
+The Profit and Loss statement for M&M tracks revenue, expenses, and net profit over time. Revenue relates to Revenue_Annual and Revenue_Growth_YoY. Operating Profit relates to OPM and EBITDA. Net Profit relates to EPS and ROE. EPS relates to PE_Ratio and Market_Cap valuation.
 
 ### Sales+
 **Values:** Mar 2026: 183316.0 | Mar 2025: 152913.0 | Mar 2024: 141858.0 | Mar 2023: 117571.0 | Mar 2022: 88330.0
@@ -377,7 +377,7 @@ The Profit and Loss statement for MARUTI tracks revenue, expenses, and net profi
 
 ## Cash Flow
 
-Cash Flow statement for MARUTI measures actual cash movement. Cash from Operations relates to Operating_Cash_Flow and Net Profit quality. Cash from Investing relates to Capital Expenditure and Free_Cashflow. Cash from Financing relates to Borrowings and Debt_To_Equity.
+Cash Flow statement for M&M measures actual cash movement. Cash from Operations relates to Operating_Cash_Flow and Net Profit quality. Cash from Investing relates to Capital Expenditure and Free_Cashflow. Cash from Financing relates to Borrowings and Debt_To_Equity.
 
 ### Cash from Operating Activity+
 **Values:** Mar 2026: 19100.0 | Mar 2025: 16136.0 | Mar 2024: 16801.0 | Mar 2023: 9251.0 | Mar 2022: 1840.0
@@ -417,7 +417,7 @@ Cash Flow statement for MARUTI measures actual cash movement. Cash from Operatio
 
 ## Quarterly Results
 
-Quarterly results for MARUTI show near-term revenue, profit, and margin trends. Quarterly Revenue relates to Revenue_Annual and Revenue_Growth_YoY. Quarterly Net Profit relates to PAT_TTM and EPS trajectory. QoQ change shows sequential momentum; YoY change shows annual growth quality.
+Quarterly results for M&M show near-term revenue, profit, and margin trends. Quarterly Revenue relates to Revenue_Annual and Revenue_Growth_YoY. Quarterly Net Profit relates to PAT_TTM and EPS trajectory. QoQ change shows sequential momentum; YoY change shows annual growth quality.
 
 ### Sales+
 **Values:** Mar 2026: 52462.0 | Dec 2025: 49904.0 | Sep 2025: 42344.0 | Jun 2025: 38605.0
@@ -493,7 +493,7 @@ Quarterly results for MARUTI show near-term revenue, profit, and margin trends. 
 
 ## Shareholding Pattern
 
-Shareholding pattern for MARUTI reveals promoter confidence and institutional interest. Promoter holding relates to management confidence and dilution risk. FII holding relates to foreign institutional interest and global sentiment. DII holding relates to domestic mutual fund confidence. Rising FII and DII holdings are bullish signals.
+Shareholding pattern for M&M reveals promoter confidence and institutional interest. Promoter holding relates to management confidence and dilution risk. FII holding relates to foreign institutional interest and global sentiment. DII holding relates to domestic mutual fund confidence. Rising FII and DII holdings are bullish signals.
 
 ### Promoters+
 **Values:** Mar 2026: 58.53% | Dec 2025: 58.28% | Sep 2025: 58.28% | Jun 2025: 58.28%
@@ -533,95 +533,95 @@ Shareholding pattern for MARUTI reveals promoter confidence and institutional in
 
 ## Announcements
 
-Recent corporate announcements from MARUTI signal strategic direction and events. Each announcement relates to corporate governance, business expansion, or financial action. Positive announcements conceptually relate to bullish price momentum. Negative announcements conceptually relate to bearish market reaction.
+Recent corporate announcements from M&M signal strategic direction and events. Each announcement relates to corporate governance, business expansion, or financial action. Positive announcements conceptually relate to bullish price momentum. Negative announcements conceptually relate to bearish market reaction.
 
 ### Announcement 1: Board Meeting Intimation
-**Date:** 2026-04-28 | **Sentiment:** ➡️ neutral
-**Summary:** Maruti has scheduled a board meeting on April 28, 2026, likely to approve annual financial results and consider a dividend, a routine update.
+**Date:** 2026-05-05 | **Sentiment:** ➡️ neutral
+**Summary:** M&M has scheduled a board meeting for May 5, 2026. This is a standard procedural intimation with no immediate market impact.
 
-### Announcement 2: Financial Results/Dividend
-**Date:** 2026-04-28 | **Sentiment:** 📈 bullish
-**Summary:** The board approved financial results and declared a dividend on April 28, 2026. The specific dividend amount will be crucial for market sentiment.
+### Announcement 2: Financial Results/Dividend/Other business matters
+**Date:** 2026-05-05 | **Sentiment:** 📈 bullish
+**Summary:** M&M declared a dividend on May 5, 2026. This is a positive signal for investors, pending details on the dividend amount and record date.
 
 ### Announcement 3: Board Meeting Intimation
-**Date:** 2026-01-28 | **Sentiment:** ➡️ neutral
-**Summary:** The company will hold a board meeting on January 28, 2026, to approve Q3 financial results. This is a standard procedural filing.
+**Date:** 2026-02-11 | **Sentiment:** ➡️ neutral
+**Summary:** The company has informed the exchange of a board meeting scheduled for February 11, 2026. This is a routine compliance filing.
 
-### Announcement 4: Financial Results
-**Date:** 2026-01-28 | **Sentiment:** ➡️ neutral
-**Summary:** Maruti's board approved Q3 financial results on January 28, 2026. Market reaction will depend on the company's performance versus expectations.
+### Announcement 4: Financial Results/Other business matters
+**Date:** 2026-02-11 | **Sentiment:** ➡️ neutral
+**Summary:** The board approved financial results on Feb 11, 2026. Market reaction will depend on performance metrics like profit and revenue growth.
 
 ### Announcement 5: Board Meeting Intimation
-**Date:** 2025-10-31 | **Sentiment:** ➡️ neutral
-**Summary:** A board meeting is scheduled for October 31, 2025, to consider and approve Q2 financial results, a routine compliance announcement.
+**Date:** 2025-11-04 | **Sentiment:** ➡️ neutral
+**Summary:** M&M has scheduled a board meeting for November 4, 2025. This is a standard procedural intimation ahead of results.
 
-### Announcement 6: Financial Results
-**Date:** 2025-10-31 | **Sentiment:** ➡️ neutral
-**Summary:** The board approved Q2 financial results on October 31, 2025. The stock's movement will be guided by the actual profit and sales figures reported.
+### Announcement 6: Financial Results/Other business matters
+**Date:** 2025-11-04 | **Sentiment:** ➡️ neutral
+**Summary:** The board approved financial results on Nov 4, 2025. The stock's movement will be guided by the announced financial performance.
 
-### Announcement 7: Dividend - Rs 135 Per Share
-**Date:** 2025-08-01 | **Sentiment:** 📈 bullish
-**Summary:** Maruti declared a substantial dividend of Rs 135 per share, signaling strong profitability and a positive outlook for shareholder returns.
-
-### Announcement 8: Final Dividend - Rs. - 135.0000
-**Date:** 2025-08-01 | **Sentiment:** 📈 bullish
-**Summary:** The company confirmed a final dividend of Rs 135 per share. This large payout is likely to be viewed very positively by the market.
-
-### Announcement 9: Board Meeting Intimation
+### Announcement 7: Board Meeting Intimation
 **Date:** 2025-07-31 | **Sentiment:** ➡️ neutral
-**Summary:** Maruti will hold a board meeting on July 31, 2025, to approve its Q1 financial results. This is a standard procedural update for investors.
+**Summary:** The company has informed the exchange of a board meeting scheduled for July 31, 2025. This is a routine compliance filing.
 
-### Announcement 10: Financial Results
+### Announcement 8: Financial Results/Other business matters
 **Date:** 2025-07-31 | **Sentiment:** ➡️ neutral
-**Summary:** The board approved Q1 financial results on July 31, 2025. Market performance will now hinge on how these results compare to analyst estimates.
+**Summary:** The board approved financial results on July 31, 2025. Market sentiment will be shaped by the company's quarterly performance.
+
+### Announcement 9: MAHINDRA & MAHINDRA LIMITED has informed the Exchange about Board Meeting to be held on 30-Jul-2025 to consider and approve the Quarterly Unaudited Financial results of the Company for the period ended June 2025 and Other business.
+**Date:** 2025-07-30 | **Sentiment:** ➡️ neutral
+**Summary:** M&M announced a board meeting for July 30, 2025, to approve quarterly unaudited financial results. A standard procedural update.
+
+### Announcement 10: Financial Results/Other business matters
+**Date:** 2025-07-30 | **Sentiment:** ➡️ neutral
+**Summary:** The board approved financial results on July 30, 2025. The stock will react based on the announced profit and revenue figures.
 
 ## News
 
-Recent news coverage of MARUTI captures market sentiment and external events. News items relate to stock price reaction, sector developments, and investor confidence. Bullish news conceptually relates to positive price momentum and increased buying interest. Bearish news conceptually relates to selling pressure and reduced confidence.
+Recent news coverage of M&M captures market sentiment and external events. News items relate to stock price reaction, sector developments, and investor confidence. Bullish news conceptually relates to positive price momentum and increased buying interest. Bearish news conceptually relates to selling pressure and reduced confidence.
 
-### News 1: Maruti Suzuki Stock Skyrockets: A Record-Breaking Sales Surge - Devdiscourse
-**Date:** 2026-05-04 | **Source:** Devdiscourse | **Sentiment:** 📈 bullish
-**Summary:** Maruti Suzuki's stock price has skyrocketed following news of a record-breaking sales surge. This indicates exceptionally strong demand for its vehicles. The surge in sales volume is a key positive driver for revenue and profitability. This news is likely to boost investor sentiment and drive the stock price higher in the near term, signaling strong operational performance.
+### News 1: Five stocks to buy today: Mahindra & Mahindra, Bajaj Finance, Surya Roshni, and more | May 6, 2026 - MSN
+**Date:** 2026-05-06 | **Source:** MSN | **Sentiment:** ➡️ neutral
+**Summary:** An analyst or publication has recommended buying Mahindra & Mahindra stock as part of a list of five stocks for the day. This is a positive but generic market sentiment indicator. No specific price targets or detailed reasoning is provided in the headline or body. The recommendation is for short-term trading.
 
-### News 2: Stocks to buy today, April 29: Eternal, Maruti Suzuki, Sapphire Foods, Bandhan Bank, Canara HSBC Life and others - MSN
-**Date:** 2026-05-01 | **Source:** MSN | **Sentiment:** 📉 bearish
-**Summary:** Maruti Suzuki was featured in a generic list of recommended stocks to buy for the day. This suggests positive sentiment from market commentators, which can influence retail investor interest. However, the article provides no specific new fundamental information or detailed analysis for this recommendation. Its impact is likely to be minimal and short-lived.
+### News 2: Stocks to buy, sell or hold today, May 6: Coforge, Marico, Mahindra & Mahindra, BEL, PNB and others - MSN
+**Date:** 2026-05-06 | **Source:** MSN | **Sentiment:** ➡️ neutral
+**Summary:** Mahindra & Mahindra is featured in a daily stock recommendation list, suggesting it's a stock to watch for potential buy, sell, or hold actions. This is a common type of market commentary aimed at active traders. The specific action (buy/sell/hold) isn't detailed, but it indicates heightened interest.
 
-### News 3: Maruti Suzuki Stock: EV Hopes Clash With Profit Squeeze - Whalesbook
-**Date:** 2026-04-30 | **Source:** Whalesbook | **Sentiment:** 📈 bullish
-**Summary:** The article highlights a key conflict for Maruti Suzuki's stock. There is long-term optimism based on the company's electric vehicle (EV) strategy and future growth potential. However, this is currently being offset by short-term challenges related to a profit squeeze, likely due to input cost pressures. This creates a mixed outlook for investors, balancing future hopes with current margin concern
+### News 3: Infosys, Tech Mahindra, LTIMindTree: IT stocks to trade — price target, stop loss & more - MSN
+**Date:** 2026-05-06 | **Source:** MSN | **Sentiment:** ➡️ neutral
+**Summary:** Mahindra & Mahindra reported strong Q4 financial results, causing its stock price to surge. The performance was primarily driven by the automotive segment, which showed significant strength. This positive earnings report has been well-received by the market, indicating robust operational performance and a positive outlook.
 
-### News 4: Will Maruti reclaim ₹15,000-mark in next 3 months? Analyst flags key hurdle - Business Standard
-**Date:** 2026-04-30 | **Source:** Business Standard | **Sentiment:** ➡️ neutral
-**Summary:** An analyst questions if Maruti Suzuki's stock can reach the ₹15,000 level within the next three months. The analysis points to a specific "key hurdle" that might prevent this price appreciation. This suggests a cautious or conditional outlook from the analyst community, focusing on near-term challenges that could cap the stock's upside potential. It reflects a specific, time-bound price analysis.
+### News 4: Mahindra & Mahindra surges on strong Q4 show, auto segment leads the charge - The Economic Times
+**Date:** 2026-05-06 | **Source:** The Economic Times | **Sentiment:** 📈 bullish
+**Summary:** Brokerage firm Motilal Oswal has issued a positive outlook on Mahindra & Mahindra, projecting a 20% potential upside in the stock price. This optimism is driven by strong performance and future growth prospects in its auto business. The report provides a specific price target, signaling strong confidence from the analyst community.
 
-### News 5: Maruti Suzuki Stock Jumps As Demand Beats Margin Worries - Finimize
-**Date:** 2026-04-29 | **Source:** Finimize | **Sentiment:** 📈 bullish
-**Summary:** Maruti Suzuki's stock price increased as the market focused on strong demand signals from its recent results. This positive factor overshadowed concerns about the company's profit margins. The investor reaction indicates that revenue growth and market share are currently being valued more highly than short-term profitability pressures. This explains the positive stock movement despite a mixed earn
+### News 5: Mahindra & Mahindra share price target 2026: Motilal Oswal sees 20% upside in auto stock - What’s driving optimism in M&M? - MSN
+**Date:** 2026-05-05 | **Source:** MSN | **Sentiment:** ➡️ neutral
+**Summary:** An earnings preview for M&M's Q4 results anticipates significant year-over-year growth. Profit After Tax (PAT) is expected to increase by up to 48%, with revenue projected to grow by up to 24%. This growth is attributed to strong sales volumes. The preview sets high expectations for the upcoming earnings announcement.
 
-### News 6: Maruti Suzuki shares gain 5% on Q4 show; analysts project up to 22% upside - Business Standard
-**Date:** 2026-04-29 | **Source:** Business Standard | **Sentiment:** ➡️ neutral
-**Summary:** Following its Q4 results, Maruti Suzuki's shares surged by 5% as the market reacted positively to the company's performance. In response, analysts have updated their forecasts, with some projecting a potential upside of up to 22% for the stock. This indicates a bullish sentiment from both the market and analysts post-earnings announcement, suggesting a strong outlook.
+### News 6: Mahindra & Mahindra Financial Services - Earnings Boom: 10 stocks with over 100% profit growth in Q4FY26 - The Economic Times
+**Date:** 2026-05-04 | **Source:** The Economic Times | **Sentiment:** 📈 bullish
+**Summary:** This article provides logistical information about Mahindra & Mahindra's upcoming Q4 results announcement. It details the date of the release, the schedule for the earnings call, and mentions the possibility of a dividend declaration. This is a routine corporate announcement that helps investors prepare for the earnings event.
 
-### News 7: Why Maruti Suzuki stock surged 4% despite missing profit estimates? - Invezz
-**Date:** 2026-04-29 | **Source:** Invezz | **Sentiment:** 📈 bullish
-**Summary:** The article analyzes the surprising 4% surge in Maruti Suzuki's stock price, even though the company's quarterly profit missed analyst estimates. This suggests that investors were impressed by other aspects of the results, such as strong revenue growth or a positive demand outlook. The market is clearly prioritizing top-line performance and future guidance over the bottom-line miss.
+### News 7: M&M Q4 preview: PAT to rise up to 48% YoY amid sequential setback; revenue to grow up to 24% on strong vol - The Economic Times
+**Date:** 2026-05-04 | **Source:** The Economic Times | **Sentiment:** 📈 bullish
+**Summary:** M&M Q4 preview: PAT to rise up to 48% YoY amid sequential setback; revenue to grow up to 24% on strong vol  The Economic Times
 
-### News 8: Maruti Suzuki stock jumps over 5% after Q4 results, pulls Nifty Auto index up; brokerages see mixed outlook - TradingView
-**Date:** 2026-04-29 | **Source:** TradingView | **Sentiment:** ➡️ neutral
-**Summary:** Maruti Suzuki's stock jumped over 5% after its Q4 results were announced, positively influencing the entire Nifty Auto index. Despite the strong market reaction, the article notes that brokerage outlooks on the stock are mixed. This suggests that while the immediate sentiment is positive, there is no clear consensus among analysts about the company's future trajectory, creating uncertainty for inv
+### News 8: Mahindra & Mahindra Q4 Results: Date, Dividend, Share Price History, Earnings Call Schedule And More - NDTV Profit
+**Date:** 2026-05-04 | **Source:** NDTV Profit | **Sentiment:** ➡️ neutral
+**Summary:** Mahindra & Mahindra Q4 Results: Date, Dividend, Share Price History, Earnings Call Schedule And More  NDTV Profit
 
-### News 9: Stocks to watch: Maruti Suzuki, Trent, Eternal, RailTel among 10 shares in focus today - Mint
-**Date:** 2026-04-28 | **Source:** Mint | **Sentiment:** ➡️ neutral
-**Summary:** Maruti Suzuki was listed as a key stock to watch for the day, likely in anticipation of its quarterly earnings announcement. Such mentions increase investor attention on the stock ahead of a significant corporate event. The article itself does not provide new information but highlights an upcoming catalyst that could lead to price volatility. It is routine pre-earnings coverage.
+### News 9: Kotak Mahindra Bank share price targets after Q4 results - MSN
+**Date:** 2026-05-04 | **Source:** MSN | **Sentiment:** 📉 bearish
+**Summary:** Kotak Mahindra Bank share price targets after Q4 results  MSN
 
-### News 10: Stocks To Watch Today: Coal India, Maruti Suzuki, Eternal, Ceat & More - NDTV Profit
-**Date:** 2026-04-28 | **Source:** NDTV Profit | **Sentiment:** 📈 bullish
-**Summary:** Maruti Suzuki is highlighted as one of the "Stocks To Watch Today". This is standard pre-earnings coverage, alerting investors that the company is scheduled to release its financial results. The focus is on the impending announcement, which is expected to cause stock price volatility. No new analysis is presented; it is a simple news alert for traders and investors.
+### News 10: Tech Mahindra Allots 112,907 Shares on Employee Stock Option Exercise - TipRanks
+**Date:** 2026-05-01 | **Source:** TipRanks | **Sentiment:** ➡️ neutral
+**Summary:** Tech Mahindra Allots 112,907 Shares on Employee Stock Option Exercise  TipRanks
 
 ## Market Context
 
-Market context for MARUTI captures macro environment, sector trends, and market regime. Market Regime relates to Nifty 50 trend and overall equity direction. Sector Context relates to peer performance and sector rotation. These contextually relate to Fundamentals valuation and Technical Indicators trend.
+Market context for M&M captures macro environment, sector trends, and market regime. Market Regime relates to Nifty 50 trend and overall equity direction. Sector Context relates to peer performance and sector rotation. These contextually relate to Fundamentals valuation and Technical Indicators trend.
 
 ### Market_Regime
 **Value:** Sideways | **Sentiment:** ➡️ neutral

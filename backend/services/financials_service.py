@@ -36,6 +36,7 @@ from schemas.node import Node, NodeCategory, NodeSignal, HorizonRelevance
 from schemas.messages import UserProfile
 from config import yaml_cfg
 from util.ist_calendar import now_ist
+from services.symbol_service import canonicalize_symbol
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +60,7 @@ async def get_financials(
         list[Node] — up to 8 financial statement nodes.
         Empty list if all sources fail.
     """
-    symbol = symbol.upper().strip()
+    symbol = canonicalize_symbol(symbol)
 
     async def _screener() -> dict[str, Any]:
         return await screener_client.fetch_financials(symbol)

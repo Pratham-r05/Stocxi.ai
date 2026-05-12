@@ -33,6 +33,7 @@ import ta.volatility as ta_volatility
 import ta.volume     as ta_volume
 
 from services.ohlcv_service import get_ohlcv
+from services.symbol_service import canonicalize_symbol
 from schemas.node import Node, NodeCategory, NodeSignal, HorizonRelevance
 from schemas.messages import UserProfile, Horizon, Risk
 from config import yaml_cfg
@@ -63,7 +64,7 @@ async def get_technicals(
         list[Node] — up to 17 indicator nodes. Fewer if OHLCV data is sparse.
         Empty list if OHLCV data unavailable.
     """
-    symbol   = symbol.upper().strip()
+    symbol   = canonicalize_symbol(symbol)
     end_date = as_of_date or today_ist()
     profile  = profile or UserProfile(horizon=Horizon.short, risk=Risk.moderate)
 

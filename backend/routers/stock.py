@@ -37,6 +37,7 @@ from fetchers import nse_client, bse_client
 from services import sentiment_service
 from services.announcement_summary_service import summarise_announcements
 from services.announcements_service import enrich_announcements_with_pdf_text
+from services.symbol_service import canonicalize_symbol
 
 logger = logging.getLogger(__name__)
 
@@ -57,10 +58,6 @@ _SIMPLEICONS_SYMBOL_SLUG_OVERRIDES = {
     "TCS": "tcs",
     "ZOMATO": "zomato",
     "ETERNAL": "zomato",
-}
-
-_SYMBOL_ALIASES = {
-    "ZOMATO": "ETERNAL",
 }
 
 _LOGO_FETCH_HEADERS = {
@@ -339,8 +336,8 @@ async def get_stock_overview(symbol: str):
     Cached 5 minutes (price changes frequently).
     """
     requested_symbol = symbol.upper().strip()
-    symbol = _SYMBOL_ALIASES.get(requested_symbol, requested_symbol)
-    cache_key = f"stock:overview:v10:{requested_symbol}"
+    symbol = canonicalize_symbol(requested_symbol)
+    cache_key = f"stock:overview:v11:{requested_symbol}:{symbol}"
 
     # ── Cache hit ─────────────────────────────────────────────────────────────
     cached = await cache_get(cache_key)
@@ -348,44 +345,54 @@ async def get_stock_overview(symbol: str):
         logger.info(f"Cache hit: {cache_key}")
         return JSONResponse(content=cached)
 
-    # ── Fetch price + fundamentals (required — 404 if not found) ──────────────
-    try:
-        price_data = await get_price_and_fundamentals(symbol)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        logger.error(f"Price fetch failed for {symbol}: {e}")
-        raise HTTPException(status_code=503, detail=f"Price data unavailable: {e}")
+    # ── Parallel fetch: all independent sources ───────────────────────────────
+    (
+        _price_result,
+        _screener_result,
+        _bse_meta_result,
+        _bse_snapshot_result,
+        _technicals_result,
+        _sentiment_result,
+    ) = await asyncio.gather(
+        get_price_and_fundamentals(symbol),
+        get_financials(symbol),
+        bse_client.fetch_meta_info(symbol),
+        bse_client.fetch_results_snapshot(symbol),
+        calculate_technicals(symbol),
+        sentiment_service.get_sentiment(symbol),
+        return_exceptions=True,
+    )
 
-    # ── Fetch screener ratios (optional — degrade gracefully) ─────────────────
-    screener_data = {}
-    screener_ratios = {}
-    screener_website = None
-    try:
-        screener_data  = await get_financials(symbol)
-        screener_ratios = screener_data.get("ratios", {})
-        screener_website = screener_data.get("website")
-    except Exception as e:
-        logger.warning(f"Screener ratios failed for {symbol}: {e}")
+    # ── Price (required — abort on failure) ───────────────────────────────────
+    if isinstance(_price_result, ValueError):
+        raise HTTPException(status_code=404, detail=str(_price_result))
+    if isinstance(_price_result, Exception):
+        logger.error(f"Price fetch failed for {symbol}: {_price_result}")
+        raise HTTPException(status_code=503, detail=f"Price data unavailable: {_price_result}")
+    price_data = _price_result
 
-    bse_meta = {}
-    try:
-        bse_meta = await bse_client.fetch_meta_info(symbol)
-    except Exception as e:
-        logger.debug(f"BSE meta ratios failed for {symbol}: {e}")
+    # ── Optional results (degrade gracefully on failure) ──────────────────────
+    screener_data = {} if isinstance(_screener_result, Exception) else (_screener_result or {})
+    if isinstance(_screener_result, Exception):
+        logger.warning(f"Screener ratios failed for {symbol}: {_screener_result}")
+    screener_ratios = screener_data.get("ratios", {}) if isinstance(screener_data, dict) else {}
+    screener_website = screener_data.get("website") if isinstance(screener_data, dict) else None
 
-    bse_snapshot = {}
-    try:
-        bse_snapshot = await bse_client.fetch_results_snapshot(symbol)
-    except Exception as e:
-        logger.debug(f"BSE results snapshot failed for {symbol}: {e}")
+    bse_meta = {} if isinstance(_bse_meta_result, Exception) else (_bse_meta_result or {})
+    if isinstance(_bse_meta_result, Exception):
+        logger.debug(f"BSE meta ratios failed for {symbol}: {_bse_meta_result}")
 
-    # ── Fetch technicals (optional — degrade gracefully) ─────────────────────
-    technicals = {}
-    try:
-        technicals = await calculate_technicals(symbol)
-    except Exception as e:
-        logger.warning(f"Technicals failed for {symbol}: {e}")
+    bse_snapshot = {} if isinstance(_bse_snapshot_result, Exception) else (_bse_snapshot_result or {})
+    if isinstance(_bse_snapshot_result, Exception):
+        logger.debug(f"BSE results snapshot failed for {symbol}: {_bse_snapshot_result}")
+
+    technicals = {} if isinstance(_technicals_result, Exception) else (_technicals_result or {})
+    if isinstance(_technicals_result, Exception):
+        logger.warning(f"Technicals failed for {symbol}: {_technicals_result}")
+
+    sentiment = None if isinstance(_sentiment_result, Exception) else _sentiment_result
+    if isinstance(_sentiment_result, Exception):
+        logger.warning(f"Sentiment fetch failed for {symbol}: {_sentiment_result}")
 
     # ── Merge: screener enriches the price_data where values are None ─────────
     def fill(primary, fallback_key):
@@ -449,20 +456,14 @@ async def get_stock_overview(symbol: str):
             return round((revenue_latest - expenses_latest) / revenue_latest * 100, 1)
         return None
 
+    # OPM/NPM: BSE exchange data only — snapshot (most recent period) then meta fallback.
+    # Screener-computed values are excluded as they can be stale or use wrong period.
     opm_value = first_available(
         latest_bse_snapshot_value("opm_pct"),
-        latest_row_value(quarterly_table, "opm", "operating margin", "financing margin"),
-        latest_row_value(annual_table, "opm", "operating margin", "financing margin"),
-        computed_operating_margin(quarterly_table),
-        computed_operating_margin(annual_table),
         bse_meta.get("opm"),
     )
     npm_value = first_available(
         latest_bse_snapshot_value("npm_pct"),
-        latest_row_value(quarterly_table, "npm", "net profit margin"),
-        latest_row_value(annual_table, "npm", "net profit margin"),
-        computed_margin(quarterly_table, ("net profit", "profit after tax", "pat")),
-        computed_margin(annual_table, ("net profit", "profit after tax", "pat")),
         bse_meta.get("npm"),
     )
 
@@ -555,13 +556,6 @@ async def get_stock_overview(symbol: str):
         },
     }
 
-    # ── Fetch sentiment (optional — never blocks overview) ────────────────────
-    sentiment = None
-    try:
-        sentiment = await sentiment_service.get_sentiment(symbol)
-    except Exception as e:
-        logger.warning(f"Sentiment fetch failed for {symbol}: {e}")
-
     response["sentiment"] = sentiment
 
     await cache_set(cache_key, response, TTL_OVERVIEW)
@@ -580,9 +574,10 @@ async def get_stock_financials(symbol: str):
 
     Cached 7 days — updates only on quarterly results.
     """
-    symbol = symbol.upper().strip()
+    requested_symbol = symbol.upper().strip()
+    symbol = canonicalize_symbol(requested_symbol)
     # Versioned key to invalidate older cached payloads after schema/parser upgrades.
-    cache_key = f"stock:financials:v3:{symbol}"
+    cache_key = f"stock:financials:v3:{requested_symbol}:{symbol}"
 
     cached = await cache_get(cache_key)
     if cached:
@@ -636,15 +631,16 @@ async def get_stock_news(
     Returns [{title, link, published, source}, ...]
     Cached 2 hours.
     """
-    symbol = symbol.upper().strip()
-    cache_key = f"stock:news:v7:{symbol}"  # v7: stronger company-alias relevance + strict 4-day recency
+    requested_symbol = symbol.upper().strip()
+    symbol = canonicalize_symbol(requested_symbol)
+    cache_key = f"stock:news:v7:{requested_symbol}:{symbol}"  # v7: stronger company-alias relevance + strict 4-day recency
 
     cached = await cache_get(cache_key)
     if cached:
         return JSONResponse(content=cached)
 
     company_name = None
-    overview_cache_key = f"stock:overview:v5:{symbol}"
+    overview_cache_key = f"stock:overview:v11:{requested_symbol}:{symbol}"
     cached_overview = await cache_get(overview_cache_key)
     if isinstance(cached_overview, dict):
         company_name = cached_overview.get("company_name")
@@ -686,7 +682,7 @@ async def get_stock_sentiment(
     Cached 1 hour.
     """
     # returns Reddit + Twitter sentiment for symbol
-    return await sentiment_service.get_sentiment(symbol.upper().strip(), force_refresh=refresh)
+    return await sentiment_service.get_sentiment(canonicalize_symbol(symbol), force_refresh=refresh)
 
 
 # ── GET /api/v1/stock/{symbol}/history ───────────────────────────────────────
@@ -700,9 +696,10 @@ async def get_stock_history(
     Returns { symbol, period, closes: [{date, close}, ...] }
     Cached 1 hour (same as sentiment TTL).
     """
-    symbol = symbol.upper().strip()
+    requested_symbol = symbol.upper().strip()
+    symbol = canonicalize_symbol(requested_symbol)
     # v5: strict period bucketing (1D=1m, 1W=1h, 1M=12h, 1Y=1d)
-    cache_key = f"stock:history:v5:{symbol}:{period}"
+    cache_key = f"stock:history:v5:{requested_symbol}:{symbol}:{period}"
     ttl = 300 if period in {"1d", "1w"} else TTL_NEWS  # 5min for intraday, 1hr for rest
 
     cached = await cache_get(cache_key)
@@ -769,8 +766,9 @@ async def get_stock_announcements(
     Merges: NSE announcements, board meetings, actions + BSE actions.
     Cached 2 hours.
     """
-    symbol = symbol.upper().strip()
-    cache_key = f"stock:announcements:v14:{symbol}"
+    requested_symbol = symbol.upper().strip()
+    symbol = canonicalize_symbol(requested_symbol)
+    cache_key = f"stock:announcements:v14:{requested_symbol}:{symbol}"
 
     cached = await cache_get(cache_key)
     if cached:
