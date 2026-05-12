@@ -21,6 +21,20 @@ export default function KnowledgeGraphClient({
     let cancelled = false;
 
     async function loadGraph() {
+      // Use cached kg_html from sessionStorage when available (set by AnalysisClient)
+      if (reloadKey === 0) {
+        try {
+          const stored = sessionStorage.getItem(`stocxi:kg:${symbol}`);
+          if (stored) {
+            setHtml(stored);
+            setLoading(false);
+            return;
+          }
+        } catch {
+          // sessionStorage unavailable — fall through to network fetch
+        }
+      }
+
       setLoading(true);
       setFailed(false);
       setHtml("");
@@ -31,6 +45,7 @@ export default function KnowledgeGraphClient({
         const body = await response.text();
         if (cancelled) return;
         setHtml(body);
+        try { sessionStorage.setItem(`stocxi:kg:${symbol}`, body); } catch { /* quota */ }
         setLoading(false);
       } catch {
         if (cancelled) return;
@@ -43,7 +58,7 @@ export default function KnowledgeGraphClient({
     return () => {
       cancelled = true;
     };
-  }, [graphUrl, reloadKey]);
+  }, [graphUrl, reloadKey, symbol]);
 
   return (
     <div className="relative h-full min-h-[calc(100vh-72px)] bg-black">

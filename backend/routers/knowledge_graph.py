@@ -71,7 +71,7 @@ async def get_generated_knowledge_graph(symbol: str):
         graph_path = await _resolve_graph_path(symbol)
         return HTMLResponse(
             content=graph_path.read_text(encoding="utf-8"),
-            headers={"Cache-Control": "no-store"},
+            headers={"Cache-Control": "public, max-age=82800"},
         )
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc))

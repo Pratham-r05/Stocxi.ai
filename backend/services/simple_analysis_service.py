@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import Literal
 
 from services.symbol_service import canonicalize_symbol
+from cache.redis_client import cache_get, cache_set
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +39,7 @@ _DEFAULT_DATA_DIR = "/tmp/data" if os.getenv("VERCEL") else str(_ROOT / "data")
 _DATA_DIR   = Path(os.getenv("DATA_DIR", _DEFAULT_DATA_DIR))
 _OUT_DIR    = Path(os.getenv("ANALYSIS_OUT_DIR", "/tmp/analysis-out"))
 DATA_FRESHNESS_H = 12   # re-fetch if data file is older than this
+_SIMPLE_ANALYSIS_TTL = 82_800  # 23h — matches file-cache window
 
 
 UserLevel = Literal["beginner", "medium", "pro"]
@@ -167,6 +169,42 @@ def _compact(value: object, limit: int = 600) -> str:
     return text[:limit] + ("..." if len(text) > limit else "")
 
 
+# Metrics where a HIGHER value is negative (more debt/interest = bearish)
+_BEARISH_HIGH: frozenset[str] = frozenset(
+    {"borrowings", "interest", "debt", "expenses", "tax"}
+)
+
+
+def _trend_signal(label: str, values: list) -> str:
+    """Return bullish/bearish/neutral from last-two-period trend.
+
+    Args:
+        label:  metric name (used to check _BEARISH_HIGH)
+        values: list of period values (oldest first)
+
+    Returns:
+        "bullish" | "bearish" | "neutral"
+    """
+    if len(values) < 2:
+        return "neutral"
+    prev, latest = values[-2], values[-1]
+    if prev is None or latest is None:
+        return "neutral"
+    try:
+        prev_f, latest_f = float(prev), float(latest)
+    except (TypeError, ValueError):
+        return "neutral"
+    if prev_f == 0:
+        return "neutral"
+    pct = (latest_f - prev_f) / abs(prev_f)
+    if abs(pct) < 0.02:
+        return "neutral"
+    is_bearish_high = any(k in label.lower() for k in _BEARISH_HIGH)
+    if pct > 0:
+        return "bearish" if is_bearish_high else "bullish"
+    return "bullish" if is_bearish_high else "bearish"
+
+
 def _expand_table_nodes(lines: list[str], table: dict, section_context: str) -> None:
     """Expand a screener {headers, rows} table into one node per metric row.
 
@@ -194,7 +232,8 @@ def _expand_table_nodes(lines: list[str], table: dict, section_context: str) -> 
         ]
         val_str = " | ".join(parts) if parts else "N/A"
         key = label.replace(" ", "_").replace("/", "_").replace("-", "_")
-        lines.append(_node(key, val_str, "neutral",
+        sentiment = _trend_signal(label, values)
+        lines.append(_node(key, val_str, sentiment,
                            f"{key} is part of {section_context} and relates to financial performance."))
 
 
@@ -421,6 +460,13 @@ async def generate(
         raise ValueError(f"Invalid horizon: {horizon}")
     level: UserLevel = RISK_TO_LEVEL.get(risk, "medium")
 
+    # ── Redis fast path (survives Vercel cold starts) ─────────────────────────
+    rkey = f"analysis:simple:v1:{symbol}:{horizon}:{level}"
+    redis_hit = await cache_get(rkey)
+    if redis_hit:
+        logger.info("simple_analysis: Redis HIT for %s/%s/%s", symbol, horizon, level)
+        return redis_hit
+
     today   = str(date.today())
     data_p  = _data_path(symbol)
     ana_p, kg_p = _out_paths(symbol, horizon, level, today)
@@ -461,9 +507,11 @@ async def generate(
     ana_p.write_text(analysis_html, encoding="utf-8")
     logger.info("simple_analysis: analysis HTML saved → %s", ana_p)
 
-    return {
+    result = {
         "symbol": symbol, "horizon": horizon, "level": level,
         "generated_on": today, "cached": False,
         "analysis_html": analysis_html,
         "kg_html":       kg_html,
     }
+    await cache_set(rkey, result, _SIMPLE_ANALYSIS_TTL)
+    return result

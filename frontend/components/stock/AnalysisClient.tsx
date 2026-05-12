@@ -110,14 +110,41 @@ export default function AnalysisClient({ symbol, horizon, risk, sector: _sector 
   const graphParams = new URLSearchParams({ horizon, risk });
   if (sectorLabel) graphParams.set("sector", sectorLabel);
 
+  const ANALYSIS_KEY = `stocxi:analysis:${symbol}:${horizon}:${risk}`;
+  const KG_KEY = `stocxi:kg:${symbol}`;
+
   const run = useCallback(async () => {
+    // Check sessionStorage first — instant navigation on back/forward
+    try {
+      const cached = sessionStorage.getItem(ANALYSIS_KEY);
+      if (cached) {
+        setResult(JSON.parse(cached) as SimpleAnalysisResult);
+        setFailed(false);
+        setLoading(false);
+        return;
+      }
+    } catch {
+      // sessionStorage may be unavailable (private browsing) — continue to fetch
+    }
+
     setLoading(true);
     setFailed(false);
     setSectionsBuilt(false);
     const r = await fetchSimpleAnalysis(symbol, horizon, risk);
-    if (r) { setResult(r); setFailed(false); }
-    else   { setFailed(true); }
+    if (r) {
+      setResult(r);
+      setFailed(false);
+      try {
+        sessionStorage.setItem(ANALYSIS_KEY, JSON.stringify(r));
+        sessionStorage.setItem(KG_KEY, r.kg_html);
+      } catch {
+        // Storage quota exceeded — non-fatal
+      }
+    } else {
+      setFailed(true);
+    }
     setLoading(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [symbol, horizon, risk]);
 
   useEffect(() => {
