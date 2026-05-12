@@ -21,3 +21,14 @@ frontend/node_modules/
 .claude/worktrees/
 graphify-out/*debug*.html
 graphify-out/test_vis.html
+
+# Instruction / documentation .md files — not for GitHub
+CLAUDE.md
+AGENTS.md
+docs/architecture/
+docs/progress/
+docs/archive/
+docs/superpowers/
+docs/output/
+backend/docs/
+graphify-out/GRAPH_REPORT.md
