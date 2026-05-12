@@ -169,6 +169,16 @@ export interface FinancialTable {
   headers?: string[];
   rows: { label: string; values: (number | string | null)[] }[];
 }
+
+export interface FinancialReport {
+  quarterly_results: FinancialTable | null;
+  annual_results:    FinancialTable | null;
+  balance_sheet:     FinancialTable | null;
+  cash_flow:         FinancialTable | null;
+  shareholding:      FinancialTable | null;
+  source_url:        string | null;
+}
+
 export interface Financials {
   symbol: string;
   quarterly_results: FinancialTable | null;
@@ -177,6 +187,8 @@ export interface Financials {
   cash_flow: FinancialTable | null;
   shareholding: FinancialTable | null;
   mf_holdings: FinancialTable | null;
+  consolidated?: FinancialReport | null;
+  standalone?: FinancialReport | null;
 }
 
 // News

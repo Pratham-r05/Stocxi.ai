@@ -9,10 +9,40 @@
 
 | Field | Value |
 |---|---|
-| Current Phase | KG Rebuild — .md parser done, data verified correct, next: build HTML knowledge graph |
+| Current Phase | Performance & UX improvements — stock page caching, search pre-warm, technical indicators redesign |
 | Started | 2026-04-26 |
-| Last Updated | 2026-05-01 |
+| Last Updated | 2026-05-12 |
 
+
+---
+
+## Session Log — 2026-05-12 (Performance & UX Improvements)
+
+### What Was Done
+1. **Fixed stock page load time** — `frontend/lib/api.ts`: changed `fetchStockOverview` from `{ cache: "no-store" }` to `{ next: { revalidate: 300 } }`. The stock page is a Next.js server component, so this enables ISR caching at the edge (5 min TTL, matching backend Redis TTL_OVERVIEW). Previously every navigation to `/stock/SYMBOL` did a fresh cold fetch regardless of Redis state.
+
+2. **Pre-warmed NSE symbol list on startup** — `backend/main.py`: added `asyncio.create_task(_load_nse_symbols())` in the lifespan startup block. On cold backend start, `_load_nse_symbols()` fetches ~2000 NSE symbols via nsepython, which previously blocked the first search request for 3–8 s. Now the list is in-process memory before any user types in the search box.
+
+3. **Improved Technical Indicators readability** — `frontend/components/stock/TechnicalsSection.tsx`:
+   - Added `QuickScanTable` component above the 10 cards: a compact table showing every indicator's name, live value, and signal (with colored dot) — gives users the full picture in one view.
+   - Removed the redundant `description` paragraph from each card (same content was already in the "Learn" tooltip).
+   - Cards are now shorter and easier to scan; "What this means now" + Rule box remain.
+
+4. **Fixed landing page chips to be always-random** — `frontend/components/home/TrendingChips.tsx`:
+   - Changed initial state from `STOCK_POOL.slice(0, 8)` (fixed first-8) to `[]`, eliminating the SSR→random hydration flash.
+   - Expanded `STOCK_POOL` from 28 → 63 stocks for much more variety.
+   - Chips now appear instantly after mount as a random selection; rotate every 60 s.
+
+### Files Touched
+- `frontend/lib/api.ts` — `fetchStockOverview` cache option changed
+- `backend/main.py` — pre-warm import + `asyncio.create_task` in lifespan
+- `frontend/components/stock/TechnicalsSection.tsx` — QuickScanTable added, description field removed
+- `frontend/components/home/TrendingChips.tsx` — initial state fix, pool expanded
+
+### Known Issues / Next Steps
+- `fetchAnnouncements` and `fetchSimpleAnalysis` still use `{ cache: "no-store" }` — correct because those are called client-side from "use client" components where Next.js ISR cache does not apply.
+- Knowledge graph HTML builder (from 2026-05-01 session) still pending — next big task.
+- NSE symbol names in search suggestions still show symbol string for both `symbol` and `name` fields (no company name). Would improve UX if name was resolved from a mapping file.
 
 ---
 
@@ -1153,3 +1183,49 @@ and a graph visualization link.
 - `simple_analysis_service.py` depends on `fetch_phase1_data.py` existing at repo root (runs as subprocess); first-time analysis takes 2–4 min
 - KG button links to `/stock/{symbol}/knowledge` (React Three.js KG) — separate from the HTML KG built by `build_knowledge_graph.py`
 - Announcement summary cache is 2 hours (shared with the main announcements cache key)
+
+---
+
+## Session — 2026-05-12
+
+**What was built:**
+1. **AI Analysis page — Table of Contents (TOC)**: Added a sticky horizontal TOC nav strip that appears once the markdown report is rendered. Shows 7 fixed section buttons (About, Fundamentals, Technical, Announcements, News, Financials, AI Opinion). Clicking any button smooth-scrolls to that section. Active section is highlighted in indigo using `IntersectionObserver`.
+
+2. **Section anchor IDs**: After `marked.js` renders the report HTML, a DOM post-processing pass adds `id` attributes to every H2 heading (slugified from the heading text) so TOC buttons can scroll to the correct section reliably.
+
+3. **Table overflow fix**: Each `<table>` in the rendered report is now wrapped in a `<div class="overflow-x-auto rounded-lg my-6">` div injected via the same DOM post-processing pass. Removed `[&_table]:block [&_table]:overflow-x-auto` from the Tailwind article classNames — the wrapper div handles responsive horizontal scrolling instead. Fixes broken column widths on wide tables.
+
+4. **Backend NA row cleaner**: Added `_clean_table_na()` post-processor in `gemini_analysis.py` (called at the end of `standardize_report_markdown()`). Walks the markdown line-by-line, collects each table block, removes data rows where all non-label cells are "N/A", "NA", "—", dashes, "Not available", or "Unavailable". Also auto-inserts a separator row if Gemini forgot to include one. Whole table is dropped if no data rows survive cleaning.
+
+**Files touched:**
+- `backend/analysis/gemini_analysis.py` — added `_NA_CELL`, `_process_table_block()`, `_clean_table_na()`; `standardize_report_markdown()` now calls `_clean_table_na()` before returning
+- `frontend/components/stock/AnalysisClient.tsx` — added `slugify()`, `TOC_SECTIONS` constant, `sectionsBuilt`/`activeSection` state, `mountedRef`, DOM post-processing in marked.js effect, `IntersectionObserver` effect, sticky TOC nav render
+
+**Open Issues:**
+- TOC `top-14` sticky offset assumes a 56px top navbar; if the global nav height changes this needs adjusting
+- `IntersectionObserver` rootMargin (`-20% 0px -70% 0px`) works well for normal reading speed; very short sections (e.g. Announcements with few items) may not trigger the highlight reliably
+
+---
+
+## Session — 2026-05-12 (Bug Fix: Announcement PDFs + Analysis Back Button)
+
+**What was fixed:**
+
+1. **Announcement PDF links not opening** — two root causes identified and fixed:
+   - **BSE `AttachHis` → `AttachLive`**: `_normalize_bse_attachment()` was constructing BSE PDF URLs with the `AttachHis` base path. Recent BSE filings live under `AttachLive`; `AttachHis` returns 404 (or redirects to BSE homepage). Fixed by changing the base path to `AttachLive`.
+   - **NSE archive bot-blocking**: NSE archive URLs (`nsearchives.nseindia.com`) require active NSE session cookies. A browser without a prior `nseindia.com` visit gets redirected to the NSE homepage. Fixed by adding a backend proxy endpoint `GET /api/v1/stock/announcement-pdf?url=<encoded>` that fetches server-side using the live `NseIndiaApi` session (which already holds the required cookies). For BSE, the proxy sets the correct `Referer` header. Returns `application/pdf` bytes inline; returns 404 if the response is not a valid PDF.
+   - **Route ordering**: The proxy route `/announcement-pdf` is defined **before** `/{symbol}` in `stock.py` so FastAPI does not capture it as a stock symbol lookup.
+   - **Frontend**: `AnnouncementRow` now constructs PDF links as `announcementPdfProxyUrl(pdfUrl)` (routes through proxy). `filing_url` links remain direct (they are browsable web pages, no proxy needed).
+
+2. **Analysis page "Back" button landing on home instead of stock page**: `StockNavbar` has `backHref` defaulting to `"/"`. The analysis page (`/stock/[symbol]/analysis`) was not passing this prop, so back always went to home. Fixed by passing `backHref={/stock/${upper}}` in `analysis/page.tsx`.
+
+**Files touched:**
+- `backend/fetchers/bse_client.py` — `_normalize_bse_attachment()`: `AttachHis` → `AttachLive`
+- `backend/routers/stock.py` — added `_PDF_PROXY_ALLOWED`, `proxy_announcement_pdf()` route (before `/{symbol}`); added `Response` to fastapi.responses import
+- `frontend/lib/api.ts` — exported `announcementPdfProxyUrl()` helper
+- `frontend/components/stock/AnnouncementsSection.tsx` — `AnnouncementRow` uses `announcementPdfProxyUrl` for pdf_url links
+- `frontend/app/stock/[symbol]/analysis/page.tsx` — passes `backHref={/stock/${upper}}` to `StockNavbar`
+
+**Open Issues:**
+- NSE proxy relies on `nse._session.cookies` (private attribute of NseIndiaApi). If the library changes internals, cookie forwarding silently falls back to no-cookie fetch (graceful degradation — NSE PDFs may not open but nothing crashes).
+- BSE `AttachLive` is correct for recent filings; very old archived filings would still need `AttachHis`. Since the announcements endpoint only fetches last 120 days, this is not a practical concern.

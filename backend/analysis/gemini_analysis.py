@@ -407,7 +407,58 @@ def standardize_report_markdown(md_text: str) -> str:
             rebuilt.append(body)
         else:
             rebuilt.append("Data unavailable in the supplied nodes.")
-    return "\n".join(rebuilt).strip()
+    return _clean_table_na("\n".join(rebuilt).strip())
+
+
+# ── Table NA cleaner ──────────────────────────────────────────────────────────
+
+_NA_CELL = re.compile(r"^\s*(N/?A|n/?a|—|-+|Not\s+available|Unavailable|None)\s*$")
+
+
+def _process_table_block(rows: list[str]) -> list[str]:
+    """Ensure separator row exists and remove data rows where all value cells are NA."""
+    if not rows:
+        return rows
+    header = rows[0]
+    if len(rows) >= 2 and re.match(r"^\|[\s\-:|]+\|", rows[1].strip()):
+        separator = rows[1]
+        data_rows = rows[2:]
+    else:
+        num_cols = max(header.count("|") - 1, 1)
+        separator = "|" + " --- |" * num_cols
+        data_rows = rows[1:]
+
+    cleaned: list[str] = []
+    for row in data_rows:
+        parts = row.split("|")
+        cells = parts[1:-1] if len(parts) > 2 else parts
+        value_cells = cells[1:] if len(cells) > 1 else cells
+        if value_cells and all(_NA_CELL.match(c) for c in value_cells):
+            continue
+        cleaned.append(row)
+
+    if not cleaned:
+        return []
+    return [header, separator] + cleaned
+
+
+def _clean_table_na(md_text: str) -> str:
+    """Walk markdown line by line, collect table blocks, and strip all-NA rows."""
+    lines = md_text.splitlines()
+    out: list[str] = []
+    buf: list[str] = []
+
+    for line in lines:
+        if line.strip().startswith("|"):
+            buf.append(line)
+        else:
+            if buf:
+                out.extend(_process_table_block(buf))
+                buf = []
+            out.append(line)
+    if buf:
+        out.extend(_process_table_block(buf))
+    return "\n".join(out)
 
 
 # ── Main analysis function ────────────────────────────────────────────────────

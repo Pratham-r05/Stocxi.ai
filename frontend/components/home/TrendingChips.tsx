@@ -5,39 +5,22 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 const STOCK_POOL = [
-  "RELIANCE",
-  "TCS",
-  "INFY",
-  "HDFCBANK",
-  "WIPRO",
-  "ITC",
-  "ADANIPOWER",
-  "PAYTM",
-  "SBIN",
-  "ICICIBANK",
-  "LT",
-  "MARUTI",
-  "BHARTIARTL",
-  "HINDUNILVR",
-  "BAJFINANCE",
-  "TMPV",
-  "SUNPHARMA",
-  "AXISBANK",
-  "M&M",
-  "NTPC",
-  "POWERGRID",
-  "ULTRACEMCO",
-  "TITAN",
-  "ASIANPAINT",
-  "COALINDIA",
-  "ONGC",
-  "HCLTECH",
-  "TECHM",
+  "RELIANCE", "TCS", "INFY", "HDFCBANK", "WIPRO",
+  "ITC", "ADANIPOWER", "PAYTM", "SBIN", "ICICIBANK",
+  "LT", "MARUTI", "BHARTIARTL", "HINDUNILVR", "BAJFINANCE",
+  "SUNPHARMA", "AXISBANK", "M&M", "NTPC", "POWERGRID",
+  "ULTRACEMCO", "TITAN", "ASIANPAINT", "COALINDIA", "ONGC",
+  "HCLTECH", "TECHM", "DRREDDY", "CIPLA", "DIVISLAB",
+  "NESTLEIND", "BRITANNIA", "PIDILITIND", "DABUR", "COLPAL",
+  "APOLLOHOSP", "MAXHEALTH", "FORTIS", "ADANIPORTS", "ADANIENT",
+  "JSWSTEEL", "TATASTEEL", "HINDALCO", "VEDL", "GRASIM",
+  "BPCL", "HEROMOTOCO", "EICHERMOT", "BAJAJFINSV", "INDUSINDBK",
+  "KOTAKBANK", "HDFCLIFE", "SBILIFE", "ICICIlombard", "NAUKRI",
+  "ZOMATO", "DMART", "TATACONSUM", "ATUL", "DEEPAKNTR",
 ];
 
 const VISIBLE_CHIPS = 8;
 const ROTATE_INTERVAL_MS = 60_000;
-const INITIAL_SYMBOLS = STOCK_POOL.slice(0, VISIBLE_CHIPS);
 
 function getRandomSymbols(pool: string[], count: number): string[] {
   const shuffled = [...pool];
@@ -51,7 +34,7 @@ function getRandomSymbols(pool: string[], count: number): string[] {
 export default function TrendingChips() {
   const router = useRouter();
   const [loadingSymbol, setLoadingSymbol] = useState<string | null>(null);
-  const [symbols, setSymbols] = useState<string[]>(INITIAL_SYMBOLS);
+  const [symbols, setSymbols] = useState<string[]>([]);
 
   useEffect(() => {
     setSymbols(getRandomSymbols(STOCK_POOL, VISIBLE_CHIPS));

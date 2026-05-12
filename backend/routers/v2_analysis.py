@@ -48,6 +48,7 @@ _DEFAULT_GRAPH_DIR = (
 )
 _DATA_DIR = Path(os.getenv("DATA_DIR", _DEFAULT_DATA_DIR))
 _GRAPH_DIR = Path(os.getenv("GRAPH_DIR", _DEFAULT_GRAPH_DIR))
+_BUNDLED_GRAPH_DIR = _ROOT / "graphify-out" / "stocks"
 _GRAPH_BUILD_TIMEOUT_S = 90
 
 # Risk param → PDF risk_level string
@@ -112,13 +113,14 @@ def _text_pdf(title: str, lines: list[str], filename_note: str = "") -> bytes:
 
 
 def _latest_graph_path(symbol: str) -> Path | None:
-    symbol_dir = _GRAPH_DIR / symbol.upper()
-    if not symbol_dir.exists():
-        return None
-    html_files = [p for p in symbol_dir.glob("*.html") if p.is_file()]
-    if not html_files:
-        return None
-    return max(html_files, key=lambda p: p.stat().st_mtime)
+    for base_dir in (_GRAPH_DIR, _BUNDLED_GRAPH_DIR):
+        symbol_dir = base_dir / symbol.upper()
+        if not symbol_dir.exists():
+            continue
+        html_files = [p for p in symbol_dir.glob("*.html") if p.is_file()]
+        if html_files:
+            return max(html_files, key=lambda p: p.stat().st_mtime)
+    return None
 
 
 async def _run_graph_builder(symbol: str) -> Path:

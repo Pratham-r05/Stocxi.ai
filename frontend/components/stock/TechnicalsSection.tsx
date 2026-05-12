@@ -1,6 +1,6 @@
 "use client";
 
-// TechnicalsSection — 10 professional indicator cards with category badges and (i) tooltips
+// TechnicalsSection — quick-scan table + 10 indicator cards (no redundant descriptions)
 
 import { motion, type Variants } from "framer-motion";
 import Badge from "@/components/ui/Badge";
@@ -37,21 +37,20 @@ interface TechnicalsSectionProps {
 
 const container: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
+  show: { transition: { staggerChildren: 0.06, delayChildren: 0.04 } },
 };
 const cardAnim: Variants = {
-  hidden: { opacity: 0, y: 14 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.4 } },
+  hidden: { opacity: 0, y: 12 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.35 } },
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
-  "Trend":     "bg-blue-500/15 text-blue-400 border-blue-500/25",
-  "Momentum":  "bg-amber-500/15 text-amber-400 border-amber-500/25",
-  "Volume":    "bg-orange-500/15 text-orange-400 border-orange-500/25",
-  "Structure": "bg-purple-500/15 text-purple-400 border-purple-500/25",
-  "Volatility":"bg-pink-500/15 text-pink-400 border-pink-500/25",
-  "Breadth":   "bg-cyan-500/15 text-cyan-400 border-cyan-500/25",
-  "Pattern":   "bg-zinc-600/40 text-zinc-400 border-zinc-600/40",
+  "Trend":      "bg-blue-500/15 text-blue-400 border-blue-500/25",
+  "Momentum":   "bg-amber-500/15 text-amber-400 border-amber-500/25",
+  "Volume":     "bg-orange-500/15 text-orange-400 border-orange-500/25",
+  "Structure":  "bg-purple-500/15 text-purple-400 border-purple-500/25",
+  "Volatility": "bg-pink-500/15 text-pink-400 border-pink-500/25",
+  "Breadth":    "bg-cyan-500/15 text-cyan-400 border-cyan-500/25",
 };
 
 function CategoryBadge({ category }: { category: string }) {
@@ -65,7 +64,7 @@ function CategoryBadge({ category }: { category: string }) {
 
 function RuleBox({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mt-3 rounded-lg bg-zinc-800/60 border border-zinc-700/50 px-3 py-2">
+    <div className="mt-2.5 rounded-lg bg-zinc-800/60 border border-zinc-700/50 px-3 py-2">
       <p className="text-[11px] text-zinc-400 leading-relaxed">{children}</p>
     </div>
   );
@@ -74,16 +73,30 @@ function RuleBox({ children }: { children: React.ReactNode }) {
 function RSIBar({ rsi }: { rsi: number }) {
   const clamped = Math.min(100, Math.max(0, rsi));
   return (
-    <div className="mt-3 relative h-1.5 rounded-full overflow-hidden flex">
+    <div className="mt-2 relative h-1.5 rounded-full overflow-hidden flex">
       <div className="h-full bg-emerald-500/50" style={{ width: "30%" }} />
-      <div className="h-full bg-zinc-500/30" style={{ width: "40%" }} />
-      <div className="h-full bg-red-500/50"   style={{ width: "30%" }} />
+      <div className="h-full bg-zinc-500/30"   style={{ width: "40%" }} />
+      <div className="h-full bg-red-500/50"    style={{ width: "30%" }} />
       <span
         className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-3 w-3 rounded-full bg-white shadow-md"
         style={{ left: `${clamped}%` }}
       />
     </div>
   );
+}
+
+function signalColor(signal: string | null | undefined): string {
+  const s = (signal ?? "").toLowerCase();
+  if (["bullish", "buy", "strong", "positive"].includes(s)) return "text-emerald-400";
+  if (["bearish", "avoid", "weak", "negative"].includes(s)) return "text-red-400";
+  return "text-zinc-400";
+}
+
+function signalDot(signal: string | null | undefined): string {
+  const s = (signal ?? "").toLowerCase();
+  if (["bullish", "buy", "strong", "positive"].includes(s)) return "bg-emerald-400";
+  if (["bearish", "avoid", "weak", "negative"].includes(s)) return "bg-red-400";
+  return "bg-zinc-500";
 }
 
 function signalSummary(
@@ -99,7 +112,7 @@ function signalSummary(
 }
 
 function explainRsi(rsi: number | null) {
-  if (rsi == null) return "RSI data is not available right now, so momentum cannot be judged from this indicator.";
+  if (rsi == null) return "RSI data is not available right now.";
   if (rsi >= 70) return "Momentum is very hot. The stock can still rise, but fresh entries carry higher pullback risk.";
   if (rsi <= 30) return "Momentum is deeply sold off. This zone often attracts bounce trades, but trend confirmation is important.";
   if (rsi >= 60) return "Momentum is healthy and in favor of buyers, without being in extreme overbought territory.";
@@ -108,15 +121,46 @@ function explainRsi(rsi: number | null) {
 }
 
 function explainAdx(adx: number | null) {
-  if (adx == null) return "ADX data is unavailable, so trend strength cannot be confirmed from this card.";
+  if (adx == null) return "ADX data is unavailable.";
   if (adx >= 25) return "Trend strength is strong. Direction should be taken from other indicators like EMA or MACD.";
   if (adx >= 20) return "Trend strength is building, but not yet decisive.";
   return "Trend is weak or sideways. Breakouts are less reliable in this zone.";
 }
 
 function explainAtr(atr: number | null) {
-  if (atr == null) return "ATR data is unavailable, so daily risk range cannot be estimated from this card.";
-  return `Typical daily movement is around Rs ${atr.toFixed(2)}. Use this as a practical stop-loss distance guide.`;
+  if (atr == null) return "ATR data is unavailable.";
+  return `Typical daily movement is around ₹${atr.toFixed(2)}. Use this as a practical stop-loss distance guide.`;
+}
+
+// ── Quick-scan summary table ────────────────────────────────────────────────────
+interface ScanRow {
+  label: string;
+  value: string;
+  signal: string | null;
+}
+
+function QuickScanTable({ rows }: { rows: ScanRow[] }) {
+  return (
+    <div className="mb-5 rounded-xl border border-zinc-800 bg-zinc-900 overflow-hidden">
+      <div className="px-4 py-2.5 border-b border-zinc-800 flex items-center gap-2">
+        <span className="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">Quick Scan — All Signals</span>
+      </div>
+      <div className="divide-y divide-zinc-800/60">
+        {rows.map((row) => (
+          <div key={row.label} className="flex items-center justify-between px-4 py-2 hover:bg-zinc-800/30 transition-colors">
+            <span className="text-xs text-zinc-300 font-medium w-44 shrink-0">{row.label}</span>
+            <span className="text-xs font-mono text-zinc-400 flex-1 px-2">{row.value}</span>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className={`h-1.5 w-1.5 rounded-full ${signalDot(row.signal)}`} />
+              <span className={`text-xs font-semibold capitalize ${signalColor(row.signal)}`}>
+                {row.signal ?? "N/A"}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default function TechnicalsSection({
@@ -138,7 +182,6 @@ export default function TechnicalsSection({
 
   const fmt = (n: number | null, d = 2) => (n != null ? n.toFixed(d) : "N/A");
 
-  // Volume ratio vs 20-day SMA
   const volRatio =
     currentVolume && volume_sma_20 && volume_sma_20 > 0
       ? (currentVolume / volume_sma_20).toFixed(2)
@@ -149,6 +192,20 @@ export default function TechnicalsSection({
     : parseFloat(volRatio) < 0.7  ? "Bearish"
     : "Neutral";
   const volRatioNum = volRatio != null ? parseFloat(volRatio) : null;
+
+  // ── Quick-scan rows ───────────────────────────────────────────────────────────
+  const scanRows: ScanRow[] = [
+    { label: "Overall Signal",        value: "—",                                      signal: overall_signal },
+    { label: "Moving Averages (EMA)", value: ema_20 != null ? `20: ${fmt(ema_20)} · 50: ${fmt(ema_50)} · 200: ${fmt(ema_200)}` : "N/A", signal: ema_signal },
+    { label: "RSI (14)",              value: rsi != null ? fmt(rsi, 1) : "N/A",         signal: rsi_signal },
+    { label: "MACD",                  value: macd != null ? `${fmt(macd, 3)} / Signal: ${fmt(macd_signal_line, 3)}` : "N/A", signal: macd_signal },
+    { label: "Bollinger Bands",       value: bb_upper != null ? `Upper: ${fmt(bb_upper)} · Lower: ${fmt(bb_lower)}` : "N/A", signal: bb_signal },
+    { label: "ADX (Trend Strength)",  value: adx != null ? fmt(adx, 1) : "N/A",        signal: adx_signal },
+    { label: "ATR (Daily Range)",     value: atr != null ? `₹${fmt(atr)}` : "N/A",     signal: "Neutral" },
+    { label: "Stochastic %K / %D",   value: stoch_k != null ? `%K: ${fmt(stoch_k, 1)} / %D: ${fmt(stoch_d ?? null, 1)}` : "N/A", signal: stoch_signal },
+    { label: "VWAP",                  value: vwap != null ? `₹${fmt(vwap, 2)}` : "N/A", signal: vwap_signal },
+    { label: "Volume vs SMA-20",      value: volRatio != null ? `${volRatio}× avg` : "N/A", signal: volSignal },
+  ];
 
   const indicators = [
     {
@@ -162,7 +219,6 @@ export default function TechnicalsSection({
           20: {fmt(ema_20)} · 50: {fmt(ema_50)} · 200: {fmt(ema_200)}
         </span>
       ) : null,
-      description: "Is the stock above its 20-day, 50-day, and 200-day EMA? The 200 DMA is the single most-watched line on NSE/BSE screens.",
       beginnerSummary: signalSummary(
         ema_signal,
         "Trend structure is healthy: buyers are likely in control across short and long timeframes.",
@@ -183,7 +239,6 @@ export default function TechnicalsSection({
           <RSIBar rsi={rsi} />
         </>
       ) : null,
-      description: "14-period RSI measures momentum. Above 70 = overbought (may reverse). Below 30 = oversold (may bounce).",
       beginnerSummary: explainRsi(rsi),
       rule: "Sweet spot: RSI 40–65 for fresh entries. RSI above 80 = likely near-term reversal risk.",
     },
@@ -205,7 +260,6 @@ export default function TechnicalsSection({
           )}
         </div>
       ),
-      description: "Price moves with high volume are genuine; low-volume breakouts on NSE often fail. Compare today's volume to the 20-day average.",
       beginnerSummary:
         volRatioNum == null
           ? "Volume context is incomplete right now, so treat breakouts with caution."
@@ -219,7 +273,7 @@ export default function TechnicalsSection({
     {
       num: "04",
       category: "Structure",
-      title: "Support & Resistance Levels",
+      title: "Support & Resistance (Bollinger Bands)",
       tooltip: "Bollinger Bands identify dynamic support/resistance. Price near upper band = resistance. Near lower band = support.",
       signal: bb_signal,
       value: bb_upper != null ? (
@@ -227,11 +281,10 @@ export default function TechnicalsSection({
           Upper: {fmt(bb_upper)} · Lower: {fmt(bb_lower)}
         </span>
       ) : null,
-      description: "Bollinger Bands show dynamic support/resistance. Key price levels where the stock has historically reversed or consolidated.",
       beginnerSummary: signalSummary(
         bb_signal,
         "Price behavior is favoring a support-side bounce or steady upward structure inside the band range.",
-        "Price is inside expected band range, which usually means consolidation rather than a strong directional move.",
+        "Price is inside expected band range — consolidation rather than a strong directional move.",
         "Price action is likely under pressure near resistance or showing weak structure."
       ),
       rule: "Never buy right into strong overhead resistance. Buy near support with a tight stop below.",
@@ -250,7 +303,6 @@ export default function TechnicalsSection({
           )}
         </div>
       ) : null,
-      description: "MACD line crossing above the signal line = bullish momentum. Histogram shows momentum strength — shrinking bars = weakening trend.",
       beginnerSummary: signalSummary(
         macd_signal,
         "Momentum is improving and buyers are gaining follow-through.",
@@ -264,11 +316,10 @@ export default function TechnicalsSection({
       category: "Volatility",
       title: "ATR (Average True Range)",
       tooltip: "ATR measures how much a stock moves per day on average. Critical for sizing your position and placing stop-losses — especially for F&O stocks.",
-      signal: atr != null ? (atr > 0 ? "Neutral" : "Neutral") : "Neutral",
+      signal: "Neutral",
       value: atr != null ? (
         <span className="font-mono text-sm text-zinc-200">₹{fmt(atr)}</span>
       ) : null,
-      description: "ATR measures how much a stock moves per day on average. Critical for sizing your position and placing stop-losses — especially for F&O stocks.",
       beginnerSummary: explainAtr(atr),
       rule: "Set stop-loss at 1–1.5× ATR from entry. Don't risk more than 1–2% of capital per trade.",
     },
@@ -281,7 +332,6 @@ export default function TechnicalsSection({
       value: adx != null ? (
         <span className="font-mono text-sm text-zinc-200">{fmt(adx, 1)}</span>
       ) : null,
-      description: "ADX measures the strength of a trend regardless of direction. A rising ADX above 25 confirms the trend is gathering momentum.",
       beginnerSummary: explainAdx(adx),
       rule: "ADX > 25 = trending — trade with the trend. ADX < 20 = range-bound — consider range strategies.",
     },
@@ -299,7 +349,6 @@ export default function TechnicalsSection({
           )}
         </div>
       ) : null,
-      description: "Stochastic compares current closing price to the price range over a lookback period. Popular with swing traders on NSE.",
       beginnerSummary: stoch_k == null
         ? "Stochastic data is unavailable right now."
         : stoch_k >= 80
@@ -318,7 +367,6 @@ export default function TechnicalsSection({
       value: vwap != null ? (
         <span className="font-mono text-sm text-zinc-200">₹{fmt(vwap, 2)}</span>
       ) : null,
-      description: "VWAP combines price and volume data. Institutions benchmark orders against VWAP — sustained price above VWAP signals buying pressure.",
       beginnerSummary: vwap == null
         ? "VWAP data is unavailable. This indicator needs intraday OHLCV data."
         : (vwap_signal ?? "neutral").toLowerCase() === "bullish"
@@ -333,7 +381,6 @@ export default function TechnicalsSection({
       tooltip: "A combined signal using RSI, MACD, and EMA to give one overall technical verdict for this stock.",
       signal: overall_signal,
       value: null,
-      description: "Combines RSI momentum, MACD crossover, and EMA trend alignment to give a consolidated view of the stock's technical health.",
       beginnerSummary: signalSummary(
         overall_signal,
         "Most major technical components are aligned in favor of upside continuation.",
@@ -347,13 +394,21 @@ export default function TechnicalsSection({
   return (
     <section>
       <SectionHeader title="Technical Indicators" />
+
+      {/* Quick-scan table — read all signals in 5 seconds */}
+      <QuickScanTable rows={scanRows} />
+
+      {/* How to read guide */}
       <div className="mb-4 rounded-xl border border-cyan-500/20 bg-cyan-500/5 px-3 py-2.5">
-        <p className="text-[10px] uppercase tracking-wide text-cyan-300/80 font-semibold">Beginner Quick Read</p>
+        <p className="text-[10px] uppercase tracking-wide text-cyan-300/80 font-semibold">How to read</p>
         <p className="mt-1 text-xs text-zinc-300 leading-relaxed">
-          Start with the signal badge, then read the <span className="text-zinc-100 font-medium">What this means now</span> note.
-          Use the <span className="text-zinc-100 font-medium">Learn</span> button to understand each indicator in plain language.
+          Use the table above for a quick overview. Tap any card for detail.
+          Read <span className="text-zinc-100 font-medium">What this means now</span> for a plain-language takeaway,
+          and the <span className="text-zinc-100 font-medium">Rule</span> to know when to act.
+          Hit <span className="text-zinc-100 font-medium">Learn</span> for a full explanation of the indicator.
         </p>
       </div>
+
       <motion.div
         variants={container}
         initial="hidden"
@@ -388,11 +443,7 @@ export default function TechnicalsSection({
             {/* Signal badge */}
             <Badge signal={ind.signal} size="sm" />
 
-            {/* Description */}
-            <p className="mt-2.5 text-[11px] text-zinc-500 leading-relaxed">
-              {ind.description}
-            </p>
-
+            {/* Plain-language takeaway */}
             <div className="mt-2.5 rounded-lg border border-zinc-700/50 bg-zinc-800/45 px-3 py-2">
               <p className="text-[10px] uppercase tracking-wide text-zinc-400">What this means now</p>
               <p className="mt-1 text-xs text-zinc-200 leading-relaxed">{ind.beginnerSummary}</p>

@@ -26,7 +26,7 @@ from urllib.parse import urljoin, urlparse
 import httpx
 from bs4 import BeautifulSoup
 from fastapi import APIRouter, HTTPException, Query
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 
 from cache.redis_client import cache_get, cache_set, TTL_OVERVIEW, TTL_FINANCIALS, TTL_NEWS
 from services.yfinance_service import get_price_and_fundamentals, get_history
@@ -322,6 +322,74 @@ async def _resolve_logo_url(symbol: str, website: str | None) -> str | None:
     return None
 
 
+# ── GET /api/v1/stock/announcement-pdf ───────────────────────────────────────
+_PDF_PROXY_ALLOWED = {"nseindia.com", "bseindia.com"}
+
+
+@router.get("/announcement-pdf")
+async def proxy_announcement_pdf(
+    url: str = Query(..., description="Absolute URL of the announcement PDF"),
+):
+    """
+    Proxy corporate announcement PDFs from NSE/BSE so the browser can open them.
+
+    NSE archive URLs require session cookies that a fresh browser does not have.
+    This endpoint fetches the PDF server-side (using the NseIndiaApi session for
+    NSE, and a plain request with the correct Referer for BSE) and streams the
+    bytes back as application/pdf.
+    """
+    try:
+        domain = urlparse(url).netloc.lower().removeprefix("www.")
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid URL")
+
+    if not any(domain == d or domain.endswith("." + d) for d in _PDF_PROXY_ALLOWED):
+        raise HTTPException(status_code=403, detail="Domain not allowed")
+
+    req_headers: dict[str, str] = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/124.0.0.0 Safari/537.36"
+        ),
+        "Accept": "application/pdf,*/*;q=0.9",
+        "Accept-Language": "en-US,en;q=0.9",
+    }
+    cookies: dict[str, str] = {}
+
+    if "nseindia.com" in domain:
+        req_headers["Referer"] = "https://www.nseindia.com/"
+        # Borrow the active NseIndiaApi session cookies so NSE archive accepts us
+        try:
+            nse = nse_client._get_nse()
+            cookies = {str(k): str(v) for k, v in dict(nse._session.cookies).items()}
+        except Exception:
+            pass
+    else:
+        req_headers["Referer"] = "https://www.bseindia.com/"
+
+    try:
+        async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as client:
+            resp = await client.get(url, headers=req_headers, cookies=cookies)
+        resp.raise_for_status()
+    except httpx.HTTPStatusError as exc:
+        logger.debug("proxy_announcement_pdf: HTTP %s for %s", exc.response.status_code, url)
+        raise HTTPException(status_code=502, detail="Exchange returned an error")
+    except Exception as exc:
+        logger.debug("proxy_announcement_pdf: fetch error for %s — %s", url, exc)
+        raise HTTPException(status_code=502, detail="Failed to fetch PDF")
+
+    content = resp.content
+    if not content[:8].lstrip().startswith(b"%PDF"):
+        raise HTTPException(status_code=404, detail="Response is not a PDF")
+
+    return Response(
+        content=content,
+        media_type="application/pdf",
+        headers={"Content-Disposition": "inline; filename=announcement.pdf"},
+    )
+
+
 # ── GET /api/v1/stock/{symbol} ────────────────────────────────────────────────
 @router.get("/{symbol}")
 async def get_stock_overview(symbol: str):
@@ -577,7 +645,7 @@ async def get_stock_financials(symbol: str):
     requested_symbol = symbol.upper().strip()
     symbol = canonicalize_symbol(requested_symbol)
     # Versioned key to invalidate older cached payloads after schema/parser upgrades.
-    cache_key = f"stock:financials:v3:{requested_symbol}:{symbol}"
+    cache_key = f"stock:financials:v4:{requested_symbol}:{symbol}"
 
     cached = await cache_get(cache_key)
     if cached:
@@ -604,6 +672,8 @@ async def get_stock_financials(symbol: str):
         "cash_flow":         data.get("cash_flow", {}),
         "shareholding":      data.get("shareholding", {}),
         "mf_holdings":       data.get("mf_holdings", {}),
+        "consolidated":      data.get("consolidated_report"),
+        "standalone":        data.get("standalone_report"),
         "mf_holdings_source_status": (
             "available"
             if len((data.get("mf_holdings", {}) or {}).get("rows", [])) > 0

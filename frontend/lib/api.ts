@@ -25,7 +25,7 @@ export async function searchSymbols(query: string): Promise<SearchResult[]> {
 
 export async function fetchStockOverview(symbol: string): Promise<StockOverview | null> {
   try {
-    const res = await fetch(`${BASE}/api/v1/stock/${symbol}`, { cache: "no-store" });
+    const res = await fetch(`${BASE}/api/v1/stock/${symbol}`, { next: { revalidate: 300 } });
     if (!res.ok) return null;
     return res.json() as Promise<StockOverview>;
   } catch {
@@ -103,6 +103,10 @@ export async function fetchFinancials(symbol: string): Promise<Financials | null
 
 export async function fetchNews(symbol: string): Promise<NewsResponse | null> {
   return apiFetch<NewsResponse>(`/api/v1/stock/${symbol}/news?limit=10`);
+}
+
+export function announcementPdfProxyUrl(pdfUrl: string): string {
+  return `${BASE}/api/v1/stock/announcement-pdf?url=${encodeURIComponent(pdfUrl)}`;
 }
 
 export async function fetchAnnouncements(symbol: string): Promise<AnnouncementsResponse | null> {

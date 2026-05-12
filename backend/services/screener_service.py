@@ -432,6 +432,45 @@ def _resolve_screener_slug(symbol: str) -> str:
     return symbol
 
 
+def _parse_soup_financials(soup, url: str | None) -> dict:
+    """
+    Extract the five financial tables from a Screener.in BeautifulSoup object.
+
+    Used to parse both consolidated and standalone pages so callers can return
+    both datasets in a single response.
+
+    Args:
+        soup: BeautifulSoup of the Screener.in company page.
+        url: Source URL — stored as source_url in the result.
+
+    Returns:
+        Dict with keys: quarterly_results, annual_results, balance_sheet,
+                        cash_flow, shareholding, source_url.
+    """
+    def _extract(section_id: str) -> dict:
+        section = soup.find("section", {"id": section_id})
+        if section is None:
+            return {}
+        table = section.find("table")
+        return _parse_table(table)
+
+    def _extract_sh() -> dict:
+        section = soup.find("section", {"id": "shareholding"})
+        if section is None:
+            return {}
+        table = section.find("table")
+        return _parse_table(table)
+
+    return {
+        "quarterly_results": _extract("quarters"),
+        "annual_results":    _extract("profit-loss"),
+        "balance_sheet":     _extract("balance-sheet"),
+        "cash_flow":         _extract("cash-flow"),
+        "shareholding":      _extract_sh(),
+        "source_url":        url,
+    }
+
+
 def _fetch_screener(symbol: str) -> dict:
     """
     Sync fetch — runs in thread pool.
@@ -487,14 +526,23 @@ def _fetch_screener(symbol: str) -> dict:
             f"(most recent period: {best_period})"
         )
 
+    # Pre-parse financial tables for ALL candidates so both consolidated
+    # and standalone reports can be included in the response.
+    _parsed_candidates: dict[str, dict] = {
+        url_c: _parse_soup_financials(soup_c, url_c)
+        for soup_c, url_c, _ in candidates
+    }
+
     if soup is None:
         logger.warning(f"Screener: no data found for {symbol}")
         return {
-            "quarterly_results": {},
-            "balance_sheet": {},
-            "cash_flow": {},
-            "shareholding": {},
-            "source_url": None,
+            "quarterly_results":  {},
+            "balance_sheet":      {},
+            "cash_flow":          {},
+            "shareholding":       {},
+            "source_url":         None,
+            "consolidated_report": None,
+            "standalone_report":   None,
         }
 
     # ── Extract all 4 tables ───────────────────────────────────────────────────
@@ -544,6 +592,13 @@ def _fetch_screener(symbol: str) -> dict:
         "mf_holdings":       _extract_mf_holdings(symbol, soup, used_url),
         "website":           _parse_company_website(soup),
         "source_url":        used_url,
+        # Both consolidated and standalone reports — None if that page wasn't available.
+        "consolidated_report": next(
+            (v for k, v in _parsed_candidates.items() if "consolidated" in k), None
+        ),
+        "standalone_report": next(
+            (v for k, v in _parsed_candidates.items() if "consolidated" not in k), None
+        ),
     }
 
 

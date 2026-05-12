@@ -36,6 +36,7 @@ export default async function AnalysisPage({ params, searchParams }: PageProps) 
         companyName=""
         horizon={horizon}
         risk={risk}
+        backHref={`/stock/${upper}`}
       />
       <main className="max-w-5xl mx-auto px-3 sm:px-6 py-8">
         {/* AnalysisClient fetches client-side so the page loads instantly */}

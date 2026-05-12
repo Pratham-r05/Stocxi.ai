@@ -18,7 +18,8 @@
           "build_knowledge_graph.py",
           "../build_knowledge_graph.py",
           "data/**",
-          "../data/**"
+          "../data/**",
+          "../graphify-out/**"
         ]
       }
     }

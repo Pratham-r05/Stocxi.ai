@@ -3,7 +3,7 @@
 // AnalysisClient — fetches the simple Gemini analysis and renders HTML inline.
 // KG button opens the knowledge graph page for this symbol.
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { Network, RefreshCw, AlertCircle, Loader2, Clock } from "lucide-react";
 import { fetchSimpleAnalysis, type SimpleAnalysisResult } from "@/lib/api";
@@ -21,6 +21,20 @@ const HORIZON_LABEL: Record<string, string> = {
   medium: "Medium Term (3M–1Y)",
   long:   "Long Term (1–5Y)",
 };
+
+function slugify(text: string): string {
+  return "section-" + text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+
+const TOC_SECTIONS = [
+  { id: slugify("About"),                        label: "About" },
+  { id: slugify("Fundamentals"),                 label: "Fundamentals" },
+  { id: slugify("Technical Indicators"),         label: "Technical" },
+  { id: slugify("Announcements"),                label: "Announcements" },
+  { id: slugify("News"),                         label: "News" },
+  { id: slugify("Financial Statements"),         label: "Financials" },
+  { id: slugify("Overall Summary & AI Opinion"), label: "AI Opinion" },
+];
 
 function LoadingState() {
   const steps = [
@@ -83,17 +97,23 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
 }
 
 export default function AnalysisClient({ symbol, horizon, risk, sector: _sector }: Props) {
-  const [result, setResult]   = useState<SimpleAnalysisResult | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [failed,  setFailed]  = useState(false);
+  const [result, setResult]           = useState<SimpleAnalysisResult | null>(null);
+  const [loading, setLoading]         = useState(true);
+  const [failed,  setFailed]          = useState(false);
+  const [sectionsBuilt, setSectionsBuilt] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>("");
+  const mountedRef = useRef(true);
+
+  useEffect(() => { return () => { mountedRef.current = false; }; }, []);
+
   const sectorLabel = _sector.trim();
   const graphParams = new URLSearchParams({ horizon, risk });
   if (sectorLabel) graphParams.set("sector", sectorLabel);
-  const analysisHtml = result?.analysis_html ?? "";
 
   const run = useCallback(async () => {
     setLoading(true);
     setFailed(false);
+    setSectionsBuilt(false);
     const r = await fetchSimpleAnalysis(symbol, horizon, risk);
     if (r) { setResult(r); setFailed(false); }
     else   { setFailed(true); }
@@ -101,46 +121,63 @@ export default function AnalysisClient({ symbol, horizon, risk, sector: _sector 
   }, [symbol, horizon, risk]);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      void run();
-    }, 0);
+    const timer = window.setTimeout(() => { void run(); }, 0);
     return () => window.clearTimeout(timer);
   }, [run]);
 
-  const reportHtml = useMemo(() => {
-    if (!analysisHtml) return "";
-    if (typeof window === "undefined") return analysisHtml;
-    // We cannot rely on the script tag inside dangerouslySetInnerHTML.
-    // Instead we will extract the markdown and render it using a dynamically loaded script.
-    return analysisHtml;
-  }, [analysisHtml]);
-
   useEffect(() => {
     if (!result?.analysis_html) return;
-    
-    // Load marked.js manually since React strips the script tags
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/marked/marked.min.js";
     script.onload = () => {
       // @ts-ignore
-      if (window.marked) {
-        // Extract the markdown payload from the backend's HTML string
-        const match = result.analysis_html.match(/const md = `([\s\S]*?)`;/);
-        if (match && match[1]) {
-          const container = document.getElementById('analysis-content-container');
-          if (container) {
-            // @ts-ignore
-            container.innerHTML = window.marked.parse(match[1]);
-          }
-        }
-      }
+      if (!window.marked) return;
+      const match = result.analysis_html.match(/const md = `([\s\S]*?)`;/);
+      if (!match?.[1]) return;
+      const container = document.getElementById("analysis-content-container");
+      if (!container) return;
+
+      // @ts-ignore
+      container.innerHTML = window.marked.parse(match[1]);
+
+      // Add IDs to H2 headings so TOC anchor links work
+      container.querySelectorAll("h2").forEach((h2) => {
+        h2.id = slugify((h2 as HTMLElement).textContent ?? "");
+      });
+
+      // Wrap each table in a horizontal-scroll div (fixes overflow on mobile)
+      container.querySelectorAll("table").forEach((table) => {
+        const wrap = document.createElement("div");
+        wrap.className = "overflow-x-auto rounded-lg my-6";
+        table.parentNode?.insertBefore(wrap, table);
+        wrap.appendChild(table);
+        (table as HTMLElement).style.width = "100%";
+        (table as HTMLElement).style.borderCollapse = "collapse";
+        (table as HTMLElement).style.margin = "0";
+      });
+
+      if (mountedRef.current) setSectionsBuilt(true);
     };
     document.head.appendChild(script);
 
     return () => {
-      document.head.removeChild(script);
+      if (document.head.contains(script)) document.head.removeChild(script);
     };
   }, [result?.analysis_html]);
+
+  // Highlight active TOC section as user scrolls
+  useEffect(() => {
+    if (!sectionsBuilt) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) setActiveSection(e.target.id); });
+      },
+      { rootMargin: "-20% 0px -70% 0px", threshold: 0 },
+    );
+    document.querySelectorAll("#analysis-content-container h2").forEach((h) => obs.observe(h));
+    return () => obs.disconnect();
+  }, [sectionsBuilt]);
 
   return (
     <div className="space-y-6">
@@ -182,25 +219,48 @@ export default function AnalysisClient({ symbol, horizon, risk, sector: _sector 
       ) : failed || !result ? (
         <ErrorState onRetry={run} />
       ) : (
-        <article
-          id="analysis-content-container"
-          className="analysis-report w-full max-w-none text-zinc-300 leading-7
-            [&_a]:text-indigo-300 [&_a]:break-words [&_a:hover]:underline
-            [&_blockquote]:my-6 [&_blockquote]:border-l-2 [&_blockquote]:border-zinc-600 [&_blockquote]:pl-5 [&_blockquote]:text-zinc-400
-            [&_code]:rounded-md [&_code]:border [&_code]:border-zinc-800 [&_code]:bg-zinc-950 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-violet-200
-            [&_h1]:mb-8 [&_h1]:border-b [&_h1]:border-zinc-800 [&_h1]:pb-5 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:leading-tight [&_h1]:text-white
-            [&_h2]:mb-4 [&_h2]:mt-12 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:leading-tight [&_h2]:text-white
-            [&_h3]:mb-3 [&_h3]:mt-8 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-zinc-100
-            [&_h4]:mb-2 [&_h4]:mt-6 [&_h4]:font-semibold [&_h4]:text-zinc-100
-            [&_hr]:my-10 [&_hr]:border-zinc-800
-            [&_li]:my-2 [&_ol]:my-5 [&_ol]:pl-6 [&_p]:mb-5
-            [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:border [&_pre]:border-zinc-800 [&_pre]:bg-zinc-950 [&_pre]:p-4
-            [&_strong]:font-semibold [&_strong]:text-white
-            [&_table]:my-6 [&_table]:block [&_table]:w-full [&_table]:overflow-x-auto [&_table]:border-collapse
-            [&_td]:border [&_td]:border-zinc-800 [&_td]:p-3 [&_td]:text-zinc-300
-            [&_th]:border [&_th]:border-zinc-800 [&_th]:bg-zinc-900 [&_th]:p-3 [&_th]:text-left [&_th]:text-zinc-100
-            [&_ul]:my-5 [&_ul]:pl-6"
-        />
+        <>
+          {sectionsBuilt && (
+            <nav className="sticky top-14 z-30 -mx-4 px-4 py-2.5 bg-zinc-950/90 backdrop-blur-sm border-b border-zinc-800 mb-2">
+              <div className="flex gap-1 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+                {TOC_SECTIONS.map((sec) => (
+                  <button
+                    key={sec.id}
+                    onClick={() =>
+                      document.getElementById(sec.id)?.scrollIntoView({ behavior: "smooth", block: "start" })
+                    }
+                    className={`flex-none px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
+                      activeSection === sec.id
+                        ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
+                        : "text-zinc-400 hover:text-white hover:bg-zinc-800 border border-transparent"
+                    }`}
+                  >
+                    {sec.label}
+                  </button>
+                ))}
+              </div>
+            </nav>
+          )}
+          <article
+            id="analysis-content-container"
+            className="analysis-report w-full max-w-none text-zinc-300 leading-7
+              [&_a]:text-indigo-300 [&_a]:break-words [&_a:hover]:underline
+              [&_blockquote]:my-6 [&_blockquote]:border-l-2 [&_blockquote]:border-zinc-600 [&_blockquote]:pl-5 [&_blockquote]:text-zinc-400
+              [&_code]:rounded-md [&_code]:border [&_code]:border-zinc-800 [&_code]:bg-zinc-950 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-violet-200
+              [&_h1]:mb-8 [&_h1]:border-b [&_h1]:border-zinc-800 [&_h1]:pb-5 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:leading-tight [&_h1]:text-white
+              [&_h2]:mb-4 [&_h2]:mt-12 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:leading-tight [&_h2]:text-white
+              [&_h3]:mb-3 [&_h3]:mt-8 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-zinc-100
+              [&_h4]:mb-2 [&_h4]:mt-6 [&_h4]:font-semibold [&_h4]:text-zinc-100
+              [&_hr]:my-10 [&_hr]:border-zinc-800
+              [&_li]:my-2 [&_ol]:my-5 [&_ol]:pl-6 [&_p]:mb-5
+              [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:border [&_pre]:border-zinc-800 [&_pre]:bg-zinc-950 [&_pre]:p-4
+              [&_strong]:font-semibold [&_strong]:text-white
+              [&_table]:w-full [&_table]:border-collapse
+              [&_td]:border [&_td]:border-zinc-800 [&_td]:p-3 [&_td]:text-zinc-300
+              [&_th]:border [&_th]:border-zinc-800 [&_th]:bg-zinc-900 [&_th]:p-3 [&_th]:text-left [&_th]:text-zinc-100
+              [&_ul]:my-5 [&_ul]:pl-6"
+          />
+        </>
       )}
     </div>
   );

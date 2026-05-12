@@ -21,6 +21,7 @@ for _p in (_REPO_ROOT, _BACKEND_DIR):
 
 from contextlib import asynccontextmanager
 
+import asyncio
 import logging
 
 from fastapi import FastAPI
@@ -29,6 +30,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from routers import stock, analysis, search, v2_analysis, knowledge_graph
 from config import settings
 from cache.redis_client import ping as redis_ping
+from services.search_service import _load_nse_symbols
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +44,9 @@ async def lifespan(app: FastAPI):
     else:
         # Non-fatal: app still serves traffic, just without caching
         logger.warning("Redis unavailable on startup — caching disabled")
+    # Pre-warm NSE symbol list so first search is instant, not a 3-8s cold load
+    logger.info("Pre-warming NSE symbol list…")
+    asyncio.create_task(_load_nse_symbols())
     yield
     # Nothing to close — redis-py manages its own connection pool
 

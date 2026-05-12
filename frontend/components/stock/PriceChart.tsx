@@ -1,8 +1,8 @@
 "use client";
 
-// PriceChart — ComposedChart with price line + volume bars, 5 period tabs with % changes
+// PriceChart — price line + volume bars, period tabs with % changes, drag-to-select range, current price badge
 
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { fetchHistory } from "@/lib/api";
 import type { HistoryPoint } from "@/lib/types";
 import {
@@ -13,10 +13,13 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  ReferenceArea,
+  ReferenceLine,
+  ReferenceDot,
 } from "recharts";
 import { Skeleton } from "@/components/ui/Skeleton";
 
-type Period = "1d" | "1w" | "1mo" | "6mo" | "1y";
+type Period = "1d" | "1w" | "1mo" | "6mo" | "1y" | "5y";
 
 interface ChartPoint {
   date: string;    // formatted label for X-axis
@@ -27,10 +30,11 @@ interface ChartPoint {
 
 const PERIODS: { id: Period; label: string }[] = [
   { id: "1d",  label: "1D"  },
-  { id: "1w",  label: "1W"  },
+  { id: "1w",  label: "5D"  },
   { id: "1mo", label: "1M"  },
   { id: "6mo", label: "6M"  },
   { id: "1y",  label: "1Y"  },
+  { id: "5y",  label: "Max" },
 ];
 
 function calcChange(points: HistoryPoint[]): number | null {
@@ -56,7 +60,6 @@ function formatDate(dateStr: string, period: Period): string {
   try {
     const d = parseChartDate(dateStr);
     if (period === "1d") {
-      // True intraday data → show time; daily fallback → show short date
       if (isIntradayDate(dateStr)) {
         return d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false });
       }
@@ -165,6 +168,47 @@ function CustomTooltip({
   );
 }
 
+// SVG badge rendered via ReferenceLine label at the right Y-axis edge
+function CurrentPriceBadge({
+  viewBox,
+  color,
+  price,
+}: {
+  viewBox?: { x: number; y: number; width: number; height: number };
+  color: string;
+  price: number;
+}) {
+  if (!viewBox) return null;
+  const { x, y, width } = viewBox;
+  const label = price.toFixed(2);
+  const bw = Math.max(44, label.length * 6.5 + 10);
+  const bh = 16;
+  return (
+    <g>
+      <rect
+        x={x + width + 2}
+        y={y - bh / 2}
+        width={bw}
+        height={bh}
+        rx={3}
+        fill={color}
+        fillOpacity={0.9}
+      />
+      <text
+        x={x + width + 2 + bw / 2}
+        y={y + 5}
+        textAnchor="middle"
+        fill="white"
+        fontSize={9}
+        fontWeight={700}
+        fontFamily="monospace"
+      >
+        {label}
+      </text>
+    </g>
+  );
+}
+
 export default function PriceChart({
   symbol,
   defaultChangePercent,
@@ -180,6 +224,19 @@ export default function PriceChart({
   const chartBodyRef = useRef<HTMLDivElement | null>(null);
   const [canRenderChart, setCanRenderChart] = useState(false);
   const [chartSize, setChartSize] = useState({ width: 0, height: 0 });
+
+  // Drag-to-select range state
+  const [selStart, setSelStart] = useState<string | null>(null);
+  const [selEnd,   setSelEnd]   = useState<string | null>(null);
+  const [isSelecting, setIsSelecting] = useState(false);
+  // Ref avoids stale closure in onMouseMove during rapid drag
+  const isSelectingRef = useRef(false);
+
+  const handlePeriodChange = useCallback((p: Period) => {
+    setPeriod(p);
+    setSelStart(null);
+    setSelEnd(null);
+  }, []);
 
   useEffect(() => {
     const el = chartBodyRef.current;
@@ -209,7 +266,7 @@ export default function PriceChart({
 
       let gotAnyResponse = false;
 
-      // Fetch selected default period first so the first render has matching data.
+      // Fetch 1D first so initial render has data immediately
       const primaryPeriod: Period = "1d";
       try {
         const primaryData = await fetchHistory(symbol, primaryPeriod);
@@ -223,7 +280,7 @@ export default function PriceChart({
       } catch { /**/ }
 
       // Fetch remaining periods in parallel
-      const rest: Period[] = ["1w", "1mo", "6mo", "1y"];
+      const rest: Period[] = ["1w", "1mo", "6mo", "1y", "5y"];
       const results = await Promise.allSettled(
         rest.map((p) => fetchHistory(symbol, p))
       );
@@ -242,7 +299,7 @@ export default function PriceChart({
         }
       });
 
-      const missingLongPeriods = (["6mo", "1y"] as const).filter((p) => !updates[p]);
+      const missingLongPeriods = (["6mo", "1y", "5y"] as const).filter((p) => !updates[p]);
       for (const longPeriod of missingLongPeriods) {
         try {
           const retryData = await fetchHistory(symbol, longPeriod);
@@ -282,10 +339,11 @@ export default function PriceChart({
 
   const thinned = useMemo(() => {
     const maxPoints =
-      period === "1d" ? 800 :
-      period === "1w" ? 400 :
+      period === "1d"  ? 800 :
+      period === "1w"  ? 400 :
       period === "1mo" ? 280 :
-      period === "1y" ? 500 :
+      period === "1y"  ? 500 :
+      period === "5y"  ? 600 :
       260;
     if (currentData.length <= maxPoints) return currentData;
     const step = Math.ceil(currentData.length / maxPoints);
@@ -300,12 +358,43 @@ export default function PriceChart({
   })).filter((p) => Number.isFinite(p.close));
 
   const hasVolume = chartData.some((p) => p.volume > 0);
+  const lastPrice = chartData[chartData.length - 1]?.close ?? null;
+
+  // Derive selection price-change info once selection is finalized
+  const selInfo = useMemo(() => {
+    if (!selStart || !selEnd) return null;
+    const idxS = chartData.findIndex((p) => p.rawDate === selStart);
+    const idxE = chartData.findIndex((p) => p.rawDate === selEnd);
+    if (idxS < 0 || idxE < 0 || idxS === idxE) return null;
+    const earlier = idxS < idxE ? chartData[idxS] : chartData[idxE];
+    const later   = idxS < idxE ? chartData[idxE] : chartData[idxS];
+    const priceChange = later.close - earlier.close;
+    const pctChange   = (priceChange / earlier.close) * 100;
+    return {
+      priceChange,
+      pctChange,
+      startLabel: formatTooltipDate(earlier.rawDate, period),
+      endLabel:   formatTooltipDate(later.rawDate, period),
+    };
+  }, [selStart, selEnd, chartData, period]);
+
+  const selStartPoint = useMemo(
+    () => chartData.find((p) => p.rawDate === selStart) ?? null,
+    [selStart, chartData]
+  );
+  const selEndPoint = useMemo(
+    () => chartData.find((p) => p.rawDate === selEnd) ?? null,
+    [selEnd, chartData]
+  );
 
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-3 sm:p-5 flex flex-col overflow-hidden
-      [&_*]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-surface]:outline-none">
+    <div
+      className="rounded-2xl border border-zinc-800 bg-zinc-900 p-3 sm:p-5 flex flex-col overflow-hidden
+        [&_*]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-surface]:outline-none"
+      style={{ userSelect: "none" }}
+    >
       {/* Period tabs */}
-      <div className="flex items-center gap-2 mb-5 flex-wrap">
+      <div className="flex items-center gap-2 mb-3 flex-wrap">
         {PERIODS.map((p) => {
           const pData   = dataMap[p.id];
           const pChange = p.id === "1d" && !dataMap["1d"]
@@ -318,7 +407,7 @@ export default function PriceChart({
           return (
             <button
               key={p.id}
-              onClick={() => setPeriod(p.id)}
+              onClick={() => handlePeriodChange(p.id)}
               className={`
                 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold
                 transition-all duration-150
@@ -343,6 +432,34 @@ export default function PriceChart({
         })}
       </div>
 
+      {/* Selection info bar — shown after drag is released */}
+      {selInfo && !isSelecting && (
+        <div
+          className={`flex items-center gap-2 mb-2 px-3 py-2 rounded-lg text-xs border
+            ${selInfo.priceChange >= 0
+              ? "bg-emerald-500/10 border-emerald-500/25 text-emerald-400"
+              : "bg-red-500/10 border-red-500/25 text-red-400"
+            }`}
+        >
+          <span className="font-mono font-bold text-sm">
+            {selInfo.priceChange >= 0 ? "+" : ""}
+            {selInfo.priceChange.toFixed(2)}{" "}
+            ({selInfo.pctChange >= 0 ? "+" : ""}{selInfo.pctChange.toFixed(2)}%)
+            {selInfo.priceChange >= 0 ? " ↑" : " ↓"}
+          </span>
+          <span className="text-zinc-600">|</span>
+          <span className="text-zinc-400 truncate">
+            {selInfo.startLabel} – {selInfo.endLabel}
+          </span>
+          <button
+            onClick={() => { setSelStart(null); setSelEnd(null); }}
+            className="ml-auto text-zinc-600 hover:text-zinc-300 transition-colors text-base leading-none"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       {/* Chart body */}
       <div ref={chartBodyRef} className="h-[clamp(270px,48vw,390px)] sm:h-[350px] lg:h-[390px] min-h-[270px]">
       {loading ? (
@@ -364,7 +481,40 @@ export default function PriceChart({
       ) : !canRenderChart ? (
         <Skeleton className="h-full w-full rounded-xl" />
       ) : (
-        <ComposedChart width={chartSize.width} height={chartSize.height} data={chartData} margin={{ top: 8, right: 2, left: 0, bottom: 6 }}>
+        <ComposedChart
+          width={chartSize.width}
+          height={chartSize.height}
+          data={chartData}
+          margin={{ top: 8, right: 2, left: 0, bottom: 6 }}
+          onMouseDown={(e) => {
+            const label = (e as { activeLabel?: string })?.activeLabel;
+            if (label) {
+              setSelStart(label);
+              setSelEnd(label);
+              setIsSelecting(true);
+              isSelectingRef.current = true;
+            }
+          }}
+          onMouseMove={(e) => {
+            if (!isSelectingRef.current) return;
+            const label = (e as { activeLabel?: string })?.activeLabel;
+            if (label) setSelEnd(label);
+          }}
+          onMouseUp={() => {
+            setIsSelecting(false);
+            isSelectingRef.current = false;
+          }}
+          onMouseLeave={() => {
+            if (isSelectingRef.current) {
+              setIsSelecting(false);
+              isSelectingRef.current = false;
+            }
+          }}
+          onDoubleClick={() => {
+            setSelStart(null);
+            setSelEnd(null);
+          }}
+        >
             <defs>
               <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%"   stopColor={strokeColor} stopOpacity={0.12} />
@@ -398,7 +548,7 @@ export default function PriceChart({
               tick={{ fill: "#52525b", fontSize: 10, dx: -2 }}
               axisLine={{ stroke: "#27272a", strokeOpacity: 0.7 }}
               tickLine={false}
-              width={42}
+              width={56}
               tickMargin={2}
               tickFormatter={formatPriceTick}
               tickCount={6}
@@ -407,8 +557,48 @@ export default function PriceChart({
 
             <Tooltip
               content={<CustomTooltip period={period} />}
-              cursor={{ stroke: "#3f3f46", strokeWidth: 1, strokeDasharray: "4 3" }}
+              cursor={
+                isSelecting
+                  ? { stroke: "transparent" }
+                  : { stroke: "#3f3f46", strokeWidth: 1, strokeDasharray: "4 3" }
+              }
             />
+
+            {/* Drag-to-select overlay */}
+            {selStart && selEnd && selStart !== selEnd && (
+              <ReferenceArea
+                yAxisId="price"
+                x1={selStart}
+                x2={selEnd}
+                fill={strokeColor}
+                fillOpacity={0.12}
+                stroke={strokeColor}
+                strokeOpacity={0.3}
+              />
+            )}
+
+            {/* Current price dashed line + badge */}
+            {lastPrice != null && (
+              <ReferenceLine
+                yAxisId="price"
+                y={lastPrice}
+                stroke={strokeColor}
+                strokeDasharray="3 2"
+                strokeOpacity={0.45}
+                label={{
+                  content: (props: unknown) => {
+                    const lp = props as { viewBox?: { x: number; y: number; width: number; height: number } };
+                    return (
+                      <CurrentPriceBadge
+                        viewBox={lp.viewBox}
+                        color={strokeColor}
+                        price={lastPrice}
+                      />
+                    );
+                  },
+                }}
+              />
+            )}
 
             {hasVolume && (
               <Bar
@@ -416,7 +606,7 @@ export default function PriceChart({
                 dataKey="volume"
                 fill="#2563eb"
                 fillOpacity={0.35}
-                barSize={period === "1d" ? 1 : period === "1w" ? 3 : period === "1mo" ? 4 : period === "1y" ? 2 : 3}
+                barSize={period === "1d" ? 1 : period === "1w" ? 3 : period === "1mo" ? 4 : 2}
                 radius={[1, 1, 0, 0]}
                 isAnimationActive={false}
               />
@@ -429,9 +619,31 @@ export default function PriceChart({
               stroke={strokeColor}
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 4, fill: strokeColor, strokeWidth: 0 }}
+              activeDot={isSelecting ? false : { r: 4, fill: strokeColor, strokeWidth: 0 }}
               isAnimationActive={false}
             />
+
+            {/* Selection endpoint dots — shown only after drag is released */}
+            {!isSelecting && selStart && selStartPoint && (
+              <ReferenceDot
+                yAxisId="price"
+                x={selStart}
+                y={selStartPoint.close}
+                r={4}
+                fill="white"
+                strokeWidth={0}
+              />
+            )}
+            {!isSelecting && selEnd && selEndPoint && selEnd !== selStart && (
+              <ReferenceDot
+                yAxisId="price"
+                x={selEnd}
+                y={selEndPoint.close}
+                r={4}
+                fill="white"
+                strokeWidth={0}
+              />
+            )}
           </ComposedChart>
       )}
       </div>

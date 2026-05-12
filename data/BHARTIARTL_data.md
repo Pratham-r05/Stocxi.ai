@@ -1,6 +1,6 @@
 ---
 symbol: BHARTIARTL
-captured_at: 2026-05-04
+captured_at: 2026-05-12
 horizon: short
 sector: telecom - cellular & fixed line services
 author: stocxi_phase1
@@ -9,231 +9,231 @@ contributor: stocxi
 
 # BHARTIARTL — Stock Analysis Data
 
-BHARTIARTL is a stock in the **telecom - cellular & fixed line services** sector analyzed for a **short-term** investment horizon as of 2026-05-04. This document captures fundamentals, technical indicators, financial statements, announcements, news, and market context. Each section relates to others: Fundamentals drive valuation; Technical Indicators reflect price momentum; Balance Sheet underpins Debt_To_Equity and ROE; Profit Loss feeds EPS and PAT_TTM; Cash Flow validates Net Profit quality; Shareholding signals institutional confidence; Announcements and News capture recent events.
+BHARTIARTL is a stock in the **telecom - cellular & fixed line services** sector analyzed for a **short-term** investment horizon as of 2026-05-12. This document captures fundamentals, technical indicators, financial statements, announcements, news, and market context. Each section relates to others: Fundamentals drive valuation; Technical Indicators reflect price momentum; Balance Sheet underpins Debt_To_Equity and ROE; Profit Loss feeds EPS and PAT_TTM; Cash Flow validates Net Profit quality; Shareholding signals institutional confidence; Announcements and News capture recent events.
 
 ## Fundamentals
 
 BHARTIARTL fundamentals provide valuation, profitability, and financial health metrics. PE_Ratio relates to EPS and Revenue_Growth_YoY. ROE depends on Net_Profit_Annual and Reserves. Operating_Cash_Flow relates to Free_Cashflow and Debt_To_Equity. Market_Cap relates to PE_Ratio and EPS.
 
 ### PE_Ratio
-**Value:** PE: 35.5 | **Sentiment:** ➡️ neutral
-**Analysis:** The PE ratio of 35.5 indicates a moderate valuation, which is neutral for short-term momentum without a clear sector benchmark for comparison. PE_Ratio relates to EPS, Revenue_Growth_YoY, Market_Cap.
+**Value:** PE: 33.2 | **Sentiment:** ➡️ neutral
+**Analysis:**  PE_Ratio relates to EPS, Revenue_Growth_YoY, Market_Cap.
 
 ### PB_Ratio
-**Value:** PB: 9.76 | **Sentiment:** 📉 bearish
-**Analysis:** A high PB ratio of 9.76 suggests the stock is trading at a significant premium to its book value, a negative sign of potential overvaluation. PB_Ratio relates to Total_Assets, Reserves, Net_Worth.
+**Value:** PB: 9.16 | **Sentiment:** 📉 bearish
+**Analysis:**  PB_Ratio relates to Total_Assets, Reserves, Net_Worth.
 
 ### ROE
 **Value:** ROE: 31.5% | **Sentiment:** 📈 bullish
-**Analysis:** The excellent ROE of 31.5% shows highly efficient profit generation from equity, a strong positive for investor confidence and potential momentum. ROE relates to Net_Profit_Annual, Reserves, EPS.
+**Analysis:**  ROE relates to Net_Profit_Annual, Reserves, EPS.
 
 ### EPS
 **Value:** EPS: ₹53.30 | **Sentiment:** ➡️ neutral
-**Analysis:** The EPS of ₹53.30 provides a baseline for profitability, but its impact is neutral for the short term without a clear growth trend. EPS relates to PE_Ratio, Net_Profit_Annual, Revenue_Annual.
+**Analysis:**  EPS relates to PE_Ratio, Net_Profit_Annual, Revenue_Annual.
 
 ### OPM
-**Value:** OPM: 56.6% | **Sentiment:** 📈 bullish
-**Analysis:** An exceptionally high operating margin of 56.6% signals strong pricing power and operational efficiency, a clear positive for fundamental strength. OPM relates to Revenue_Annual, EBITDA_TTM, EBITDA_Margin.
+**Value:** OPM: 58.9% | **Sentiment:** 📈 bullish
+**Analysis:**  OPM relates to Revenue_Annual, EBITDA_TTM, EBITDA_Margin.
 
 ### NPM
-**Value:** NPM: 18.2% | **Sentiment:** 📈 bullish
-**Analysis:** A healthy net profit margin of 18.2% demonstrates effective conversion of revenue to profit, which is a positive indicator for financial health. NPM relates to Revenue_Annual, Net_Profit_Annual, OPM.
+**Value:** NPM: 13.3% | **Sentiment:** 📈 bullish
+**Analysis:**  NPM relates to Revenue_Annual, Net_Profit_Annual, OPM.
 
 ### Market_Cap
-**Value:** Mkt Cap: ₹1,149,222 Cr | **Sentiment:** ➡️ neutral
-**Analysis:** The large market cap of ₹1,149,222 Cr signifies a stable, blue-chip company, which is a neutral factor for short-term price momentum. Market_Cap relates to PE_Ratio, EPS, Revenue_Annual.
+**Value:** Mkt Cap: ₹1,079,241 Cr | **Sentiment:** ➡️ neutral
+**Analysis:**  Market_Cap relates to PE_Ratio, EPS, Revenue_Annual.
 
 ### Revenue_Quarterly
 **Value:** Q Revenue: ₹53,982 Cr (latest period: Dec 2025) | **Sentiment:** ➡️ neutral
-**Analysis:** Quarterly revenue of ₹53,982 Cr is a baseline figure; its short-term impact is neutral without a clear accelerating or decelerating YoY/QoQ trend.
+**Analysis:** 
 
 ### Net_Profit_Quarterly
 **Value:** Q PAT: ₹8,503 Cr (latest period: Dec 2025) | **Sentiment:** 📉 bearish
-**Analysis:** The quarterly net profit of ₹8,503 Cr is a negative signal, likely indicating a miss on expectations or a decelerating YoY/QoQ growth trend.
+**Analysis:** 
 
 ### Revenue_Annual
 **Value:** FY Revenue: ₹203,466 Cr (TTM) | **Sentiment:** 📈 bullish
-**Analysis:** The strong annual TTM revenue of ₹203,466 Cr indicates a positive and accelerating growth trend, supporting bullish short-term sentiment. Revenue_Annual relates to Revenue_Growth_YoY, Net_Profit_Annual, OPM.
+**Analysis:**  Revenue_Annual relates to Revenue_Growth_YoY, Net_Profit_Annual, OPM.
 
 ### Net_Profit_Annual
 **Value:** FY PAT: ₹37,051 Cr (TTM) | **Sentiment:** 📉 bearish
-**Analysis:** The annual TTM net profit of ₹37,051 Cr is a negative signal, suggesting a decelerating YoY trend or margin pressure despite revenue growth. Net_Profit_Annual relates to EPS, ROE, PAT_TTM.
+**Analysis:**  Net_Profit_Annual relates to EPS, ROE, PAT_TTM.
 
 ### Debt_To_Equity
 **Value:** D/E: 1.77 | **Sentiment:** ➡️ neutral
-**Analysis:** The Debt-to-Equity ratio of 1.77 indicates significant leverage, which is a neutral signal without sector benchmarks to assess if it's excessive. Debt_To_Equity relates to Borrowings, Interest_Coverage, Operating_Cash_Flow.
+**Analysis:**  Debt_To_Equity relates to Borrowings, Interest_Coverage, Operating_Cash_Flow.
 
 ### Operating_Cash_Flow
 **Value:** OCF: ₹98,332 Cr (Mar 2025) | **Sentiment:** 📈 bullish
-**Analysis:** Strong operating cash flow highlights robust core business health, a positive signal for short-term liquidity and operational strength. Operating_Cash_Flow relates to Free_Cashflow, Net_Profit_Annual.
+**Analysis:**  Operating_Cash_Flow relates to Free_Cashflow, Net_Profit_Annual.
 
 ### Revenue_TTM
 **Value:** Rev TTM: ₹203,466 Cr (+25.1% YoY) | **Sentiment:** 📈 bullish
-**Analysis:** Accelerating YoY revenue growth demonstrates strong market demand and execution, a positive momentum indicator for short-term investors.
+**Analysis:** 
 
 ### Revenue_Growth_YoY
 **Value:** Revenue YoY: +25.1% | **Sentiment:** 📈 bullish
-**Analysis:** Robust 25.1% YoY revenue growth signals strong business momentum and market share gains, a key positive for short-term price action.
+**Analysis:** 
 
 ### PAT_TTM
 **Value:** PAT TTM: ₹37,052 Cr (+36.9% YoY) | **Sentiment:** 📈 bullish
-**Analysis:** Profit after tax shows accelerating YoY growth, outpacing revenue and indicating margin expansion, a strong positive for near-term sentiment.
+**Analysis:** 
 
 ### PAT_Growth_YoY
 **Value:** PAT YoY: +36.9% | **Sentiment:** 📈 bullish
-**Analysis:** Exceptional 36.9% YoY profit growth highlights strong operational leverage and profitability, a very positive signal for short-term investors.
+**Analysis:** 
 
 ### EBITDA_TTM
 **Value:** EBITDA TTM: ₹115,192 Cr (+34.7% YoY) | **Sentiment:** 📈 bullish
-**Analysis:** Strong accelerating YoY EBITDA growth reflects improving core operational profitability, a positive driver for short-term valuation multiples.
+**Analysis:** 
 
 ### EBITDA_Margin
 **Value:** EBITDA Margin: 57.0% | **Sentiment:** 📈 bullish
-**Analysis:** An exceptional 57% EBITDA margin, likely leading its sector, shows superior pricing power and cost control, a strong positive for profitability.
+**Analysis:** 
 
 ### Free_Cashflow
 **Value:** FCF: ₹58,990 Cr (Mar 2025) | **Sentiment:** 📈 bullish
-**Analysis:** A very high free cash flow indicates strong financial flexibility and shareholder return potential, a clear positive for investor confidence. Free_Cashflow relates to Operating_Cash_Flow, Debt_To_Equity, Borrowings.
+**Analysis:**  Free_Cashflow relates to Operating_Cash_Flow, Debt_To_Equity, Borrowings.
 
 ### Interest_Coverage
 **Value:** Interest Coverage: 5.4x | **Sentiment:** 📈 bullish
-**Analysis:** A healthy interest coverage ratio of 5.4x, well above safe levels, indicates low financial risk from debt, a positive for stability. Interest_Coverage relates to Debt_To_Equity, Borrowings.
+**Analysis:**  Interest_Coverage relates to Debt_To_Equity, Borrowings.
 
 ### Total_Assets
 **Value:** Total Assets: ₹523,863 Cr (Sep 2025) | **Sentiment:** ➡️ neutral
-**Analysis:** The company's large asset base is a foundational metric, but its size alone is neutral for short-term momentum without efficiency context. Total_Assets relates to Total_Liabilities, Reserves, Borrowings.
+**Analysis:**  Total_Assets relates to Total_Liabilities, Reserves, Borrowings.
 
 ### Total_Liabilities
 **Value:** Total Assets: ₹523,863 Cr (Sep 2025) (incl. ₹117,796 Cr equity) | **Sentiment:** ➡️ neutral
-**Analysis:** The balance sheet structure shows significant liabilities relative to equity, which is neutral but warrants monitoring for debt servicing trends. Total_Liabilities relates to Total_Assets, Borrowings, Debt_To_Equity.
+**Analysis:**  Total_Liabilities relates to Total_Assets, Borrowings, Debt_To_Equity.
 
 ### Reserves
 **Value:** Reserves: ₹114,896 Cr (Sep 2025) | **Sentiment:** ➡️ neutral
-**Analysis:** Substantial reserves reflect a history of retained profits, a sign of long-term health but a neutral factor for short-term price momentum. Reserves relates to PB_Ratio, Net_Profit_Annual, Total_Assets.
+**Analysis:**  Reserves relates to PB_Ratio, Net_Profit_Annual, Total_Assets.
 
 ### Borrowings
 **Value:** Borrowings: ₹208,010 Cr (Sep 2025) (YoY: -2.6%) | **Sentiment:** 📈 bullish
-**Analysis:** The company's successful debt reduction (YoY -2.6%) is a positive sign, lowering financial risk and improving its balance sheet strength. Borrowings relates to Debt_To_Equity, Interest_Coverage, Free_Cashflow.
+**Analysis:**  Borrowings relates to Debt_To_Equity, Interest_Coverage, Free_Cashflow.
 
 ### Expenses_Quarterly
 **Value:** Q Expenses: ₹23,199 Cr (Dec 2025) | **Sentiment:** ➡️ neutral
-**Analysis:** Quarterly expenses represent the operational costs for the period, a neutral data point without revenue context to assess efficiency.
+**Analysis:** 
 
 ### Operating_Profit_Quarterly
 **Value:** Q OP: ₹30,783 Cr (Dec 2025) | **Sentiment:** ➡️ neutral
-**Analysis:** The quarterly operating profit shows core business earnings, but its trend is needed to determine if momentum is positive or negative for the short term.
+**Analysis:** 
 
 ### OPM_Quarterly
 **Value:** Q OPM: 57.0% | **Sentiment:** 📈 bullish
-**Analysis:** An exceptionally high quarterly operating margin of 57.0% indicates strong pricing power and cost efficiency, a clear positive for profitability.
+**Analysis:** 
 
 ### Expenses_Annual
 **Value:** FY Expenses: ₹88,274 Cr (TTM) | **Sentiment:** ➡️ neutral
-**Analysis:** Annual TTM expenses provide a baseline for operational costs, but this is a neutral indicator without revenue growth and margin trends.
+**Analysis:** 
 
 ### Operating_Profit_Annual
 **Value:** FY OP: ₹115,192 Cr (TTM) | **Sentiment:** 📈 bullish
-**Analysis:** A robust annual operating profit (TTM) confirms strong underlying business performance and profitability, which is a positive fundamental signal.
+**Analysis:** 
 
 ### OPM_Annual
 **Value:** FY OPM: 57.0% | **Sentiment:** 📈 bullish
-**Analysis:** The high annual operating margin of 57.0% (TTM) mirrors the quarterly strength, signaling sustained high profitability and a strong competitive moat.
+**Analysis:** 
 
 ### EPS_Annual
 **Value:** FY EPS: ₹53.30 (TTM) | **Sentiment:** 📉 bearish
-**Analysis:** The annual EPS is considered negative, likely indicating a decelerating YoY trend or falling short of market expectations, which can hurt short-term sentiment.
+**Analysis:** 
 
 ### Cash_From_Investing
 **Value:** CFI: ₹-60,198 Cr (Mar 2025) | **Sentiment:** ➡️ neutral
-**Analysis:** The negative cash from investing indicates significant capital expenditure for future growth, a neutral signal for short-term traders.
+**Analysis:** 
 
 ### Cash_From_Financing
 **Value:** CFF: ₹-36,533 Cr (Mar 2025) | **Sentiment:** ➡️ neutral
-**Analysis:** Negative cash from financing suggests debt repayment or shareholder payouts, a neutral signal reflecting prudent capital allocation rather than new fundraising.
+**Analysis:** 
 
 ### Promoter_Holding
 **Value:** Promoter: 48.9% | **Sentiment:** ➡️ neutral
-**Analysis:** A promoter holding of 48.9% is a substantial stake ensuring skin in the game, but it's a neutral signal as it's neither excessively high nor low.
+**Analysis:** 
 
 ### Public_Retail_Holding
 **Value:** Public/Retail: 51.1% | **Sentiment:** ➡️ neutral
-**Analysis:** A majority public holding of 51.1% ensures high liquidity but is a neutral factor, as it doesn't strongly indicate short-term price direction.
+**Analysis:** 
 
 ## Technical Indicators
 
 Technical indicators for BHARTIARTL capture price momentum, trend strength, and market timing signals. RSI relates to overbought and oversold conditions. MACD relates to trend direction and Signal Line crossovers. SMA_20, SMA_50, and SMA_200 relate to short, medium, and long-term trend support. ADX relates to trend strength. ATR relates to volatility and risk.
 
 ### RSI_14
-**Value:** RSI: 57.9 | **Sentiment:** ➡️ neutral
-**Analysis:** RSI at 57.9 shows balanced momentum, giving the stock room to rise before hitting overbought levels, key for short-term gains.
+**Value:** RSI: 37.0 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### MACD
-**Value:** MACD: 0.53, Signal: -6.69 | **Sentiment:** 📈 bullish
-**Analysis:** The MACD line crossing above its signal line is a bullish signal, suggesting a new uptrend is starting, which is vital for short-term traders. MACD relates to Signal_Line, Trend_Direction, Price_Momentum.
+**Value:** MACD: -11.20, Signal: -6.54 | **Sentiment:** 📉 bearish
+**Analysis:**  MACD relates to Signal_Line, Trend_Direction, Price_Momentum.
 
 ### ADX_14
-**Value:** ADX: 28.6 (Trend) | **Sentiment:** 📈 bullish
-**Analysis:** ADX at 28.6 confirms a strengthening trend, giving short-term traders confidence that the current price move has momentum.
+**Value:** ADX: 25.0 (Weak Trend) | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### ATR_14
-**Value:** ATR: 39.91 (2.1%) | **Sentiment:** ➡️ neutral
-**Analysis:** ATR at 2.1% indicates moderate daily volatility, crucial for a short-term trader to set effective stop-loss and profit targets.
+**Value:** ATR: 42.33 (2.4%) | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
-### Bollinger_Bands
-**Value:** BB: 1782.7 | 1841.2 | 1899.8 | P: 1886.8 | **Sentiment:** ➡️ neutral
-**Analysis:** Price near the upper Bollinger Band confirms short-term strength, with the band at 1899.8 acting as a key resistance level.
+### Bollinger_Lower
+**Value:** BB: 1783.1 | 1839.8 | 1896.6 | P: 1759.8 | **Sentiment:** 📈 bullish
+**Analysis:** 
 
 ### EMA
-**Value:** EMA20: 1848.2 | EMA50: 1875.7 | EMA200: 1927.4 | **Sentiment:** 📈 bullish
-**Analysis:** Price above the 20 & 50-day EMAs confirms short-term bullish momentum, though the 200-day EMA is a major overhead resistance.
+**Value:** EMA20: 1832.0 | EMA50: 1862.5 | EMA200: 1918.3 | **Sentiment:** 📉 bearish
+**Analysis:** 
 
 ### SMA
-**Value:** SMA20: 1841.2 | SMA50: 1868.3 | SMA200: 1964.8 | **Sentiment:** 📉 bearish
-**Analysis:** The 20-day SMA below the 50-day SMA is a bearish setup, warning short-term traders that the recent rally may be temporary.
+**Value:** SMA20: 1839.8 | SMA50: 1845.2 | SMA200: 1960.7 | **Sentiment:** 📉 bearish
+**Analysis:** 
 
 ### Ichimoku
-**Value:** Cloud: 1841.5–1892.7 | Price: 1886.8 | **Sentiment:** ➡️ neutral
-**Analysis:** Price trading inside the Ichimoku cloud indicates trend consolidation, suggesting a lack of clear direction for short-term traders.
+**Value:** Cloud: 1828.7–1889.5 | Price: 1759.8 | **Sentiment:** 📉 bearish
+**Analysis:** 
 
 ### Parabolic_SAR
-**Value:** PSAR: 1809.16, Price: 1886.80 | **Sentiment:** 📈 bullish
-**Analysis:** The Parabolic SAR below the price confirms a bullish trend and provides a dynamic stop-loss level at 1809.16 for risk management.
+**Value:** PSAR: 1897.85, Price: 1759.80 | **Sentiment:** 📉 bearish
+**Analysis:** 
 
 ### Stochastic
-**Value:** Stoch %K: 80.5, %D: 69.9 | **Sentiment:** 📉 bearish
-**Analysis:** Stochastics in the overbought zone (80.5) warns short-term traders that the stock is vulnerable to a pullback or consolidation.
+**Value:** Stoch %K: 2.5, %D: 19.6 | **Sentiment:** 📈 bullish
+**Analysis:** 
 
 ### Williams_R
-**Value:** Williams %R: -19.5 | **Sentiment:** 📉 bearish
-**Analysis:** Williams %R at -19.5 signals an overbought condition, increasing the risk of a short-term price reversal or pause in the uptrend.
+**Value:** Williams %R: -97.5 | **Sentiment:** 📈 bullish
+**Analysis:** 
 
 ### ROC
-**Value:** ROC: 0.85% | **Sentiment:** 📈 bullish
-**Analysis:** A positive Rate of Change (0.85%) confirms upward momentum, but its low value suggests the current rally is not yet explosive.
+**Value:** ROC: -3.78% | **Sentiment:** 📉 bearish
+**Analysis:** 
 
 ### OBV
-**Value:** OBV: -181.1M, Trend: Bullish Confirmation | **Sentiment:** 📈 bullish
-**Analysis:** OBV's bullish trend confirms strong buying pressure, supporting the current price rise and validating short-term upward momentum.
+**Value:** OBV: -189.8M, Trend: Bearish Confirmation | **Sentiment:** 📉 bearish
+**Analysis:** 
 
 ### VWAP
-**Value:** VWAP: 1852.69, Price: 1886.80 | **Sentiment:** 📈 bullish
-**Analysis:** Price trading above VWAP indicates strong intraday buying, suggesting bullish control and potential for continued near-term gains. VWAP relates to Price_Level, Volume, Intraday_Trend.
+**Value:** VWAP: 1834.76, Price: 1759.80 | **Sentiment:** 📉 bearish
+**Analysis:**  VWAP relates to Price_Level, Volume, Intraday_Trend.
 
 ### CMF
-**Value:** CMF: 0.086 | **Sentiment:** ➡️ neutral
-**Analysis:** The slightly positive CMF shows weak buying pressure, offering little confirmation for short-term momentum and flagging a potential risk.
+**Value:** CMF: -0.154 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### MFI
-**Value:** MFI: 45.4 | **Sentiment:** ➡️ neutral
-**Analysis:** MFI in the neutral zone (45.4) indicates balanced money flow, failing to confirm a strong directional bias for a short-term trade.
+**Value:** MFI: 45.6 | **Sentiment:** ➡️ neutral
+**Analysis:** 
 
 ### Volume_SMA20
-**Value:** Vol SMA20: 9329777 | **Sentiment:** ➡️ neutral
-**Analysis:** The 20-day average volume is a baseline; its relevance depends on current volume, which is needed to confirm trade conviction.
+**Value:** Vol SMA20: 9064145 | **Sentiment:** 📈 bullish
+**Analysis:** 
 
 ### 52W_HL_Ratio
-**Value:** 52W: 1747–2174, CMP: 1887 (33%) | **Sentiment:** ➡️ neutral
-**Analysis:** Trading at 33% of its 52-week range shows the stock is not overextended, but offers no clear short-term directional momentum.
+**Value:** 52W: 1747–2174, CMP: 1760 (3%) | **Sentiment:** 📈 bullish
+**Analysis:** 
 
 ## Balance Sheet
 
@@ -541,118 +541,77 @@ Shareholding pattern for BHARTIARTL reveals promoter confidence and institutiona
 
 Recent corporate announcements from BHARTIARTL signal strategic direction and events. Each announcement relates to corporate governance, business expansion, or financial action. Positive announcements conceptually relate to bullish price momentum. Negative announcements conceptually relate to bearish market reaction.
 
-### Announcement 1: Financial Results
+### Announcement 1: Board Meeting Intimation
 **Date:** 2026-05-13 | **Sentiment:** ➡️ neutral
-**Summary:** The board approved Q4 & FY26 results. Market reaction will depend on performance vs. expectations, especially ARPU and subscriber growth.
+**Summary:** Bharti Airtel has scheduled a board meeting for May 13, 2026, to discuss financial results and a potential dividend, a routine procedural filing.
 
-### Announcement 2: Board Meeting Intimation
-**Date:** 2026-02-05 | **Sentiment:** ➡️ neutral
-**Summary:** The company informed of an upcoming board meeting to consider Q3FY26 results. This is a routine filing with no immediate market impact.
+### Announcement 2: Dividend/Other business matters
+**Date:** 2026-05-13 | **Sentiment:** 📈 bullish
+**Summary:** The board has recommended a dividend for shareholders, a positive development pending details on the dividend amount and record date.
 
 ### Announcement 3: Financial Results
-**Date:** 2026-02-05 | **Sentiment:** ➡️ neutral
-**Summary:** The board approved Q3FY26 results. Investor focus will be on ARPU trends, 5G rollout progress, and subscriber additions for future outlook.
+**Date:** 2026-05-13 | **Sentiment:** ➡️ neutral
+**Summary:** The company announced its financial results for the quarter/year ended March 2026. Market reaction will depend on performance vs. expectations.
 
 ### Announcement 4: Board Meeting Intimation
-**Date:** 2025-11-03 | **Sentiment:** ➡️ neutral
-**Summary:** Bharti Airtel has scheduled a board meeting to approve Q2FY26 results. This is a standard procedural update with no price sensitivity.
+**Date:** 2026-02-05 | **Sentiment:** ➡️ neutral
+**Summary:** Airtel informed exchanges of its board meeting on Feb 5, 2026, to approve quarterly financial results. This is a standard procedural update.
 
 ### Announcement 5: Financial Results
-**Date:** 2025-11-03 | **Sentiment:** ➡️ neutral
-**Summary:** The board approved financial results for Q2FY26. The market will scrutinize ARPU, data consumption, and Africa business performance.
+**Date:** 2026-02-05 | **Sentiment:** ➡️ neutral
+**Summary:** The board approved and released Q3 financial results. Stock performance will hinge on these numbers and management's future outlook.
 
 ### Announcement 6: Board Meeting Intimation
-**Date:** 2025-08-05 | **Sentiment:** ➡️ neutral
-**Summary:** The company has intimated a board meeting to consider and approve Q1FY26 financial results. This is a routine compliance filing.
+**Date:** 2025-11-03 | **Sentiment:** ➡️ neutral
+**Summary:** The company scheduled a board meeting for Nov 3, 2025, to consider and approve Q2 financial results, a routine corporate intimation.
 
 ### Announcement 7: Financial Results
+**Date:** 2025-11-03 | **Sentiment:** ➡️ neutral
+**Summary:** Bharti Airtel announced its Q2 financial results. The market will now analyze key metrics like ARPU and subscriber growth against estimates.
+
+### Announcement 8: Board Meeting Intimation
 **Date:** 2025-08-05 | **Sentiment:** ➡️ neutral
-**Summary:** The board approved financial results for Q1FY26. Key monitorables for the market include subscriber growth and capex on the 5G network.
+**Summary:** Airtel will hold a board meeting on Aug 5, 2025, to approve its Q1 financial results. This is a standard procedural announcement.
 
-### Announcement 8: Dividend - Rs 16 Per Share
+### Announcement 9: Financial Results
+**Date:** 2025-08-05 | **Sentiment:** ➡️ neutral
+**Summary:** The company has released its Q1 financial results. Investor sentiment will be shaped by performance on key operational and financial metrics.
+
+### Announcement 10: Dividend - Rs 16 Per Share
 **Date:** 2025-07-18 | **Sentiment:** 📈 bullish
-**Summary:** The company declared a dividend of Rs 16 per share. This is a positive for shareholders, potentially boosting short-term sentiment and yield appeal.
-
-### Announcement 9: Final Dividend - Rs. - 16.0000
-**Date:** 2025-07-18 | **Sentiment:** 📈 bullish
-**Summary:** A final dividend of Rs 16 per share has been declared, confirming shareholder returns and is generally viewed positively by the market.
-
-### Announcement 10: Board Meeting Intimation
-**Date:** 2025-05-13 | **Sentiment:** ➡️ neutral
-**Summary:** A board meeting was announced to consider Q4FY25 results and recommend a final dividend, setting expectations for results and shareholder payouts.
+**Summary:** The company declared a substantial dividend of Rs 16 per share. This is a strong positive for shareholders, indicating robust cash flows.
 
 ## News
 
 Recent news coverage of BHARTIARTL captures market sentiment and external events. News items relate to stock price reaction, sector developments, and investor confidence. Bullish news conceptually relates to positive price momentum and increased buying interest. Bearish news conceptually relates to selling pressure and reduced confidence.
 
-### News 1: Bharti Airtel Ltd is Rated Sell - Markets Mojo
-**Date:** 2026-05-03 | **Source:** Markets Mojo | **Sentiment:** ➡️ neutral
-**Summary:** Markets Mojo has issued a "Sell" rating for Bharti Airtel.
-This is a negative analyst action suggesting potential downside for the stock.
-The specific reasons for the downgrade are not provided in the headline.
-This could influence short-term investor sentiment negatively.
+### News 1: Q4 interim review: Bharti Airtel, BEL, Eternal, M&M, Titan among Motilal Oswal's top Nifty-50 stock ideas — full list inside - MSN
+**Date:** 2026-05-11 | **Source:** MSN | **Sentiment:** ➡️ neutral
+**Summary:** Motilal Oswal has named Bharti Airtel as one of its top Nifty-50 stock ideas in its Q4 interim review. This positive recommendation from a major domestic brokerage signals confidence in the company's outlook ahead of its earnings announcement. The inclusion in this curated list could positively influence investor sentiment and attract buying interest in the stock.
 
-### News 2: Bharti Airtel, ITC, Aurobindo Pharma: How to trade these buzzing stocks - MSN
-**Date:** 2026-05-02 | **Source:** MSN | **Sentiment:** ➡️ neutral
-**Summary:** This article discusses short-term trading strategies for Bharti Airtel, among other stocks.
-It focuses on how to trade the "buzzing" stock, implying recent price action has made it popular among traders.
-It is likely a technical analysis piece with no new fundamental information.
-The impact on fundamental investors is negligible.
+### News 2: Bharti Airtel May Be About to Take Airtel Africa Private - Yahoo Finance
+**Date:** 2026-05-11 | **Source:** Yahoo Finance | **Sentiment:** ➡️ neutral
+**Summary:** There is market speculation that Bharti Airtel may be considering a significant corporate action to take its subsidiary, Airtel Africa, private. This potential M&A event would involve delisting the African arm. Such a move could simplify the group's structure and potentially unlock value for Bharti Airtel shareholders, representing a major strategic shift for the company.
 
-### News 3: ETFs Investing in Bharti Airtel Limited Stocks - TradingView
-**Date:** 2026-05-02 | **Source:** TradingView | **Sentiment:** ➡️ neutral
-**Summary:** An informational piece listing Exchange-Traded Funds (ETFs) that have investments in Bharti Airtel.
-This is not news about the company's operations or performance.
-It simply provides a list for investors interested in indirect exposure to the stock through ETFs.
-No new impact on the stock price is expected from this information.
+### News 3: Bharti Airtel Downgraded to Sell Amid Bearish Technicals and High Debt Concerns - Markets Mojo
+**Date:** 2026-05-11 | **Source:** Markets Mojo | **Sentiment:** 📉 bearish
+**Summary:** Markets Mojo has downgraded Bharti Airtel's stock to a "Sell" rating. The rationale for the downgrade is based on bearish technical indicators observed in the stock's chart patterns. Additionally, the report highlights ongoing concerns about the company's high debt levels. This negative analyst action could lead to increased selling pressure on the stock in the near term.
 
-### News 4: Bharti Airtel, Vedanta, NTPC Green, RBL Bank, NHPC among stocks in focus next week; here's why - MSN
-**Date:** 2026-05-01 | **Source:** MSN | **Sentiment:** 📉 bearish
-**Summary:** Bharti Airtel is listed as a stock to watch for the upcoming week.
-Such articles typically highlight stocks expected to be active due to anticipated news, events like earnings announcements, or recent significant price movements.
-It serves as a heads-up for traders and investors for potential volatility.
-No new information is presented.
+### News 4: Explained - The key factor behind the drop in Bharti Airtel share price on Monday - MSN
+**Date:** 2026-05-11 | **Source:** MSN | **Sentiment:** 📉 bearish
+**Summary:** This article analyzes the specific factors that contributed to the decline in Bharti Airtel's share price during Monday's trading session. It likely points to market-wide sentiment, profit-booking, or sector-specific news as the cause for the short-term price drop. This is a reactive analysis of daily price volatility rather than a fundamental change in the company's outlook.
 
-### News 5: Share price targets: Eternal, Bharti Airtel, SBI among 15 stock picks; HDFC Bank out, Kotak Bank in - MSN
-**Date:** 2026-05-01 | **Source:** MSN | **Sentiment:** 📉 bearish
-**Summary:** Bharti Airtel is included in a list of 15 stock picks with new or reiterated share price targets.
-This indicates positive analyst sentiment.
-While the specific target or analyst is not mentioned, being featured as a pick suggests a favorable outlook on the stock's performance from at least one analyst.
-This is a positive signal for investors.
+### News 5: Vodafone Idea Share Latest News Today | Vodafone Idea Share Price Target | Bharti Airtel ShareLatest (COGaen3Nh1) - Fathom Journal
+**Date:** 2026-05-10 | **Source:** Fathom Journal | **Sentiment:** ➡️ neutral
+**Summary:** This news piece provides a general market update on the telecom sector, mentioning both Vodafone Idea and Bharti Airtel. The content appears to be a broad overview of share price movements and potential targets for key industry players. The information is not specific to a major event at Bharti Airtel and is more of a routine sector-level commentary.
 
-### News 6: Bharti Airtel's Rs 20,000-cr digital lending bet: No effect on cash flow or leverage, says Citi - MSN
-**Date:** 2026-04-30 | **Source:** MSN | **Sentiment:** ➡️ neutral
-**Summary:** Citi has analyzed Bharti Airtel's new digital lending venture, a significant strategic move valued at Rs 20,000 crore.
-The key finding is that this expansion is not expected to negatively impact the company's cash flow or leverage ratios.
-This provides reassurance about the financial prudence of this new long-term growth driver.
+### News 6: Bharti Airtel share price target: Morgan Stanley maintains overweight rating on telecom stock ahead of Q4 results - Check latest target price - MSN
+**Date:** 2026-05-09 | **Source:** MSN | **Sentiment:** ➡️ neutral
+**Summary:** Morgan Stanley has reiterated its "Overweight" rating on Bharti Airtel ahead of the company's upcoming Q4 results. The investment bank also maintained its target price, signaling continued confidence in the stock's potential. This positive endorsement from a prominent global analyst could provide support for the share price leading into the earnings announcement.
 
-### News 7: Stocks to buy or sell: Osho Krishan of Angel One suggests buying Chennai Petroleum Corp, Bharti Airtel shares to buy - Mint
-**Date:** 2026-04-30 | **Source:** Mint | **Sentiment:** ➡️ neutral
-**Summary:** Osho Krishan, an analyst from Angel One, has recommended buying Bharti Airtel shares.
-This is a specific and positive analyst action.
-The recommendation suggests a bullish outlook on the stock's near-term performance.
-It adds to the positive sentiment from other analysts.
-
-### News 8: Stocks to buy: Analyst suggests Bharti Airtel, Power Grid & one other share - Business Standard
-**Date:** 2026-04-30 | **Source:** Business Standard | **Sentiment:** 📈 bullish
-**Summary:** An unnamed analyst has recommended Bharti Airtel as a "stock to buy," alongside Power Grid.
-This is another instance of positive analyst coverage for the stock.
-Such recommendations often influence retail investor sentiment and can contribute to short-term buying pressure.
-This reinforces a bullish consensus.
-
-### News 9: Bharti Airtel advances Wednesday, outperforms market - MarketWatch
-**Date:** 2026-04-29 | **Source:** MarketWatch | **Sentiment:** ➡️ neutral
-**Summary:** The article reports on Bharti Airtel's stock performance on Wednesday.
-The stock price increased and performed better than the overall market index.
-This is a factual summary of past price action.
-It does not contain any new fundamental information or forward-looking statements.
-
-### News 10: Bharti Airtel rallies Tuesday, outperforms market - MarketWatch
-**Date:** 2026-04-28 | **Source:** MarketWatch | **Sentiment:** ➡️ neutral
-**Summary:** This article notes that Bharti Airtel's stock rallied on Tuesday, outperforming the broader market.
-It is a factual recap of a single day's trading activity.
-It reflects positive momentum on that day but is not indicative of future performance or new company developments.
-This is backward-looking information.
+### News 7: Q4 Interim Review: Bharti Airtel, BEL, Eternal, M&M, Titan Among Motilal Oswal's Top Nifty-50 Stock Ideas — Full List Inside - NDTV Profit
+**Date:** 2026-05-08 | **Source:** NDTV Profit | **Sentiment:** 📈 bullish
+**Summary:** In its Q4 interim review, Motilal Oswal identified Bharti Airtel as a top stock idea within the Nifty-50 index. This positive endorsement from a well-regarded brokerage highlights a bullish outlook on the company's performance and prospects. Such a recommendation can boost investor confidence and potentially lead to increased interest in the stock before its results.
 
 ## Market Context
 
@@ -660,5 +619,5 @@ Market context for BHARTIARTL captures macro environment, sector trends, and mar
 
 ### Market_Regime
 **Value:** Bear Market | **Sentiment:** 📉 bearish
-**Summary:** The overall market is in a downtrend, suggesting short-term investors should avoid new long positions due to high sellin…
-**Analysis:** The overall market is in a downtrend, suggesting short-term investors should avoid new long positions due to high selling pressure.
+**Summary:** Bear Market
+**Analysis:** 

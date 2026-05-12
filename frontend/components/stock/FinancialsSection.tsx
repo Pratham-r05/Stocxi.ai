@@ -3,9 +3,9 @@
 // FinancialsSection — tabbed financial tables (Quarterly, Annual, BS, CF, Shareholding)
 // Color codes cells green/red based on comparison with the previous period.
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { fetchFinancials } from "@/lib/api";
-import type { Financials, FinancialTable } from "@/lib/types";
+import type { Financials, FinancialTable, FinancialReport } from "@/lib/types";
 import { Skeleton } from "@/components/ui/Skeleton";
 import SectionHeader from "@/components/ui/SectionHeader";
 import Tabs from "@/components/ui/Tabs";
@@ -184,6 +184,7 @@ export default function FinancialsSection({ symbol }: FinancialsSectionProps) {
   const [failed, setFailed] = useState(false);
   const [activeTab, setActiveTab] = useState("quarterly");
   const [reloadToken, setReloadToken] = useState(0);
+  const [reportType, setReportType] = useState<"consolidated" | "standalone">("consolidated");
 
   useEffect(() => {
     let active = true;
@@ -194,27 +195,72 @@ export default function FinancialsSection({ symbol }: FinancialsSectionProps) {
       if (!active) return;
       setData(result);
       setFailed(result == null);
+      // Default to consolidated if available, otherwise standalone
+      if (result?.consolidated) {
+        setReportType("consolidated");
+      } else if (result?.standalone) {
+        setReportType("standalone");
+      }
       setLoading(false);
     };
     void load();
     return () => { active = false; };
   }, [symbol, reloadToken]);
 
-  const sourceUrl = (data as unknown as { source_url?: string })?.source_url ?? null;
+  const hasBothReports = !!(data?.consolidated && data?.standalone);
+
+  // Active report: use the typed report objects when available,
+  // fall back to flat fields from older cached payloads.
+  const activeReport = useMemo((): FinancialReport | null => {
+    if (!data) return null;
+    const r: FinancialReport | null | undefined =
+      reportType === "consolidated" ? data.consolidated : data.standalone;
+    if (r) return r;
+    // Flat-field fallback (cache miss / pre-v4 payload)
+    return {
+      quarterly_results: data.quarterly_results,
+      annual_results:    data.annual_results,
+      balance_sheet:     data.balance_sheet,
+      cash_flow:         data.cash_flow,
+      shareholding:      data.shareholding,
+      source_url:        (data as unknown as { source_url?: string })?.source_url ?? null,
+    };
+  }, [data, reportType]);
 
   const tableMap: Record<string, FinancialTable | null | undefined> = {
-    quarterly:     data?.quarterly_results,
-    annual:        data?.annual_results,
-    balance_sheet: data?.balance_sheet,
-    cash_flow:     data?.cash_flow,
-    shareholding:  data?.shareholding,
+    quarterly:     activeReport?.quarterly_results,
+    annual:        activeReport?.annual_results,
+    balance_sheet: activeReport?.balance_sheet,
+    cash_flow:     activeReport?.cash_flow,
+    shareholding:  activeReport?.shareholding,
   };
+
+  const sourceUrl = activeReport?.source_url ?? null;
 
   return (
     <section>
       <SectionHeader title="Financials" />
 
       <div className="space-y-3">
+        {/* Consolidated / Standalone toggle — only shown when both are available */}
+        {hasBothReports && (
+          <div className="flex items-center gap-2">
+            {(["consolidated", "standalone"] as const).map((rt) => (
+              <button
+                key={rt}
+                onClick={() => setReportType(rt)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 border
+                  ${reportType === rt
+                    ? "bg-blue-500/15 border-blue-500/30 text-blue-400"
+                    : "border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-700"
+                  }`}
+              >
+                {rt.charAt(0).toUpperCase() + rt.slice(1)}
+              </button>
+            ))}
+          </div>
+        )}
+
         <Tabs tabs={TABS} active={activeTab} onChange={setActiveTab} />
 
         <div className="rounded-xl border border-zinc-800 bg-zinc-900 overflow-hidden">

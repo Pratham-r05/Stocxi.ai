@@ -3,7 +3,7 @@
 // AnnouncementsSection — corporate announcements with Gemini-generated summaries
 
 import { useEffect, useState } from "react";
-import { fetchAnnouncements } from "@/lib/api";
+import { fetchAnnouncements, announcementPdfProxyUrl } from "@/lib/api";
 import type { Announcement } from "@/lib/types";
 import { Skeleton } from "@/components/ui/Skeleton";
 import SectionHeader from "@/components/ui/SectionHeader";
@@ -26,7 +26,8 @@ function AnnouncementRow({ item }: { item: Announcement }) {
   const pdfUrl = item.pdf_url || "";
   const filingUrl = item.filing_url || "";
   const hasPdf = !!pdfUrl;
-  const linkUrl = hasPdf ? pdfUrl : filingUrl;
+  // PDF links go through the backend proxy so NSE/BSE auth/bot-blocking is handled
+  const linkUrl = hasPdf ? announcementPdfProxyUrl(pdfUrl) : filingUrl;
   const linkLabel = hasPdf ? "PDF" : filingUrl ? "Filing" : "";
 
   return (
