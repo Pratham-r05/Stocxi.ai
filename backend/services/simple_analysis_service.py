@@ -174,6 +174,84 @@ _BEARISH_HIGH: frozenset[str] = frozenset(
     {"borrowings", "interest", "debt", "expenses", "tax"}
 )
 
+# (bullish_description, bearish_description) keyed by substring of metric label
+_METRIC_HINTS: dict[str, tuple[str, str]] = {
+    "revenue":          ("growing top-line sales",                   "declining sales, watch demand"),
+    "sales":            ("growing top-line sales",                   "declining sales, watch demand"),
+    "net profit":       ("expanding net profitability",              "margin compression or rising costs"),
+    "profit after tax": ("higher post-tax earnings",                 "post-tax earnings declining"),
+    "profit":           ("improving profitability",                  "shrinking profitability"),
+    "ebitda":           ("improving operating cash earnings",        "EBITDA under pressure"),
+    "operating profit": ("growing operating efficiency",             "operating margin under pressure"),
+    "eps":              ("earnings per share rising",                "earnings per share falling"),
+    "borrowings":       ("debt reduction, positive deleveraging",    "debt load rising, watch leverage"),
+    "debt":             ("debt falling, balance sheet improving",    "debt rising, watch leverage"),
+    "interest":         ("interest burden reducing",                 "higher interest outflow, watch coverage"),
+    "expenses":         ("cost control improving",                   "rising costs, watch margins"),
+    "tax":              ("lower tax outflow",                        "higher tax outflow"),
+    "cash from operat": ("strong operational cash generation",       "operating cash flow weakening"),
+    "cash from invest": ("investing for future growth",              "investment returns declining"),
+    "cash from financ": ("financing inflows rising",                 "financing outflows rising"),
+    "cash":             ("cash position strengthening",              "cash position weakening"),
+    "equity":           ("equity base growing",                      "equity base shrinking"),
+    "reserves":         ("retained earnings accumulating",           "reserves declining"),
+    "assets":           ("asset base expanding",                     "asset base contracting"),
+    "dividends":        ("dividend payout growing",                  "dividend payout shrinking"),
+    "capex":            ("capital investment rising, growth signal", "capex declining"),
+    "depreciation":     ("higher asset utilisation charge",          "lower depreciation"),
+    "receivables":      ("receivables falling, better collection",   "receivables rising, watch collection"),
+    "inventory":        ("inventory reduction, efficient operations","inventory buildup"),
+    "payables":         ("faster payment, creditor confidence",      "payables rising"),
+    "roce":             ("return on capital improving",              "return on capital declining"),
+    "roe":              ("return on equity improving",               "return on equity declining"),
+    "margin":           ("margin expanding",                         "margin contracting"),
+    "promoter":         ("promoter confidence rising",               "promoter stake reducing, watch"),
+    "fii":              ("FII interest increasing",                  "FII selling, watch sentiment"),
+    "dii":              ("DII accumulation rising",                  "DII selling"),
+    "public":           ("public holding rising",                    "public holding falling"),
+    "mutual fund":      ("mutual fund accumulation rising",          "mutual funds reducing stake"),
+}
+
+
+def _node_analysis(label: str, val_str: str, sentiment: str, values: list) -> str:
+    """Return a one-sentence, metric-specific description based on trend and label.
+
+    Args:
+        label:     raw metric label from screener (e.g. "Net Profit")
+        val_str:   formatted recent-period values string
+        sentiment: "bullish" | "bearish" | "neutral"
+        values:    raw numeric values list (oldest first)
+
+    Returns:
+        A sentence describing what this specific metric's trend indicates.
+    """
+    low = label.lower()
+    hint_key = next((k for k in _METRIC_HINTS if k in low), None)
+
+    # Compute pct change for magnitude annotation
+    pct_str = ""
+    if len(values) >= 2:
+        prev, latest = values[-2], values[-1]
+        try:
+            pf, lf = float(prev), float(latest)
+            if pf != 0:
+                pct = (lf - pf) / abs(pf) * 100
+                pct_str = f" ({'+' if pct > 0 else ''}{pct:.1f}% YoY)"
+        except (TypeError, ValueError):
+            pass
+
+    if sentiment == "neutral":
+        base = f"{label} shows no significant YoY change{pct_str}."
+        return base + (f" Stable at {val_str}." if val_str != "N/A" else "")
+
+    if hint_key:
+        bull_txt, bear_txt = _METRIC_HINTS[hint_key]
+        desc = bull_txt if sentiment == "bullish" else bear_txt
+        return f"{label}{pct_str} — {desc}. Recent: {val_str}."
+
+    direction = "rising" if sentiment == "bullish" else "falling"
+    return f"{label} is {direction}{pct_str} — {sentiment} signal. Recent: {val_str}."
+
 
 def _trend_signal(label: str, values: list) -> str:
     """Return bullish/bearish/neutral from last-two-period trend.
@@ -205,7 +283,7 @@ def _trend_signal(label: str, values: list) -> str:
     return "bullish" if is_bearish_high else "bearish"
 
 
-def _expand_table_nodes(lines: list[str], table: dict, section_context: str) -> None:
+def _expand_table_nodes(lines: list[str], table: dict, section_context: str = "") -> None:  # noqa: ARG001
     """Expand a screener {headers, rows} table into one node per metric row.
 
     Each row becomes a ### Metric node with the two most recent period values
@@ -233,8 +311,8 @@ def _expand_table_nodes(lines: list[str], table: dict, section_context: str) -> 
         val_str = " | ".join(parts) if parts else "N/A"
         key = label.replace(" ", "_").replace("/", "_").replace("-", "_")
         sentiment = _trend_signal(label, values)
-        lines.append(_node(key, val_str, sentiment,
-                           f"{key} is part of {section_context} and relates to financial performance."))
+        description = _node_analysis(label, val_str, sentiment, values)
+        lines.append(_node(key, val_str, sentiment, description))
 
 
 def _signal(value: object, bullish_high: bool = True) -> str:
