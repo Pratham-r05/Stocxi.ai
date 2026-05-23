@@ -20,7 +20,7 @@
 
 ## What Is Stocxi?
 
-Stocxi is a full-stack AI stock analysis platform for Indian markets.
+Stocxi is a full-stack AI stock analysis platform for Indian Stock markets.
 It helps retail investors understand NSE/BSE stocks through verified data,
 technical indicators, fundamentals, filings, news, and AI-generated analysis.
 
