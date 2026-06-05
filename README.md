@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <b>Search a stock. Read the data. See the risks. Understand the signal.</b>
+  <b>Search a stock. Read the data. See the risks.Understand the signal.</b>
 </p>
 
 ---
